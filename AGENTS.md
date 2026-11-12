@@ -1,6 +1,7 @@
 # AGENTS.md — CampusSim
 
 File này là **nguồn sự thật** cho mọi agent (Claude, Gemini/Antigravity, Codex).
+Mới vào dự án (người hoặc agent trên máy khác)? Đọc `docs/ONBOARDING.md` trước.
 Đọc file này trước, rồi đọc `docs/HANDOFF.md` để biết đang ở đâu, rồi đọc brief của task được giao trong `docs/tasks/`.
 
 - Brief sản phẩm gốc + các điều chỉnh đã chốt: `docs/BRIEF.md`
