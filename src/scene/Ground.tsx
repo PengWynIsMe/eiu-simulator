@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import { Shape, BufferGeometry, Float32BufferAttribute } from 'three';
+import { useThree, type ThreeEvent } from '@react-three/fiber';
 import { campus } from '../data';
 import type { Road, Vec2 } from '../types';
+import { useReviewStore } from '../store/useReviewStore';
+import { useCampusStore } from '../store/useCampusStore';
+import { getCameraPose } from './cameraUtils';
 
 /** Chuyển [x, z] sang [x, -z] trên mặt phẳng XY để khi xoay -90° quanh X sẽ khớp với hệ tọa độ thế giới. */
 function toShapePoints(pts: Vec2[]): [number, number][] {
@@ -117,6 +121,7 @@ function buildRoadGeometry(roads: Road[], elevation: number, maxRadius = 600): B
 
 export default function Ground() {
   const { layout } = campus;
+  const { camera, controls } = useThree();
 
   // Đa giác ranh giới khuôn viên (màu cỏ bên trong tươi hơn)
   const boundaryShape = useMemo(() => {
@@ -160,8 +165,26 @@ export default function Ground() {
   const rbInner = rbRadius - 4.5;
   const rbOuter = rbRadius + 4.5;
 
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    // Bỏ qua nếu là thao tác kéo xoay camera
+    if (e.delta > 4) return;
+
+    const reviewMode = useReviewStore.getState().reviewMode;
+    if (reviewMode) {
+      e.stopPropagation();
+      const pose = getCameraPose(controls, camera);
+      useReviewStore.getState().setDraft({
+        targetId: null,
+        point: [e.point.x, e.point.y, e.point.z],
+        camera: pose,
+      });
+    } else {
+      useCampusStore.getState().clearSelection();
+    }
+  };
+
   return (
-    <group>
+    <group onClick={handleClick}>
       {/* 1. Đất cỏ lớn xung quanh (~2400m) — y = 0 */}
       <mesh rotation-x={-Math.PI / 2} position-y={0} receiveShadow>
         <planeGeometry args={[2400, 2400]} />

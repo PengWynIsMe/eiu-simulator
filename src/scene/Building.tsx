@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 import { Shape, ExtrudeGeometry, Path, BoxGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { Html } from '@react-three/drei';
+import { useThree, type ThreeEvent } from '@react-three/fiber';
 import type { Building, Vec2 } from '../types';
+import { useCampusStore } from '../store/useCampusStore';
+import { useReviewStore } from '../store/useReviewStore';
+import { getCameraPose } from './cameraUtils';
 import BlockFacade from './kit/BlockFacade';
 import ParkingShed from './zone1/ParkingShed';
 import MainGate from './zone1/MainGate';
@@ -65,9 +70,18 @@ function expandPolygon(pts: [number, number][], distance: number): [number, numb
   return result;
 }
 
+interface BuildingSubProps {
+  building: Building;
+  isHovered?: boolean;
+  isSelected?: boolean;
+}
+
 /** Tòa nhà dựng mức 1 cơ bản: khối đùn phẳng và mái chìa xám sáng */
-function StandardBuildingBlock({ building }: { building: Building }) {
+function StandardBuildingBlock({ building, isHovered, isSelected }: BuildingSubProps) {
   const { kind, height, color, shape: buildingShape } = building;
+
+  const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
+  const emissiveIntensity = isSelected ? 0.35 : isHovered ? 0.2 : 0;
 
   // Trường hợp nhà giữ xe mức 1 (nha-xe-can-tin, nha-xe-2-tang)
   const parkingData = useMemo(() => {
@@ -159,7 +173,14 @@ function StandardBuildingBlock({ building }: { building: Building }) {
       <group>
         {/* Mái tôn nhà xe */}
         <mesh geometry={parkingData.roofGeo} rotation-x={-Math.PI / 2} position-y={3.15} castShadow receiveShadow>
-          <meshStandardMaterial color="#949da6" metalness={0.2} roughness={0.6} flatShading />
+          <meshStandardMaterial
+            color="#949da6"
+            metalness={0.2}
+            roughness={0.6}
+            flatShading
+            emissive={emissiveColor}
+            emissiveIntensity={emissiveIntensity}
+          />
         </mesh>
         {/* Cột đỡ kim loại */}
         {parkingData.pillarsGeo && (
@@ -176,14 +197,26 @@ function StandardBuildingBlock({ building }: { building: Building }) {
       {/* Thân tòa nhà */}
       {bodyGeometry && (
         <mesh geometry={bodyGeometry} rotation-x={-Math.PI / 2} castShadow receiveShadow>
-          <meshStandardMaterial color={color} flatShading roughness={0.8} />
+          <meshStandardMaterial
+            color={color}
+            flatShading
+            roughness={0.8}
+            emissive={emissiveColor}
+            emissiveIntensity={emissiveIntensity}
+          />
         </mesh>
       )}
 
       {/* Mái chìa nhô ra 0.8m màu xám sáng #8d9196 */}
       {roofGeometry && (
         <mesh geometry={roofGeometry} rotation-x={-Math.PI / 2} position-y={height} castShadow receiveShadow>
-          <meshStandardMaterial color="#8d9196" flatShading roughness={0.65} />
+          <meshStandardMaterial
+            color="#8d9196"
+            flatShading
+            roughness={0.65}
+            emissive={emissiveColor}
+            emissiveIntensity={emissiveIntensity * 0.5}
+          />
         </mesh>
       )}
     </group>
@@ -191,24 +224,84 @@ function StandardBuildingBlock({ building }: { building: Building }) {
 }
 
 export default function BuildingView({ building }: { building: Building }) {
-  // 1. Cổng chính khu vực 1 (vòm cung thấp tạm)
+  // Subscribe riêng từng tòa nhà để tránh re-render cả khuôn viên khi chỉ hover 1 tòa
+  const isHovered = useCampusStore((s) => s.hoveredBuildingId === building.id);
+  const isSelected = useCampusStore((s) => s.selectedBuildingId === building.id);
+
+  const { camera, controls } = useThree();
+
+  const handlePointerOver = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    useCampusStore.getState().setHovered(building.id);
+    document.body.style.cursor = 'pointer';
+  };
+
+  const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
+    e.stopPropagation();
+    if (useCampusStore.getState().hoveredBuildingId === building.id) {
+      useCampusStore.getState().setHovered(null);
+      document.body.style.cursor = 'auto';
+    }
+  };
+
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    // Bỏ qua nếu là thao tác kéo xoay camera
+    if (e.delta > 4) return;
+
+    if (useReviewStore.getState().reviewMode) {
+      const pose = getCameraPose(controls, camera);
+      useReviewStore.getState().setDraft({
+        targetId: building.id,
+        point: [e.point.x, e.point.y, e.point.z],
+        camera: pose,
+      });
+    } else {
+      useCampusStore.getState().selectBuilding(building.id);
+    }
+  };
+
+  const labelHeight = Math.max(building.height, building.id === 'cong-chinh' ? 6.5 : 4.0) + 2.5;
+
+  let content = null;
   if (building.id === 'cong-chinh') {
-    return <MainGate />;
-  }
-
-  // 2. Nhà xe sau Block 5 (mái răng cưa dài)
-  if (building.id === 'nha-xe-b5') {
-    return <ParkingShed />;
-  }
-
-  // 3. Các tòa chính khu vực 1 có mức dựng 2 (Block 3, Block 4, Block 5)
-  if (
+    content = <MainGate isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'nha-xe-b5') {
+    content = <ParkingShed isHovered={isHovered} isSelected={isSelected} />;
+  } else if (
     building.detailLevel === 2 &&
     (building.kind === 'academic' || building.kind === 'library' || building.kind === 'admin')
   ) {
-    return <BlockFacade building={building} />;
+    content = <BlockFacade building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else {
+    content = <StandardBuildingBlock building={building} isHovered={isHovered} isSelected={isSelected} />;
   }
 
-  // 4. Các tòa mức 1 còn lại (B6, B8–B11, Căn tin, nha-xe-can-tin, nha-xe-2-tang, trạm điện, ki-ốt...)
-  return <StandardBuildingBlock building={building} />;
+  return (
+    <group
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+      onClick={handleClick}
+    >
+      {content}
+
+      {/* Nhãn tên viết tắt hiển thị khi hover hoặc khi tòa đang được chọn */}
+      {(isHovered || isSelected) && (
+        <Html
+          position={[building.center[0], labelHeight, building.center[1]]}
+          center
+          style={{ pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap' }}
+        >
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/90 text-white text-xs font-semibold shadow-lg border border-slate-700/80 backdrop-blur-sm pointer-events-none select-none transform -translate-y-2">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isSelected ? 'bg-amber-400 ring-2 ring-amber-300/40' : 'bg-blue-400 ring-2 ring-blue-300/40'
+              }`}
+            />
+            <span>{building.shortName}</span>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
 }

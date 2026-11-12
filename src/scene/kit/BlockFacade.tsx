@@ -66,8 +66,17 @@ function expandPolygon(pts: [number, number][], distance: number): [number, numb
   return result;
 }
 
-export default function BlockFacade({ building }: { building: Building }) {
+interface BlockFacadeProps {
+  building: Building;
+  isHovered?: boolean;
+  isSelected?: boolean;
+}
+
+export default function BlockFacade({ building, isHovered, isSelected }: BlockFacadeProps) {
   const { height, floors, color, shape: buildingShape, id } = building;
+
+  const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
+  const emissiveIntensity = isSelected ? 0.35 : isHovered ? 0.2 : 0;
 
   // 1. Thân tường chính của tòa nhà
   const bodyGeometry = useMemo(() => {
@@ -219,7 +228,13 @@ export default function BlockFacade({ building }: { building: Building }) {
     <group>
       {/* Thân tòa nhà */}
       <mesh geometry={bodyGeometry} rotation-x={-Math.PI / 2} castShadow receiveShadow>
-        <meshStandardMaterial color={color} flatShading roughness={0.8} />
+        <meshStandardMaterial
+          color={color}
+          flatShading
+          roughness={0.8}
+          emissive={emissiveColor}
+          emissiveIntensity={emissiveIntensity}
+        />
       </mesh>
 
       {/* Viền chỉ sàn phân tầng sáng màu */}
@@ -245,7 +260,13 @@ export default function BlockFacade({ building }: { building: Building }) {
 
       {/* Mái chìa xám sáng nhô ra 0.8m */}
       <mesh geometry={roofGeometry} rotation-x={-Math.PI / 2} position-y={height} castShadow receiveShadow>
-        <meshStandardMaterial color="#8d9196" flatShading roughness={0.65} />
+        <meshStandardMaterial
+          color="#8d9196"
+          flatShading
+          roughness={0.65}
+          emissive={emissiveColor}
+          emissiveIntensity={emissiveIntensity * 0.5}
+        />
       </mesh>
 
       {/* Mảng pin năng lượng mặt trời trên mái Block 4 */}

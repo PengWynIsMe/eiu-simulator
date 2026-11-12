@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { CameraControls } from '@react-three/drei';
 import { Box3, Vector3 } from 'three';
+import { useReviewStore } from '../store/useReviewStore';
 
 /** Góc nhìn toàn cảnh mặc định: từ phía cổng chính (+X) nhìn vào quảng trường, trên cao ~220 m. */
 export const OVERVIEW_CAMERA = {
@@ -10,6 +11,8 @@ export const OVERVIEW_CAMERA = {
 
 export default function CameraRig() {
   const controlsRef = useRef<CameraControls>(null);
+  const cameraRequest = useReviewStore((s) => s.cameraRequest);
+  const clearCameraRequest = useReviewStore((s) => s.clearCameraRequest);
 
   useEffect(() => {
     const controls = controlsRef.current;
@@ -32,6 +35,19 @@ export default function CameraRig() {
     );
     controls.setBoundary(boundaryBox);
   }, []);
+
+  // Xử lý yêu cầu điều khiển góc nhìn từ hộp thư cameraRequest (UI góp ý)
+  useEffect(() => {
+    if (!cameraRequest) return;
+    const controls = controlsRef.current;
+    if (!controls) return;
+
+    const [px, py, pz] = cameraRequest.position;
+    const [tx, ty, tz] = cameraRequest.target;
+
+    controls.setLookAt(px, py, pz, tx, ty, tz, true);
+    clearCameraRequest();
+  }, [cameraRequest, clearCameraRequest]);
 
   return (
     <CameraControls
