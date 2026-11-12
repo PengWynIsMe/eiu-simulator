@@ -2,6 +2,9 @@ import { useMemo } from 'react';
 import { Shape, ExtrudeGeometry, Path, BoxGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { Building, Vec2 } from '../types';
+import BlockFacade from './kit/BlockFacade';
+import ParkingShed from './zone1/ParkingShed';
+import MainGate from './zone1/MainGate';
 
 /** Chuyển [x, z] sang [x, -z] trên mặt phẳng XY để khi xoay -90° quanh X sẽ khớp với hệ tọa độ thế giới. */
 function toShapePoints(pts: Vec2[]): [number, number][] {
@@ -39,14 +42,12 @@ function expandPolygon(pts: [number, number][], distance: number): [number, numb
     const dy2 = next[1] - curr[1];
     const len2 = Math.hypot(dx2, dy2) || 1;
 
-    // Pháp tuyến ra ngoài của 2 cạnh
     const n1x = isCCW ? dy1 / len1 : -dy1 / len1;
     const n1y = isCCW ? -dx1 / len1 : dx1 / len1;
 
     const n2x = isCCW ? dy2 / len2 : -dy2 / len2;
     const n2y = isCCW ? -dx2 / len2 : dx2 / len2;
 
-    // Vector phân giác
     const bx = n1x + n2x;
     const by = n1y + n2y;
     const bLen = Math.hypot(bx, by);
@@ -64,10 +65,11 @@ function expandPolygon(pts: [number, number][], distance: number): [number, numb
   return result;
 }
 
-export default function BuildingView({ building }: { building: Building }) {
+/** Tòa nhà dựng mức 1 cơ bản: khối đùn phẳng và mái chìa xám sáng */
+function StandardBuildingBlock({ building }: { building: Building }) {
   const { kind, height, color, shape: buildingShape } = building;
 
-  // Trường hợp nhà giữ xe: mái tôn trên cột (không tường), cao ~3 m
+  // Trường hợp nhà giữ xe mức 1 (nha-xe-can-tin, nha-xe-2-tang)
   const parkingData = useMemo(() => {
     if (kind !== 'parking') return null;
 
@@ -75,13 +77,14 @@ export default function BuildingView({ building }: { building: Building }) {
     const pts = toShapePoints(buildingShape.outer);
     pts.forEach(([x, y], i) => (i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y)));
 
-    // Mái tôn phẳng dày 0.15m
+    // Mái tôn phẳng dày 0.15m đặt ở độ cao 3.15m
     const roofGeo = new ExtrudeGeometry(shape, { depth: 0.15, bevelEnabled: false });
 
-    // Dựng các cột đỡ quanh viền chu vi
+    // Dựng các cột đỡ quanh viền chu vi từ nền bãi xe (y = 0.3) lên mái (y = 3.15)
     const pillarGeos: BufferGeometry[] = [];
     const outer = buildingShape.outer;
     const pillarHeight = 2.85;
+    const baseY = 0.3;
 
     for (let i = 0; i < outer.length; i++) {
       const p1 = outer[i];
@@ -99,7 +102,7 @@ export default function BuildingView({ building }: { building: Building }) {
         const pz = p1[1] + dz * t;
 
         const pGeo = new BoxGeometry(0.25, pillarHeight, 0.25);
-        pGeo.translate(px, pillarHeight / 2, pz);
+        pGeo.translate(px, baseY + pillarHeight / 2, pz);
         pillarGeos.push(pGeo);
       }
     }
@@ -110,7 +113,7 @@ export default function BuildingView({ building }: { building: Building }) {
     return { roofGeo, pillarsGeo: mergedPillars };
   }, [kind, buildingShape]);
 
-  // Hình học thân tòa nhà
+  // Hình học thân tòa nhà mức 1
   const bodyGeometry = useMemo(() => {
     if (kind === 'parking') return null;
 
@@ -129,18 +132,18 @@ export default function BuildingView({ building }: { building: Building }) {
     return new ExtrudeGeometry(shape, { depth: bodyHeight, bevelEnabled: false });
   }, [kind, height, buildingShape]);
 
-  // Mái chìa cho các tòa chính (academic, library, admin, canteen)
+  // Mái chìa cho các tòa mức 1: xám sáng ~#8d9196, nhô ra 0.8m
   const roofGeometry = useMemo(() => {
     const hasOverhangRoof = kind === 'academic' || kind === 'library' || kind === 'admin' || kind === 'canteen';
     if (!hasOverhangRoof) return null;
 
     const outerPts = toShapePoints(buildingShape.outer);
-    const expandedOuter = expandPolygon(outerPts, 1.2);
+    const expandedOuter = expandPolygon(outerPts, 0.8);
 
     const shape = new Shape();
     expandedOuter.forEach(([x, y], i) => (i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y)));
 
-    // Giữ nguyên lỗ sân trong để không che sân trời B8–B11
+    // Giữ nguyên lỗ sân trong cho B8–B11
     buildingShape.holes.forEach((hole) => {
       const path = new Path();
       const holePts = toShapePoints(hole);
@@ -155,8 +158,8 @@ export default function BuildingView({ building }: { building: Building }) {
     return (
       <group>
         {/* Mái tôn nhà xe */}
-        <mesh geometry={parkingData.roofGeo} rotation-x={-Math.PI / 2} position-y={2.85} castShadow receiveShadow>
-          <meshStandardMaterial color="#8e9aa8" metalness={0.2} roughness={0.6} flatShading />
+        <mesh geometry={parkingData.roofGeo} rotation-x={-Math.PI / 2} position-y={3.15} castShadow receiveShadow>
+          <meshStandardMaterial color="#949da6" metalness={0.2} roughness={0.6} flatShading />
         </mesh>
         {/* Cột đỡ kim loại */}
         {parkingData.pillarsGeo && (
@@ -177,12 +180,35 @@ export default function BuildingView({ building }: { building: Building }) {
         </mesh>
       )}
 
-      {/* Mái chìa nhô ra 1.2m màu xám đậm */}
+      {/* Mái chìa nhô ra 0.8m màu xám sáng #8d9196 */}
       {roofGeometry && (
         <mesh geometry={roofGeometry} rotation-x={-Math.PI / 2} position-y={height} castShadow receiveShadow>
-          <meshStandardMaterial color="#374151" flatShading roughness={0.7} />
+          <meshStandardMaterial color="#8d9196" flatShading roughness={0.65} />
         </mesh>
       )}
     </group>
   );
+}
+
+export default function BuildingView({ building }: { building: Building }) {
+  // 1. Cổng chính khu vực 1 (vòm cung thấp tạm)
+  if (building.id === 'cong-chinh') {
+    return <MainGate />;
+  }
+
+  // 2. Nhà xe sau Block 5 (mái răng cưa dài)
+  if (building.id === 'nha-xe-b5') {
+    return <ParkingShed />;
+  }
+
+  // 3. Các tòa chính khu vực 1 có mức dựng 2 (Block 3, Block 4, Block 5)
+  if (
+    building.detailLevel === 2 &&
+    (building.kind === 'academic' || building.kind === 'library' || building.kind === 'admin')
+  ) {
+    return <BlockFacade building={building} />;
+  }
+
+  // 4. Các tòa mức 1 còn lại (B6, B8–B11, Căn tin, nha-xe-can-tin, nha-xe-2-tang, trạm điện, ki-ốt...)
+  return <StandardBuildingBlock building={building} />;
 }

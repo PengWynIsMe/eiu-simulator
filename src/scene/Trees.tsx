@@ -64,37 +64,37 @@ interface TreeData {
   color: string;
 }
 
-const TREE_COLORS = ['#3d6a2e', '#487c35', '#578e3f', '#365d27', '#4c823a'];
+const TREE_COLORS = ['#38632a', '#447532', '#50853b', '#335b24', '#487d37'];
 
 export default function Trees() {
   const { layout, buildings } = campus;
 
   const trees = useMemo(() => {
-    const rng = createPrng(20261112);
+    const rng = createPrng(20261113);
     const result: TreeData[] = [];
-    const minSpacing = 3.8;
+    const minSpacing = 5.8;
 
     const isValidPosition = (pt: Vec2): boolean => {
       // 1. Phải nằm trong ranh giới trường EIU
       if (!isPointInPolygon(pt, layout.boundary)) return false;
 
-      // 2. Không đè vào bất kỳ tòa nhà nào (cách tường tối thiểu 3.5m)
+      // 2. Không đè vào bất kỳ tòa nhà nào (cách tường tối thiểu 5m cho cây lớn)
       for (const b of buildings) {
         if (isPointInPolygon(pt, b.shape.outer)) return false;
         const outer = b.shape.outer;
         for (let i = 0; i < outer.length; i++) {
           const p1 = outer[i];
           const p2 = outer[(i + 1) % outer.length];
-          if (p1 && p2 && distToSegment(pt, p1, p2) < 3.5) return false;
+          if (p1 && p2 && distToSegment(pt, p1, p2) < 5.0) return false;
         }
       }
 
-      // 3. Không đè vào đường (cách mép đường tối thiểu 1.5m)
+      // 3. Không đè vào đường (tán cây lớn nên cách tim đường an toàn)
       for (const road of layout.roads) {
         let width = 7;
         if (road.kind === 'street') width = (road.lanes ?? 2) * 3.5;
         else if (road.kind === 'footway') width = 2.5;
-        const safeDist = width / 2 + 1.5;
+        const safeDist = width / 2 + 2.8;
 
         for (let i = 0; i < road.points.length - 1; i++) {
           const p1 = road.points[i];
@@ -103,9 +103,12 @@ export default function Trees() {
         }
       }
 
-      // 4. Không đè vào vành đường vòng xoay (bán kính 74m đến 85.5m)
+      // 4. Không đè vào vành đường vòng xoay (bán kính 73m đến 86m)
       const dCenter = Math.hypot(pt[0], pt[1]);
-      if (dCenter >= 73.8 && dCenter <= 85.5) return false;
+      if (dCenter >= 73.0 && dCenter <= 86.5) return false;
+
+      // 4b. Không mọc cây bên trong lòng hồ nước giữa Block 4 và Block 3
+      if (pt[0] >= 90 && pt[0] <= 145 && pt[1] >= -65 && pt[1] <= -10) return false;
 
       // 5. Không đè vào các bãi giữ xe
       for (const p of layout.parking) {
@@ -113,7 +116,7 @@ export default function Trees() {
         for (let i = 0; i < p.length; i++) {
           const p1 = p[i];
           const p2 = p[(i + 1) % p.length];
-          if (p1 && p2 && distToSegment(pt, p1, p2) < 2.5) return false;
+          if (p1 && p2 && distToSegment(pt, p1, p2) < 4.0) return false;
         }
       }
 
@@ -126,25 +129,25 @@ export default function Trees() {
     };
 
     const addTree = (pt: Vec2) => {
-      if (result.length >= 480) return;
+      if (result.length >= 520) return;
       if (!isValidPosition(pt)) return;
 
       const rotY = rng() * Math.PI * 2;
       const scaleXZ = 0.85 + rng() * 0.35;
-      const scaleY = 0.85 + rng() * 0.45;
-      const color = TREE_COLORS[Math.floor(rng() * TREE_COLORS.length)] ?? '#487c35';
+      const scaleY = 0.85 + rng() * 0.40;
+      const color = TREE_COLORS[Math.floor(rng() * TREE_COLORS.length)] ?? '#447532';
 
       result.push({ x: pt[0], z: pt[1], rotY, scaleXZ, scaleY, color });
     };
 
-    // A. Hàng cây dọc các tuyến đường nội bộ và đường phố
+    // A. Hàng cây dày dặn dọc các tuyến đường nội bộ và đường vào từ cổng
     for (const road of layout.roads) {
       if (road.kind === 'bridge') continue;
       let width = 7;
       if (road.kind === 'street') width = (road.lanes ?? 2) * 3.5;
       else if (road.kind === 'footway') width = 2.5;
 
-      const offsetDist = width / 2 + 3.0;
+      const offsetDist = width / 2 + 4.2;
 
       for (let i = 0; i < road.points.length - 1; i++) {
         const p1 = road.points[i];
@@ -154,23 +157,22 @@ export default function Trees() {
         const dx = p2[0] - p1[0];
         const dz = p2[1] - p1[1];
         const len = Math.hypot(dx, dz);
-        if (len < 5) continue;
+        if (len < 6) continue;
 
         const nx = -dz / len;
         const nz = dx / len;
-        const steps = Math.floor(len / 11);
+        const steps = Math.floor(len / 10);
 
         for (let s = 1; s <= steps; s++) {
           const t = s / (steps + 1);
           const px = p1[0] + dx * t;
           const pz = p1[1] + dz * t;
 
-          // Bên phải đường
+          // Hàng cây hai bên đường
           const jx1 = (rng() - 0.5) * 1.5;
           const jz1 = (rng() - 0.5) * 1.5;
           addTree([px + nx * offsetDist + jx1, pz + nz * offsetDist + jz1]);
 
-          // Bên trái đường
           const jx2 = (rng() - 0.5) * 1.5;
           const jz2 = (rng() - 0.5) * 1.5;
           addTree([px - nx * offsetDist + jx2, pz - nz * offsetDist + jz2]);
@@ -178,16 +180,16 @@ export default function Trees() {
       }
     }
 
-    // B. Vành cây quanh vòng xoay và thảm cỏ quảng trường
-    for (let step = 0; step < 40; step++) {
-      const angle = (step / 40) * Math.PI * 2;
+    // B. Vành cây dày quanh vòng xoay và thảm cỏ quảng trường
+    for (let step = 0; step < 48; step++) {
+      const angle = (step / 48) * Math.PI * 2;
       const cosA = Math.cos(angle);
       const sinA = Math.sin(angle);
 
-      // Hàng cây ngoài vành đường (r ≈ 89m)
-      addTree([cosA * 89 + (rng() - 0.5) * 2, sinA * 89 + (rng() - 0.5) * 2]);
-      // Cây bên trong bãi cỏ vòng xoay (r ≈ 68m)
-      addTree([cosA * 68 + (rng() - 0.5) * 2, sinA * 68 + (rng() - 0.5) * 2]);
+      // Cây bên ngoài vành đường (r ≈ 91m)
+      addTree([cosA * 91 + (rng() - 0.5) * 2, sinA * 91 + (rng() - 0.5) * 2]);
+      // Cây bên trong bãi cỏ vòng xoay (r ≈ 66m)
+      addTree([cosA * 66 + (rng() - 0.5) * 2, sinA * 66 + (rng() - 0.5) * 2]);
     }
 
     // C. Hàng cây dọc viền khuôn viên
@@ -200,7 +202,7 @@ export default function Trees() {
       const dx = p2[0] - p1[0];
       const dz = p2[1] - p1[1];
       const len = Math.hypot(dx, dz);
-      const steps = Math.floor(len / 14);
+      const steps = Math.floor(len / 13);
 
       for (let s = 1; s <= steps; s++) {
         const t = s / (steps + 1);
@@ -210,9 +212,9 @@ export default function Trees() {
       }
     }
 
-    // D. Điền cây vào các khoảng sân cỏ trống trong khuôn viên
+    // D. Điền cây lớn vào các khoảng sân cỏ trống
     let attempts = 0;
-    while (result.length < 420 && attempts < 1000) {
+    while (result.length < 480 && attempts < 1200) {
       attempts++;
       const candX = (rng() - 0.5) * 550;
       const candZ = (rng() - 0.5) * 550;
@@ -222,25 +224,27 @@ export default function Trees() {
     return result;
   }, [layout, buildings]);
 
+  // Cây to hơn: thân cao 4.5m, đường kính 0.9–1.2m
   const trunkGeo = useMemo(() => {
-    const g = new CylinderGeometry(0.18, 0.28, 2.0, 5);
-    g.translate(0, 1.0, 0);
+    const g = new CylinderGeometry(0.4, 0.6, 4.5, 6);
+    g.translate(0, 2.25, 0);
     return g;
   }, []);
 
+  // Tán to hơn: bán kính 3.6m (đường kính 7.2m, tổng chiều cao 9–12m)
   const canopyGeo = useMemo(() => {
-    const g = new IcosahedronGeometry(1.5, 1);
-    g.translate(0, 2.7, 0);
+    const g = new IcosahedronGeometry(3.6, 1);
+    g.translate(0, 6.0, 0);
     return g;
   }, []);
 
   const trunkMat = useMemo(
-    () => new MeshStandardMaterial({ color: '#543d2b', flatShading: true, roughness: 0.9 }),
+    () => new MeshStandardMaterial({ color: '#523a27', flatShading: true, roughness: 0.9 }),
     [],
   );
 
   const canopyMat = useMemo(
-    () => new MeshStandardMaterial({ color: '#447833', flatShading: true, roughness: 0.8 }),
+    () => new MeshStandardMaterial({ color: '#447532', flatShading: true, roughness: 0.8 }),
     [],
   );
 

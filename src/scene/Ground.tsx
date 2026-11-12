@@ -46,7 +46,7 @@ function clipSegmentToRadius(p1: Vec2, p2: Vec2, maxR: number): [Vec2, Vec2] | n
   ];
 }
 
-/** Tạo BufferGeometry dạng dải ruy băng cho danh sách đường. */
+/** Tạo BufferGeometry dạng dải ruy băng cho danh sách đường, không sinh tam giác trùng ở các khớp nối. */
 function buildRoadGeometry(roads: Road[], elevation: number, maxRadius = 600): BufferGeometry | null {
   const positions: number[] = [];
   const normals: number[] = [];
@@ -93,18 +93,16 @@ function buildRoadGeometry(roads: Road[], elevation: number, maxRadius = 600): B
       addTriangle(v0, v2, v1);
       addTriangle(v2, v3, v1);
 
-      // Bo tròn khớp nối tại đỉnh A và B (8 cạnh) để không hở góc khi bẻ cua
-      const jointSteps = 8;
-      for (let k = 0; k < jointSteps; k++) {
-        const a1 = (k / jointSteps) * Math.PI * 2;
-        const a2 = ((k + 1) / jointSteps) * Math.PI * 2;
-        const ja1: [number, number, number] = [A[0] + Math.cos(a1) * hw, elevation, A[1] + Math.sin(a1) * hw];
-        const ja2: [number, number, number] = [A[0] + Math.cos(a2) * hw, elevation, A[1] + Math.sin(a2) * hw];
-        addTriangle([A[0], elevation, A[1]], ja2, ja1);
-
-        const jb1: [number, number, number] = [B[0] + Math.cos(a1) * hw, elevation, B[1] + Math.sin(a1) * hw];
-        const jb2: [number, number, number] = [B[0] + Math.cos(a2) * hw, elevation, B[1] + Math.sin(a2) * hw];
-        addTriangle([B[0], elevation, B[1]], jb2, jb1);
+      // Chỉ thêm bo tròn tại các điểm gấp khúc bên trong (không thêm trùng lặp ở cả hai đầu)
+      if (i < road.points.length - 2) {
+        const jointSteps = 8;
+        for (let k = 0; k < jointSteps; k++) {
+          const a1 = (k / jointSteps) * Math.PI * 2;
+          const a2 = ((k + 1) / jointSteps) * Math.PI * 2;
+          const jb1: [number, number, number] = [B[0] + Math.cos(a1) * hw, elevation, B[1] + Math.sin(a1) * hw];
+          const jb2: [number, number, number] = [B[0] + Math.cos(a2) * hw, elevation, B[1] + Math.sin(a2) * hw];
+          addTriangle([B[0], elevation, B[1]], jb2, jb1);
+        }
       }
     }
   });
@@ -140,21 +138,21 @@ export default function Ground() {
     [layout.parking],
   );
 
-  // Đường phố bao ngoài (street): rộng theo số làn, cắt bớt ngoài 600m
+  // Đường phố bao ngoài (street): rộng theo số làn, cắt bớt ngoài 600m — cao y = 0.45m
   const streetGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'street'), 0.042, 600),
+    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'street'), 0.45, 600),
     [layout.roads],
   );
 
-  // Đường nội bộ (internal): rộng 7m
+  // Đường nội bộ (internal): rộng 7m — cao y = 0.60m
   const internalGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'internal'), 0.045, 600),
+    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'internal'), 0.6, 600),
     [layout.roads],
   );
 
-  // Lối đi bộ (footway): rộng 2.5m
+  // Lối đi bộ (footway): rộng 2.5m — cao y = 0.75m
   const footwayGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'footway'), 0.048, 600),
+    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'footway'), 0.75, 600),
     [layout.roads],
   );
 
@@ -164,56 +162,98 @@ export default function Ground() {
 
   return (
     <group>
-      {/* 1. Mặt đất cỏ lớn xung quanh khuôn viên (~2400m) */}
-      <mesh rotation-x={-Math.PI / 2} position-y={-0.01} receiveShadow>
+      {/* 1. Đất cỏ lớn xung quanh (~2400m) — y = 0 */}
+      <mesh rotation-x={-Math.PI / 2} position-y={0} receiveShadow>
         <planeGeometry args={[2400, 2400]} />
-        <meshStandardMaterial color="#afc8a2" roughness={0.9} />
+        <meshStandardMaterial color="#b2c9a6" roughness={0.9} />
       </mesh>
 
-      {/* 2. Cỏ bên trong ranh giới trường EIU (tươi hơn) */}
-      <mesh rotation-x={-Math.PI / 2} position-y={0.01} receiveShadow>
+      {/* 2. Cỏ bên trong ranh giới trường EIU — y = 0.15 */}
+      <mesh rotation-x={-Math.PI / 2} position-y={0.15} receiveShadow>
         <shapeGeometry args={[boundaryShape]} />
-        <meshStandardMaterial color="#9cbe8b" roughness={0.9} />
+        <meshStandardMaterial
+          color="#9ec08d"
+          roughness={0.9}
+          polygonOffset
+          polygonOffsetFactor={-1}
+          polygonOffsetUnits={-1}
+        />
       </mesh>
 
-      {/* 3. Bãi đỗ xe dạng mặt đường trải nhựa */}
+      {/* 3. Bãi đỗ xe dạng mặt đường trải nhựa — y = 0.30 */}
       {parkingShapes.map((shape, i) => (
-        <mesh key={i} rotation-x={-Math.PI / 2} position-y={0.03} receiveShadow>
+        <mesh key={i} rotation-x={-Math.PI / 2} position-y={0.3} receiveShadow>
           <shapeGeometry args={[shape]} />
-          <meshStandardMaterial color="#555e6b" roughness={0.8} />
+          <meshStandardMaterial
+            color="#6f747d"
+            roughness={0.8}
+            polygonOffset
+            polygonOffsetFactor={-2}
+            polygonOffsetUnits={-1}
+          />
         </mesh>
       ))}
 
-      {/* 4. Vòng xoay: bãi cỏ trung tâm */}
-      <mesh rotation-x={-Math.PI / 2} position-y={0.02} receiveShadow>
+      {/* 4. Vòng xoay: bãi cỏ trung tâm — y = 0.30 */}
+      <mesh rotation-x={-Math.PI / 2} position-y={0.3} receiveShadow>
         <circleGeometry args={[rbInner, 96]} />
-        <meshStandardMaterial color="#91b681" roughness={0.9} />
+        <meshStandardMaterial
+          color="#91b681"
+          roughness={0.9}
+          polygonOffset
+          polygonOffsetFactor={-2}
+          polygonOffsetUnits={-1}
+        />
       </mesh>
 
-      {/* 5. Vòng xoay: vành đường rộng 9m */}
-      <mesh rotation-x={-Math.PI / 2} position-y={0.038} receiveShadow>
+      {/* 5. Vòng xoay: vành đường rộng 9m xám sáng — y = 0.45 */}
+      <mesh rotation-x={-Math.PI / 2} position-y={0.45} receiveShadow>
         <ringGeometry args={[rbInner, rbOuter, 96]} />
-        <meshStandardMaterial color="#404652" roughness={0.8} />
+        <meshStandardMaterial
+          color="#7b7f86"
+          roughness={0.8}
+          polygonOffset
+          polygonOffsetFactor={-3}
+          polygonOffsetUnits={-1}
+        />
       </mesh>
 
-      {/* 6. Dải đường phố bao quanh */}
+      {/* 6. Dải đường phố bao quanh xám nhựa sáng — y = 0.45 */}
       {streetGeometry && (
         <mesh geometry={streetGeometry} receiveShadow>
-          <meshStandardMaterial color="#3a404c" roughness={0.8} />
+          <meshStandardMaterial
+            color="#767a82"
+            roughness={0.8}
+            polygonOffset
+            polygonOffsetFactor={-3}
+            polygonOffsetUnits={-1}
+          />
         </mesh>
       )}
 
-      {/* 7. Dải đường nội bộ */}
+      {/* 7. Dải đường nội bộ xám nhựa sáng — y = 0.60 */}
       {internalGeometry && (
         <mesh geometry={internalGeometry} receiveShadow>
-          <meshStandardMaterial color="#555e6d" roughness={0.8} />
+          <meshStandardMaterial
+            color="#7b7f86"
+            roughness={0.8}
+            polygonOffset
+            polygonOffsetFactor={-4}
+            polygonOffsetUnits={-1}
+          />
         </mesh>
       )}
 
-      {/* 8. Lối đi bộ lát gạch */}
+      {/* 8. Lối đi bộ lát gạch nhạt — y = 0.75 */}
       {footwayGeometry && (
         <mesh geometry={footwayGeometry} receiveShadow>
-          <meshStandardMaterial color="#bfa488" roughness={0.8} />
+          <meshStandardMaterial
+            color="#cfc3b4"
+            roughness={0.8}
+            polygonOffset
+            polygonOffsetFactor={-5}
+            polygonOffsetUnits={-1}
+          />
         </mesh>
       )}
     </group>

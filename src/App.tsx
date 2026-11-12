@@ -12,8 +12,8 @@ export default function App() {
         camera={{
           position: [OVERVIEW_CAMERA.position[0], OVERVIEW_CAMERA.position[1], OVERVIEW_CAMERA.position[2]],
           fov: 45,
-          near: 1,
-          far: 3000,
+          near: 5,
+          far: 2500,
         }}
       >
         <Campus />
