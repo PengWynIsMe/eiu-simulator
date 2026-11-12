@@ -20,6 +20,7 @@ phần còn lại tạm là khối đúng khung nền, nâng cấp dần theo t�
 | T06 Khu vực 2 (B8–B11, căn tin) | Gemini | Dùng lại `scene/kit/` từ T03 | Chờ người dùng đánh dấu `_tong-hop-2.jpg` |
 | T07 Loading + tối ưu | Gemini → Claude | `useProgress`, chia nhỏ bundle (three.js ~1 MB), kiểm tra điện thoại | Chưa |
 | T08 Panel thông tin tòa nhà | Gemini | Panel phải / bottom sheet: tên, chức năng, tầng | Chưa |
+| **T09** Chế độ đi bộ | **Codex (gpt-6-luna, medium)** — luồng C | Nhân vật + camera bám sau, WASD/cần ảo, va chạm tòa nhà/hồ | Brief: `docs/tasks/T09-di-bo.md` |
 
 Thứ tự: T02 → T03 → (T04, T05) → T06 → T07. T08 làm song song được với T04–T06 (chỉ đụng `ui/`).
 

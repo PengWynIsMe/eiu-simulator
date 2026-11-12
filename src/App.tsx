@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import Campus from './scene/Campus';
 import { OVERVIEW_CAMERA } from './scene/CameraRig';
 import TopBar from './ui/TopBar';
+import WalkHud from './ui/walk/WalkHud';
 
 export default function App() {
   return (
@@ -19,6 +20,8 @@ export default function App() {
         <Campus />
       </Canvas>
       <TopBar />
+      {/* Luồng C (T09) — giữ nguyên dòng này */}
+      <WalkHud />
     </div>
   );
 }

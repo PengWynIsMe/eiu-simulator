@@ -15,6 +15,16 @@ Cập nhật: 2026-11-12
   cổng sau = cổng phụ, ở cuối đường giữa B10 và B11. Đã cập nhật `campus.json`. Còn chưa rõ: số tầng B6; ảnh cổng mới.
 - **Người dùng đã đánh dấu xong ảnh 2** (campus_13–25) → `references/tour-360/GHI-CHU.md`. Còn thiếu: `campus_21` (tòa hai bên), `campus_26`. Cổng mới vẫn chưa có ảnh.
 
+## Đợt song song 3 luồng (từ commit T03)
+
+| Luồng | Agent | Nhánh / worktree | Brief | Cổng dev |
+| --- | --- | --- | --- | --- |
+| A | Gemini | `t04a-3d` | `docs/tasks/T04a-3d.md` | 5174 |
+| B | Gemini | `t04b-giao-dien` | `docs/tasks/T04b-giao-dien.md` | 5175 |
+| C | Codex gpt-6-luna medium | `t09-di-bo` | `docs/tasks/T09-di-bo.md` | 5176 |
+
+File gắn kết (`Campus.tsx`, `App.tsx` dòng WalkHud) Claude đã gắn sẵn stub. Thứ tự gộp dự kiến: B → A → C.
+
 ## Chế độ góp ý (T04)
 
 - Người dùng chọn 2026-11-13: máy chủ dự án (`npm run dev`) ghi `review/notes.json`; đồng nghiệp (contributor, có GitHub) trên bản Pages gửi thành **GitHub Issue** (tiêu đề `[Góp ý] ...`, nhãn `gop-y`, JSON ẩn trong body). App đọc Issue qua API công khai → ai cũng thấy ghim của nhau. Issue đóng = đã sửa. Dự phòng: tải file → `review/inbox/`.

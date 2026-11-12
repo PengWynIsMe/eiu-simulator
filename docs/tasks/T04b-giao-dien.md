@@ -1,7 +1,7 @@
 # T04b — Chế độ góp ý (phần giao diện)
 
 - Người làm: **Gemini (Antigravity) — luồng B**
-- Worktree + nhánh riêng: `t04b-giao-dien` (chạy song song với luồng A `t04a-3d`)
+- Worktree + nhánh riêng: `t04b-giao-dien` (song song với luồng A `t04a-3d` và luồng C `t09-di-bo`). Chạy `npm ci` trước; dev ở cổng **5175**.
 - Đặc tả chung: `docs/tasks/T04-hover-click-gop-y.md` — đọc hết, nhưng **chỉ làm phần ghi dưới đây**.
 
 ## Phạm vi của bạn
@@ -9,16 +9,18 @@
 Trong mục **B. Chế độ góp ý**: điểm **1** (TopBar), **3** (ReviewPanel), **5** (`load()` khi mở app).
 
 1. `TopBar.tsx`: nút "Chế độ góp ý" (`toggleReviewMode`) + badge số ghi chú đang mở; khi bật có viền/nhãn cam.
+   Thêm nút **"Đi bộ"** (`useWalkStore`: `walkMode`, `toggleWalkMode`) — sáng lên khi đang đi bộ. Nhân vật do luồng C làm.
 2. `ReviewPanel.tsx` (mới): form draft (tên vật thể qua `getBuilding`, tọa độ, loại `REVIEW_CATEGORIES`, nội dung, tên người góp ý),
    danh sách ghi chú (lọc Đang mở / Đã sửa, nhãn GitHub + link "Mở trên GitHub", ẩn nút đổi trạng thái cho ghi chú GitHub),
    bấm dòng → `selectNote(id)` + `requestCamera(note.camera)`, nút Tải lại / Tải file / Nhập file, dòng trạng thái lưu, báo `error`.
    Desktop: panel phải; điện thoại: bottom sheet.
 3. `App.tsx`: gọi `useReviewStore.getState().load()` một lần; gắn `<ReviewPanel/>` (chỉ hiện khi `reviewMode`).
+   **Giữ nguyên** dòng `<WalkHud />` (của luồng C, Claude đã gắn sẵn).
 4. `text.ts`: mọi chuỗi giao diện mới.
 
 ## Chỉ được sửa
 
-`src/ui/**`, `src/App.tsx`. **Không** sửa `src/scene/**` (luồng A đang sửa), `src/data/**`, `src/types/**`, `src/store/**`, `scripts/**`, `vite.config.ts`, `review/**`.
+`src/ui/**` **trừ** `src/ui/walk/**` (luồng C), và `src/App.tsx`. **Không** sửa `src/scene/**` (luồng A đang sửa), `src/data/**`, `src/types/**`, `src/store/**`, `scripts/**`, `vite.config.ts`, `review/**`.
 
 ## Thử khi chưa có phần 3D của luồng A
 
