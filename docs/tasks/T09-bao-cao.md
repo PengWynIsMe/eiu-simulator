@@ -41,5 +41,7 @@
 - `npm run typecheck`: thành công.
 - `npm run lint`: thành công.
 - `npm run build`: thành công; còn cảnh báo bundle khoảng 1.07 MB vượt 500 kB.
-- Chrome/DevTools Console: đã dispatch `V`, sau đó keydown `D` và keyup sau 2 giây. Walk mode và HUD xuất hiện; ảnh cho thấy nhân vật quay lưng về camera. Theo code, strafe chỉ đọc `cameraYaw`, không tự xoay camera. Chưa đo góc camera bằng instrumentation.
-- Chưa hoàn tất dispatch `W`, `Shift+W`, va chạm Block 5 hoặc đo tốc độ tương đối; lần thao tác tiếp theo với DevTools bị timeout. Chưa kiểm tra ô ghi chú để xác nhận hotkey bị bỏ qua khi focus trong ô nhập.
+- Chrome ở viewport giả lập hẹp/điện thoại: dispatch `V` bật walk mode; joystick và nút thoát hiện. Ảnh xác nhận nhân vật quay lưng về camera.
+- DevTools Console: dispatch keydown `D` và keyup sau 2 giây. Ảnh sau thao tác vẫn giữ cùng hướng cảnh/camera, phù hợp với việc strafe không còn xoay `cameraYaw`; góc chưa được đo bằng instrumentation.
+- Đã dispatch keydown `W` và keyup sau 1.2 giây, nhưng ảnh không đủ để xác nhận quãng đường. Chưa thử `Shift+W`, va chạm Block 5 hoặc so sánh tốc độ. Chưa kiểm tra hotkey khi focus trong ô ghi chú.
+- Console có cảnh báo từ extension trình duyệt. Một `ReferenceError`/`SyntaxError` hiển thị là do các lệnh test console gõ/paste lỗi trước đó, không phải stack trace từ app.
