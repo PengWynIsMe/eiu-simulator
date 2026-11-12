@@ -3,59 +3,12 @@
 import campusRaw from './campus.json';
 import layoutRaw from './layout.json';
 import type { Building, BuildingInfo, BuildingKind, Campus, DetailLevel, Footprint, Layout, Major, Road, RoadKind, Vec2 } from '../types';
+import { arr, fail, num, obj, oneOf, optStr, polygon, str, vec2 } from './validate';
 
 /** Chiều cao trung bình một tầng (m). */
 export const FLOOR_HEIGHT = 3.8;
 
-// ---- Kiểm tra dữ liệu: JSON sai thì báo lỗi rõ ràng ngay khi mở app ----
-
-class DataError extends Error {}
-
-function fail(path: string, expected: string): never {
-  throw new DataError(`Dữ liệu sai ở ${path}: cần ${expected}`);
-}
-
-function obj(v: unknown, path: string): Record<string, unknown> {
-  if (typeof v !== 'object' || v === null || Array.isArray(v)) fail(path, 'object');
-  return v as Record<string, unknown>;
-}
-
-function arr(v: unknown, path: string): unknown[] {
-  if (!Array.isArray(v)) fail(path, 'mảng');
-  return v;
-}
-
-function str(v: unknown, path: string): string {
-  if (typeof v !== 'string' || v === '') fail(path, 'chuỗi khác rỗng');
-  return v;
-}
-
-function num(v: unknown, path: string): number {
-  if (typeof v !== 'number' || !Number.isFinite(v)) fail(path, 'số');
-  return v;
-}
-
-function optStr(v: unknown, path: string): string | undefined {
-  return v === undefined ? undefined : str(v, path);
-}
-
-function vec2(v: unknown, path: string): Vec2 {
-  const a = arr(v, path);
-  if (a.length !== 2) fail(path, '[x, z]');
-  return [num(a[0], `${path}[0]`), num(a[1], `${path}[1]`)];
-}
-
-function polygon(v: unknown, path: string): Vec2[] {
-  const pts = arr(v, path).map((p, i) => vec2(p, `${path}[${i}]`));
-  if (pts.length < 3) fail(path, 'đa giác ≥ 3 điểm');
-  return pts;
-}
-
-function oneOf<T extends string>(v: unknown, options: readonly T[], path: string): T {
-  const found = options.find((o) => o === v);
-  if (found === undefined) fail(path, options.join(' | '));
-  return found;
-}
+// ---- Kiểm tra + ghép dữ liệu (hàm kiểm tra ở ./validate) ----
 
 const BUILDING_KINDS: readonly BuildingKind[] = ['academic', 'library', 'admin', 'canteen', 'kiosk', 'parking', 'gate', 'other'];
 const ROAD_KINDS: readonly RoadKind[] = ['street', 'internal', 'footway', 'bridge'];

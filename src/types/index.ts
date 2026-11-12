@@ -80,3 +80,31 @@ export interface Course {
   credits?: number;
   description?: string;
 }
+
+// ---- Góp ý trực tiếp trên mô hình (chế độ góp ý) ----
+
+export type Vec3 = [number, number, number];
+
+export type ReviewCategory = 'vi-tri' | 'hinh-dang' | 'mau' | 'so-tang' | 'thieu' | 'khac';
+
+export type ReviewStatus = 'mo' | 'da-sua';
+
+export interface ReviewNote {
+  id: string;
+  createdAt: string;
+  author: string;
+  /** id tòa nhà/vật thể được bấm; null = ghim trên mặt đất (vd "thiếu nhà xe ở đây"). */
+  targetId: string | null;
+  /** Điểm bấm trong thế giới 3D (mét). */
+  point: Vec3;
+  /** Góc camera lúc ghi, để dựng lại đúng góc nhìn. */
+  camera: { position: Vec3; target: Vec3 };
+  category: ReviewCategory;
+  text: string;
+  status: ReviewStatus;
+  /** Claude ghi đã sửa gì khi chuyển sang 'da-sua'. */
+  resolution?: string;
+  /** 'github' = đọc từ GitHub Issue (chỉ đổi trạng thái trên GitHub); mặc định là ghi chú cục bộ. */
+  source?: 'local' | 'github';
+  issueUrl?: string;
+}

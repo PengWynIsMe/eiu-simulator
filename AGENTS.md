@@ -139,6 +139,15 @@ JSON sai cấu trúc → app báo lỗi rõ ràng ngay khi mở (`Dữ liệu sa
 - Cần đổi file không thuộc quyền mình (vd Gemini cần thêm action vào store) → **dừng, ghi đề xuất trong báo cáo**, Claude sẽ sửa hợp đồng rồi giao lại.
 - Mỗi lúc tối đa **1 agent code trên cùng một nhóm file**.
 
+### Chạy nhiều agent song song
+
+- Mỗi luồng = **một git worktree + một nhánh riêng** (Orca: `orca worktree create --agent ...`), thư mục cạnh repo chính.
+- Mỗi luồng có **danh sách file được sửa riêng, không giao nhau** (ghi trong brief luồng). Tối đa **2–3 luồng** cùng lúc.
+- Worktree mới: chạy `npm ci` trước; `npm run dev -- --port <cổng riêng>` (luồng A 5174, luồng B 5175...).
+- Cần sửa file của luồng khác hoặc file của Claude → **dừng, ghi đề xuất trong báo cáo**, không tự sửa.
+- Hai luồng cần nói chuyện với nhau → qua store (Claude thêm action trước khi giao), không import chéo.
+- Claude gộp các nhánh theo thứ tự, chạy lại 3 cổng kiểm tra trên bản đã gộp, rồi mới merge `main`.
+
 ## 7. Quy trình một task
 
 1. Claude viết brief `docs/tasks/TNN-ten-task.md` theo `docs/tasks/_TEMPLATE.md` và cập nhật `docs/HANDOFF.md`.

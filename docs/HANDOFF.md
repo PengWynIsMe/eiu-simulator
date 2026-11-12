@@ -3,6 +3,8 @@
 Cập nhật: 2026-11-12
 
 - **Giai đoạn:** 1 — mô hình khuôn viên EIU. **T01 xong** (Claude).
+- **Link test cho đồng nghiệp:** https://pengwynisme.github.io/eiu-simulator/ — GitHub Actions (`.github/workflows/deploy.yml`)
+  tự build + đăng mỗi lần push `main`. Repo `PengWynIsMe/eiu-simulator` đang **public**. Khi merge T03 vào `main` nhớ giữ commit Pages (`base: './'`).
 - **T02 xong** (Gemini), người dùng duyệt 2026-11-13, đã merge vào `main`. Lỗi còn lại (nhấp nháy, màu, cây) chuyển vào T03 "Phần 0".
 - **Đang làm:** **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
   terminal `term_acdc0de5-2180-4022-90d8-24c364fe53e8`, nhánh `t03-khu-vuc-1`.
@@ -12,6 +14,13 @@ Cập nhật: 2026-11-12
   `nho-1` bỏ; `nho-2` = hành lang B3–B6; thêm nhà xe sau B5 → trạm điện → Fami Pizza; nhà xe cạnh Căn tin kéo dài tới gần cổng phụ;
   cổng sau = cổng phụ, ở cuối đường giữa B10 và B11. Đã cập nhật `campus.json`. Còn chưa rõ: số tầng B6; ảnh cổng mới.
 - **Người dùng đã đánh dấu xong ảnh 2** (campus_13–25) → `references/tour-360/GHI-CHU.md`. Còn thiếu: `campus_21` (tòa hai bên), `campus_26`. Cổng mới vẫn chưa có ảnh.
+
+## Chế độ góp ý (T04)
+
+- Người dùng chọn 2026-11-13: máy chủ dự án (`npm run dev`) ghi `review/notes.json`; đồng nghiệp (contributor, có GitHub) trên bản Pages gửi thành **GitHub Issue** (tiêu đề `[Góp ý] ...`, nhãn `gop-y`, JSON ẩn trong body). App đọc Issue qua API công khai → ai cũng thấy ghim của nhau. Issue đóng = đã sửa. Dự phòng: tải file → `review/inbox/`.
+- Claude đọc góp ý: `gh issue list --label gop-y --state open` + `review/notes.json` + `review/inbox/`. Sửa xong: đóng Issue kèm bình luận đã sửa gì.
+- Claude đã làm phần lưu trữ (types, `src/data/reviewNotes.ts`, `src/store/useReviewStore.ts`, plugin `scripts/review-notes-plugin.mjs`) — chưa commit, nằm trên nhánh `t03-khu-vuc-1` (không đụng file của Gemini).
+- Người dùng duyệt chạy song song 2026-11-13: sau T03, Claude tạo 2 worktree từ commit T03 — luồng A `t04a-3d` (`docs/tasks/T04a-3d.md`, chỉ `scene/`), luồng B `t04b-giao-dien` (`docs/tasks/T04b-giao-dien.md`, chỉ `ui/` + `App.tsx`) — mỗi luồng một Gemini. Hai luồng nói chuyện qua `useReviewStore` (`cameraRequest`).
 
 ## Trạng thái T01
 
