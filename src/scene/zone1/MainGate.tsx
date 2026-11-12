@@ -6,7 +6,14 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
  * Cổng chính mới dạng vòm cung thấp (tạm theo dấu vệ tinh ve-tinh-khu-cong-2026.png).
  * Được tách riêng vào file này để dễ dàng thay thế khi có hình ảnh thực tế của cổng mới.
  */
-export default function MainGate() {
+interface MainGateProps {
+  isHovered?: boolean;
+  isSelected?: boolean;
+}
+
+export default function MainGate({ isHovered, isSelected }: MainGateProps) {
+  const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
+  const emissiveIntensity = isSelected ? 0.35 : isHovered ? 0.2 : 0;
   const { archGeo, pillarsGeo } = useMemo(() => {
     const archBoxes: BufferGeometry[] = [];
     const pillarBoxes: BufferGeometry[] = [];
@@ -73,12 +80,22 @@ export default function MainGate() {
     <group>
       {/* Các trụ cổng */}
       <mesh geometry={pillarsGeo} castShadow receiveShadow>
-        <meshStandardMaterial color="#64748b" roughness={0.7} />
+        <meshStandardMaterial
+          color="#64748b"
+          roughness={0.7}
+          emissive={emissiveColor}
+          emissiveIntensity={emissiveIntensity}
+        />
       </mesh>
 
       {/* Vòm cung cổng màu sáng */}
       <mesh geometry={archGeo} castShadow receiveShadow>
-        <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
+        <meshStandardMaterial
+          color="#e2e8f0"
+          roughness={0.5}
+          emissive={emissiveColor}
+          emissiveIntensity={emissiveIntensity * 0.7}
+        />
       </mesh>
     </group>
   );

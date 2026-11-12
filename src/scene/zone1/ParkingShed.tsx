@@ -2,7 +2,14 @@ import { useMemo } from 'react';
 import { BoxGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
-export default function ParkingShed() {
+interface ParkingShedProps {
+  isHovered?: boolean;
+  isSelected?: boolean;
+}
+
+export default function ParkingShed({ isHovered, isSelected }: ParkingShedProps) {
+  const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
+  const emissiveIntensity = isSelected ? 0.35 : isHovered ? 0.2 : 0;
   const { roofGeo, postsGeo, floorGeo } = useMemo(() => {
     // Tọa độ trung tâm và hướng của nhà xe sau Block 5 (nha-xe-b5)
     // Footprint: [[152.6, -160.7], [180.8, -164.2], [186.9, -115.6], [158.7, -112.1]]
@@ -83,7 +90,12 @@ export default function ParkingShed() {
     <group>
       {/* Sàn bê tông */}
       <mesh geometry={floorGeo} receiveShadow>
-        <meshStandardMaterial color="#94a3b8" roughness={0.7} />
+        <meshStandardMaterial
+          color="#94a3b8"
+          roughness={0.7}
+          emissive={emissiveColor}
+          emissiveIntensity={emissiveIntensity * 0.5}
+        />
       </mesh>
 
       {/* Cột thép đỡ */}
@@ -93,7 +105,14 @@ export default function ParkingShed() {
 
       {/* Mái tôn răng cưa xám bạc */}
       <mesh geometry={roofGeo} castShadow receiveShadow>
-        <meshStandardMaterial color="#949da6" metalness={0.3} roughness={0.5} flatShading />
+        <meshStandardMaterial
+          color="#949da6"
+          metalness={0.3}
+          roughness={0.5}
+          flatShading
+          emissive={emissiveColor}
+          emissiveIntensity={emissiveIntensity}
+        />
       </mesh>
     </group>
   );
