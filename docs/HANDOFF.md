@@ -15,7 +15,10 @@ Cập nhật: 2026-11-12
   cổng sau = cổng phụ, ở cuối đường giữa B10 và B11. Đã cập nhật `campus.json`. Còn chưa rõ: số tầng B6; ảnh cổng mới.
 - **Người dùng đã đánh dấu xong ảnh 2** (campus_13–25) → `references/tour-360/GHI-CHU.md`. Còn thiếu: `campus_21` (tòa hai bên), `campus_26`. Cổng mới vẫn chưa có ảnh.
 
-## Đợt song song 3 luồng (từ commit T03)
+## Đợt song song 3 luồng (từ commit T03) — ✅ XONG, đã gộp 2026-11-13
+
+Gộp B → A → C vào `t03-khu-vuc-1` không xung đột; typecheck/lint/build sạch; Claude thử tay: góp ý bấm Block 3 → form đúng; nút Đi bộ → nhân vật; giữ D đi ngang không xoay camera (sau vòng sửa 1 của Codex).
+**Chờ người dùng xem để merge `main` + push** (link Pages tự cập nhật). Worktree 3 luồng vẫn còn ở `~/orca/workspaces/eiu-simulator/` — xóa sau khi merge.
 
 | Luồng | Agent | Nhánh / worktree | Brief | Cổng dev |
 | --- | --- | --- | --- | --- |
