@@ -1,0 +1,331 @@
+{
+  "campus": {
+    "id": "eiu",
+    "name": "Trường Đại học Quốc tế Miền Đông (EIU)",
+    "buildings": [
+      {
+        "id": "b3",
+        "osmId": "w602270479",
+        "name": "Block 3 — Tòa nhà Quản trị kinh doanh",
+        "shortName": "Block 3",
+        "kind": "academic",
+        "zone": 1,
+        "floors": 3,
+        "color": "#8a7a86",
+        "detailLevel": 2,
+        "majorIds": [],
+        "notes": "3 tầng (OSM + tour có tầng 1–3). Văn phòng khoa QTKD 105.B3. Ảnh: tour campus_2,3,6,7,8,9,11"
+      },
+      {
+        "id": "b4",
+        "osmId": "w602270475",
+        "name": "Block 4 — Thư viện",
+        "shortName": "Thư viện",
+        "kind": "library",
+        "zone": 1,
+        "floors": 3,
+        "color": "#857a84",
+        "detailLevel": 2,
+        "majorIds": [],
+        "notes": "3 tầng (người dùng xác nhận). Mái có pin mặt trời. Nối sang Block 3 bằng 2 cầu trên mặt hồ. Highlands ở đầu phía Đông, phía hồ. Ảnh: campus_9,11,12,13,15"
+      },
+      {
+        "id": "b5",
+        "osmId": "w602270474",
+        "name": "Block 5 — Tòa nhà Hành chính",
+        "shortName": "Block 5",
+        "kind": "admin",
+        "zone": 1,
+        "floors": 3,
+        "color": "#857a84",
+        "detailLevel": 2,
+        "majorIds": [],
+        "notes": "3 tầng (người dùng xác nhận). Văn phòng khoa GDĐC 205.B5. Ảnh: campus, campus_1,5,6,7"
+      },
+      {
+        "id": "b6",
+        "osmId": "w602270478",
+        "name": "Block 6 — Vườn ươm doanh nghiệp BBI",
+        "shortName": "Block 6",
+        "kind": "academic",
+        "zone": 1,
+        "floors": 2,
+        "color": "#857a84",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "Số tầng CHƯA CHẮC. Trung tâm An ninh mạng 100.B6. Nằm sau Block 3 (phía Nam), nối B3 bằng hành lang (hanh-lang-b3-b6)"
+      },
+      {
+        "id": "b8",
+        "osmId": "r21266053",
+        "name": "Block 8 — Khu phòng học đa năng",
+        "shortName": "Block 8",
+        "kind": "academic",
+        "zone": 2,
+        "floors": 4,
+        "color": "#7e7280",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "4 tầng (người dùng xác nhận)"
+      },
+      {
+        "id": "b9",
+        "osmId": "r21266054",
+        "name": "Block 9",
+        "shortName": "Block 9",
+        "kind": "academic",
+        "zone": 2,
+        "floors": 4,
+        "color": "#7e7280",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "4 tầng (người dùng xác nhận)"
+      },
+      {
+        "id": "b10",
+        "osmId": "r21266055",
+        "name": "Block 10 — Tòa nhà Trung tâm ngoại ngữ",
+        "shortName": "Block 10",
+        "kind": "academic",
+        "zone": 2,
+        "floors": 4,
+        "color": "#7e7280",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "4 tầng. Ảnh sổ tay handbook-anh/2025-p02-45 (tường tím xám, cầu thang kính giữa). Ảnh 360: campus_24,25"
+      },
+      {
+        "id": "b11",
+        "osmId": "r21266052",
+        "name": "Block 11 — Văn phòng khoa, khu phòng thí nghiệm",
+        "shortName": "Block 11",
+        "kind": "academic",
+        "zone": 2,
+        "floors": 4,
+        "color": "#7e7280",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "4 tầng. Văn phòng khoa CNTT, Kỹ thuật, Sức khỏe. Hành lang mái che nối hông B11 ↔ đầu B4 và B11 ↔ B10. Ảnh: campus_16–20,23,24"
+      },
+      {
+        "id": "can-tin",
+        "osmId": "w602270468",
+        "name": "Căn tin EIU",
+        "shortName": "Căn tin",
+        "kind": "canteen",
+        "zone": 2,
+        "floors": 1,
+        "color": "#a08c78",
+        "detailLevel": 1,
+        "majorIds": []
+      },
+      {
+        "id": "hanh-lang-b3-b6",
+        "osmId": "w1551665534",
+        "name": "Hành lang nối Block 3 – Block 6",
+        "shortName": "Hành lang B3–B6",
+        "kind": "other",
+        "zone": 1,
+        "floors": 1,
+        "color": "#6b6b6b",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "Người dùng xác nhận là hành lang nối B3 và B6"
+      },
+      {
+        "id": "tram-dien",
+        "osmId": "w605343058",
+        "name": "Trạm điện",
+        "shortName": "Trạm điện",
+        "kind": "other",
+        "zone": 1,
+        "floors": 1,
+        "color": "#8a8f94",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "Người dùng: phía Bắc nhà xe sau Block 5 (thứ tự từ B5 đi lên: nhà xe → trạm điện → Fami Pizza). Vị trí theo OSM"
+      },
+      {
+        "id": "nha-xe-can-tin",
+        "name": "Nhà giữ xe cạnh Căn tin",
+        "shortName": "Nhà xe",
+        "kind": "parking",
+        "zone": 2,
+        "floors": 1,
+        "color": "#9aa3ab",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "Người dùng: kéo dài từ cạnh Căn tin tới gần cổng sau, dài ~bằng Block 8. Khung nền ước lượng (OSM chỉ có 1 đoạn ngắn)",
+        "footprint": [
+          [
+            65.3,
+            -264.4
+          ],
+          [
+            -38.0,
+            -264.4
+          ],
+          [
+            -38.0,
+            -249.4
+          ],
+          [
+            65.3,
+            -249.4
+          ]
+        ]
+      },
+      {
+        "id": "nha-xe-b5",
+        "footprint": [
+          [
+            152.6,
+            -160.7
+          ],
+          [
+            180.8,
+            -164.2
+          ],
+          [
+            186.9,
+            -115.6
+          ],
+          [
+            158.7,
+            -112.1
+          ]
+        ],
+        "name": "Nhà giữ xe (sau Block 5)",
+        "shortName": "Nhà xe",
+        "kind": "parking",
+        "zone": 1,
+        "floors": 1,
+        "color": "#9aa3ab",
+        "detailLevel": 2,
+        "majorIds": [],
+        "notes": "Số 2 trên sơ đồ, sát đầu phía Bắc Block 5. Khung nền = bãi xe OSM w602270473. Ảnh: campus_4"
+      },
+      {
+        "id": "fami-pizza",
+        "footprint": [
+          [
+            118,
+            -128
+          ],
+          [
+            128,
+            -128
+          ],
+          [
+            128,
+            -118
+          ],
+          [
+            118,
+            -118
+          ]
+        ],
+        "name": "Fami Pizza",
+        "shortName": "Fami Pizza",
+        "kind": "kiosk",
+        "zone": 1,
+        "floors": 1,
+        "color": "#c0563f",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "VỊ TRÍ ƯỚC LƯỢNG: phía Bắc Block 4, sau trạm điện. Ảnh campus_21: đứng ở Fami Pizza thấy B4 bên trái, B11 bên phải"
+      },
+      {
+        "id": "highlands",
+        "footprint": [
+          [
+            140,
+            -68
+          ],
+          [
+            152,
+            -68
+          ],
+          [
+            152,
+            -60
+          ],
+          [
+            140,
+            -60
+          ]
+        ],
+        "name": "Highlands Coffee",
+        "shortName": "Highlands",
+        "kind": "kiosk",
+        "zone": 1,
+        "floors": 1,
+        "color": "#b3262a",
+        "detailLevel": 2,
+        "majorIds": [],
+        "notes": "VỊ TRÍ ƯỚC LƯỢNG: đầu Đông Block 4, phía hồ nước. Ki-ốt hình xe buýt đỏ (handbook-anh/2026-p14-517). Ảnh 360: campus_13"
+      },
+      {
+        "id": "cong-phu",
+        "footprint": [
+          [
+            -76,
+            -242
+          ],
+          [
+            -52,
+            -242
+          ],
+          [
+            -52,
+            -234
+          ],
+          [
+            -76,
+            -234
+          ]
+        ],
+        "name": "Cổng phụ (cổng sau)",
+        "shortName": "Cổng phụ",
+        "kind": "gate",
+        "zone": 2,
+        "floors": 1,
+        "color": "#7a7a7a",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "Cuối con đường giữa B10 và B11, ra đường Lê Duẩn. Vị trí ước lượng nơi đường cắt ranh giới. Ảnh: campus_23–26"
+      },
+      {
+        "id": "cong-chinh",
+        "footprint": [
+          [
+            258,
+            -62
+          ],
+          [
+            272,
+            -62
+          ],
+          [
+            272,
+            6
+          ],
+          [
+            258,
+            6
+          ]
+        ],
+        "name": "Cổng chính",
+        "shortName": "Cổng chính",
+        "kind": "gate",
+        "zone": 1,
+        "floors": 1,
+        "color": "#7a7a7a",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "Cổng MỚI (vòm cung) chưa có ảnh — khung tạm phủ 4 làn đường vào từ Nam Kỳ Khởi Nghĩa. Ảnh cổng cũ: campus, campus_1"
+      }
+    ]
+  },
+  "majors": []
+}

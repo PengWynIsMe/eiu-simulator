@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env*
+.DS_Store
+
+# Ảnh/video tham khảo nặng — chỉ giữ ghi chú chữ trong git
+references/**/*
+!references/**/
+!references/**/*.md
