@@ -6,7 +6,7 @@ Cập nhật: 2026-11-12
 - **Link test cho đồng nghiệp:** https://pengwynisme.github.io/eiu-simulator/ — GitHub Actions (`.github/workflows/deploy.yml`)
   tự build + đăng mỗi lần push `main`. Repo `PengWynIsMe/eiu-simulator` đang **public**. Khi merge T03 vào `main` nhớ giữ commit Pages (`base: './'`).
 - **T02 xong** (Gemini), người dùng duyệt 2026-11-13, đã merge vào `main`. Lỗi còn lại (nhấp nháy, màu, cây) chuyển vào T03 "Phần 0".
-- **Đang làm:** **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
+- **Đang làm:** — (chờ góp ý của người dùng/đồng nghiệp qua chế độ góp ý). Lịch sử: **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
   terminal `term_acdc0de5-2180-4022-90d8-24c364fe53e8`, nhánh `t03-khu-vuc-1`.
 - **Việc tiếp theo chính xác:** khi Gemini ghi xong `docs/tasks/T03-bao-cao.md` → Claude review + 3 cổng kiểm tra + xem trình duyệt
   → người dùng xem thử → commit + merge.
@@ -18,7 +18,7 @@ Cập nhật: 2026-11-12
 ## Đợt song song 3 luồng (từ commit T03) — ✅ XONG, đã gộp 2026-11-13
 
 Gộp B → A → C vào `t03-khu-vuc-1` không xung đột; typecheck/lint/build sạch; Claude thử tay: góp ý bấm Block 3 → form đúng; nút Đi bộ → nhân vật; giữ D đi ngang không xoay camera (sau vòng sửa 1 của Codex).
-**Chờ người dùng xem để merge `main` + push** (link Pages tự cập nhật). Worktree 3 luồng vẫn còn ở `~/orca/workspaces/eiu-simulator/` — xóa sau khi merge.
+Người dùng duyệt → **đã merge `main` + push 2026-11-13**, link Pages đã cập nhật (kiểm tra: bundle trùng, góp ý bản online đọc GitHub không lỗi). Worktree + nhánh 3 luồng đã xóa.
 
 | Luồng | Agent | Nhánh / worktree | Brief | Cổng dev |
 | --- | --- | --- | --- | --- |
