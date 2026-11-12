@@ -1,10 +1,29 @@
+import { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import Campus from './scene/Campus';
 import { OVERVIEW_CAMERA } from './scene/CameraRig';
 import TopBar from './ui/TopBar';
+import ReviewPanel from './ui/ReviewPanel';
 import WalkHud from './ui/walk/WalkHud';
+import { useReviewStore } from './store/useReviewStore';
 
 export default function App() {
+  const reviewMode = useReviewStore((s) => s.reviewMode);
+
+  useEffect(() => {
+    void useReviewStore.getState().load();
+
+    // Giữ trạng thái reviewMode khi Vite dev server reload sau khi ghi file
+    const savedReviewMode = sessionStorage.getItem('campussim.reviewMode');
+    if (savedReviewMode === 'true' && !useReviewStore.getState().reviewMode) {
+      useReviewStore.getState().toggleReviewMode();
+    }
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem('campussim.reviewMode', String(reviewMode));
+  }, [reviewMode]);
+
   return (
     <div className="relative h-full w-full">
       <Canvas
@@ -20,6 +39,7 @@ export default function App() {
         <Campus />
       </Canvas>
       <TopBar />
+      {reviewMode && <ReviewPanel />}
       {/* Luồng C (T09) — giữ nguyên dòng này */}
       <WalkHud />
     </div>
