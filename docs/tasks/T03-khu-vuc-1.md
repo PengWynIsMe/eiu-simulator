@@ -2,13 +2,31 @@
 
 - Người làm: **Gemini (Antigravity)**
 - Nhánh: `t03-khu-vuc-1`
-- Phụ thuộc: T02 đã được Claude review. **Claude sẽ rà lại brief này sau T02** (tên component có thể đổi theo code T02).
+- Phụ thuộc: T02 (đã commit). Code T02 hiện có: `Ground.tsx`, `Building.tsx`, `Trees.tsx`, `Environment.tsx`, `CameraRig.tsx` — đọc trước khi sửa.
 
 ## Mục tiêu
 
 Khu vực 1 nhìn vào là nhận ra EIU: Block 3, 4, 5, 6 có tầng, cửa sổ, lam che, mảng kính sảnh/cầu thang;
 hồ nước với 2 cầu mái tôn xanh nối Block 4 ↔ Block 3; hành lang mái che phủ dây leo; nhà xe sau Block 5; cổng chính (tạm).
 Các mảnh dựng phải **dùng lại được** cho khu vực 2 (B8–B11) ở T06.
+
+## Phần 0 — Sửa lỗi sau T02 (làm TRƯỚC, báo cáo riêng)
+
+Người dùng + Claude review T02 thấy:
+
+1. **Nhấp nháy khi zoom/di chuyển (z-fighting + bóng rung).** Nguyên nhân trong code T02:
+   các lớp mặt phẳng `Ground.tsx` cách nhau chỉ 0.003–0.01 m (0.042 / 0.045 / 0.048 ...), camera `near: 1` nhìn từ 250 m.
+   Sửa:
+   - Tách lớp ≥ 0.15 m: đất 0 → cỏ trong ranh giới 0.15 → bãi xe 0.3 → cỏ vòng xoay 0.3 → đường phố 0.45 → đường nội bộ 0.6 → lối đi 0.75.
+   - Thêm `polygonOffset` (`polygonOffsetFactor` âm dần theo lớp) cho vật liệu đường.
+   - Các đoạn đường **cùng một mesh** chồng lên nhau ở chỗ nối → vẫn chớp: tắt `depthWrite` cho lớp đường hoặc nối đoạn liền mạch.
+   - Camera `near` tăng lên 5 (hoặc động theo khoảng cách); `far` 2500.
+   - Bóng: thu khung bóng về vùng khuôn viên, `shadow-normalBias` ~0.05, hoặc tắt bóng nếu vẫn rung — **ưu tiên không chớp hơn có bóng**.
+   - Kiểm tra: zoom từ xa vào gần, kéo ngang qua đường giao nhau — không được chớp.
+2. **Màu:** mái quá tối và che mất tường → mái xám sáng (~`#8d9196`), chìa ra ~0.8 m (không phải 1.2). Đường đổi xám nhựa sáng (~`#7b7f86`), lối đi lát gạch nhạt. Trời đang ngả xanh lá → xanh trời nhạt.
+3. **Cây:** to hơn (cao 8–12 m, tán rộng 6–9 m), dày hơn quanh đường nội bộ và quảng trường — EIU rất nhiều cây to.
+4. **Dữ liệu đã sửa (Claude):** nhà xe cạnh Căn tin giờ bám đúng hướng bãi xe; thêm `nha-xe-2-tang` (tầng trên + tầng hầm, cạnh Lê Duẩn gần B9/B10) —
+   chỉ cần hiện đúng như các nhà xe khác, lối dốc xuống hầm làm ở T06.
 
 ## Phạm vi khu vực 1
 

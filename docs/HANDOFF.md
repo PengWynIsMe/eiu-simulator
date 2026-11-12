@@ -3,9 +3,11 @@
 Cập nhật: 2026-11-12
 
 - **Giai đoạn:** 1 — mô hình khuôn viên EIU. **T01 xong** (Claude).
-- **Đang làm:** —
-- **Việc tiếp theo chính xác:** người dùng giao **T02** (`docs/tasks/T02-nen-chung.md`) cho Gemini trong Antigravity.
-  Gemini báo cáo → Claude review → Claude rà lại brief T03 → giao T03.
+- **T02 xong** (Gemini), người dùng duyệt 2026-11-13, đã merge vào `main`. Lỗi còn lại (nhấp nháy, màu, cây) chuyển vào T03 "Phần 0".
+- **Đang làm:** **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
+  terminal `term_acdc0de5-2180-4022-90d8-24c364fe53e8`, nhánh `t03-khu-vuc-1`.
+- **Việc tiếp theo chính xác:** khi Gemini ghi xong `docs/tasks/T03-bao-cao.md` → Claude review + 3 cổng kiểm tra + xem trình duyệt
+  → người dùng xem thử → commit + merge.
 - **Người dùng trả lời đợt 2 (2026-11-12):** B4, B5 = 3 tầng; B8–B11 = 4 tầng; cầu nằm trên mặt hồ, hồ cao ~0.6 m;
   `nho-1` bỏ; `nho-2` = hành lang B3–B6; thêm nhà xe sau B5 → trạm điện → Fami Pizza; nhà xe cạnh Căn tin kéo dài tới gần cổng phụ;
   cổng sau = cổng phụ, ở cuối đường giữa B10 và B11. Đã cập nhật `campus.json`. Còn chưa rõ: số tầng B6; ảnh cổng mới.

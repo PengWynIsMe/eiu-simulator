@@ -155,23 +155,23 @@
         "color": "#9aa3ab",
         "detailLevel": 1,
         "majorIds": [],
-        "notes": "Người dùng: kéo dài từ cạnh Căn tin tới gần cổng sau, dài ~bằng Block 8. Khung nền ước lượng (OSM chỉ có 1 đoạn ngắn)",
+        "notes": "Bám hướng bãi xe OSM w602270467, kéo dài ~121 m (bằng B8) về phía Căn tin. Người dùng: trước đó bị lệch so với móng",
         "footprint": [
           [
-            65.3,
-            -264.4
+            -34.0,
+            -242.1
           ],
           [
-            -38.0,
-            -264.4
+            83.8,
+            -270.0
           ],
           [
-            -38.0,
-            -249.4
+            86.9,
+            -257.2
           ],
           [
-            65.3,
-            -249.4
+            -30.9,
+            -229.3
           ]
         ]
       },
@@ -299,20 +299,20 @@
         "id": "cong-chinh",
         "footprint": [
           [
-            258,
-            -62
+            254.0,
+            -59.7
           ],
           [
-            272,
-            -62
+            267.9,
+            -61.2
           ],
           [
-            272,
-            6
+            275.6,
+            6.4
           ],
           [
-            258,
-            6
+            261.7,
+            7.9
           ]
         ],
         "name": "Cổng chính",
@@ -323,7 +323,37 @@
         "color": "#7a7a7a",
         "detailLevel": 1,
         "majorIds": [],
-        "notes": "Cổng MỚI (vòm cung) chưa có ảnh — khung tạm phủ 4 làn đường vào từ Nam Kỳ Khởi Nghĩa. Ảnh cổng cũ: campus, campus_1"
+        "notes": "Cổng MỚI (vòm cung) chưa có ảnh. Khung tạm xoay theo hướng đường Nam Kỳ Khởi Nghĩa (~6.5°), cách mép đường ~12 m, phủ 4 làn vào. Ảnh cổng cũ: campus, campus_1"
+      },
+      {
+        "id": "nha-xe-2-tang",
+        "footprint": [
+          [
+            -154.3,
+            -198.2
+          ],
+          [
+            -157.3,
+            -213.1
+          ],
+          [
+            -98.8,
+            -226.7
+          ],
+          [
+            -94.5,
+            -211.4
+          ]
+        ],
+        "name": "Nhà giữ xe 2 tầng (tầng trên + tầng hầm)",
+        "shortName": "Nhà xe",
+        "kind": "parking",
+        "zone": 2,
+        "floors": 1,
+        "color": "#9aa3ab",
+        "detailLevel": 1,
+        "majorIds": [],
+        "notes": "Người dùng: nhà xe có tầng trên và tầng hầm, cạnh đường Lê Duẩn gần B9/B10. Khung nền = bãi xe OSM w605661324. Cần lối dốc xuống hầm"
       }
     ]
   },
