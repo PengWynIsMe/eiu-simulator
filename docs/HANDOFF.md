@@ -6,7 +6,12 @@ Cập nhật: 2026-11-12
 - **Link test cho đồng nghiệp:** https://pengwynisme.github.io/eiu-simulator/ — GitHub Actions (`.github/workflows/deploy.yml`)
   tự build + đăng mỗi lần push `main`. Repo `PengWynIsMe/eiu-simulator` đang **public**. Khi merge T03 vào `main` nhớ giữ commit Pages (`base: './'`).
 - **T02 xong** (Gemini), người dùng duyệt 2026-11-13, đã merge vào `main`. Lỗi còn lại (nhấp nháy, màu, cây) chuyển vào T03 "Phần 0".
-- **Đang làm:** — (chờ góp ý của người dùng/đồng nghiệp qua chế độ góp ý). Lịch sử: **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
+- **Đồng nghiệp Hieuthao63d push commit `7436d2a`** (2026-11-13): hồ căn giữa 2 cầu (`zone1/pondLayout.ts` dùng chung cho cây + va chạm đi bộ),
+  B8–B11 chi tiết (`kit/TwinWingBlock.tsx`), Block 6 BBI, khu vực 2 (căn tin, nhà xe nhiều tầng, trạm điện, ki-ốt, hành lang),
+  **panel thông tin tòa nhà** (`ui/BuildingPanel.tsx`, phòng theo tầng). Claude review: 3 cổng sạch, console sạch.
+  Vấn đề: nội dung ~600 dòng nằm trong `ui/text.ts` (sai quy tắc) và **chưa có nguồn** cho số liệu (vd hội trường 544 chỗ) → T10.
+- **Đang làm:** **T10** — Codex gpt-6-luna medium, worktree `~/orca/workspaces/eiu-simulator/t10-du-lieu-toa-nha`, terminal `term_f5719f32-3d9e-43a0-9577-895655396034`.
+- **Cần người dùng hỏi đồng nghiệp:** số liệu phòng/sức chứa trong panel lấy từ đâu (tour 360? sổ tay? tự suy?) → điền `source` trong `building-details.json`. Lịch sử: **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
   terminal `term_acdc0de5-2180-4022-90d8-24c364fe53e8`, nhánh `t03-khu-vuc-1`.
 - **Việc tiếp theo chính xác:** khi Gemini ghi xong `docs/tasks/T03-bao-cao.md` → Claude review + 3 cổng kiểm tra + xem trình duyệt
   → người dùng xem thử → commit + merge.

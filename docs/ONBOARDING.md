@@ -21,11 +21,12 @@ Sau này: bấm tòa nhà → xem ngành học (chương trình, một ngày c�
 | T03 | Khu vực 1 (cổng chính → quảng trường) chi tiết: Block 3/4/5, hồ nước + 2 cầu mái xanh, nhà xe, cột cờ; hết nhấp nháy |
 | T04 | Hover/click tòa nhà + **Chế độ góp ý** (ghi chú ngay trên mô hình) |
 | T09 | **Chế độ đi bộ**: nhân vật, WASD/mũi tên, Shift chạy, camera bám sau, va chạm tường/hồ, cần ảo trên điện thoại |
+| T06, T08 | (đồng nghiệp) B8–B11 + khu vực 2 chi tiết; panel thông tin tòa nhà có phòng theo tầng |
 
 **Việc tiếp theo** (chi tiết trong `docs/ROADMAP.md`):
 1. **Đọc góp ý và sửa** — góp ý của nhóm nằm ở GitHub Issues nhãn `gop-y` (xem mục 5).
 2. T05 camera bay tới tòa nhà khi bấm / nút quay về toàn cảnh.
-3. T06 khu vực 2 (Block 8–11, căn tin, nhà xe 2 tầng, cổng phụ) — dùng lại `src/scene/kit/`.
+3. T10 (đang làm) chuyển chi tiết tòa nhà sang `src/data/building-details.json` + ghi nguồn; còn lại của khu vực 2: dốc hầm nhà xe 2 tầng, cổng phụ.
 4. T07 màn hình tải + tối ưu (bundle three.js ~1 MB).
 5. Giai đoạn sau: nội dung ngành học thật của EIU, nội thất, multiplayer.
 
@@ -62,6 +63,7 @@ chỉ có các file ghi chú `.md`. Cần ảnh thì xin chủ dự án, hoặc 
 | `docs/tasks/T*.md` | Brief từng task; `T*-bao-cao.md` là báo cáo khi agent làm xong |
 | `docs/ASSETS.md`, `docs/ASSETS-REVIEW.md` | Cách thu thập tài liệu khuôn viên và đánh giá mức dựng từng tòa |
 | `references/tour-360/GHI-CHU.md` | Ảnh 360° nào chụp ở đâu (người dùng đánh dấu) |
+| `src/data/building-details.json` | (sau T10) Chi tiết tòa: tiêu đề phụ, đặc điểm, **phòng theo tầng**, **nguồn** — sửa nội dung panel ở đây |
 | `src/data/campus.json` | Thông tin từng tòa (tên, số tầng, màu, khu vực, ghi chú nguồn) — **sửa dữ liệu ở đây** |
 | `src/data/layout.json` | Khung nền tòa + đường sinh tự động từ OSM (`npm run layout`) — **không sửa tay** |
 
@@ -82,6 +84,8 @@ chỉ có các file ghi chú `.md`. Cần ảnh thì xin chủ dự án, hoặc 
   Sửa xong: **đóng Issue kèm bình luận đã sửa gì** → ghim trên mô hình tự chuyển "đã sửa".
 
 ## 6. Cách nhóm làm việc với agent
+
+- **Người (đồng nghiệp) push thẳng `main` cũng được**, nhưng nhớ: chạy 3 lệnh kiểm tra, **nội dung đặt trong `src/data/`** (không viết cứng trong component), ghi **nguồn** cho số liệu, và cập nhật `docs/HANDOFF.md` + `docs/ROADMAP.md`.
 
 - **Claude (Claude Code)** = tech lead/điều phối: viết brief, giữ "hợp đồng" (`src/types`, `src/store`, `src/data`, config), review, gộp, commit, push.
 - **Gemini (Antigravity)** = thợ code chính phần 3D (`src/scene/`) và giao diện (`src/ui/`).

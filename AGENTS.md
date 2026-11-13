@@ -109,6 +109,7 @@ getBuilding(id: string): Building | undefined
 getMajor(id: string): Major | undefined
 getMajorsOfBuilding(buildingId: string): Major[]
 getBuildingsInZone(zone: number): Building[]
+getBuildingDetail(id: string): BuildingDetail | undefined   // (từ T10) phòng theo tầng + nguồn, từ building-details.json
 ```
 
 `Building` = thông tin trong `campus.json` + `shape` (`outer`, `holes`), `center: Vec2`, `height` (m).
