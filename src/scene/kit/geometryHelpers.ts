@@ -77,6 +77,11 @@ export function expandShapePolygon(ring: Vec2[], offset: number): Vec2[] {
   });
 }
 
+/** Chuyển BufferGeometry sang non-indexed nếu đang có index, tránh warning khi đã non-indexed. */
+export function ensureNonIndexed<T extends BufferGeometry>(geo: T): BufferGeometry {
+  return geo.index ? geo.toNonIndexed() : geo;
+}
+
 /** Đùn đa giác 2D (tọa độ Shape) lên phương Y `[yBottom .. yBottom + thickness]`. */
 export function createExtrudedPolygon(
   outerShapePts: Vec2[],
@@ -92,7 +97,7 @@ export function createExtrudedPolygon(
   const geo = new ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
   geo.rotateX(-Math.PI / 2);
   geo.translate(0, yBottom, 0);
-  return geo.toNonIndexed();
+  return geo.index ? geo.toNonIndexed() : geo;
 }
 
 export function addBox(
@@ -108,7 +113,8 @@ export function addBox(
   const h = maxY - minY;
   const d = maxZ - minZ;
   if (w <= 0.005 || h <= 0.005 || d <= 0.005) return;
-  const box = new BoxGeometry(w, h, d).toNonIndexed();
+  const rawBox = new BoxGeometry(w, h, d);
+  const box = rawBox.index ? rawBox.toNonIndexed() : rawBox;
   box.translate((minX + maxX) * 0.5, (minY + maxY) * 0.5, (minZ + maxZ) * 0.5);
   list.push(box);
 }
@@ -126,7 +132,8 @@ export function addRotatedBox(
   rotZ = 0
 ): void {
   if (w <= 0.005 || h <= 0.005 || d <= 0.005) return;
-  const box = new BoxGeometry(w, h, d).toNonIndexed();
+  const rawBox = new BoxGeometry(w, h, d);
+  const box = rawBox.index ? rawBox.toNonIndexed() : rawBox;
   if (rotX !== 0) box.rotateX(rotX);
   if (rotZ !== 0) box.rotateZ(rotZ);
   if (rotY !== 0) box.rotateY(rotY);
@@ -146,7 +153,8 @@ export function addCylinder(
   rotX = 0,
   rotZ = 0
 ): void {
-  const cyl = new CylinderGeometry(rTop, rBottom, height, radialSegments).toNonIndexed();
+  const rawCyl = new CylinderGeometry(rTop, rBottom, height, radialSegments);
+  const cyl = rawCyl.index ? rawCyl.toNonIndexed() : rawCyl;
   if (rotX !== 0) cyl.rotateX(rotX);
   if (rotZ !== 0) cyl.rotateZ(rotZ);
   cyl.translate(cx, cy, cz);

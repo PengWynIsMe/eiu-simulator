@@ -68,7 +68,8 @@ export default function Zone2Walkways() {
         const angle = Math.atan2(dz, dx);
         const midX = (a[0] + b[0]) * 0.5;
         const midZ = (a[1] + b[1]) * 0.5;
-        const roofBox = new BoxGeometry(len + 0.3, 0.2, path.width).toNonIndexed();
+        const rawRoof = new BoxGeometry(len + 0.3, 0.2, path.width);
+        const roofBox = rawRoof.index ? rawRoof.toNonIndexed() : rawRoof;
         roofBox.rotateY(-angle);
         roofBox.translate(midX, path.roofH, midZ);
         roofs.push(roofBox);
@@ -84,7 +85,8 @@ export default function Zone2Walkways() {
           const px = a[0] + dx * t;
           const pz = a[1] + dz * t;
           for (const side of [-1, 1]) {
-            const pGeo = new BoxGeometry(0.12, path.roofH, 0.12).toNonIndexed();
+            const rawPost = new BoxGeometry(0.12, path.roofH, 0.12);
+            const pGeo = rawPost.index ? rawPost.toNonIndexed() : rawPost;
             pGeo.translate(
               px + nx * (path.width * 0.45 * side),
               path.roofH * 0.5,
