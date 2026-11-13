@@ -23,7 +23,7 @@
   export interface BuildingDetail { subtitle: string; facts: string[]; floors?: BuildingFloorDetail[]; source: InfoSource }
   ```
 - `src/data/building-details.json` (mới): `{ "<buildingId>": BuildingDetail, ... }` — đúng 19 id như `BUILDING_SPECS` hiện tại.
-  Mọi tòa: `"source": { "status": "chua-xac-minh", "label": "Đồng nghiệp nhập ngày 2026-11-13 — chưa ghi nguồn" }`.
+  Mọi tòa: `"source": { "status": "xac-minh", "label": "Số liệu thực tế — đồng nghiệp Hieuthao63d xác minh, 2026-11-13" }` (người dùng xác nhận).
 - `src/data/index.ts` — nạp + kiểm tra file mới bằng các hàm trong `./validate` (như cách đang kiểm `campus.json`);
   báo lỗi nếu id không có trong `campus.buildings`. Xuất hàm mới: `getBuildingDetail(id: string): BuildingDetail | undefined`.
 - `src/ui/BuildingPanel.tsx` — đọc qua `getBuildingDetail` thay cho `BUILDING_SPECS`. Cuối panel thêm dòng nguồn:

@@ -11,7 +11,7 @@ Cập nhật: 2026-11-12
   **panel thông tin tòa nhà** (`ui/BuildingPanel.tsx`, phòng theo tầng). Claude review: 3 cổng sạch, console sạch.
   Vấn đề: nội dung ~600 dòng nằm trong `ui/text.ts` (sai quy tắc) và **chưa có nguồn** cho số liệu (vd hội trường 544 chỗ) → T10.
 - **Đang làm:** **T10** — Codex gpt-6-luna medium, worktree `~/orca/workspaces/eiu-simulator/t10-du-lieu-toa-nha`, terminal `term_f5719f32-3d9e-43a0-9577-895655396034`.
-- **Cần người dùng hỏi đồng nghiệp:** số liệu phòng/sức chứa trong panel lấy từ đâu (tour 360? sổ tay? tự suy?) → điền `source` trong `building-details.json`. Lịch sử: **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
+- **Người dùng xác nhận 2026-11-13:** số liệu phòng/sức chứa trong panel là **số liệu thực tế, đã xác minh** (đồng nghiệp Hieuthao63d) → `source.status = xac-minh`. Lịch sử: **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
   terminal `term_acdc0de5-2180-4022-90d8-24c364fe53e8`, nhánh `t03-khu-vuc-1`.
 - **Việc tiếp theo chính xác:** khi Gemini ghi xong `docs/tasks/T03-bao-cao.md` → Claude review + 3 cổng kiểm tra + xem trình duyệt
   → người dùng xem thử → commit + merge.
