@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Vector3, type Group } from 'three';
+import { CapsuleFallback } from './PlayerCharacter';
+import PlayerCharacter from './PlayerCharacter';
 import { campus } from '../../data';
 import { useWalkStore } from '../../store/useWalkStore';
 import type { Vec2 } from '../../types';
@@ -162,8 +165,8 @@ export default function WalkMode() {
     }
     if (body.current) {
       body.current.position.set(player.current[0], player.current[1] + (moving.current ? Math.sin(performance.now() * 0.012) * 0.035 : 0), player.current[2]);
-      // The character's front points along local -Z; face it toward movement, away from the trailing camera.
-      body.current.rotation.y = -facingYaw.current - Math.PI / 2;
+      // This model faces local +Z, so add π to keep its back toward the trailing camera.
+      body.current.rotation.y = -facingYaw.current + Math.PI / 2;
     }
     target.set(player.current[0], player.current[1] + 1.1, player.current[2]);
     forward.set(Math.cos(cameraYaw.current), 0, Math.sin(cameraYaw.current));
@@ -174,18 +177,9 @@ export default function WalkMode() {
 
   return (
     <group ref={body}>
-      <mesh position={[0, 0.69, 0]} castShadow>
-        <capsuleGeometry args={[0.32, 0.75, 4, 8]} />
-        <meshStandardMaterial color="#1d4f91" roughness={0.8} />
-      </mesh>
-      <mesh position={[0, 1.37, 0]} castShadow>
-        <sphereGeometry args={[0.22, 10, 8]} />
-        <meshStandardMaterial color="#e8bc98" roughness={0.85} />
-      </mesh>
-      <mesh position={[0, 1.57, 0.02]} castShadow>
-        <sphereGeometry args={[0.225, 10, 5, 0, Math.PI * 2, 0, Math.PI * 0.48]} />
-        <meshStandardMaterial color="#263238" roughness={0.9} />
-      </mesh>
+      <Suspense fallback={<CapsuleFallback />}>
+        <PlayerCharacter moving={moving} running={running} />
+      </Suspense>
     </group>
   );
 }
