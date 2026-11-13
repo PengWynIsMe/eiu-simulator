@@ -1,72 +1,73 @@
-# HANDOFF — trạng thái hiện tại
+# HANDOFF — bàn giao cho đồng nghiệp
 
-Cập nhật: 2026-11-12
+Cập nhật: 2026-11-14 ~01:10 (Claude). Chủ dự án (PengWynIsMe) đi ngủ, **đồng nghiệp tiếp quản**.
+Mới vào? Đọc `docs/ONBOARDING.md` trước, rồi file này, rồi `AGENTS.md`.
 
-- **Giai đoạn:** 1 — mô hình khuôn viên EIU. **T01 xong** (Claude).
-- **Link test cho đồng nghiệp:** https://pengwynisme.github.io/eiu-simulator/ — GitHub Actions (`.github/workflows/deploy.yml`)
-  tự build + đăng mỗi lần push `main`. Repo `PengWynIsMe/eiu-simulator` đang **public**. Khi merge T03 vào `main` nhớ giữ commit Pages (`base: './'`).
-- **T02 xong** (Gemini), người dùng duyệt 2026-11-13, đã merge vào `main`. Lỗi còn lại (nhấp nháy, màu, cây) chuyển vào T03 "Phần 0".
-- **Đồng nghiệp Hieuthao63d push commit `7436d2a`** (2026-11-13): hồ căn giữa 2 cầu (`zone1/pondLayout.ts` dùng chung cho cây + va chạm đi bộ),
-  B8–B11 chi tiết (`kit/TwinWingBlock.tsx`), Block 6 BBI, khu vực 2 (căn tin, nhà xe nhiều tầng, trạm điện, ki-ốt, hành lang),
-  **panel thông tin tòa nhà** (`ui/BuildingPanel.tsx`, phòng theo tầng). Claude review: 3 cổng sạch, console sạch.
-  Vấn đề: nội dung ~600 dòng nằm trong `ui/text.ts` (sai quy tắc) và **chưa có nguồn** cho số liệu (vd hội trường 544 chỗ) → T10.
-- **T10 xong** (Codex Luna): nội dung panel giờ ở `src/data/building-details.json` (18 tòa, nguồn đã xác minh), đọc qua `getBuildingDetail`. Đã merge + push.
-- **T05 + T11 xong, đã gộp + push (2026-11-14):** bấm tòa → camera bay tới (tránh panel), Về tổng quan → bay về; hết cảnh báo toNonIndexed; nhân vật đi bộ là robot CC0 (RobotExpressive) có animation đứng/đi/chạy.
-- **Người dùng đi ngủ (2026-11-14 ~00:30), giao Claude tự điều phối T12 → khi có gameplay tương tác trong nhà thì push; đồng nghiệp test thay.**
-- **Đang làm: T12** nội thất Block 3 (Gemini, worktree `t12-noi-that-b3`, cổng 5174). Người dùng chốt: dựng theo tour 360, sơ đồ thoát hiểm bổ sung sau.
-  Claude đã làm sẵn: `useWalkStore.interior` + `enterInterior/setInteriorFloor/exitInterior`, stub `scene/interior/InteriorScene.tsx`, `ui/interior/InteriorHud.tsx` đã gắn trong `Campus.tsx`/`App.tsx`; ảnh 360 nội thất B3 ở `references/tour-360/b3/` (không lên git).
-- Lỗi nhỏ còn mở: console có warning `THREE.BufferGeometry.toNonIndexed(): ... already non-indexed` từ code scene của commit `7436d2a` (vô hại, nên dọn).
-- **Người dùng xác nhận 2026-11-13:** số liệu phòng/sức chứa trong panel là **số liệu thực tế, đã xác minh** (đồng nghiệp Hieuthao63d) → `source.status = xac-minh`. Lịch sử: **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
-  terminal `term_acdc0de5-2180-4022-90d8-24c364fe53e8`, nhánh `t03-khu-vuc-1`.
-- **Việc tiếp theo chính xác:** khi Gemini ghi xong `docs/tasks/T03-bao-cao.md` → Claude review + 3 cổng kiểm tra + xem trình duyệt
-  → người dùng xem thử → commit + merge.
-- **Người dùng trả lời đợt 2 (2026-11-12):** B4, B5 = 3 tầng; B8–B11 = 4 tầng; cầu nằm trên mặt hồ, hồ cao ~0.6 m;
-  `nho-1` bỏ; `nho-2` = hành lang B3–B6; thêm nhà xe sau B5 → trạm điện → Fami Pizza; nhà xe cạnh Căn tin kéo dài tới gần cổng phụ;
-  cổng sau = cổng phụ, ở cuối đường giữa B10 và B11. Đã cập nhật `campus.json`. Còn chưa rõ: số tầng B6; ảnh cổng mới.
-- **Người dùng đã đánh dấu xong ảnh 2** (campus_13–25) → `references/tour-360/GHI-CHU.md`. Còn thiếu: `campus_21` (tòa hai bên), `campus_26`. Cổng mới vẫn chưa có ảnh.
+- Link chạy thật: **https://pengwynisme.github.io/eiu-simulator/** (tự cập nhật ~2 phút sau mỗi push `main`)
+- Repo: https://github.com/PengWynIsMe/eiu-simulator — chỉ có nhánh `main`, không còn worktree/nhánh dở dang.
 
-## Đợt song song 3 luồng (từ commit T03) — ✅ XONG, đã gộp 2026-11-13
+## 1. Hiện trạng (đã chạy được)
 
-Gộp B → A → C vào `t03-khu-vuc-1` không xung đột; typecheck/lint/build sạch; Claude thử tay: góp ý bấm Block 3 → form đúng; nút Đi bộ → nhân vật; giữ D đi ngang không xoay camera (sau vòng sửa 1 của Codex).
-Người dùng duyệt → **đã merge `main` + push 2026-11-13**, link Pages đã cập nhật (kiểm tra: bundle trùng, góp ý bản online đọc GitHub không lỗi). Worktree + nhánh 3 luồng đã xóa.
+| Tính năng | Cách dùng | Task |
+| --- | --- | --- |
+| Khuôn viên EIU 3D đúng bố cục (khung nền OSM), khu vực 1 + 2 chi tiết | xoay/zoom chuột | T01–T03, T06 (đồng nghiệp) |
+| Hover/chọn tòa nhà → **camera bay tới** + **panel thông tin** (phòng theo tầng, nguồn đã xác minh) | bấm tòa; "Về tổng quan" | T04, T05, T08, T10 |
+| **Chế độ góp ý** — ghim ghi chú lên mô hình → GitHub Issue (nhãn `gop-y`) | nút "Chế độ góp ý" | T04 |
+| **Đi bộ** — nhân vật robot CC0 có animation, WASD/mũi tên, Shift chạy, camera bám sau, cần ảo trên điện thoại | nút "Đi bộ" / phím V, Esc thoát | T09, T11 |
+| **Vào trong Block 3** — sảnh + 3 tầng, va chạm tường, thẻ phòng, thang máy chọn tầng | đi bộ tới cửa B3 (mặt Bắc, gần (183, 19)) → **E**; thang máy **E** rồi **1/2/3** | T12 |
 
-| Luồng | Agent | Nhánh / worktree | Brief | Cổng dev |
-| --- | --- | --- | --- | --- |
-| A | Gemini | `t04a-3d` | `docs/tasks/T04a-3d.md` | 5174 |
-| B | Gemini | `t04b-giao-dien` | `docs/tasks/T04b-giao-dien.md` | 5175 |
-| C | Codex gpt-6-luna medium | `t09-di-bo` | `docs/tasks/T09-di-bo.md` | 5176 |
+Claude đã tự chơi thử T12 (2026-11-14): vào cửa ✅, sảnh có vách kính/quầy + thẻ "Sảnh chính" ✅, đi lạc vào 100.B3 → thẻ phòng đổi đúng ✅,
+bảng thang máy → tầng 2 ra trước thang máy ✅, Esc trong nhà → về toàn cảnh ✅, console sạch ✅. typecheck/lint/build sạch.
 
-File gắn kết (`Campus.tsx`, `App.tsx` dòng WalkHud) Claude đã gắn sẵn stub. Thứ tự gộp dự kiến: B → A → C.
+## 2. Lỗi / hạn chế đã biết (ưu tiên sửa trước)
 
-## Chế độ góp ý (T04)
+1. **T12 — chưa ai đi bộ tới được thang máy** trong lần thử (Claude mở bảng thang máy bằng sự kiện `campussim:open-elevator`). Cần đi tay kiểm:
+   từ sảnh có đường tới thang máy không, nút "E – Thang máy" có hiện không. Vị trí: `ELEVATOR_SPAWN_LOCAL` trong `src/scene/interior/b3Layout.ts`.
+2. **T12 — chưa kiểm cửa "Ra ngoài" bằng phím E** (chỉ kiểm Esc). Và chưa kiểm trên điện thoại thật.
+3. **T12 — nội thất là bản thử theo ảnh tour 360**, bố cục gần đúng; sàn đang xám trơn, chưa có trần (cố ý, để camera nhìn được).
+   Khi có **sơ đồ thoát hiểm 3 tầng B3** → chỉnh `b3Layout.ts` cho đúng.
+4. **T12 — vị trí nhân vật lưu ở biến cấp module** (`WalkMode.tsx`: `globalPlayerPos`...) vì `Campus.tsx` gỡ/gắn lại `<WalkMode/>` khi vào/ra nhà.
+   Chạy được nhưng nên chuyển sang store (`useWalkStore`) khi có dịp.
+5. **Nhân vật là robot** (RobotExpressive, CC0) — chưa tải được nhân vật người. Có file `.glb` người (CC0, có Idle/Walking/Running) thì chỉ cần thay
+   `public/models/` + cập nhật `CREDITS.md`, code `src/scene/walk/PlayerCharacter.tsx` giữ nguyên (kiểm tên clip + scale).
+6. Bundle JS ~1.2 MB (cảnh báo > 500 kB khi build) — tối ưu ở T07.
 
-- Người dùng chọn 2026-11-13: máy chủ dự án (`npm run dev`) ghi `review/notes.json`; đồng nghiệp (contributor, có GitHub) trên bản Pages gửi thành **GitHub Issue** (tiêu đề `[Góp ý] ...`, nhãn `gop-y`, JSON ẩn trong body). App đọc Issue qua API công khai → ai cũng thấy ghim của nhau. Issue đóng = đã sửa. Dự phòng: tải file → `review/inbox/`.
-- Claude đọc góp ý: `gh issue list --label gop-y --state open` + `review/notes.json` + `review/inbox/`. Sửa xong: đóng Issue kèm bình luận đã sửa gì.
-- Claude đã làm phần lưu trữ (types, `src/data/reviewNotes.ts`, `src/store/useReviewStore.ts`, plugin `scripts/review-notes-plugin.mjs`) — chưa commit, nằm trên nhánh `t03-khu-vuc-1` (không đụng file của Gemini).
-- Người dùng duyệt chạy song song 2026-11-13: sau T03, Claude tạo 2 worktree từ commit T03 — luồng A `t04a-3d` (`docs/tasks/T04a-3d.md`, chỉ `scene/`), luồng B `t04b-giao-dien` (`docs/tasks/T04b-giao-dien.md`, chỉ `ui/` + `App.tsx`) — mỗi luồng một Gemini. Hai luồng nói chuyện qua `useReviewStore` (`cameraRequest`).
+## 3. Việc tiếp theo (xếp theo ưu tiên)
 
-## Trạng thái T01
+| # | Việc | Agent gợi ý | Ghi chú |
+| --- | --- | --- | --- |
+| 1 | **Đọc góp ý** của người test và sửa | Claude / người | `gh issue list --repo PengWynIsMe/eiu-simulator --label gop-y --state open` + `review/notes.json`. Sửa xong đóng Issue kèm bình luận |
+| 2 | **Sửa lỗi 1–2 ở mục 2** (đường tới thang máy, cửa ra bằng E) | Gemini | Phạm vi: `src/scene/interior/**`, `src/ui/interior/**`, `src/scene/walk/**` |
+| 3 | **T07 màn hình tải + tối ưu** (bundle, `useProgress`, thử điện thoại thật) | Gemini → Claude review | Chưa có brief — viết theo `docs/tasks/_TEMPLATE.md` |
+| 4 | **Nội thất block khác** (B11: 39 ảnh 360, B8: 60 ảnh) theo mẫu T12 | Gemini | Tách bố cục mỗi block thành `scene/interior/<id>Layout.ts`; tổng quát hóa phần đang viết riêng cho B3 |
+| 5 | Nội dung **ngành học** thật của EIU (panel ngành) | Claude + người | Đề xuất: Kỹ thuật phần mềm, QTKD, Điều dưỡng. Cần link chương trình đào tạo |
 
-- Code: Vite 5 + React 18 + TS strict + Tailwind 4.1 + R3F 8 + drei 9 + zustand 5 + ESLint 9. Phiên bản ghim cố định trong `package.json`.
-- `npm run typecheck`, `npm run lint`, `npm run build` sạch; console trình duyệt sạch (kiểm 2026-11-12).
-  Build có cảnh báo bundle > 500 kB (three.js) — để T07.
-- Dữ liệu: `src/data/layout.json` sinh từ OSM (`npm run layout`): 13 tòa, 35 đường, 3 bãi xe, vòng xoay r ≈ 79.7 m.
-  `src/data/campus.json`: thông tin viết tay; nhiều số tầng ghi "CHƯA CHẮC" trong `notes`; 4 công trình nhỏ chưa rõ là gì (`nho-1..4`).
-- `src/scene/Campus.tsx` là **bản xem bố cục tạm** — T02 thay thế.
-- **Chưa commit** — chờ người dùng cho phép.
+## 4. Đang chờ người cung cấp
 
-## Thu thập tài liệu EIU
+- **Ảnh cổng chính mới** (vòm cung, xây sau 08/2025) — hiện dựng tạm theo vệ tinh.
+- **Sơ đồ thoát hiểm** mỗi tầng (B3 trước), 3 số đo (dài phòng, rộng hành lang, cao tầng); nếu có iPhone Pro: quét Polycam sảnh + 1 phòng.
+- **Số tầng Block 6**.
+- (Tùy chọn) file `.glb` nhân vật người CC0.
 
-- Kết quả + danh sách cần bổ sung: `docs/ASSETS-REVIEW.md`. Nguồn: `references/NGUON.md`.
-- Khu vực 1 đã gắn vị trí ảnh 360: `references/tour-360/GHI-CHU.md`.
-- Cổng chính trong tour/Street View là **cổng cũ**; cổng mới (vòm cung, xây sau 08/2025) chưa có ảnh.
+## 5. Cách giao việc cho agent (đã dùng, chạy tốt)
 
-## Quyết định đã chốt
+- Mỗi việc một brief `docs/tasks/T<số>-<tên>.md` (mẫu `_TEMPLATE.md`): mục tiêu, file **được / không được** sửa, tiêu chí xong, mẫu báo cáo.
+- Chạy song song: mỗi luồng **một worktree + nhánh riêng**, nhóm file không giao nhau, cổng dev riêng (5174, 5175, 5176). Orca:
+  ```bash
+  orca worktree create --name t13-xxx --branch t13-xxx --base-branch main --no-parent \
+    --agent antigravity --prompt "Đọc docs/ONBOARDING.md, AGENTS.md, docs/HANDOFF.md, rồi làm docs/tasks/T13-xxx.md ..." --json
+  # Codex: --agent codex --model gpt-6-luna --effort medium
+  ```
+- **Codex hay hiện màn hình hỏi cập nhật** khi mở → prompt không tới. Gửi phím Esc (`orca terminal send --terminal <handle> --text $'\x1b'`) rồi gửi lại prompt bằng `orca terminal send ... --enter --wait-submit 20`.
+- Agent không giữ phím được trong trình duyệt → tự thử bằng `window.dispatchEvent(new KeyboardEvent('keydown', {key: 'w'}))` trong console.
+- **Luôn tự chơi thử trước khi gộp**: báo cáo của agent có lúc ghi "đạt" mà chưa đúng (T12 vòng đầu: báo xong nhưng vào nhà thấy cảnh trống; ghi chú phòng tự bịa).
+- Gộp: commit trong worktree → `git merge` vào `main` → typecheck/lint/build → push → `orca worktree rm --worktree path:<...> --force --delete-branch`.
 
-- Xem "Điều chỉnh đã chốt" trong `docs/BRIEF.md` (mục 1–9).
-- Ưu tiên mô hình trước, ngành học sau. Khu vực 1 làm "lát cắt mẫu" mức 2; phần còn lại mức 1.
+## 6. Quyết định đã chốt (đừng hỏi lại)
 
-## Ghi chú mở
-
-- OSM ghi B8–B11 là 3 tầng, tour có tầng 1–4 → đang dùng 4. Cần người dùng xác nhận số tầng các block.
-- Cầu Block 4 ↔ Block 3 trong OSM có `layer=1` (bắc cao qua đường vào?) — cần xác nhận khi dựng T03.
+- Ưu tiên mô hình trước, ngành học sau. EIU không có ngành Thiết kế đồ họa.
+- Góp ý của nhóm đi qua **GitHub Issues** (repo public; đồng nghiệp là contributor). Máy chạy `npm run dev` thì ghi `review/notes.json`.
+- Số liệu phòng trong `src/data/building-details.json` là **số liệu thực tế đã xác minh** (Hieuthao63d).
+- Nội thất B3 dựng theo tour 360 trước; sơ đồ thoát hiểm bổ sung sau.
+- B4, B5 = 3 tầng; B8–B11 = 4 tầng (mỗi block là 2 nhà A/B); cầu nằm trên mặt hồ, hồ cao ~0.6 m.
+- Lịch sử chi tiết từng task: `docs/ROADMAP.md`, `docs/tasks/T*-bao-cao.md`, `git log`.
