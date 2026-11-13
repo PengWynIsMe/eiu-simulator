@@ -11,8 +11,9 @@ Cập nhật: 2026-11-12
   **panel thông tin tòa nhà** (`ui/BuildingPanel.tsx`, phòng theo tầng). Claude review: 3 cổng sạch, console sạch.
   Vấn đề: nội dung ~600 dòng nằm trong `ui/text.ts` (sai quy tắc) và **chưa có nguồn** cho số liệu (vd hội trường 544 chỗ) → T10.
 - **T10 xong** (Codex Luna): nội dung panel giờ ở `src/data/building-details.json` (18 tòa, nguồn đã xác minh), đọc qua `getBuildingDetail`. Đã merge + push.
-- **Đang làm (song song, 2026-11-14):** T05 camera bay (Gemini, worktree `t05-camera-bay`, cổng 5174) + T11 nhân vật CC0 (Codex Luna, worktree `t11-nhan-vat`, cổng 5176). File không giao nhau.
-- **Kế tiếp: T12** nội thất Block 3 (Gemini) — giao khi T05 + T11 đã gộp. Người dùng chốt: dựng theo tour 360, sơ đồ thoát hiểm bổ sung sau.
+- **T05 + T11 xong, đã gộp + push (2026-11-14):** bấm tòa → camera bay tới (tránh panel), Về tổng quan → bay về; hết cảnh báo toNonIndexed; nhân vật đi bộ là robot CC0 (RobotExpressive) có animation đứng/đi/chạy.
+- **Người dùng đi ngủ (2026-11-14 ~00:30), giao Claude tự điều phối T12 → khi có gameplay tương tác trong nhà thì push; đồng nghiệp test thay.**
+- **Đang làm: T12** nội thất Block 3 (Gemini, worktree `t12-noi-that-b3`, cổng 5174). Người dùng chốt: dựng theo tour 360, sơ đồ thoát hiểm bổ sung sau.
   Claude đã làm sẵn: `useWalkStore.interior` + `enterInterior/setInteriorFloor/exitInterior`, stub `scene/interior/InteriorScene.tsx`, `ui/interior/InteriorHud.tsx` đã gắn trong `Campus.tsx`/`App.tsx`; ảnh 360 nội thất B3 ở `references/tour-360/b3/` (không lên git).
 - Lỗi nhỏ còn mở: console có warning `THREE.BufferGeometry.toNonIndexed(): ... already non-indexed` từ code scene của commit `7436d2a` (vô hại, nên dọn).
 - **Người dùng xác nhận 2026-11-13:** số liệu phòng/sức chứa trong panel là **số liệu thực tế, đã xác minh** (đồng nghiệp Hieuthao63d) → `source.status = xac-minh`. Lịch sử: **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
