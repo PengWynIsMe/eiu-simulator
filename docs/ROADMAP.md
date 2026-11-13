@@ -22,6 +22,7 @@ phần còn lại tạm là khối đúng khung nền, nâng cấp dần theo t�
 | T08 Panel thông tin tòa nhà | Đồng nghiệp (Hieuthao63d) | Panel: cấu trúc, phòng theo từng tầng, Về tổng quan | ✅ commit `7436d2a` |
 | **T10** Chi tiết tòa nhà → dữ liệu + nguồn | Codex (gpt-6-luna, medium) | Chuyển `BUILDING_SPECS` từ `ui/text.ts` sang `src/data/building-details.json`, thêm trường nguồn | ✅ 2026-11-13 (18/18 tòa trùng khớp) |
 | **T11** Nhân vật người có animation | Codex (gpt-6-luna, medium) | Model CC0 low-poly, đứng/đi/chạy | Đang làm — `docs/tasks/T11-nhan-vat.md` |
+| **T12** Vào Block 3: sảnh, 3 tầng, thang máy, phòng | Gemini | Bản thử nội thất theo tour 360 (chưa có sơ đồ thoát hiểm) | Chờ T05 + T11 gộp — `docs/tasks/T12-noi-that-b3.md` |
 | **T09** Chế độ đi bộ | **Codex (gpt-6-luna, medium)** — luồng C | Nhân vật + camera bám sau, WASD/cần ảo, va chạm tòa nhà/hồ | ✅ 2026-11-13 (gộp) |
 
 Thứ tự: T02 → T03 → (T04, T05) → T06 → T07. T08 làm song song được với T04–T06 (chỉ đụng `ui/`).

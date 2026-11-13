@@ -8,12 +8,24 @@ import Zone2Walkways from './zone2/Zone2Walkways';
 import CameraRig from './CameraRig';
 import ReviewPins from './ReviewPins';
 import WalkMode from './walk/WalkMode';
+import InteriorScene from './interior/InteriorScene';
 import { campus } from '../data';
 import { useWalkStore } from '../store/useWalkStore';
 
 export default function Campus() {
   const { buildings } = campus;
   const walkMode = useWalkStore((s) => s.walkMode);
+  const inInterior = useWalkStore((s) => s.interior !== null);
+
+  // Bên trong tòa nhà (T12): chỉ render nội thất + nhân vật, ẩn toàn bộ khuôn viên cho nhẹ.
+  if (inInterior) {
+    return (
+      <>
+        <InteriorScene />
+        <WalkMode />
+      </>
+    );
+  }
 
   return (
     <>

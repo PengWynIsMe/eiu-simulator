@@ -5,6 +5,7 @@ import { OVERVIEW_CAMERA } from './scene/CameraRig';
 import TopBar from './ui/TopBar';
 import ReviewPanel from './ui/ReviewPanel';
 import WalkHud from './ui/walk/WalkHud';
+import InteriorHud from './ui/interior/InteriorHud';
 import BuildingPanel from './ui/BuildingPanel';
 import { useWalkStore } from './store/useWalkStore';
 import { useReviewStore } from './store/useReviewStore';
@@ -46,6 +47,8 @@ export default function App() {
       {!reviewMode && !walkMode && <BuildingPanel />}
       {/* Luồng C (T09) — giữ nguyên dòng này */}
       <WalkHud />
+      {/* T12 — nội thất: nút vào/ra, chọn tầng thang máy, thẻ phòng */}
+      <InteriorHud />
     </div>
   );
 }
