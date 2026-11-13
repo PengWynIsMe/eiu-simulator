@@ -9,6 +9,7 @@ import {
 } from 'three';
 import { campus } from '../data';
 import type { Vec2 } from '../types';
+import { isPointInPond } from './zone1/pondLayout';
 
 /** Bộ sinh số giả ngẫu nhiên có hạt giống cố định (Mulberry32) để vị trí không đổi mỗi lần render. */
 function createPrng(seed: number) {
@@ -107,8 +108,8 @@ export default function Trees() {
       const dCenter = Math.hypot(pt[0], pt[1]);
       if (dCenter >= 73.0 && dCenter <= 86.5) return false;
 
-      // 4b. Không mọc cây bên trong lòng hồ nước giữa Block 4 và Block 3
-      if (pt[0] >= 90 && pt[0] <= 145 && pt[1] >= -65 && pt[1] <= -10) return false;
+      // 4b. Không mọc cây bên trong hoặc quá sát lòng hồ nước giữa Block 4 và Block 3
+      if (isPointInPond(pt[0], pt[1], 3.5)) return false;
 
       // 5. Không đè vào các bãi giữ xe
       for (const p of layout.parking) {

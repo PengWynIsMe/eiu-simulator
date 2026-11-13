@@ -8,8 +8,14 @@ import { useCampusStore } from '../store/useCampusStore';
 import { useReviewStore } from '../store/useReviewStore';
 import { getCameraPose } from './cameraUtils';
 import BlockFacade from './kit/BlockFacade';
+import TwinWingBlock from './kit/TwinWingBlock';
 import ParkingShed from './zone1/ParkingShed';
 import MainGate from './zone1/MainGate';
+import { Block6BBI, CoveredB3B6Corridor } from './zone1/Block6BBI';
+import { HighlandsKiosk, FamiPizzaKiosk } from './zone1/Kiosks';
+import CanteenBlock from './zone2/CanteenBlock';
+import { TwoLevelParking, LongParkingShed } from './zone2/ParkingStructures';
+import { BackGate, PowerSubstation } from './zone2/ServiceStructures';
 
 /** Chuyển [x, z] sang [x, -z] trên mặt phẳng XY để khi xoay -90° quanh X sẽ khớp với hệ tọa độ thế giới. */
 function toShapePoints(pts: Vec2[]): [number, number][] {
@@ -266,8 +272,33 @@ export default function BuildingView({ building }: { building: Building }) {
   let content = null;
   if (building.id === 'cong-chinh') {
     content = <MainGate isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'cong-phu') {
+    content = <BackGate isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'tram-dien') {
+    content = <PowerSubstation building={building} isHovered={isHovered} isSelected={isSelected} />;
   } else if (building.id === 'nha-xe-b5') {
     content = <ParkingShed isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'nha-xe-can-tin') {
+    content = <LongParkingShed building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'nha-xe-2-tang') {
+    content = <TwoLevelParking building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'highlands') {
+    content = <HighlandsKiosk building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'fami-pizza') {
+    content = <FamiPizzaKiosk building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'hanh-lang-b3-b6') {
+    content = <CoveredB3B6Corridor building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'b6') {
+    content = <Block6BBI building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'can-tin') {
+    content = <CanteenBlock building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else if (
+    building.id === 'b8' ||
+    building.id === 'b9' ||
+    building.id === 'b10' ||
+    building.id === 'b11'
+  ) {
+    content = <TwinWingBlock building={building} isHovered={isHovered} isSelected={isSelected} />;
   } else if (
     building.detailLevel === 2 &&
     (building.kind === 'academic' || building.kind === 'library' || building.kind === 'admin')
@@ -290,6 +321,7 @@ export default function BuildingView({ building }: { building: Building }) {
         <Html
           position={[building.center[0], labelHeight, building.center[1]]}
           center
+          zIndexRange={[10, 0]}
           style={{ pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap' }}
         >
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/90 text-white text-xs font-semibold shadow-lg border border-slate-700/80 backdrop-blur-sm pointer-events-none select-none transform -translate-y-2">

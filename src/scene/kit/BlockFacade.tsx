@@ -7,64 +7,9 @@ import {
   BufferGeometry,
 } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import type { Building, Vec2 } from '../../types';
+import type { Building } from '../../types';
 import { FLOOR_HEIGHT } from '../../data';
-
-function toShapePoints(pts: Vec2[]): [number, number][] {
-  return pts.map(([x, z]) => [x, -z]);
-}
-
-/** Mở rộng đa giác theo pháp tuyến phân giác góc. */
-function expandPolygon(pts: [number, number][], distance: number): [number, number][] {
-  const n = pts.length;
-  if (n < 3) return pts;
-
-  let area = 0;
-  for (let i = 0; i < n; i++) {
-    const j = (i + 1) % n;
-    const pi = pts[i];
-    const pj = pts[j];
-    if (pi && pj) area += pi[0] * pj[1] - pj[0] * pi[1];
-  }
-  const isCCW = area > 0;
-
-  const result: [number, number][] = [];
-  for (let i = 0; i < n; i++) {
-    const prev = pts[(i - 1 + n) % n];
-    const curr = pts[i];
-    const next = pts[(i + 1) % n];
-    if (!prev || !curr || !next) continue;
-
-    const dx1 = curr[0] - prev[0];
-    const dy1 = curr[1] - prev[1];
-    const len1 = Math.hypot(dx1, dy1) || 1;
-
-    const dx2 = next[0] - curr[0];
-    const dy2 = next[1] - curr[1];
-    const len2 = Math.hypot(dx2, dy2) || 1;
-
-    const n1x = isCCW ? dy1 / len1 : -dy1 / len1;
-    const n1y = isCCW ? -dx1 / len1 : dx1 / len1;
-
-    const n2x = isCCW ? dy2 / len2 : -dy2 / len2;
-    const n2y = isCCW ? -dx2 / len2 : dx2 / len2;
-
-    const bx = n1x + n2x;
-    const by = n1y + n2y;
-    const bLen = Math.hypot(bx, by);
-
-    if (bLen < 1e-4) {
-      result.push([curr[0] + n1x * distance, curr[1] + n1y * distance]);
-    } else {
-      const bNormX = bx / bLen;
-      const bNormY = by / bLen;
-      const cosHalf = bNormX * n1x + bNormY * n1y;
-      const miter = Math.min(distance / Math.max(cosHalf, 0.5), distance * 2);
-      result.push([curr[0] + bNormX * miter, curr[1] + bNormY * miter]);
-    }
-  }
-  return result;
-}
+import { expandShapePolygon, stripClosingPoint, toShapePoints } from './geometryHelpers';
 
 interface BlockFacadeProps {
   building: Building;
@@ -94,26 +39,40 @@ export default function BlockFacade({ building, isHovered, isSelected }: BlockFa
     return new ExtrudeGeometry(shape, { depth: height, bevelEnabled: false });
   }, [height, buildingShape]);
 
-  // 2. Viền chỉ sàn sáng màu giữa các tầng (horizontal floor slabs)
+  // 2. Viền chỉ sàn sáng màu giữa các tầng (plinth + các tầng + diềm mái)
   const floorSlabsGeometry = useMemo(() => {
-    const outerPts = toShapePoints(buildingShape.outer);
-    const expanded = expandPolygon(outerPts, 0.15);
+    const outerPts = toShapePoints(stripClosingPoint(buildingShape.outer));
+    const expanded = expandShapePolygon(outerPts, 0.16);
     const shape = new Shape();
     expanded.forEach(([x, y], i) => (i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y)));
+    buildingShape.holes.forEach((hole) => {
+      const path = new Path();
+      const holePts = toShapePoints(stripClosingPoint(hole));
+      holePts.forEach(([x, y], i) => (i === 0 ? path.moveTo(x, y) : path.lineTo(x, y)));
+      shape.holes.push(path);
+    });
 
     const geos: BufferGeometry[] = [];
+    const plinth = new ExtrudeGeometry(shape, { depth: 0.24, bevelEnabled: false });
+    plinth.rotateX(-Math.PI / 2);
+    geos.push(plinth);
+
     for (let f = 1; f < floors; f++) {
-      const slabGeo = new ExtrudeGeometry(shape, { depth: 0.25, bevelEnabled: false });
+      const slabGeo = new ExtrudeGeometry(shape, { depth: 0.28, bevelEnabled: false });
       slabGeo.rotateX(-Math.PI / 2);
-      slabGeo.translate(0, f * FLOOR_HEIGHT - 0.125, 0);
+      slabGeo.translate(0, f * FLOOR_HEIGHT - 0.14, 0);
       geos.push(slabGeo);
     }
 
-    if (geos.length === 0) return null;
+    const cornice = new ExtrudeGeometry(shape, { depth: 0.2, bevelEnabled: false });
+    cornice.rotateX(-Math.PI / 2);
+    cornice.translate(0, height - 0.14, 0);
+    geos.push(cornice);
+
     const merged = BufferGeometryUtils.mergeGeometries(geos);
     geos.forEach((g) => g.dispose());
     return merged;
-  }, [floors, buildingShape]);
+  }, [floors, height, buildingShape]);
 
   // 3. Dải cửa sổ và lam che nắng dọc theo các mặt đứng
   const facadeDetailGeometry = useMemo(() => {
@@ -184,14 +143,14 @@ export default function BlockFacade({ building, isHovered, isSelected }: BlockFa
 
   // 4. Mái chìa xám sáng nhô ra 0.8m
   const roofGeometry = useMemo(() => {
-    const outerPts = toShapePoints(buildingShape.outer);
-    const expandedOuter = expandPolygon(outerPts, 0.8);
+    const outerPts = toShapePoints(stripClosingPoint(buildingShape.outer));
+    const expandedOuter = expandShapePolygon(outerPts, 0.8);
     const shape = new Shape();
     expandedOuter.forEach(([x, y], i) => (i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y)));
 
     buildingShape.holes.forEach((hole) => {
       const path = new Path();
-      const holePts = toShapePoints(hole);
+      const holePts = toShapePoints(stripClosingPoint(hole));
       holePts.forEach(([x, y], i) => (i === 0 ? path.moveTo(x, y) : path.lineTo(x, y)));
       shape.holes.push(path);
     });
@@ -199,22 +158,29 @@ export default function BlockFacade({ building, isHovered, isSelected }: BlockFa
     return new ExtrudeGeometry(shape, { depth: 0.4, bevelEnabled: false });
   }, [buildingShape]);
 
-  // 5. Pin mặt trời trên mái Thư viện (Block 4)
+  // 5. Pin mặt trời trên mái Thư viện (Block 4) — xoay khớp góc mái (-6.26°)
   const solarPanelsGeometry = useMemo(() => {
     if (id !== 'b4') return null;
 
     const panels: BufferGeometry[] = [];
     const rows = 4;
     const cols = 6;
-    const startX = 110;
-    const startZ = -88;
+    const centerX = 125;
+    const centerZ = -86;
+    const angleRad = 0.109; // ~6.26° khớp cạnh dài b4
     const pW = 5.0;
     const pD = 2.8;
+    const gap = 1.1;
 
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
-        const pGeo = new BoxGeometry(pW, 0.08, pD);
-        pGeo.translate(startX + c * (pW + 1.2), height + 0.45, startZ + r * (pD + 1.2));
+        const localX = (c - (cols - 1) / 2) * (pW + gap);
+        const localZ = (r - (rows - 1) / 2) * (pD + gap);
+        const pGeo = new BoxGeometry(pW, 0.1, pD);
+        pGeo.rotateX(0.12); // Hơi nghiêng đón nắng
+        pGeo.translate(localX, 0, localZ);
+        pGeo.rotateY(angleRad);
+        pGeo.translate(centerX, height + 0.46, centerZ);
         panels.push(pGeo);
       }
     }

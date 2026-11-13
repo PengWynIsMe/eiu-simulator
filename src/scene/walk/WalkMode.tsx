@@ -4,6 +4,7 @@ import { Vector3, type Group } from 'three';
 import { campus } from '../../data';
 import { useWalkStore } from '../../store/useWalkStore';
 import type { Vec2 } from '../../types';
+import { isPointInPond } from '../zone1/pondLayout';
 
 const WALK_SPEED = 5;
 const RUN_SPEED = 12;
@@ -38,7 +39,7 @@ function distanceToSegment(x: number, z: number, a: Vec2, b: Vec2): number {
 
 function isOnBridge(x: number, z: number): boolean {
   for (const bridge of BRIDGES) {
-    if (distanceToSegment(x, z, bridge.start, bridge.end) <= 1.5) return true;
+    if (distanceToSegment(x, z, bridge.start, bridge.end) <= 1.6) return true;
   }
   return false;
 }
@@ -47,7 +48,7 @@ function resolvePosition(x: number, z: number, previousX: number, previousZ: num
   output[0] = x;
   output[1] = z;
   if (!pointInPolygon(x, z, campus.layout.boundary)) { output[0] = previousX; output[1] = previousZ; return; }
-  if (!isOnBridge(x, z) && x >= 90 && x <= 145 && z >= -65 && z <= -10) { output[0] = previousX; output[1] = previousZ; return; }
+  if (!isOnBridge(x, z) && isPointInPond(x, z, PLAYER_RADIUS)) { output[0] = previousX; output[1] = previousZ; return; }
 
   for (const building of campus.buildings) {
     const inside = pointInPolygon(output[0], output[1], building.shape.outer);

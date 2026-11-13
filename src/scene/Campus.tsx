@@ -4,6 +4,7 @@ import Ground from './Ground';
 import Trees from './Trees';
 import Building from './Building';
 import Zone1 from './zone1/Zone1';
+import Zone2Walkways from './zone2/Zone2Walkways';
 import CameraRig from './CameraRig';
 import ReviewPins from './ReviewPins';
 import WalkMode from './walk/WalkMode';
@@ -23,6 +24,7 @@ export default function Campus() {
         <Building key={b.id} building={b} />
       ))}
       <Zone1 />
+      <Zone2Walkways />
       <ReviewPins />
       {walkMode ? <WalkMode /> : <CameraRig />}
     </>
