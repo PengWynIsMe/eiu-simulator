@@ -2,7 +2,8 @@
 // Sau này chuyển sang Supabase chỉ cần sửa file này.
 import campusRaw from './campus.json';
 import layoutRaw from './layout.json';
-import type { Building, BuildingInfo, BuildingKind, Campus, DetailLevel, Footprint, Layout, Major, Road, RoadKind, Vec2 } from '../types';
+import buildingDetailsRaw from './building-details.json';
+import type { Building, BuildingDetail, BuildingFloorDetail, BuildingInfo, BuildingKind, Campus, DetailLevel, Footprint, InfoSource, Layout, Major, Road, RoadKind, RoomEntry, RoomGroup, Vec2 } from '../types';
 import { arr, fail, num, obj, oneOf, optStr, polygon, str, vec2 } from './validate';
 
 /** Chiều cao trung bình một tầng (m). */
@@ -82,6 +83,45 @@ function road(v: unknown, path: string): Road {
   };
 }
 
+function buildingDetail(v: unknown, path: string): BuildingDetail {
+  const o = obj(v, path);
+  const sourceObj = obj(o.source, `${path}.source`);
+  const source: InfoSource = {
+    status: oneOf(sourceObj.status, ['xac-minh', 'chua-xac-minh'], `${path}.source.status`),
+    label: str(sourceObj.label, `${path}.source.label`),
+    url: optStr(sourceObj.url, `${path}.source.url`),
+  };
+  const floors: BuildingFloorDetail[] | undefined = o.floors === undefined
+    ? undefined
+    : arr(o.floors, `${path}.floors`).map((floor, i) => {
+      const floorPath = `${path}.floors[${i}]`;
+      const f = obj(floor, floorPath);
+      const groups: RoomGroup[] = arr(f.groups, `${floorPath}.groups`).map((group, j) => {
+        const groupPath = `${floorPath}.groups[${j}]`;
+        const g = obj(group, groupPath);
+        const rooms: RoomEntry[] = arr(g.rooms, `${groupPath}.rooms`).map((room, k) => {
+          const roomPath = `${groupPath}.rooms[${k}]`;
+          const r = obj(room, roomPath);
+          return { code: optStr(r.code, `${roomPath}.code`), name: str(r.name, `${roomPath}.name`) };
+        });
+        return { title: optStr(g.title, `${groupPath}.title`), rooms };
+      });
+      return {
+        floorNumber: num(f.floorNumber, `${floorPath}.floorNumber`),
+        label: str(f.label, `${floorPath}.label`),
+        elevation: str(f.elevation, `${floorPath}.elevation`),
+        architecturalNote: str(f.architecturalNote, `${floorPath}.architecturalNote`),
+        groups,
+      };
+    });
+  return {
+    subtitle: str(o.subtitle, `${path}.subtitle`),
+    facts: arr(o.facts, `${path}.facts`).map((fact, i) => str(fact, `${path}.facts[${i}]`)),
+    floors,
+    source,
+  };
+}
+
 // ---- Ghép campus.json (thông tin) + layout.json (hình học từ OSM) ----
 
 function centroid(pts: Vec2[]): Vec2 {
@@ -90,7 +130,7 @@ function centroid(pts: Vec2[]): Vec2 {
   return [sx / pts.length, sz / pts.length];
 }
 
-function load(): { campus: Campus; majors: Major[] } {
+function load(): { campus: Campus; majors: Major[]; buildingDetails: Record<string, BuildingDetail> } {
   const root = obj(campusRaw, 'campus.json');
   const campusObj = obj(root.campus, 'campus');
   const lay = obj(layoutRaw, 'layout.json');
@@ -125,6 +165,13 @@ function load(): { campus: Campus; majors: Major[] } {
     return { ...info, shape, center: centroid(shape.outer), height: info.floors * FLOOR_HEIGHT };
   });
 
+  const buildingDetailsObj = obj(buildingDetailsRaw, 'building-details.json');
+  const buildingDetails: Record<string, BuildingDetail> = {};
+  for (const [id, detail] of Object.entries(buildingDetailsObj)) {
+    if (!ids.has(id)) fail(`building-details.${id}`, 'id có trong campus.buildings');
+    buildingDetails[id] = buildingDetail(detail, `building-details.${id}`);
+  }
+
   const rb = obj(lay.roundabout, 'layout.roundabout');
   const layout: Layout = {
     roundabout: { center: vec2(rb.center, 'layout.roundabout.center'), radius: num(rb.radius, 'layout.roundabout.radius') },
@@ -136,6 +183,7 @@ function load(): { campus: Campus; majors: Major[] } {
   return {
     campus: { id: str(campusObj.id, 'campus.id'), name: str(campusObj.name, 'campus.name'), buildings, layout },
     majors,
+    buildingDetails,
   };
 }
 
@@ -143,6 +191,7 @@ const data = load();
 
 export const campus: Campus = data.campus;
 export const majors: Major[] = data.majors;
+const buildingDetails = data.buildingDetails;
 
 const buildingById = new Map(campus.buildings.map((b) => [b.id, b]));
 const majorById = new Map(majors.map((m) => [m.id, m]));
@@ -161,4 +210,8 @@ export function getMajorsOfBuilding(buildingId: string): Major[] {
 
 export function getBuildingsInZone(zone: number): Building[] {
   return campus.buildings.filter((b) => b.zone === zone);
+}
+
+export function getBuildingDetail(id: string): BuildingDetail | undefined {
+  return buildingDetails[id];
 }

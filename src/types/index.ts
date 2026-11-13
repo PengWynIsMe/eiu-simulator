@@ -81,6 +81,37 @@ export interface Course {
   description?: string;
 }
 
+export interface RoomEntry {
+  code?: string;
+  name: string;
+}
+
+export interface RoomGroup {
+  title?: string;
+  rooms: RoomEntry[];
+}
+
+export interface BuildingFloorDetail {
+  floorNumber: number;
+  label: string;
+  elevation: string;
+  architecturalNote: string;
+  groups: RoomGroup[];
+}
+
+export interface InfoSource {
+  status: 'xac-minh' | 'chua-xac-minh';
+  label: string;
+  url?: string;
+}
+
+export interface BuildingDetail {
+  subtitle: string;
+  facts: string[];
+  floors?: BuildingFloorDetail[];
+  source: InfoSource;
+}
+
 // ---- Góp ý trực tiếp trên mô hình (chế độ góp ý) ----
 
 export type Vec3 = [number, number, number];

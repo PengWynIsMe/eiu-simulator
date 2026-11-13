@@ -1,15 +1,10 @@
 import { useState } from 'react';
-import { getBuilding } from '../data';
+import { getBuilding, getBuildingDetail } from '../data';
 import { useCampusStore } from '../store/useCampusStore';
-import type { Building } from '../types';
-import {
-  BUILDING_PANEL_TEXT,
-  BUILDING_SPECS,
-  type BuildingDetailSpec,
-  type FloorRoomEntry,
-} from './text';
+import type { Building, BuildingDetail, RoomEntry } from '../types';
+import { BUILDING_PANEL_TEXT } from './text';
 
-function RoomList({ rooms }: { rooms: readonly FloorRoomEntry[] }) {
+function RoomList({ rooms }: { rooms: readonly RoomEntry[] }) {
   return (
     <ul className="space-y-1.5">
       {rooms.map((room, idx) => (
@@ -29,7 +24,7 @@ function RoomList({ rooms }: { rooms: readonly FloorRoomEntry[] }) {
   );
 }
 
-function BuildingDetailsBody({ spec }: { spec: BuildingDetailSpec }) {
+function BuildingDetailsBody({ spec }: { spec: BuildingDetail }) {
   const [selectedFloor, setSelectedFloor] = useState<number>(1);
   const floors = spec.floors;
   const currentFloor =
@@ -119,7 +114,7 @@ function PanelContent({
   building: Building;
   onClose: () => void;
 }) {
-  const spec = BUILDING_SPECS[building.id];
+  const spec = getBuildingDetail(building.id);
 
   return (
     <aside
@@ -157,7 +152,27 @@ function PanelContent({
 
       <div className="flex-1 overflow-y-auto px-4 py-3.5">
         {spec ? (
-          <BuildingDetailsBody spec={spec} />
+          <>
+            <BuildingDetailsBody spec={spec} />
+            <div className={`mt-4 rounded-xl border p-3 text-xs leading-relaxed ${
+              spec.source.status === 'chua-xac-minh'
+                ? 'border-amber-400/25 bg-amber-400/10 text-amber-100'
+                : 'border-emerald-400/25 bg-emerald-400/10 text-emerald-100'
+            }`}>
+              <span className={`mr-1.5 font-semibold ${
+                spec.source.status === 'chua-xac-minh' ? 'text-amber-300' : 'text-emerald-300'
+              }`}>
+                {spec.source.status === 'chua-xac-minh' ? BUILDING_PANEL_TEXT.unverifiedSource : BUILDING_PANEL_TEXT.verifiedSource}
+              </span>
+              {spec.source.url ? (
+                <a className="underline underline-offset-2" href={spec.source.url} target="_blank" rel="noreferrer">
+                  {spec.source.label}
+                </a>
+              ) : (
+                <span>{spec.source.label}</span>
+              )}
+            </div>
+          </>
         ) : (
           <p className="text-xs leading-relaxed text-slate-300">
             {BUILDING_PANEL_TEXT.genericHint}
