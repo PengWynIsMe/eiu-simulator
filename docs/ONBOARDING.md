@@ -22,6 +22,8 @@ Sau này: bấm tòa nhà → xem ngành học (chương trình, một ngày c�
 | T04 | Hover/click tòa nhà + **Chế độ góp ý** (ghi chú ngay trên mô hình) |
 | T09 | **Chế độ đi bộ**: nhân vật, WASD/mũi tên, Shift chạy, camera bám sau, va chạm tường/hồ, cần ảo trên điện thoại |
 | T06, T08 | (đồng nghiệp) B8–B11 + khu vực 2 chi tiết; panel thông tin tòa nhà có phòng theo tầng |
+| T05, T10, T11 | Camera bay tới tòa; chi tiết tòa ở `src/data/building-details.json`; nhân vật robot CC0 có animation |
+| T12 | **Vào trong Block 3**: sảnh + 3 tầng, thang máy, thẻ phòng (bản thử theo tour 360) |
 
 **Việc tiếp theo** (chi tiết trong `docs/ROADMAP.md`):
 1. **Đọc góp ý và sửa** — góp ý của nhóm nằm ở GitHub Issues nhãn `gop-y` (xem mục 5).
