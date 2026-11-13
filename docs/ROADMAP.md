@@ -20,7 +20,7 @@ phần còn lại tạm là khối đúng khung nền, nâng cấp dần theo t�
 | T06 Khu vực 2 (B8–B11, căn tin) | Đồng nghiệp (Hieuthao63d) | `TwinWingBlock` cho B8–B11, Block 6 BBI, căn tin, nhà xe nhiều tầng, trạm điện, ki-ốt, hành lang khu vực 2 | ✅ phần lớn — commit `7436d2a` (2026-11-13); còn: lối dốc hầm nhà xe 2 tầng, cổng phụ chi tiết |
 | T07 Loading + tối ưu | Gemini → Claude | `useProgress`, chia nhỏ bundle (three.js ~1 MB), kiểm tra điện thoại | Chưa |
 | T08 Panel thông tin tòa nhà | Đồng nghiệp (Hieuthao63d) | Panel: cấu trúc, phòng theo từng tầng, Về tổng quan | ✅ commit `7436d2a` |
-| **T10** Chi tiết tòa nhà → dữ liệu + nguồn | Codex (gpt-6-luna, medium) | Chuyển `BUILDING_SPECS` từ `ui/text.ts` sang `src/data/building-details.json`, thêm trường nguồn | Đang làm — brief `docs/tasks/T10-du-lieu-toa-nha.md` |
+| **T10** Chi tiết tòa nhà → dữ liệu + nguồn | Codex (gpt-6-luna, medium) | Chuyển `BUILDING_SPECS` từ `ui/text.ts` sang `src/data/building-details.json`, thêm trường nguồn | ✅ 2026-11-13 (18/18 tòa trùng khớp) |
 | **T09** Chế độ đi bộ | **Codex (gpt-6-luna, medium)** — luồng C | Nhân vật + camera bám sau, WASD/cần ảo, va chạm tòa nhà/hồ | ✅ 2026-11-13 (gộp) |
 
 Thứ tự: T02 → T03 → (T04, T05) → T06 → T07. T08 làm song song được với T04–T06 (chỉ đụng `ui/`).

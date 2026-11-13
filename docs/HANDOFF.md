@@ -10,7 +10,9 @@ Cập nhật: 2026-11-12
   B8–B11 chi tiết (`kit/TwinWingBlock.tsx`), Block 6 BBI, khu vực 2 (căn tin, nhà xe nhiều tầng, trạm điện, ki-ốt, hành lang),
   **panel thông tin tòa nhà** (`ui/BuildingPanel.tsx`, phòng theo tầng). Claude review: 3 cổng sạch, console sạch.
   Vấn đề: nội dung ~600 dòng nằm trong `ui/text.ts` (sai quy tắc) và **chưa có nguồn** cho số liệu (vd hội trường 544 chỗ) → T10.
-- **Đang làm:** **T10** — Codex gpt-6-luna medium, worktree `~/orca/workspaces/eiu-simulator/t10-du-lieu-toa-nha`, terminal `term_f5719f32-3d9e-43a0-9577-895655396034`.
+- **T10 xong** (Codex Luna): nội dung panel giờ ở `src/data/building-details.json` (18 tòa, nguồn đã xác minh), đọc qua `getBuildingDetail`. Đã merge + push.
+- **Đang làm:** —
+- Lỗi nhỏ còn mở: console có warning `THREE.BufferGeometry.toNonIndexed(): ... already non-indexed` từ code scene của commit `7436d2a` (vô hại, nên dọn).
 - **Người dùng xác nhận 2026-11-13:** số liệu phòng/sức chứa trong panel là **số liệu thực tế, đã xác minh** (đồng nghiệp Hieuthao63d) → `source.status = xac-minh`. Lịch sử: **T03** — Gemini 3.8 Flash (High) qua Antigravity CLI (`agy`) trong Orca,
   terminal `term_acdc0de5-2180-4022-90d8-24c364fe53e8`, nhánh `t03-khu-vuc-1`.
 - **Việc tiếp theo chính xác:** khi Gemini ghi xong `docs/tasks/T03-bao-cao.md` → Claude review + 3 cổng kiểm tra + xem trình duyệt
