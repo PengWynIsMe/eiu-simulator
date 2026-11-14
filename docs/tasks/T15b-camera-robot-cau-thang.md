@@ -16,8 +16,16 @@ Sửa: sau khi model tải, đo **một lần** `Box3.setFromObject` ở tư th�
 ## 2. Ba góc nhìn — phím C xoay vòng
 
 `sau vai` → `thứ nhất` → `từ trên xuống` → lại `sau vai`. Áp dụng **cả trong nhà và ngoài trời** (ngoài trời: `từ trên xuống` = góc cao hiện tại 8 m sau / 3.4 m cao).
-- **Thứ nhất**: camera ở vị trí nhân vật, cao **1.60 m** trên sàn/mặt đất; kéo chuột ngang = xoay (yaw), kéo dọc = nhìn lên/xuống (pitch, giới hạn ±60°);
-  W đi theo hướng nhìn ngang; **ẩn model robot**; cần ảo điện thoại vẫn dùng được (vuốt màn hình để nhìn).
+- **Thứ nhất — kiểu game bắn súng (FPS)** (người dùng yêu cầu rõ):
+  - Camera ở mắt nhân vật, cao **1.60 m** trên sàn/mặt đất; **ẩn model robot**.
+  - **Pointer Lock**: bấm vào canvas → khóa chuột (`canvas.requestPointerLock()`); **di chuột (không cần giữ nút)** = xoay nhìn
+    bằng `event.movementX/Y`. Độ nhạy ~0.0022 rad/px; pitch giới hạn ±80°. Không tạo object trong handler.
+  - **Tâm ngắm** (dấu + nhỏ, trắng viền đen) ở giữa màn hình (DOM trong `ui/walk`), chỉ hiện ở góc thứ nhất.
+  - **W A S D** đi theo hướng nhìn ngang (bỏ pitch), Shift chạy — như FPS.
+  - **Esc**: lần 1 trình duyệt tự nhả khóa chuột (sự kiện `pointerlockchange`) → **không** thoát đi bộ;
+    chỉ thoát đi bộ khi nhấn Esc **lúc không khóa chuột**. HUD nhắc: "Bấm vào màn hình để điều khiển bằng chuột · Esc: nhả chuột".
+  - Phím E/Q (thang, cửa) vẫn dùng được khi đang khóa chuột.
+  - Điện thoại (không có pointer lock): cần ảo bên trái để đi, **vuốt nửa phải màn hình** để nhìn; tâm ngắm vẫn hiện.
 - **Sau vai** (trong nhà như T13b: 4 m sau, 2.2 m cao; ngoài trời như hiện tại).
 - HUD (`ui/walk`, `ui/interior`) ghi rõ góc nhìn đang dùng + "C: đổi góc nhìn". Nút trên điện thoại để đổi góc.
 - Phím C bỏ qua khi đang gõ trong ô nhập (như V/Esc).
@@ -42,7 +50,7 @@ Hiện trong nhà `near = 0.1` nhưng `far` vẫn 2500 → tỉ lệ 25000:1, b�
 
 - [ ] typecheck / lint / build sạch; console sạch
 - [ ] Robot đứng cạnh cửa phòng (cao 2.2 m) thấp hơn cửa rõ ràng; đo log chiều cao ≈ 1.70 m (xóa log sau)
-- [ ] C xoay đủ 3 góc trong nhà và ngoài trời; góc thứ nhất không thấy robot, nhìn quanh được
+- [ ] C xoay đủ 3 góc trong nhà và ngoài trời; góc thứ nhất: bấm canvas khóa chuột, di chuột (không giữ nút) xoay nhìn, có tâm ngắm, WASD đi theo hướng nhìn, Esc lần 1 chỉ nhả chuột
 - [ ] B8: vào tầng 1 → tới thang bộ Tây Nam → E → tầng 2 đứng ở thang bộ Tây Nam → Q → về tầng 1; tầng 4 không có "Lên", tầng 1 không có "Xuống"
 - [ ] Đứng sát bậc thang 10 giây xoay camera: không chớp
 - [ ] B3 vẫn vào/ra/thang máy được
