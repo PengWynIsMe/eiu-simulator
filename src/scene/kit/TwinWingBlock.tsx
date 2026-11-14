@@ -410,7 +410,11 @@ export default function TwinWingBlock({ building, isHovered, isSelected }: TwinW
       )}
       {windowsGeo && (
         <mesh geometry={windowsGeo}>
-          <meshStandardMaterial color="#1e293b" roughness={0.22} metalness={0.55} />
+          <meshStandardMaterial
+            color={building.id === 'b11' ? '#35536e' : '#1e293b'}
+            roughness={0.22}
+            metalness={0.55}
+          />
         </mesh>
       )}
       {stairGlassGeo && (
@@ -435,12 +439,12 @@ export default function TwinWingBlock({ building, isHovered, isSelected }: TwinW
           />
         </mesh>
       )}
-      {courtyardFloorGeo && (
+      {building.id !== 'b11' && courtyardFloorGeo && (
         <mesh geometry={courtyardFloorGeo} receiveShadow>
           <meshStandardMaterial color="#cbd5e1" roughness={0.9} />
         </mesh>
       )}
-      {planterGeo && (
+      {building.id !== 'b11' && planterGeo && (
         <mesh geometry={planterGeo} receiveShadow>
           <meshStandardMaterial color="#4d7c0f" roughness={0.85} />
         </mesh>

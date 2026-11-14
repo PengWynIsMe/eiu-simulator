@@ -6,6 +6,7 @@ import { Vector3, type Group } from 'three';
 import { CapsuleFallback } from './PlayerCharacter';
 import PlayerCharacter from './PlayerCharacter';
 import { campus } from '../../data';
+import { useCampusStore } from '../../store/useCampusStore';
 import { useWalkStore } from '../../store/useWalkStore';
 import type { Vec2 } from '../../types';
 import { isPointInPond } from '../zone1/pondLayout';
@@ -99,12 +100,20 @@ export default function WalkMode() {
   const { camera, gl } = useThree();
 
   const currentInterior = useWalkStore.getState().interior;
+  const selectedId = useCampusStore.getState().selectedBuildingId;
   if (currentInterior && (globalPlayerPos[0] === START[0] && globalPlayerPos[1] === START[1])) {
     const layout = getInteriorLayout(currentInterior.buildingId);
     const defaultInside = layout?.defaultInsideEntrance ?? START;
     globalPlayerPos = [defaultInside[0], defaultInside[1]];
     globalCameraYaw = Math.PI / 2;
     globalFacingYaw = Math.PI / 2;
+  } else if (!currentInterior && selectedId && globalPlayerPos[0] === START[0] && globalPlayerPos[1] === START[1]) {
+    const selectedLayout = getInteriorLayout(selectedId);
+    if (selectedLayout) {
+      globalPlayerPos = [selectedLayout.defaultOutsideEntrance[0], selectedLayout.defaultOutsideEntrance[1]];
+      globalCameraYaw = -Math.PI / 2;
+      globalFacingYaw = -Math.PI / 2;
+    }
   }
 
   const player = useRef<[number, number, number]>([globalPlayerPos[0], 0.6, globalPlayerPos[1]]);
@@ -413,6 +422,12 @@ export default function WalkMode() {
           // Đặt trục up theo -B8_EV để Bắc lên trên, Nam xuống dưới, Tây sang trái, Đông sang phải (khớp 100% sơ đồ)
           camera.up.set(-0.22663, 0, -0.97398);
           camera.lookAt(center[0], 0, center[1]);
+        } else if (interiorState.buildingId.toLowerCase() === 'b11') {
+          const center = layout.toWorld(65.8, -125.8);
+          camera.position.set(center[0], 124, center[1]);
+          // Đặt trục up theo -B11_EV để Bắc lên trên, Nam xuống dưới, Tây sang trái, Đông sang phải (khớp 100% sơ đồ B11)
+          camera.up.set(-0.16885, 0, -0.98564);
+          camera.lookAt(center[0], 0, center[1]);
         } else {
           const center = layout.toWorld(0, 20.0);
           camera.position.set(center[0], 90, center[1]);
@@ -472,7 +487,7 @@ export default function WalkMode() {
 
       // Kéo camera sát nhân vật nếu có tường chắn phía sau
       const targetDist = minT < 0.999
-        ? Math.max(1.2, minT * desiredDist - 0.25)
+        ? Math.max(0.45, minT * desiredDist - 0.28)
         : desiredDist;
 
       const lerpSpeed = targetDist < indoorActualDistance.current ? 25 : 10;

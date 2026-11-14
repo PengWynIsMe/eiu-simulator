@@ -1,14 +1,17 @@
 import type { InteriorLayout, InteractivePoint } from '../types';
 import { b3Layout } from './b3';
 import { b8Layout } from './b8';
+import { b11Layout } from './b11';
 
 export * from '../types';
 export { b3Layout } from './b3';
 export { b8Layout } from './b8';
+export { b11Layout } from './b11';
 
 const layouts: Record<string, InteriorLayout> = {
   b3: b3Layout,
   b8: b8Layout,
+  b11: b11Layout,
 };
 
 export function getInteriorLayout(buildingId: string): InteriorLayout | undefined {

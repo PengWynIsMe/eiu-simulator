@@ -21,6 +21,8 @@ export default function InteriorScene() {
 
   const layout = useMemo(() => getInteriorLayout(buildingId) ?? b3Layout, [buildingId]);
   const isB8 = buildingId.toLowerCase() === 'b8';
+  const isB11 = buildingId.toLowerCase() === 'b11';
+  const isTwinWing = isB8 || isB11;
 
   // 1. Sàn tầng dựng trực tiếp trong hệ tọa độ thế giới (x, z)
   const floorGeometry = useMemo(() => {
@@ -58,7 +60,7 @@ export default function InteriorScene() {
 
   // Sàn hội trường B3 bên dưới khi nhìn từ tầng 3
   const auditoriumFloorGeometry = useMemo(() => {
-    if (isB8 || floor !== 3) return null;
+    if (isTwinWing || floor !== 3) return null;
 
     const voidPtsWorld: Vec2[] = [
       layout.toWorld(-72, 12),
@@ -78,11 +80,36 @@ export default function InteriorScene() {
     extrude.rotateX(-Math.PI / 2);
     extrude.translate(0, -FLOOR_HEIGHT - 0.1, 0);
     return extrude;
-  }, [layout, floor, isB8]);
+  }, [layout, floor, isTwinWing]);
 
   // Nền lát đá sân trong B8 ở tầng trệt (nhìn thấy khi đứng ở tầng 2, 3, 4 nhìn xuống)
   const b8CourtyardGroundGeometry = useMemo(() => {
-    if (!isB8 || floor === 1) return null;
+    if (floor === 1) return null;
+
+    if (isB11 && layout.getFloorHoles) {
+      const groundElevation = -(floor - 1) * FLOOR_HEIGHT - 0.1;
+      const holesWorld = layout.getFloorHoles(floor);
+      const geos: BufferGeometry[] = [];
+      for (const holePts of holesWorld) {
+        const shape = new Shape();
+        holePts.forEach((pt, idx) => {
+          const sx = pt[0];
+          const sy = -pt[1];
+          if (idx === 0) shape.moveTo(sx, sy);
+          else shape.lineTo(sx, sy);
+        });
+        const ext = new ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
+        ext.rotateX(-Math.PI / 2);
+        ext.translate(0, groundElevation, 0);
+        geos.push(ext);
+      }
+      if (geos.length === 0) return null;
+      const merged = BufferGeometryUtils.mergeGeometries(geos);
+      geos.forEach((g) => g.dispose());
+      return merged;
+    }
+
+    if (!isB8) return null;
 
     const groundElevation = -(floor - 1) * FLOOR_HEIGHT - 0.1;
     const geos: BufferGeometry[] = [];
@@ -126,7 +153,7 @@ export default function InteriorScene() {
     const merged = BufferGeometryUtils.mergeGeometries(geos);
     geos.forEach((g) => g.dispose());
     return merged;
-  }, [layout, floor, isB8]);
+  }, [layout, floor, isB8, isB11]);
 
   // 2. Tường đặc và vách kính gộp theo tọa độ thế giới (B8 không có vách kính sân trong)
   const { solidWallsGeo, glassWallsGeo, baseboardsGeo } = useMemo(() => {
@@ -205,7 +232,11 @@ export default function InteriorScene() {
       .map((room) => {
         const centerU = (room.minU + room.maxU) / 2;
         // Gắn ở mép hành lang
-        const isNorth = room.maxV <= -200.0 || (room.minV === 0 || room.minV < 15);
+        const isNorth = isB11
+          ? room.maxV <= -135.0
+          : isB8
+            ? room.maxV <= -200.0
+            : room.minV === 0 || room.minV < 15;
         const edgeV = isNorth ? room.maxV : room.minV;
         const [worldX, worldZ] = layout.toWorld(centerU, edgeV);
         return {
@@ -215,24 +246,25 @@ export default function InteriorScene() {
           yaw,
         };
       });
-  }, [layout, floor]);
+  }, [layout, floor, isB8, isB11]);
 
   // Tọa độ tâm tòa nhà để bố trí nguồn sáng
   const centerPos = useMemo(() => {
+    if (isB11) return layout.toWorld(65.8, -125.8);
     return isB8 ? layout.toWorld(64.7, -188.1) : layout.toWorld(0, 20.0);
-  }, [layout, isB8]);
+  }, [layout, isB8, isB11]);
 
   // Màu tường và sàn theo tài liệu thực tế của từng tòa
-  const wallColor = isB8 ? '#42322c' : '#f8fafc'; // B8: nâu sẫm, B3: trắng sáng
-  const baseboardColor = isB8 ? '#261e1b' : '#334155';
-  const floorColor = isB8 ? '#cbd5e1' : '#f1f5f9'; // B8: gạch xám, B3: terrazzo sáng
+  const wallColor = isTwinWing ? '#42322c' : '#f8fafc'; // B8 & B11: nâu sẫm, B3: trắng sáng
+  const baseboardColor = isTwinWing ? '#261e1b' : '#334155';
+  const floorColor = isTwinWing ? '#cbd5e1' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng
 
   return (
     <group>
       <color attach="background" args={['#0f172a']} />
 
       {/* Chiếu sáng nội thất */}
-      <ambientLight intensity={isB8 ? 0.95 : 0.8} color="#f8fafc" />
+      <ambientLight intensity={isTwinWing ? 0.95 : 0.8} color="#f8fafc" />
 
       <directionalLight
         position={[centerPos[0] + 20, 25, centerPos[1] - 20]}
@@ -244,7 +276,15 @@ export default function InteriorScene() {
       />
 
       <pointLight position={[centerPos[0], 3.5, centerPos[1]]} intensity={0.7} distance={35} color="#fef08a" />
-      {isB8 ? (
+      {isB11 ? (
+        <>
+          {/* Đèn dọc 2 sân trong & cầu nối B11 */}
+          <pointLight position={[layout.toWorld(34.7, -126.4)[0], 3.6, layout.toWorld(34.7, -126.4)[1]]} intensity={0.7} distance={42} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(90.0, -126.6)[0], 3.6, layout.toWorld(90.0, -126.6)[1]]} intensity={0.7} distance={42} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(63.1, -127.0)[0], 3.4, layout.toWorld(63.1, -127.0)[1]]} intensity={0.75} distance={20} color="#fffbeb" />
+          <pointLight position={[layout.toWorld(118.4, -126.5)[0], 3.4, layout.toWorld(118.4, -126.5)[1]]} intensity={0.65} distance={24} color="#fffbeb" />
+        </>
+      ) : isB8 ? (
         <>
           {/* Đèn dọc 2 sân trong B8 */}
           <pointLight position={[layout.toWorld(31.7, -188.5)[0], 3.6, layout.toWorld(31.7, -188.5)[1]]} intensity={0.65} distance={30} color="#e0f2fe" />
@@ -273,10 +313,10 @@ export default function InteriorScene() {
         </mesh>
       )}
 
-      {/* Nền đá sân trong B8 nhìn từ các tầng trên xuống */}
+      {/* Nền đá sân trong nhìn từ các tầng trên xuống */}
       {b8CourtyardGroundGeometry && (
         <mesh geometry={b8CourtyardGroundGeometry} receiveShadow>
-          <meshStandardMaterial color="#475569" roughness={0.7} />
+          <meshStandardMaterial color={isB11 ? '#94a3b8' : '#475569'} roughness={0.7} />
         </mesh>
       )}
 

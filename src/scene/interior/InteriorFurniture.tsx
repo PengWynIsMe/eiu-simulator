@@ -4,6 +4,7 @@ import { FLOOR_HEIGHT } from '../../data';
 import type { Vec2 } from '../../types';
 import { b3Layout } from './layouts/b3';
 import { b8Layout } from './layouts/b8';
+import B11Furniture from './B11Furniture';
 
 interface FurnitureProps {
   buildingId: string;
@@ -43,8 +44,12 @@ export function createInstanceMatrix(
 }
 
 export default function InteriorFurniture({ buildingId, floor }: FurnitureProps) {
-  if (buildingId.toLowerCase() === 'b8') {
+  const id = buildingId.toLowerCase();
+  if (id === 'b8') {
     return <B8Furniture floor={floor} />;
+  }
+  if (id === 'b11') {
+    return <B11Furniture floor={floor} />;
   }
   return <B3Furniture floor={floor} />;
 }
