@@ -8,53 +8,55 @@ import type {
 } from '../types';
 
 /**
- * Hệ tọa độ địa phương B8:
- * Gốc tọa độ: góc Tây Bắc của Block 8 [-38.9, -206.8] (world).
- * Trục dài nghiêng -13.10° (atan2(-25.2, 108.3)).
- * u: dọc theo chiều dài tòa nhà (u = 0: đầu Tây; u ≈ 111.2: đầu Đông).
- * v: dọc theo chiều sâu tòa nhà (v = 0: mặt Bắc đường Lê Duẩn; v ≈ 44.2: mặt Nam nhìn vào nội khu).
+ * Hệ tọa độ địa phương B8 đo từ sơ đồ thoát hiểm thực tế (docs/tasks/T13b-b8-toa-do.json):
+ * Trục dài nghiêng -13.1° (axisAngleDeg: -13.1).
+ * ex = [0.97398, -0.22663] (Tây → Đông)
+ * ev = [0.22663, 0.97398] (Bắc → Nam)
+ * world[x, z] = u * ex + v * ev
+ * u: 9.0 = tường Tây thân chính, 120.4 = tường Đông
+ * v: -210.2 = tường Bắc, -166.0 = tường Nam
  */
-export const B8_ORIGIN: Vec2 = [-38.9, -206.8];
-export const B8_ROTATION_Y = -0.228670836; // radians (-13.102°)
-
-const COS = Math.cos(B8_ROTATION_Y);
-const SIN = Math.sin(B8_ROTATION_Y);
+export const B8_EX = [0.97398, -0.22663] as const;
+export const B8_EV = [0.22663, 0.97398] as const;
+export const B8_ROTATION_Y = -0.228638132; // -13.1° in radians
+export const B8_ORIGIN: Vec2 = [0, 0];
 
 export function toWorld(u: number, v: number): Vec2 {
   return [
-    B8_ORIGIN[0] + u * COS - v * SIN,
-    B8_ORIGIN[1] + u * SIN + v * COS,
+    u * B8_EX[0] + v * B8_EV[0],
+    u * B8_EX[1] + v * B8_EV[1],
   ];
 }
 
 export function toLocal(x: number, z: number): [number, number] {
-  const dx = x - B8_ORIGIN[0];
-  const dz = z - B8_ORIGIN[1];
   return [
-    dx * COS + dz * SIN,
-    -dx * SIN + dz * COS,
+    x * B8_EX[0] + z * B8_EX[1],
+    x * B8_EV[0] + z * B8_EV[1],
   ];
 }
 
+// Tâm B8 (u_mid = 64.7, v_mid = -188.1)
+export const B8_CENTER_WORLD = toWorld(64.7, -188.1);
+
 /** Vị trí thang máy duy nhất của tòa nhà (tại nhịp giữa, cạnh sân trong lớn) */
-export const B8_ELEVATOR_POS_LOCAL: [number, number] = [47.5, 20.5];
+export const B8_ELEVATOR_POS_LOCAL: [number, number] = [56.65, -188.35];
 export const B8_ELEVATOR_POS_WORLD: Vec2 = toWorld(B8_ELEVATOR_POS_LOCAL[0], B8_ELEVATOR_POS_LOCAL[1]);
-/** Vị trí xuất hiện khi ra khỏi thang máy (trong hành lang giữa) */
-export const B8_ELEVATOR_SPAWN_LOCAL: [number, number] = [43.8, 20.5];
+/** Vị trí xuất hiện khi ra khỏi thang máy (hành lang giữa, phía trước cửa thang máy) */
+export const B8_ELEVATOR_SPAWN_LOCAL: [number, number] = [53.5, -188.35];
 export const B8_ELEVATOR_SPAWN_WORLD: Vec2 = toWorld(B8_ELEVATOR_SPAWN_LOCAL[0], B8_ELEVATOR_SPAWN_LOCAL[1]);
 
-// 4 Lối ra vào tầng 1 của B8 (theo mũi tên LỐI THOÁT HIỂM trên sơ đồ T1)
-export const B8_ENTRANCE_NORTH_OUTSIDE = toWorld(43.6, -2.5);
-export const B8_ENTRANCE_NORTH_INSIDE = toWorld(43.6, 2.5);
+// 4 Lối ra vào tầng 1 của B8 (theo sơ đồ T1)
+export const B8_ENTRANCE_NORTH_OUTSIDE = toWorld(52.8, -213.0);
+export const B8_ENTRANCE_NORTH_INSIDE = toWorld(52.8, -199.0);
 
-export const B8_ENTRANCE_SOUTH_OUTSIDE = toWorld(43.6, 46.5);
-export const B8_ENTRANCE_SOUTH_INSIDE = toWorld(43.6, 41.7);
+export const B8_ENTRANCE_SOUTH_OUTSIDE = toWorld(52.8, -163.0);
+export const B8_ENTRANCE_SOUTH_INSIDE = toWorld(52.8, -178.5);
 
-export const B8_EXIT_EAST_OUTSIDE = toWorld(113.5, 20.9);
-export const B8_EXIT_EAST_INSIDE = toWorld(108.5, 20.9);
+export const B8_EXIT_EAST_OUTSIDE = toWorld(123.0, -188.75);
+export const B8_EXIT_EAST_INSIDE = toWorld(118.0, -188.75);
 
-export const B8_EXIT_WEST_OUTSIDE = toWorld(-10.5, 34.0);
-export const B8_EXIT_WEST_INSIDE = toWorld(-5.5, 34.0);
+export const B8_EXIT_WEST_OUTSIDE = toWorld(6.5, -188.75);
+export const B8_EXIT_WEST_INSIDE = toWorld(11.0, -188.75);
 
 export const b8ExteriorEntrances: readonly ExteriorEntrance[] = [
   {
@@ -64,9 +66,9 @@ export const b8ExteriorEntrances: readonly ExteriorEntrance[] = [
     radius: 4.2,
     label: 'Vào Block 8 (Cửa Bắc — Nhịp giữa)',
     spawnInsideWorld: B8_ENTRANCE_NORTH_INSIDE,
-    spawnInsideYaw: Math.PI / 2,
+    spawnInsideYaw: 0,
     spawnOutsideWorld: B8_ENTRANCE_NORTH_OUTSIDE,
-    spawnOutsideYaw: -Math.PI / 2,
+    spawnOutsideYaw: Math.PI,
   },
   {
     id: 'exterior-b8-south',
@@ -75,9 +77,9 @@ export const b8ExteriorEntrances: readonly ExteriorEntrance[] = [
     radius: 4.2,
     label: 'Vào Block 8 (Cửa Nam — Nhịp giữa)',
     spawnInsideWorld: B8_ENTRANCE_SOUTH_INSIDE,
-    spawnInsideYaw: -Math.PI / 2,
+    spawnInsideYaw: Math.PI,
     spawnOutsideWorld: B8_ENTRANCE_SOUTH_OUTSIDE,
-    spawnOutsideYaw: Math.PI / 2,
+    spawnOutsideYaw: 0,
   },
   {
     id: 'exterior-b8-east',
@@ -86,9 +88,9 @@ export const b8ExteriorEntrances: readonly ExteriorEntrance[] = [
     radius: 4.0,
     label: 'Vào Block 8 (Cửa Đông)',
     spawnInsideWorld: B8_EXIT_EAST_INSIDE,
-    spawnInsideYaw: Math.PI,
+    spawnInsideYaw: -Math.PI / 2,
     spawnOutsideWorld: B8_EXIT_EAST_OUTSIDE,
-    spawnOutsideYaw: 0,
+    spawnOutsideYaw: Math.PI / 2,
   },
   {
     id: 'exterior-b8-west',
@@ -97,138 +99,149 @@ export const b8ExteriorEntrances: readonly ExteriorEntrance[] = [
     radius: 4.0,
     label: 'Vào Block 8 (Cửa Tây)',
     spawnInsideWorld: B8_EXIT_WEST_INSIDE,
-    spawnInsideYaw: 0,
+    spawnInsideYaw: Math.PI / 2,
     spawnOutsideWorld: B8_EXIT_WEST_OUTSIDE,
-    spawnOutsideYaw: Math.PI,
+    spawnOutsideYaw: -Math.PI / 2,
   },
 ];
 
 // =============================================================================
-// DANH SÁCH PHÒNG THEO SƠ ĐỒ THOÁT HIỂM 4 TẦNG
+// DANH SÁCH PHÒNG THEO SƠ ĐỒ THOÁT HIỂM 4 TẦNG (T13b-b8-toa-do.json)
 // =============================================================================
 
-// TẦNG 2: TẦNG MẪU (khung chuẩn)
-export const TANG_2_B8_ROOMS: readonly RoomArea[] = [
-  // --- Cánh Bắc (Dãy số chẵn) ---
-  { code: 'Thang bộ Tây Bắc', name: 'Khu vực Cầu thang bộ Tây Bắc', minU: 0, maxU: 6.8, minV: 0, maxV: 10.5 },
-  { code: '220.B8', name: 'Phòng học lý thuyết 220', minU: 6.8, maxU: 15.45, minV: 0, maxV: 10.5 },
-  { code: '218.B8', name: 'Phòng học lý thuyết 218', minU: 15.45, maxU: 24.1, minV: 0, maxV: 10.5 },
-  { code: '216.B8', name: 'Phòng học lý thuyết 216', minU: 24.1, maxU: 32.75, minV: 0, maxV: 10.5 },
-  { code: '214.B8', name: 'Phòng học lý thuyết 214', minU: 32.75, maxU: 41.4, minV: 0, maxV: 10.5 },
-  { code: 'Hành lang giữa', name: 'Cầu nối liên thông & Lõi thang bộ giữa', minU: 41.4, maxU: 45.8, minV: 0, maxV: 14.5 },
-  { code: '212.B8', name: 'Phòng học lý thuyết 212', minU: 45.8, maxU: 54.4, minV: 0, maxV: 10.5 },
-  { code: '210.B8', name: 'Phòng học lý thuyết 210', minU: 54.4, maxU: 63.0, minV: 0, maxV: 10.5 },
-  { code: '208.B8', name: 'Phòng học lý thuyết 208', minU: 63.0, maxU: 71.6, minV: 0, maxV: 10.5 },
-  { code: '206.B8', name: 'Phòng học lý thuyết 206', minU: 71.6, maxU: 80.2, minV: 0, maxV: 10.5 },
-  { code: '204.B8', name: 'Phòng học lý thuyết 204', minU: 80.2, maxU: 88.8, minV: 0, maxV: 10.5 },
-  { code: '202.B8', name: 'Phòng học lý thuyết 202', minU: 88.8, maxU: 97.4, minV: 0, maxV: 10.5 },
-  { code: 'WC-2N', name: 'Khu vệ sinh & kho Đông Bắc', minU: 97.4, maxU: 104.5, minV: 0, maxV: 10.5 },
-  { code: 'Thang bộ Đông Bắc', name: 'Khu vực Tháp thang bộ kính Đông Bắc', minU: 104.5, maxU: 111.2, minV: 0, maxV: 10.5 },
-
-  // --- Cánh Nam (Dãy số lẻ) ---
-  { code: 'WC-2S', name: 'Khu vệ sinh Tây Nam', minU: -8.25, maxU: 0, minV: 25.5, maxV: 44.2 },
-  { code: 'Thang bộ Tây Nam', name: 'Khu vực Cầu thang bộ Tây Nam', minU: 0, maxU: 6.8, minV: 31.3, maxV: 44.2 },
-  { code: '221.B8', name: 'Phòng học lý thuyết 221', minU: 6.8, maxU: 15.45, minV: 31.3, maxV: 44.2 },
-  { code: '219.B8', name: 'Phòng học lý thuyết 219', minU: 15.45, maxU: 24.1, minV: 31.3, maxV: 44.2 },
-  { code: '217.B8', name: 'Phòng học lý thuyết 217', minU: 24.1, maxU: 32.75, minV: 31.3, maxV: 44.2 },
-  { code: '215.B8', name: 'Phòng học lý thuyết 215', minU: 32.75, maxU: 41.4, minV: 31.3, maxV: 44.2 },
-  { code: '213.B8', name: 'Phòng học lý thuyết 213', minU: 45.8, maxU: 55.14, minV: 31.3, maxV: 44.2 },
-  { code: '211.B8', name: 'Phòng học lý thuyết 211', minU: 55.14, maxU: 64.48, minV: 31.3, maxV: 44.2 },
-  { code: '209.B8', name: 'Phòng học lý thuyết 209', minU: 64.48, maxU: 73.82, minV: 31.3, maxV: 44.2 },
-  { code: '207.B8', name: 'Phòng học lý thuyết 207', minU: 73.82, maxU: 83.16, minV: 31.3, maxV: 44.2 },
-  { code: '205.B8', name: 'Phòng học lý thuyết 205', minU: 83.16, maxU: 92.5, minV: 31.3, maxV: 44.2 },
-  { code: '203.B8', name: 'Phòng học lý thuyết 203', minU: 92.5, maxU: 101.84, minV: 31.3, maxV: 44.2 },
-  { code: '201.B8', name: 'Phòng học lý thuyết 201', minU: 101.84, maxU: 111.2, minV: 31.3, maxV: 44.2 },
-];
-
-// TẦNG 3: Sinh từ tầng 2 với các phòng gộp 311.B8, 309.B8 và các phòng 40 chỗ
-export const TANG_3_B8_ROOMS: readonly RoomArea[] = [
-  // Cánh Bắc
-  { code: 'Thang bộ Tây Bắc', name: 'Khu vực Cầu thang bộ Tây Bắc', minU: 0, maxU: 6.8, minV: 0, maxV: 10.5 },
-  { code: '320.B8', name: 'Phòng học lý thuyết 320', minU: 6.8, maxU: 15.45, minV: 0, maxV: 10.5 },
-  { code: '318.B8', name: 'Phòng học lý thuyết 318', minU: 15.45, maxU: 24.1, minV: 0, maxV: 10.5 },
-  { code: '316.B8', name: 'Phòng học lý thuyết 316', minU: 24.1, maxU: 32.75, minV: 0, maxV: 10.5 },
-  { code: '314.B8', name: 'Phòng học lý thuyết 314', minU: 32.75, maxU: 41.4, minV: 0, maxV: 10.5 },
-  { code: 'Hành lang giữa', name: 'Cầu nối liên thông & Lõi thang bộ giữa', minU: 41.4, maxU: 45.8, minV: 0, maxV: 14.5 },
-  { code: '312.B8', name: 'Phòng học lý thuyết 312', minU: 45.8, maxU: 54.4, minV: 0, maxV: 10.5 },
-  { code: '310.B8', name: 'Phòng học lý thuyết 310', minU: 54.4, maxU: 63.0, minV: 0, maxV: 10.5 },
-  { code: '308.B8', name: 'Phòng học lý thuyết 308', minU: 63.0, maxU: 71.6, minV: 0, maxV: 10.5 },
-  { code: '306.B8', name: 'Phòng học lý thuyết 306', minU: 71.6, maxU: 80.2, minV: 0, maxV: 10.5 },
-  { code: '304.B8', name: 'Phòng học lý thuyết 304', minU: 80.2, maxU: 88.8, minV: 0, maxV: 10.5 },
-  { code: '302.B8', name: 'Phòng học lý thuyết 302', minU: 88.8, maxU: 97.4, minV: 0, maxV: 10.5 },
-  { code: 'WC-3N', name: 'Khu vệ sinh & kho Đông Bắc', minU: 97.4, maxU: 104.5, minV: 0, maxV: 10.5 },
-  { code: 'Thang bộ Đông Bắc', name: 'Khu vực Tháp thang bộ kính Đông Bắc', minU: 104.5, maxU: 111.2, minV: 0, maxV: 10.5 },
-
-  // Cánh Nam
-  { code: 'WC-3S', name: 'Khu vệ sinh Tây Nam', minU: -8.25, maxU: 0, minV: 25.5, maxV: 44.2 },
-  { code: 'Thang bộ Tây Nam', name: 'Khu vực Cầu thang bộ Tây Nam', minU: 0, maxU: 6.8, minV: 31.3, maxV: 44.2 },
-  { code: '311.B8', name: 'Phòng học lớn 311 (60 sinh viên)', minU: 6.8, maxU: 24.1, minV: 31.3, maxV: 44.2 },
-  { code: '309.B8', name: 'Phòng học lớn 309 (60 sinh viên)', minU: 24.1, maxU: 41.4, minV: 31.3, maxV: 44.2 },
-  { code: '307.B8', name: 'Phòng học cỡ vừa 307 (40 sinh viên)', minU: 45.8, maxU: 62.15, minV: 31.3, maxV: 44.2 },
-  { code: '305.B8', name: 'Phòng học cỡ vừa 305 (40 sinh viên)', minU: 62.15, maxU: 78.5, minV: 31.3, maxV: 44.2 },
-  { code: '303.B8', name: 'Phòng học cỡ vừa 303 (40 sinh viên)', minU: 78.5, maxU: 94.85, minV: 31.3, maxV: 44.2 },
-  { code: '301.B8', name: 'Phòng học cỡ vừa 301 (40 sinh viên)', minU: 94.85, maxU: 111.2, minV: 31.3, maxV: 44.2 },
-];
-
-// TẦNG 4: Sinh từ tầng 2 với phòng lớn 411.B8
-export const TANG_4_B8_ROOMS: readonly RoomArea[] = [
-  // Cánh Bắc
-  { code: 'Thang bộ Tây Bắc', name: 'Khu vực Cầu thang bộ Tây Bắc', minU: 0, maxU: 6.8, minV: 0, maxV: 10.5 },
-  { code: '420.B8', name: 'Phòng học lý thuyết 420', minU: 6.8, maxU: 15.45, minV: 0, maxV: 10.5 },
-  { code: '418.B8', name: 'Phòng học lý thuyết 418', minU: 15.45, maxU: 24.1, minV: 0, maxV: 10.5 },
-  { code: '416.B8', name: 'Phòng học lý thuyết 416', minU: 24.1, maxU: 32.75, minV: 0, maxV: 10.5 },
-  { code: '414.B8', name: 'Phòng học lý thuyết 414', minU: 32.75, maxU: 41.4, minV: 0, maxV: 10.5 },
-  { code: 'Hành lang giữa', name: 'Cầu nối liên thông & Lõi thang bộ giữa', minU: 41.4, maxU: 45.8, minV: 0, maxV: 14.5 },
-  { code: '412.B8', name: 'Phòng học lý thuyết 412', minU: 45.8, maxU: 54.4, minV: 0, maxV: 10.5 },
-  { code: '410.B8', name: 'Phòng học lý thuyết 410', minU: 54.4, maxU: 63.0, minV: 0, maxV: 10.5 },
-  { code: '408.B8', name: 'Phòng học lý thuyết 408', minU: 63.0, maxU: 71.6, minV: 0, maxV: 10.5 },
-  { code: '406.B8', name: 'Phòng học lý thuyết 406', minU: 71.6, maxU: 80.2, minV: 0, maxV: 10.5 },
-  { code: '404.B8', name: 'Phòng học lý thuyết 404', minU: 80.2, maxU: 88.8, minV: 0, maxV: 10.5 },
-  { code: '402.B8', name: 'Phòng học lý thuyết 402', minU: 88.8, maxU: 97.4, minV: 0, maxV: 10.5 },
-  { code: 'WC-4N', name: 'Khu vệ sinh & kho Đông Bắc', minU: 97.4, maxU: 104.5, minV: 0, maxV: 10.5 },
-  { code: 'Thang bộ Đông Bắc', name: 'Khu vực Tháp thang bộ kính Đông Bắc', minU: 104.5, maxU: 111.2, minV: 0, maxV: 10.5 },
-
-  // Cánh Nam
-  { code: 'WC-4S', name: 'Khu vệ sinh Tây Nam', minU: -8.25, maxU: 0, minV: 25.5, maxV: 44.2 },
-  { code: 'Thang bộ Tây Nam', name: 'Khu vực Cầu thang bộ Tây Nam', minU: 0, maxU: 6.8, minV: 31.3, maxV: 44.2 },
-  { code: '419.B8', name: 'Phòng học lý thuyết 419', minU: 6.8, maxU: 15.45, minV: 31.3, maxV: 44.2 },
-  { code: '417.B8', name: 'Phòng học lý thuyết 417', minU: 15.45, maxU: 24.1, minV: 31.3, maxV: 44.2 },
-  { code: '415.B8', name: 'Phòng học lý thuyết 415', minU: 24.1, maxU: 32.75, minV: 31.3, maxV: 44.2 },
-  { code: '413.B8', name: 'Phòng học lý thuyết 413', minU: 32.75, maxU: 41.4, minV: 31.3, maxV: 44.2 },
-  { code: '411.B8', name: 'Phòng học lớn 411 (60 sinh viên)', minU: 45.8, maxU: 64.48, minV: 31.3, maxV: 44.2 },
-  { code: '409.B8', name: 'Phòng học cỡ vừa 409', minU: 64.48, maxU: 73.82, minV: 31.3, maxV: 44.2 },
-  { code: '407.B8', name: 'Phòng học cỡ vừa 407', minU: 73.82, maxU: 83.16, minV: 31.3, maxV: 44.2 },
-  { code: '405.B8', name: 'Phòng học cỡ vừa 405', minU: 83.16, maxU: 92.5, minV: 31.3, maxV: 44.2 },
-  { code: '403.B8', name: 'Phòng học 403', minU: 92.5, maxU: 101.84, minV: 31.3, maxV: 44.2 },
-  { code: '401.B8', name: 'Phòng học 401', minU: 101.84, maxU: 111.2, minV: 31.3, maxV: 44.2 },
-];
-
-// TẦNG 1 (TRỆT): Các phòng lớn, lối thông gió, bồn cây sân trong
+// TẦNG 1: TRỆT
 export const TANG_1_B8_ROOMS: readonly RoomArea[] = [
-  // Cánh Bắc
-  { code: 'Thang bộ Tây Bắc', name: 'Khu vực Cầu thang bộ Tây Bắc', minU: 0, maxU: 6.8, minV: 0, maxV: 10.5 },
-  { code: '116.B8', name: 'Phòng học lớn 116', minU: 6.8, maxU: 24.1, minV: 0, maxV: 10.5 },
-  { code: '114.B8', name: 'Phòng học lớn 114', minU: 24.1, maxU: 41.4, minV: 0, maxV: 10.5 },
-  { code: 'Hành lang thông gió Bắc', name: 'Lối vào thông gió Bắc — Nhịp giữa', minU: 41.4, maxU: 45.8, minV: 0, maxV: 14.5 },
-  { code: '112.B8', name: 'Phòng học 112', minU: 45.8, maxU: 54.4, minV: 0, maxV: 10.5 },
-  { code: '110.B8', name: 'Phòng học 110', minU: 54.4, maxU: 63.0, minV: 0, maxV: 10.5 },
-  { code: '108.B8', name: 'Phòng học 108', minU: 63.0, maxU: 71.6, minV: 0, maxV: 10.5 },
-  { code: '106.B8', name: 'Phòng học 106', minU: 71.6, maxU: 80.2, minV: 0, maxV: 10.5 },
-  { code: '104.B8', name: 'Phòng học 104', minU: 80.2, maxU: 88.8, minV: 0, maxV: 10.5 },
-  { code: '102.B8', name: 'Phòng Kỹ thuật điện 102', minU: 88.8, maxU: 97.4, minV: 0, maxV: 10.5 },
-  { code: 'WC-1N', name: 'Khu vệ sinh Đông Bắc', minU: 97.4, maxU: 104.5, minV: 0, maxV: 10.5 },
-  { code: 'Thang bộ Đông Bắc', name: 'Cầu thang & Cửa thoát hiểm phía Đông', minU: 104.5, maxU: 111.2, minV: 0, maxV: 10.5 },
+  // --- Cánh Bắc ---
+  { code: 'Thang bộ Tây Bắc', name: 'Sảnh mở Tây + thang bộ Tây Bắc', minU: 9.0, maxU: 13.9, minV: -210.2, maxV: -200.3 },
+  { code: '116.B8', name: 'Phòng học 116', minU: 13.9, maxU: 31.8, minV: -209.8, maxV: -200.3 },
+  { code: '114.B8', name: 'Phòng học 114', minU: 31.8, maxU: 50.8, minV: -209.8, maxV: -200.3 },
+  { code: 'Thang bộ giữa (Bắc)', name: 'Cầu thang bộ giữa (Bắc)', minU: 50.8, maxU: 54.7, minV: -209.8, maxV: -200.3 },
+  { code: '112.B8', name: 'Phòng học 112', minU: 54.7, maxU: 64.3, minV: -209.8, maxV: -200.3 },
+  { code: '110.B8', name: 'Phòng học 110', minU: 64.3, maxU: 73.5, minV: -209.8, maxV: -200.3 },
+  { code: '108.B8', name: 'Phòng học 108', minU: 73.5, maxU: 83.0, minV: -209.8, maxV: -200.3 },
+  { code: '106.B8', name: 'Phòng học 106', minU: 83.0, maxU: 92.3, minV: -209.8, maxV: -200.3 },
+  { code: '104.B8', name: 'Phòng học 104', minU: 92.3, maxU: 101.6, minV: -209.8, maxV: -200.3 },
+  { code: '102.B8', name: 'Phòng Kỹ thuật điện 102', minU: 101.6, maxU: 110.6, minV: -209.8, maxV: -200.3 },
+  { code: 'WC-1N', name: 'Khu vệ sinh Đông Bắc', minU: 110.6, maxU: 120.4, minV: -209.8, maxV: -200.3 },
 
-  // Cánh Nam
-  { code: 'WC-1S', name: 'Khu vệ sinh & Cửa thoát hiểm phía Tây', minU: -8.25, maxU: 0, minV: 25.5, maxV: 44.2 },
-  { code: 'Thang bộ Tây Nam', name: 'Khu vực Cầu thang bộ Tây Nam', minU: 0, maxU: 6.8, minV: 31.3, maxV: 44.2 },
-  { code: '111.B8', name: 'Phòng học lớn 111', minU: 6.8, maxU: 24.1, minV: 31.3, maxV: 44.2 },
-  { code: '109.B8', name: 'Phòng học lớn 109', minU: 24.1, maxU: 41.4, minV: 31.3, maxV: 44.2 },
-  { code: 'Hành lang thông gió Nam', name: 'Lối vào thông gió Nam — Nhịp giữa', minU: 41.4, maxU: 45.8, minV: 27.3, maxV: 44.2 },
-  { code: '107.B8', name: 'Phòng học lớn 107', minU: 45.8, maxU: 62.15, minV: 31.3, maxV: 44.2 },
-  { code: '105.B8', name: 'Phòng học lớn 105', minU: 62.15, maxU: 78.5, minV: 31.3, maxV: 44.2 },
-  { code: '103.B8', name: 'Phòng học lớn 103', minU: 78.5, maxU: 94.85, minV: 31.3, maxV: 44.2 },
-  { code: '101.B8', name: 'Phòng học lớn 101', minU: 94.85, maxU: 111.2, minV: 31.3, maxV: 44.2 },
+  // --- Cánh Nam ---
+  { code: 'WC-1S', name: 'Khu vệ sinh Tây Nam', minU: 1.2, maxU: 10.9, minV: -179.0, maxV: -167.5 },
+  { code: 'Thang bộ Tây Nam', name: 'Cầu thang bộ Tây Nam', minU: 10.9, maxU: 14.3, minV: -177.8, maxV: -166.0 },
+  { code: '111.B8', name: 'Phòng học 111', minU: 14.3, maxU: 32.5, minV: -177.8, maxV: -166.0 },
+  { code: '109.B8', name: 'Phòng học 109', minU: 32.5, maxU: 50.8, minV: -177.8, maxV: -166.0 },
+  { code: 'Thang bộ giữa (Nam)', name: 'Cầu thang bộ giữa (Nam)', minU: 50.8, maxU: 54.7, minV: -177.8, maxV: -166.0 },
+  { code: '107.B8', name: 'Phòng học 107', minU: 54.7, maxU: 72.6, minV: -177.8, maxV: -166.0 },
+  { code: '105.B8', name: 'Phòng học 105', minU: 72.6, maxU: 90.9, minV: -177.8, maxV: -166.0 },
+  { code: '103.B8', name: 'Phòng học 103', minU: 90.9, maxU: 109.2, minV: -177.8, maxV: -166.0 },
+  { code: '101.B8', name: 'Phòng học 101', minU: 109.2, maxU: 118.1, minV: -177.8, maxV: -166.0 },
+
+  // --- Lõi giữa & Sân Đông ---
+  { code: 'Thang bộ Đông', name: 'Lõi thang bộ Đông (trong sân Đông)', minU: 108.1, maxU: 115.1, minV: -190.8, maxV: -185.6 },
+];
+
+// TẦNG 2: TẦNG MẪU CHUẨN
+export const TANG_2_B8_ROOMS: readonly RoomArea[] = [
+  // --- Cánh Bắc ---
+  { code: 'Thang bộ Tây Bắc', name: 'Khu vực Cầu thang bộ Tây Bắc', minU: 9.0, maxU: 13.1, minV: -210.2, maxV: -200.0 },
+  { code: '220.B8', name: 'Phòng học 220', minU: 13.1, maxU: 22.4, minV: -210.2, maxV: -200.0 },
+  { code: '218.B8', name: 'Phòng học 218', minU: 22.4, maxU: 31.6, minV: -210.2, maxV: -200.0 },
+  { code: '216.B8', name: 'Phòng học 216', minU: 31.6, maxU: 40.8, minV: -210.2, maxV: -200.0 },
+  { code: '214.B8', name: 'Phòng học 214', minU: 40.8, maxU: 49.7, minV: -210.2, maxV: -200.0 },
+  { code: 'Thang bộ giữa (Bắc)', name: 'Cầu thang bộ giữa (Bắc)', minU: 49.7, maxU: 54.1, minV: -210.2, maxV: -200.0 },
+  { code: '212.B8', name: 'Phòng học 212', minU: 54.1, maxU: 63.1, minV: -210.2, maxV: -200.0 },
+  { code: '210.B8', name: 'Phòng học 210', minU: 63.1, maxU: 72.5, minV: -210.2, maxV: -200.0 },
+  { code: '208.B8', name: 'Phòng học 208', minU: 72.5, maxU: 81.9, minV: -210.2, maxV: -200.0 },
+  { code: '206.B8', name: 'Phòng học 206', minU: 81.9, maxU: 91.3, minV: -210.2, maxV: -200.0 },
+  { code: '204.B8', name: 'Phòng học 204', minU: 91.3, maxU: 100.5, minV: -210.2, maxV: -200.0 },
+  { code: '202.B8', name: 'Phòng học 202', minU: 100.5, maxU: 109.7, minV: -210.2, maxV: -200.0 },
+  { code: 'WC-2N', name: 'WC + Thang bộ Đông Bắc', minU: 109.7, maxU: 119.4, minV: -210.2, maxV: -200.0 },
+
+  // --- Cánh Nam ---
+  { code: 'WC-2S', name: 'Khu vệ sinh Tây Nam', minU: 0.3, maxU: 9.7, minV: -181.0, maxV: -166.0 },
+  { code: 'Thang bộ Tây Nam', name: 'Khu vực Cầu thang bộ Tây Nam', minU: 9.7, maxU: 13.5, minV: -177.7, maxV: -166.0 },
+  { code: '221.B8', name: 'Phòng học 221', minU: 13.5, maxU: 22.6, minV: -177.7, maxV: -166.0 },
+  { code: '219.B8', name: 'Phòng học 219', minU: 22.6, maxU: 31.7, minV: -177.7, maxV: -166.0 },
+  { code: '217.B8', name: 'Phòng học 217', minU: 31.7, maxU: 40.8, minV: -177.7, maxV: -166.0 },
+  { code: '215.B8', name: 'Phòng học 215', minU: 40.8, maxU: 50.0, minV: -177.7, maxV: -166.0 },
+  { code: 'Thang bộ giữa (Nam)', name: 'Cầu thang bộ giữa (Nam)', minU: 50.0, maxU: 53.7, minV: -177.7, maxV: -166.0 },
+  { code: '213.B8', name: 'Phòng học 213', minU: 53.7, maxU: 62.7, minV: -177.7, maxV: -166.0 },
+  { code: '211.B8', name: 'Phòng học 211', minU: 62.7, maxU: 71.5, minV: -177.7, maxV: -166.0 },
+  { code: '209.B8', name: 'Phòng học 209', minU: 71.5, maxU: 80.8, minV: -177.7, maxV: -166.0 },
+  { code: '207.B8', name: 'Phòng học 207', minU: 80.8, maxU: 90.1, minV: -177.7, maxV: -166.0 },
+  { code: '205.B8', name: 'Phòng học 205', minU: 90.1, maxU: 99.5, minV: -177.7, maxV: -166.0 },
+  { code: '203.B8', name: 'Phòng học 203', minU: 99.5, maxU: 108.8, minV: -177.7, maxV: -166.0 },
+  { code: '201.B8', name: 'Phòng học 201', minU: 108.8, maxU: 117.7, minV: -177.7, maxV: -166.0 },
+
+  // --- Lõi giữa & Sân Đông ---
+  { code: 'Thang bộ Đông', name: 'Lõi thang bộ Đông (trong sân Đông)', minU: 106.9, maxU: 114.5, minV: -190.3, maxV: -184.8 },
+];
+
+// TẦNG 3: Cánh Bắc giữ ô, cánh Nam gộp phòng 311, 309, 307, 305, 303, 301
+export const TANG_3_B8_ROOMS: readonly RoomArea[] = [
+  // --- Cánh Bắc ---
+  { code: 'Thang bộ Tây Bắc', name: 'Khu vực Cầu thang bộ Tây Bắc', minU: 9.0, maxU: 13.1, minV: -210.2, maxV: -200.0 },
+  { code: '320.B8', name: 'Phòng học 320', minU: 13.1, maxU: 22.4, minV: -210.2, maxV: -200.0 },
+  { code: '318.B8', name: 'Phòng học 318', minU: 22.4, maxU: 31.6, minV: -210.2, maxV: -200.0 },
+  { code: '316.B8', name: 'Phòng học 316', minU: 31.6, maxU: 40.8, minV: -210.2, maxV: -200.0 },
+  { code: '314.B8', name: 'Phòng học 314', minU: 40.8, maxU: 49.7, minV: -210.2, maxV: -200.0 },
+  { code: 'Thang bộ giữa (Bắc)', name: 'Cầu thang bộ giữa (Bắc)', minU: 49.7, maxU: 54.1, minV: -210.2, maxV: -200.0 },
+  { code: '312.B8', name: 'Phòng học 312', minU: 54.1, maxU: 63.1, minV: -210.2, maxV: -200.0 },
+  { code: '310.B8', name: 'Phòng học 310', minU: 63.1, maxU: 72.5, minV: -210.2, maxV: -200.0 },
+  { code: '308.B8', name: 'Phòng học 308', minU: 72.5, maxU: 81.9, minV: -210.2, maxV: -200.0 },
+  { code: '306.B8', name: 'Phòng học 306', minU: 81.9, maxU: 91.3, minV: -210.2, maxV: -200.0 },
+  { code: '304.B8', name: 'Phòng học 304', minU: 91.3, maxU: 100.5, minV: -210.2, maxV: -200.0 },
+  { code: '302.B8', name: 'Phòng học 302', minU: 100.5, maxU: 109.7, minV: -210.2, maxV: -200.0 },
+  { code: 'WC-3N', name: 'WC + Thang bộ Đông Bắc', minU: 109.7, maxU: 119.4, minV: -210.2, maxV: -200.0 },
+
+  // --- Cánh Nam ---
+  { code: 'WC-3S', name: 'Khu vệ sinh Tây Nam', minU: 0.3, maxU: 9.7, minV: -181.0, maxV: -166.0 },
+  { code: 'Thang bộ Tây Nam', name: 'Khu vực Cầu thang bộ Tây Nam', minU: 9.7, maxU: 13.5, minV: -177.7, maxV: -166.0 },
+  { code: '311.B8', name: 'Phòng học lớn 311 (gộp ô 221+219)', minU: 13.5, maxU: 31.7, minV: -177.7, maxV: -166.0 },
+  { code: '309.B8', name: 'Phòng học lớn 309 (gộp ô 217+215)', minU: 31.7, maxU: 50.0, minV: -177.7, maxV: -166.0 },
+  { code: 'Thang bộ giữa (Nam)', name: 'Cầu thang bộ giữa (Nam)', minU: 50.0, maxU: 53.7, minV: -177.7, maxV: -166.0 },
+  { code: '307.B8', name: 'Phòng học 307 (gộp ô 213+211)', minU: 53.7, maxU: 71.5, minV: -177.7, maxV: -166.0 },
+  { code: '305.B8', name: 'Phòng học 305 (gộp ô 209+207)', minU: 71.5, maxU: 90.1, minV: -177.7, maxV: -166.0 },
+  { code: '303.B8', name: 'Phòng học 303 (gộp ô 205+203)', minU: 90.1, maxU: 108.8, minV: -177.7, maxV: -166.0 },
+  { code: '301.B8', name: 'Phòng học 301 (ô 201)', minU: 108.8, maxU: 117.7, minV: -177.7, maxV: -166.0 },
+
+  // --- Lõi giữa & Sân Đông ---
+  { code: 'Thang bộ Đông', name: 'Lõi thang bộ Đông (trong sân Đông)', minU: 106.9, maxU: 114.5, minV: -190.3, maxV: -184.8 },
+];
+
+// TẦNG 4: Cánh Bắc giữ ô, cánh Nam có phòng 411 gộp ô 213+211
+export const TANG_4_B8_ROOMS: readonly RoomArea[] = [
+  // --- Cánh Bắc ---
+  { code: 'Thang bộ Tây Bắc', name: 'Khu vực Cầu thang bộ Tây Bắc', minU: 9.0, maxU: 13.1, minV: -210.2, maxV: -200.0 },
+  { code: '420.B8', name: 'Phòng học 420', minU: 13.1, maxU: 22.4, minV: -210.2, maxV: -200.0 },
+  { code: '418.B8', name: 'Phòng học 418', minU: 22.4, maxU: 31.6, minV: -210.2, maxV: -200.0 },
+  { code: '416.B8', name: 'Phòng học 416', minU: 31.6, maxU: 40.8, minV: -210.2, maxV: -200.0 },
+  { code: '414.B8', name: 'Phòng học 414', minU: 40.8, maxU: 49.7, minV: -210.2, maxV: -200.0 },
+  { code: 'Thang bộ giữa (Bắc)', name: 'Cầu thang bộ giữa (Bắc)', minU: 49.7, maxU: 54.1, minV: -210.2, maxV: -200.0 },
+  { code: '412.B8', name: 'Phòng học 412', minU: 54.1, maxU: 63.1, minV: -210.2, maxV: -200.0 },
+  { code: '410.B8', name: 'Phòng học 410', minU: 63.1, maxU: 72.5, minV: -210.2, maxV: -200.0 },
+  { code: '408.B8', name: 'Phòng học 408', minU: 72.5, maxU: 81.9, minV: -210.2, maxV: -200.0 },
+  { code: '406.B8', name: 'Phòng học 406', minU: 81.9, maxU: 91.3, minV: -210.2, maxV: -200.0 },
+  { code: '404.B8', name: 'Phòng học 404', minU: 91.3, maxU: 100.5, minV: -210.2, maxV: -200.0 },
+  { code: '402.B8', name: 'Phòng học 402', minU: 100.5, maxU: 109.7, minV: -210.2, maxV: -200.0 },
+  { code: 'WC-4N', name: 'WC + Thang bộ Đông Bắc', minU: 109.7, maxU: 119.4, minV: -210.2, maxV: -200.0 },
+
+  // --- Cánh Nam ---
+  { code: 'WC-4S', name: 'Khu vệ sinh Tây Nam', minU: 0.3, maxU: 9.7, minV: -181.0, maxV: -166.0 },
+  { code: 'Thang bộ Tây Nam', name: 'Khu vực Cầu thang bộ Tây Nam', minU: 9.7, maxU: 13.5, minV: -177.7, maxV: -166.0 },
+  { code: '419.B8', name: 'Phòng học 419', minU: 13.5, maxU: 22.6, minV: -177.7, maxV: -166.0 },
+  { code: '417.B8', name: 'Phòng học 417', minU: 22.6, maxU: 31.7, minV: -177.7, maxV: -166.0 },
+  { code: '415.B8', name: 'Phòng học 415', minU: 31.7, maxU: 40.8, minV: -177.7, maxV: -166.0 },
+  { code: '413.B8', name: 'Phòng học 413', minU: 40.8, maxU: 50.0, minV: -177.7, maxV: -166.0 },
+  { code: 'Thang bộ giữa (Nam)', name: 'Cầu thang bộ giữa (Nam)', minU: 50.0, maxU: 53.7, minV: -177.7, maxV: -166.0 },
+  { code: '411.B8', name: 'Phòng học lớn 411 (gộp ô 213+211)', minU: 53.7, maxU: 71.5, minV: -177.7, maxV: -166.0 },
+  { code: '409.B8', name: 'Phòng học 409', minU: 71.5, maxU: 80.8, minV: -177.7, maxV: -166.0 },
+  { code: '407.B8', name: 'Phòng học 407', minU: 80.8, maxU: 90.1, minV: -177.7, maxV: -166.0 },
+  { code: '405.B8', name: 'Phòng học 405', minU: 90.1, maxU: 99.5, minV: -177.7, maxV: -166.0 },
+  { code: '403.B8', name: 'Phòng học 403', minU: 99.5, maxU: 108.8, minV: -177.7, maxV: -166.0 },
+  { code: '401.B8', name: 'Phòng học 401', minU: 108.8, maxU: 117.7, minV: -177.7, maxV: -166.0 },
+
+  // --- Lõi giữa & Sân Đông ---
+  { code: 'Thang bộ Đông', name: 'Lõi thang bộ Đông (trong sân Đông)', minU: 106.9, maxU: 114.5, minV: -190.3, maxV: -184.8 },
 ];
 
 export function getFloorRooms(floor: number): readonly RoomArea[] {
@@ -239,118 +252,158 @@ export function getFloorRooms(floor: number): readonly RoomArea[] {
 }
 
 // =============================================================================
-// TẠO HÌNH HỌC TƯỜNG CHO TỪNG TẦNG
+// TẠO HÌNH HỌC TƯỜNG CHO TỪNG TẦNG (TƯỜNG ĐẶC + RAILING CHẶN RƠI SÂN TRONG)
 // =============================================================================
 
 function createFloorWalls(floor: number): WallSegment[] {
   const walls: WallSegment[] = [];
 
   // 1. Tường bao ngoài (Outer Perimeter)
-  // Mặt Bắc (v = 0):
   if (floor === 1) {
-    // Tầng 1: Cửa nhịp giữa mở tại u ∈ [42.0, 45.2]
-    walls.push({ u1: 0, v1: 0, u2: 42.0, v2: 0, thickness: 0.3 });
-    walls.push({ u1: 45.2, v1: 0, u2: 111.2, v2: 0, thickness: 0.3 });
+    // Mặt Bắc (v = -210.2): cửa nhịp giữa tại u ∈ [51.5, 54.0]
+    walls.push({ u1: 9.0, v1: -210.2, u2: 51.5, v2: -210.2, thickness: 0.3 });
+    walls.push({ u1: 54.0, v1: -210.2, u2: 120.4, v2: -210.2, thickness: 0.3 });
+
+    // Mặt Đông (u = 120.4): cửa thoát hiểm tại v ∈ [-190.5, -187.0]
+    walls.push({ u1: 120.4, v1: -210.2, u2: 120.4, v2: -190.5, thickness: 0.3 });
+    walls.push({ u1: 120.4, v1: -187.0, u2: 120.4, v2: -166.0, thickness: 0.3 });
+
+    // Mặt Nam (v = -166.0): cửa nhịp giữa tại u ∈ [51.5, 54.0]
+    walls.push({ u1: 120.4, v1: -166.0, u2: 54.0, v2: -166.0, thickness: 0.3 });
+    walls.push({ u1: 51.5, v1: -166.0, u2: 0.3, v2: -166.0, thickness: 0.3 });
+
+    // Mặt Tây WC Tây Nam (u = 0.3)
+    walls.push({ u1: 0.3, v1: -166.0, u2: 0.3, v2: -181.0, thickness: 0.3 });
+    // Khớp góc trên WC Tây Nam (v = -181.0)
+    walls.push({ u1: 0.3, v1: -181.0, u2: 9.0, v2: -181.0, thickness: 0.3 });
+
+    // Mặt Tây thân chính (u = 9.0): cửa thoát hiểm Tây tại v ∈ [-190.5, -187.0]
+    walls.push({ u1: 9.0, v1: -181.0, u2: 9.0, v2: -187.0, thickness: 0.3 });
+    walls.push({ u1: 9.0, v1: -190.5, u2: 9.0, v2: -210.2, thickness: 0.3 });
   } else {
-    walls.push({ u1: 0, v1: 0, u2: 111.2, v2: 0, thickness: 0.3 });
+    // Mặt Bắc (v = -210.2)
+    walls.push({ u1: 9.0, v1: -210.2, u2: 120.4, v2: -210.2, thickness: 0.3 });
+    // Mặt Đông (u = 120.4)
+    walls.push({ u1: 120.4, v1: -210.2, u2: 120.4, v2: -166.0, thickness: 0.3 });
+    // Mặt Nam (v = -166.0)
+    walls.push({ u1: 120.4, v1: -166.0, u2: 0.3, v2: -166.0, thickness: 0.3 });
+    // Mặt Tây WC Tây Nam (u = 0.3)
+    walls.push({ u1: 0.3, v1: -166.0, u2: 0.3, v2: -181.0, thickness: 0.3 });
+    // Khớp góc trên WC Tây Nam (v = -181.0)
+    walls.push({ u1: 0.3, v1: -181.0, u2: 9.0, v2: -181.0, thickness: 0.3 });
+    // Mặt Tây thân chính (u = 9.0)
+    walls.push({ u1: 9.0, v1: -181.0, u2: 9.0, v2: -210.2, thickness: 0.3 });
   }
 
-  // Mặt Đông (u = 111.2):
-  if (floor === 1) {
-    // Tầng 1: Cửa thoát hiểm mở tại v ∈ [19.0, 22.8]
-    walls.push({ u1: 111.2, v1: 0, u2: 111.2, v2: 19.0, thickness: 0.3 });
-    walls.push({ u1: 111.2, v1: 22.8, u2: 111.2, v2: 44.2, thickness: 0.3 });
-  } else {
-    walls.push({ u1: 111.2, v1: 0, u2: 111.2, v2: 44.2, thickness: 0.3 });
-  }
-
-  // Mặt Nam (v = 44.2):
-  if (floor === 1) {
-    // Tầng 1: Cửa nhịp giữa mở tại u ∈ [42.0, 45.2]
-    walls.push({ u1: 111.2, v1: 44.2, u2: 45.2, v2: 44.2, thickness: 0.3 });
-    walls.push({ u1: 42.0, v1: 44.2, u2: -8.25, v2: 44.2, thickness: 0.3 });
-  } else {
-    walls.push({ u1: 111.2, v1: 44.2, u2: -8.25, v2: 44.2, thickness: 0.3 });
-  }
-
-  // Mặt Tây cánh Nam (u = -8.25):
-  if (floor === 1) {
-    // Tầng 1: Cửa thoát hiểm mở tại v ∈ [32.0, 36.0]
-    walls.push({ u1: -8.25, v1: 44.2, u2: -8.25, v2: 36.0, thickness: 0.3 });
-    walls.push({ u1: -8.25, v1: 32.0, u2: -8.25, v2: 25.5, thickness: 0.3 });
-  } else {
-    walls.push({ u1: -8.25, v1: 44.2, u2: -8.25, v2: 25.5, thickness: 0.3 });
-  }
-
-  // Khớp góc Tây Nam (v = 25.5 từ u = -8.25 đến u = 0):
-  walls.push({ u1: -8.25, v1: 25.5, u2: 0, v2: 25.5, thickness: 0.3 });
-
-  // Mặt Tây cánh Bắc (u = 0, v từ 25.5 về 0):
-  walls.push({ u1: 0, v1: 25.5, u2: 0, v2: 0, thickness: 0.3 });
-
-  // 2. Tường ngăn hành lang và phòng học (có cửa ra vào)
+  // 2. Tường ngăn hành lang và phòng học (có cửa mở ra hành lang)
   const rooms = getFloorRooms(floor);
 
-  // Nhóm phòng cánh Bắc (v: 0..10.5):
-  // Tường hành lang Bắc tại v = 10.5:
-  const northRooms = rooms.filter((r) => r.minV === 0 && r.code.includes('.B8'));
+  // Nhóm phòng cánh Bắc (v: -210.2 .. -200.0)
+  const northRooms = rooms.filter((r) => r.code.includes('.B8') && r.maxV <= -200.0);
   for (const r of northRooms) {
-    // Để cửa hở 1.4m ở mép phải của phòng
-    const doorStart = r.maxU - 1.8;
+    const corridorV = r.maxV; // -200.0 hoặc -200.3
+    // Cửa hở 1.3m mở ra hành lang
+    const doorStart = r.maxU - 1.7;
     const doorEnd = r.maxU - 0.4;
-    walls.push({ u1: r.minU, v1: 10.5, u2: doorStart, v2: 10.5, thickness: 0.2 });
-    walls.push({ u1: doorEnd, v1: 10.5, u2: r.maxU, v2: 10.5, thickness: 0.2 });
+    walls.push({ u1: r.minU, v1: corridorV, u2: doorStart, v2: corridorV, thickness: 0.2 });
+    walls.push({ u1: doorEnd, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+
     // Tường ngăn dọc giữa các phòng
-    walls.push({ u1: r.maxU, v1: 0, u2: r.maxU, v2: 10.5, thickness: 0.2 });
+    walls.push({ u1: r.maxU, v1: r.minV, u2: r.maxU, v2: r.maxV, thickness: 0.2 });
   }
 
-  // Nhóm phòng cánh Nam (v: 31.3..44.2):
-  // Tường hành lang Nam tại v = 31.3:
-  const southRooms = rooms.filter((r) => r.maxV === 44.2 && r.code.includes('.B8'));
+  // Nhóm phòng cánh Nam (v: -177.7 .. -166.0)
+  const southRooms = rooms.filter((r) => r.code.includes('.B8') && r.minV >= -178.0);
   for (const r of southRooms) {
-    // Để cửa hở 1.4m ở mép trái của phòng
+    const corridorV = r.minV; // -177.7 hoặc -177.8
+    // Cửa hở 1.3m mở ra hành lang
     const doorStart = r.minU + 0.4;
-    const doorEnd = r.minU + 1.8;
-    walls.push({ u1: r.minU, v1: 31.3, u2: doorStart, v2: 31.3, thickness: 0.2 });
-    walls.push({ u1: doorEnd, v1: 31.3, u2: r.maxU, v2: 31.3, thickness: 0.2 });
+    const doorEnd = r.minU + 1.7;
+    walls.push({ u1: r.minU, v1: corridorV, u2: doorStart, v2: corridorV, thickness: 0.2 });
+    walls.push({ u1: doorEnd, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+
     // Tường ngăn dọc giữa các phòng
-    walls.push({ u1: r.maxU, v1: 31.3, u2: r.maxU, v2: 44.2, thickness: 0.2 });
+    walls.push({ u1: r.maxU, v1: r.minV, u2: r.maxU, v2: r.maxV, thickness: 0.2 });
   }
 
-  // 3. Lan can an toàn bao quanh 2 sân trong (chặn va chạm)
-  // Sân trong Tây: u ∈ [6.8, 41.4], v ∈ [14.5, 27.3]
-  // Sân trong Đông: u ∈ [45.8, 105.4], v ∈ [14.5, 27.3]
-  // Mép Bắc sân trong (v = 14.5)
-  walls.push({ u1: 6.8, v1: 14.5, u2: 41.4, v2: 14.5, thickness: 0.15, isGlass: true });
-  walls.push({ u1: 45.8, v1: 14.5, u2: 105.4, v2: 14.5, thickness: 0.15, isGlass: true });
+  // 3. Tường WC và các buồng thang bộ
+  // WC Đông Bắc
+  const wcN = rooms.find((r) => r.code.startsWith('WC') && r.code.includes('N'));
+  if (wcN) {
+    walls.push({ u1: wcN.minU, v1: wcN.minV, u2: wcN.minU, v2: wcN.maxV, thickness: 0.2 });
+    // Tường hành lang có cửa
+    const doorStart = wcN.minU + 0.4;
+    const doorEnd = wcN.minU + 1.6;
+    walls.push({ u1: wcN.minU, v1: wcN.maxV, u2: doorStart, v2: wcN.maxV, thickness: 0.2 });
+    walls.push({ u1: doorEnd, v1: wcN.maxV, u2: wcN.maxU, v2: wcN.maxV, thickness: 0.2 });
+  }
 
-  // Mép Nam sân trong (v = 27.3)
-  walls.push({ u1: 6.8, v1: 27.3, u2: 41.4, v2: 27.3, thickness: 0.15, isGlass: true });
-  walls.push({ u1: 45.8, v1: 27.3, u2: 105.4, v2: 27.3, thickness: 0.15, isGlass: true });
+  // WC Tây Nam
+  const wcS = rooms.find((r) => r.code.startsWith('WC') && r.code.includes('S'));
+  if (wcS) {
+    walls.push({ u1: wcS.maxU, v1: wcS.minV, u2: wcS.maxU, v2: wcS.maxV, thickness: 0.2 });
+  }
 
-  // Đầu Tây sân Tây (u = 6.8)
-  walls.push({ u1: 6.8, v1: 14.5, u2: 6.8, v2: 27.3, thickness: 0.15, isGlass: true });
-  // Đầu Đông sân Tây (u = 41.4, cạnh thang bộ giữa)
-  walls.push({ u1: 41.4, v1: 14.5, u2: 41.4, v2: 27.3, thickness: 0.2 });
+  // Thang bộ Tây Bắc: vách ngăn với hành lang (có cửa mở)
+  const stairNW = rooms.find((r) => r.code === 'Thang bộ Tây Bắc');
+  if (stairNW) {
+    walls.push({ u1: stairNW.maxU, v1: stairNW.minV, u2: stairNW.maxU, v2: stairNW.maxV, thickness: 0.2 });
+  }
 
-  // Đầu Tây sân Đông (u = 45.8, cạnh thang máy)
-  walls.push({ u1: 45.8, v1: 14.5, u2: 45.8, v2: 18.5, thickness: 0.2 });
-  walls.push({ u1: 45.8, v1: 22.5, u2: 45.8, v2: 27.3, thickness: 0.2 });
+  // Thang bộ Tây Nam: vách ngăn với hành lang
+  const stairSW = rooms.find((r) => r.code === 'Thang bộ Tây Nam');
+  if (stairSW) {
+    walls.push({ u1: stairSW.minU, v1: stairSW.minV, u2: stairSW.minU, v2: stairSW.maxV, thickness: 0.2 });
+    walls.push({ u1: stairSW.maxU, v1: stairSW.minV, u2: stairSW.maxU, v2: stairSW.maxV, thickness: 0.2 });
+  }
 
-  // Đầu Đông sân Đông (u = 105.4, cạnh thang Đông)
-  walls.push({ u1: 105.4, v1: 14.5, u2: 105.4, v2: 27.3, thickness: 0.2 });
+  // Thang bộ giữa Bắc & Nam
+  const stairMN = rooms.find((r) => r.code === 'Thang bộ giữa (Bắc)');
+  if (stairMN) {
+    walls.push({ u1: stairMN.minU, v1: stairMN.minV, u2: stairMN.minU, v2: stairMN.maxV, thickness: 0.2 });
+    walls.push({ u1: stairMN.maxU, v1: stairMN.minV, u2: stairMN.maxU, v2: stairMN.maxV, thickness: 0.2 });
+  }
+  const stairMS = rooms.find((r) => r.code === 'Thang bộ giữa (Nam)');
+  if (stairMS) {
+    walls.push({ u1: stairMS.minU, v1: stairMS.minV, u2: stairMS.minU, v2: stairMS.maxV, thickness: 0.2 });
+    walls.push({ u1: stairMS.maxU, v1: stairMS.minV, u2: stairMS.maxU, v2: stairMS.maxV, thickness: 0.2 });
+  }
 
-  // 4. Hộp buồng thang máy (u ∈ [45.8, 49.5], v ∈ [18.5, 22.5])
-  walls.push({ u1: 49.5, v1: 18.5, u2: 49.5, v2: 22.5, thickness: 0.25 }); // Lưng thang
-  walls.push({ u1: 45.8, v1: 18.5, u2: 49.5, v2: 18.5, thickness: 0.25 }); // Hông Bắc
-  walls.push({ u1: 45.8, v1: 22.5, u2: 49.5, v2: 22.5, thickness: 0.25 }); // Hông Nam
+  // 4. Buồng THANG MÁY (duy nhất của tòa nhà, nhịp giữa)
+  // u ∈ [55.1, 58.2], v ∈ [-190.2, -186.5]
+  walls.push({ u1: 55.1, v1: -190.2, u2: 58.2, v2: -190.2, thickness: 0.25 }); // Hông Bắc
+  walls.push({ u1: 55.1, v1: -186.5, u2: 58.2, v2: -186.5, thickness: 0.25 }); // Hông Nam
+  walls.push({ u1: 58.2, v1: -190.2, u2: 58.2, v2: -186.5, thickness: 0.25 }); // Lưng thang (Đông)
+  // Mặt Tây có cửa mở
+  walls.push({ u1: 55.1, v1: -190.2, u2: 55.1, v2: -189.5, thickness: 0.25 });
+  walls.push({ u1: 55.1, v1: -187.2, u2: 55.1, v2: -186.5, thickness: 0.25 });
 
-  // 5. Vách tháp cầu thang kính Đông Bắc (u = 104.5, v ∈ [0, 10.5])
-  walls.push({ u1: 104.5, v1: 0, u2: 104.5, v2: 10.5, thickness: 0.2, isGlass: true });
+  // 5. Lõi thang bộ Đông (hốc trong sân Đông)
+  // u ∈ [106.9, 114.5], v ∈ [-190.3, -184.8]
+  walls.push({ u1: 106.9, v1: -190.3, u2: 114.5, v2: -190.3, thickness: 0.2 }); // Hông Bắc
+  walls.push({ u1: 106.9, v1: -184.8, u2: 114.5, v2: -184.8, thickness: 0.2 }); // Hông Nam
+  walls.push({ u1: 106.9, v1: -190.3, u2: 106.9, v2: -184.8, thickness: 0.2 }); // Mặt Tây nhìn ra sân
 
-  // 6. Tường WC Đông Bắc & Tây Nam
-  walls.push({ u1: 97.4, v1: 0, u2: 97.4, v2: 10.5, thickness: 0.2 });
-  walls.push({ u1: 0, v1: 31.3, u2: 0, v2: 44.2, thickness: 0.2 });
+  // 6. Lan can inox bảo vệ quanh 2 sân trong ở TẦNG 2–4 (KHÔNG DÙNG KÍNH, isRailing: true)
+  // Sân Tây: u ∈ [13.5, 50.0], v ∈ [-197.0, -180.1]
+  // Sân Đông: u ∈ [54.1, 114.9], v ∈ [-196.5, -179.6]
+  if (floor >= 2) {
+    // Sân Tây
+    walls.push({ u1: 13.5, v1: -197.0, u2: 50.0, v2: -197.0, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 13.5, v1: -180.1, u2: 50.0, v2: -180.1, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 13.5, v1: -197.0, u2: 13.5, v2: -180.1, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 50.0, v1: -197.0, u2: 50.0, v2: -180.1, thickness: 0.15, isRailing: true });
+
+    // Sân Đông
+    walls.push({ u1: 54.1, v1: -196.5, u2: 114.9, v2: -196.5, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 54.1, v1: -179.6, u2: 114.9, v2: -179.6, thickness: 0.15, isRailing: true });
+    // Mép Tây sân Đông (2 bên buồng thang máy)
+    walls.push({ u1: 54.1, v1: -196.5, u2: 54.1, v2: -190.2, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 54.1, v1: -186.5, u2: 54.1, v2: -179.6, thickness: 0.15, isRailing: true });
+    // Mép Đông sân Đông (2 bên lõi thang bộ Đông)
+    walls.push({ u1: 114.9, v1: -196.5, u2: 114.9, v2: -190.3, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 114.9, v1: -184.8, u2: 114.9, v2: -179.6, thickness: 0.15, isRailing: true });
+  }
 
   return walls;
 }
@@ -367,43 +420,56 @@ export function getFloorWalls(floor: number): readonly WallSegment[] {
   return TANG_2_WALLS;
 }
 
-// Đa giác biên sàn B8
+// =============================================================================
+// BIÊN SÀN VÀ GIẾNG TRỜI SÂN TRONG
+// =============================================================================
+
+// Đa giác biên sàn B8 (6 đỉnh bao quát toàn khối theo OSM)
 export function getFloorBoundaryPts(): Vec2[] {
   return [
-    toWorld(0, 0),
-    toWorld(111.2, 0),
-    toWorld(111.2, 44.2),
-    toWorld(-8.25, 44.2),
-    toWorld(-8.25, 25.5),
-    toWorld(0, 25.5),
+    toWorld(9.0, -210.2),   // Tây Bắc
+    toWorld(120.4, -210.2), // Đông Bắc
+    toWorld(120.4, -166.0), // Đông Nam
+    toWorld(0.3, -166.0),   // Tây Nam (mép dưới khối WC nhô ra)
+    toWorld(0.3, -181.0),   // Mép trên khối WC
+    toWorld(9.0, -181.0),   // Góc nối vào thân chính
   ];
 }
 
-// 2 Lỗ giếng trời sân trong cho các tầng 2, 3, 4
+// 2 Lỗ giếng trời sân trong cho các tầng 2, 3, 4 (KHÔNG CÓ KÍNH)
 export function getFloorHoles(floor: number): Vec2[][] {
   if (floor === 1) return []; // Tầng 1 phủ kín sàn sân vườn
 
+  // Sân Tây: [13.5, 50.0] x [-197.0, -180.1]
   const westCourtyardHole: Vec2[] = [
-    toWorld(6.8, 14.5),
-    toWorld(41.4, 14.5),
-    toWorld(41.4, 27.3),
-    toWorld(6.8, 27.3),
+    toWorld(13.5, -197.0),
+    toWorld(50.0, -197.0),
+    toWorld(50.0, -180.1),
+    toWorld(13.5, -180.1),
   ];
 
-  // Sân Đông chừa buồng thang máy tại u ∈ [45.8, 49.5], v ∈ [18.5, 22.5]
+  // Sân Đông: [54.1, 114.9] x [-196.5, -179.6], chừa buồng thang máy và lõi thang bộ
   const eastCourtyardHole: Vec2[] = [
-    toWorld(45.8, 14.5),
-    toWorld(105.4, 14.5),
-    toWorld(105.4, 27.3),
-    toWorld(45.8, 27.3),
-    toWorld(45.8, 22.5),
-    toWorld(49.5, 22.5),
-    toWorld(49.5, 18.5),
-    toWorld(45.8, 18.5),
+    toWorld(54.1, -196.5),
+    toWorld(114.9, -196.5),
+    toWorld(114.9, -190.3),
+    toWorld(106.9, -190.3),
+    toWorld(106.9, -184.8),
+    toWorld(114.9, -184.8),
+    toWorld(114.9, -179.6),
+    toWorld(54.1, -179.6),
+    toWorld(54.1, -186.5),
+    toWorld(58.2, -186.5),
+    toWorld(58.2, -190.2),
+    toWorld(54.1, -190.2),
   ];
 
   return [westCourtyardHole, eastCourtyardHole];
 }
+
+// =============================================================================
+// GIẢI QUYẾT VA CHẠM VÀ NHẬN DIỆN VỊ TRÍ
+// =============================================================================
 
 function distanceToSegment(u: number, v: number, u1: number, v1: number, u2: number, v2: number): number {
   const du = u2 - u1;
@@ -417,20 +483,22 @@ function distanceToSegment(u: number, v: number, u1: number, v1: number, u2: num
 }
 
 function isInsideB8FloorBoundary(u: number, v: number, floor: number): boolean {
-  // 1. Phải nằm trong khung chữ nhật lớn hoặc phần mở rộng Tây Nam
-  const inMain = u >= 0 && u <= 111.2 && v >= 0 && v <= 44.2;
-  const inSW = u >= -8.25 && u < 0 && v >= 25.5 && v <= 44.2;
+  // 1. Phải nằm trong khung chữ nhật thân chính hoặc khối WC Tây Nam
+  const inMain = u >= 9.0 && u <= 120.4 && v >= -210.2 && v <= -166.0;
+  const inSW = u >= 0.3 && u < 9.0 && v >= -181.0 && v <= -166.0;
   if (!inMain && !inSW) return false;
 
   // 2. Ở tầng 2–4: không được rơi vào 2 giếng trời sân trong
   if (floor >= 2) {
     // Sân Tây
-    if (u > 6.8 && u < 41.4 && v > 14.5 && v < 27.3) return false;
+    if (u > 13.5 && u < 50.0 && v > -197.0 && v < -180.1) return false;
     // Sân Đông
-    if (u > 45.8 && u < 105.4 && v > 14.5 && v < 27.3) {
-      // Ngoại trừ buồng thang máy
-      const inElevator = u >= 45.8 && u <= 49.5 && v >= 18.5 && v <= 22.5;
-      if (!inElevator) return false;
+    if (u > 54.1 && u < 114.9 && v > -196.5 && v < -179.6) {
+      // Ngoại trừ sàn buồng thang máy
+      const inElevator = u >= 54.1 && u <= 58.2 && v >= -190.2 && v <= -186.5;
+      // Ngoại trừ sàn lõi thang bộ Đông
+      const inStairEast = u >= 106.9 && u <= 114.9 && v >= -190.3 && v <= -184.8;
+      if (!inElevator && !inStairEast) return false;
     }
   }
 
@@ -451,12 +519,12 @@ export function resolveInteriorPosition(
   let currentU = nextU;
   let currentV = nextV;
 
-  // Cho phép đi xuyên vùng cửa tầng 1
+  // Cho phép đi xuyên vùng cửa tầng 1 khi ra/vào
   const isNearExitT1 =
     floor === 1 &&
-    ((currentU >= 41.5 && currentU <= 45.5 && (currentV <= 1.0 || currentV >= 43.2)) ||
-      (currentU >= 109.0 && currentV >= 19.0 && currentV <= 22.8) ||
-      (currentU <= -6.0 && currentV >= 32.0 && currentV <= 36.0));
+    ((currentU >= 51.0 && currentU <= 54.5 && (currentV <= -208.5 || currentV >= -167.5)) ||
+      (currentU >= 118.0 && currentV >= -191.0 && currentV <= -186.0) ||
+      (currentU <= 10.0 && currentV >= -191.0 && currentV <= -186.0));
 
   if (!isInsideB8FloorBoundary(currentU, currentV, floor) && !isNearExitT1) {
     currentU = prevU;
@@ -538,7 +606,7 @@ export function getNearInteractive(
   }
 
   // Trong nội thất:
-  // 1. Thang máy duy nhất của tòa nhà (ở nhịp giữa)
+  // 1. Thang máy DUY NHẤT của tòa nhà (tại nhịp giữa, cạnh sân trong lớn)
   const distElevator = Math.hypot(worldX - B8_ELEVATOR_POS_WORLD[0], worldZ - B8_ELEVATOR_POS_WORLD[1]);
   if (distElevator <= 3.5) {
     return {
@@ -546,7 +614,7 @@ export function getNearInteractive(
       type: 'elevator',
       worldPos: B8_ELEVATOR_POS_WORLD,
       radius: 3.5,
-      label: 'Thang máy Block 8',
+      label: 'Thang máy Block 8 (Nhịp giữa)',
       buildingId: 'b8',
     };
   }
@@ -554,8 +622,8 @@ export function getNearInteractive(
   // 2. Các cửa thoát hiểm ra ngoài (chỉ ở Tầng 1)
   if (floor === 1) {
     const exits = [
-      { id: 'exit-north', pos: B8_ENTRANCE_NORTH_INSIDE, outPos: B8_ENTRANCE_NORTH_OUTSIDE, label: 'Ra ngoài (Cửa Bắc)' },
-      { id: 'exit-south', pos: B8_ENTRANCE_SOUTH_INSIDE, outPos: B8_ENTRANCE_SOUTH_OUTSIDE, label: 'Ra ngoài (Cửa Nam)' },
+      { id: 'exit-north', pos: B8_ENTRANCE_NORTH_INSIDE, outPos: B8_ENTRANCE_NORTH_OUTSIDE, label: 'Ra ngoài (Cửa Bắc — Nhịp giữa)' },
+      { id: 'exit-south', pos: B8_ENTRANCE_SOUTH_INSIDE, outPos: B8_ENTRANCE_SOUTH_OUTSIDE, label: 'Ra ngoài (Cửa Nam — Nhịp giữa)' },
       { id: 'exit-east', pos: B8_EXIT_EAST_INSIDE, outPos: B8_EXIT_EAST_OUTSIDE, label: 'Ra ngoài (Cửa Đông)' },
       { id: 'exit-west', pos: B8_EXIT_WEST_INSIDE, outPos: B8_EXIT_WEST_OUTSIDE, label: 'Ra ngoài (Cửa Tây)' },
     ];
@@ -599,7 +667,7 @@ export const b8Layout: InteriorLayout = {
     spawnLocal: B8_ELEVATOR_SPAWN_LOCAL,
     posWorld: B8_ELEVATOR_POS_WORLD,
     spawnWorld: B8_ELEVATOR_SPAWN_WORLD,
-    facingYaw: Math.PI,
+    facingYaw: -2.912, // Quay mặt về phía Tây (ra hành lang)
   },
   exteriorEntrances: b8ExteriorEntrances,
   defaultInsideEntrance: B8_ENTRANCE_NORTH_INSIDE,

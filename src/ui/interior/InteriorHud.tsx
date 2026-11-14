@@ -266,6 +266,20 @@ export default function InteriorHud() {
           </div>
         </div>
       )}
+
+      {/* 5. Gợi ý điều khiển góc nhìn trong nhà (Phím C, chuột) */}
+      {interior && (
+        <div className="pointer-events-none fixed bottom-5 left-5 z-40 hidden rounded-xl border border-slate-700/60 bg-slate-950/85 px-4 py-2.5 text-xs text-slate-300 shadow-xl backdrop-blur-md md:block">
+          <div className="flex items-center gap-2">
+            <span className="rounded bg-sky-500/20 px-1.5 py-0.5 font-mono font-bold text-sky-300">C</span>
+            <span>Góc nhìn trên xuống</span>
+            <span className="text-slate-500">·</span>
+            <span>Kéo chuột: Xoay nhìn</span>
+            <span className="text-slate-500">·</span>
+            <span>Cuộn chuột: Thu phóng (2.5–7m)</span>
+          </div>
+        </div>
+      )}
     </>
   );
 }

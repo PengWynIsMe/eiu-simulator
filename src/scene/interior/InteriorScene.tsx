@@ -87,12 +87,12 @@ export default function InteriorScene() {
     const groundElevation = -(floor - 1) * FLOOR_HEIGHT - 0.1;
     const geos: BufferGeometry[] = [];
 
-    // Nền sân Tây
+    // Nền sân Tây: [13.5, 50.0] x [-197.0, -180.1]
     const westPts: Vec2[] = [
-      layout.toWorld(6.8, 14.5),
-      layout.toWorld(41.4, 14.5),
-      layout.toWorld(41.4, 27.3),
-      layout.toWorld(6.8, 27.3),
+      layout.toWorld(13.5, -197.0),
+      layout.toWorld(50.0, -197.0),
+      layout.toWorld(50.0, -180.1),
+      layout.toWorld(13.5, -180.1),
     ];
     const shapeWest = new Shape();
     westPts.forEach(([x, z], i) => {
@@ -105,12 +105,12 @@ export default function InteriorScene() {
     extrudeWest.translate(0, groundElevation, 0);
     geos.push(extrudeWest);
 
-    // Nền sân Đông
+    // Nền sân Đông: [54.1, 114.9] x [-196.5, -179.6]
     const eastPts: Vec2[] = [
-      layout.toWorld(45.8, 14.5),
-      layout.toWorld(105.4, 14.5),
-      layout.toWorld(105.4, 27.3),
-      layout.toWorld(45.8, 27.3),
+      layout.toWorld(54.1, -196.5),
+      layout.toWorld(114.9, -196.5),
+      layout.toWorld(114.9, -179.6),
+      layout.toWorld(54.1, -179.6),
     ];
     const shapeEast = new Shape();
     eastPts.forEach(([x, z], i) => {
@@ -128,7 +128,7 @@ export default function InteriorScene() {
     return merged;
   }, [layout, floor, isB8]);
 
-  // 2. Tường đặc và vách kính gộp theo tọa độ thế giới
+  // 2. Tường đặc và vách kính gộp theo tọa độ thế giới (B8 không có vách kính sân trong)
   const { solidWallsGeo, glassWallsGeo, baseboardsGeo } = useMemo(() => {
     const walls = layout.getFloorWalls(floor);
     const solidGeos: BufferGeometry[] = [];
@@ -139,6 +139,9 @@ export default function InteriorScene() {
     const baseboardHeight = 0.12;
 
     for (const wall of walls) {
+      // Bỏ qua tường lan can vì đã được dựng bởi instancedMesh trong InteriorFurniture
+      if (wall.isRailing) continue;
+
       const [x1, z1] = layout.toWorld(wall.u1, wall.v1);
       const [x2, z2] = layout.toWorld(wall.u2, wall.v2);
 
@@ -151,8 +154,8 @@ export default function InteriorScene() {
       const midZ = (z1 + z2) / 2;
       const angle = -Math.atan2(dz, dx);
 
-      if (wall.isGlass) {
-        // Vách kính trong suốt / lan can kính
+      if (wall.isGlass && !isB8) {
+        // Vách kính trong suốt (chỉ B3)
         const glassBox = new BoxGeometry(length, wallHeight - 0.2, 0.06);
         glassBox.rotateY(angle);
         glassBox.translate(midX, wallHeight / 2, midZ);
@@ -190,7 +193,7 @@ export default function InteriorScene() {
       glassWallsGeo: mergedGlass,
       baseboardsGeo: mergedBaseboards,
     };
-  }, [layout, floor]);
+  }, [layout, floor, isB8]);
 
   // 3. Biển tên phòng nhỏ gắn tường
   const roomSigns = useMemo(() => {
@@ -202,7 +205,7 @@ export default function InteriorScene() {
       .map((room) => {
         const centerU = (room.minU + room.maxU) / 2;
         // Gắn ở mép hành lang
-        const isNorth = room.minV === 0 || room.minV < 15;
+        const isNorth = room.maxV <= -200.0 || (room.minV === 0 || room.minV < 15);
         const edgeV = isNorth ? room.maxV : room.minV;
         const [worldX, worldZ] = layout.toWorld(centerU, edgeV);
         return {
@@ -216,7 +219,7 @@ export default function InteriorScene() {
 
   // Tọa độ tâm tòa nhà để bố trí nguồn sáng
   const centerPos = useMemo(() => {
-    return isB8 ? layout.toWorld(55.0, 22.1) : layout.toWorld(0, 20.0);
+    return isB8 ? layout.toWorld(64.7, -188.1) : layout.toWorld(0, 20.0);
   }, [layout, isB8]);
 
   // Màu tường và sàn theo tài liệu thực tế của từng tòa
@@ -244,9 +247,9 @@ export default function InteriorScene() {
       {isB8 ? (
         <>
           {/* Đèn dọc 2 sân trong B8 */}
-          <pointLight position={[layout.toWorld(25, 20.9)[0], 3.6, layout.toWorld(25, 20.9)[1]]} intensity={0.65} distance={30} color="#e0f2fe" />
-          <pointLight position={[layout.toWorld(75, 20.9)[0], 3.6, layout.toWorld(75, 20.9)[1]]} intensity={0.65} distance={35} color="#e0f2fe" />
-          <pointLight position={[layout.toWorld(43.8, 20.5)[0], 3.4, layout.toWorld(43.8, 20.5)[1]]} intensity={0.7} distance={15} color="#fffbeb" />
+          <pointLight position={[layout.toWorld(31.7, -188.5)[0], 3.6, layout.toWorld(31.7, -188.5)[1]]} intensity={0.65} distance={30} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(84.5, -188.0)[0], 3.6, layout.toWorld(84.5, -188.0)[1]]} intensity={0.65} distance={35} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(53.5, -188.35)[0], 3.4, layout.toWorld(53.5, -188.35)[1]]} intensity={0.7} distance={15} color="#fffbeb" />
         </>
       ) : (
         <>
