@@ -7,6 +7,7 @@ export interface WallSegment {
   v2: number;
   thickness: number;
   isGlass?: boolean;
+  isRailing?: boolean;
 }
 
 export interface RoomArea {

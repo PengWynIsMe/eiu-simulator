@@ -61,11 +61,11 @@ function B8Furniture({ floor }: { floor: number }) {
   // 1. Cột kết cấu bê tông dọc theo hành lang & vách phòng
   const columnMatrices = useMemo(() => {
     const matrices: Matrix4[] = [];
-    // Hàng cột dọc hành lang Bắc (v = 10.5) và Nam (v = 31.3)
-    const gridU = [0, 8.6, 17.2, 25.8, 34.4, 41.4, 45.8, 54.4, 63.0, 71.6, 80.2, 88.8, 97.4, 104.5, 111.2];
+    // Hàng cột dọc hành lang Bắc (v = -198.5) và Nam (v = -178.9)
+    const gridU = [9.0, 18.0, 27.0, 36.0, 45.0, 52.0, 60.0, 68.0, 76.0, 84.0, 92.0, 100.0, 108.0, 116.0, 120.4];
     for (const u of gridU) {
-      matrices.push(createInstanceMatrix(toWorld, u, 10.5, FLOOR_HEIGHT / 2, 0, 0.5, FLOOR_HEIGHT, 0.5));
-      matrices.push(createInstanceMatrix(toWorld, u, 31.3, FLOOR_HEIGHT / 2, 0, 0.5, FLOOR_HEIGHT, 0.5));
+      matrices.push(createInstanceMatrix(toWorld, u, -198.5, FLOOR_HEIGHT / 2, 0, 0.5, FLOOR_HEIGHT, 0.5));
+      matrices.push(createInstanceMatrix(toWorld, u, -178.9, FLOOR_HEIGHT / 2, 0, 0.5, FLOOR_HEIGHT, 0.5));
     }
     return matrices;
   }, [toWorld]);
@@ -78,30 +78,30 @@ function B8Furniture({ floor }: { floor: number }) {
       if (!room.code.includes('.B8')) continue;
 
       const roomWidth = room.maxU - room.minU;
-      const isNorth = room.minV === 0;
+      const isNorth = room.maxV <= -200.0;
 
       if (isNorth) {
-        // Cánh Bắc: Bảng ở v = 0.2, bàn xếp quay mặt về phía Bắc (v tăng dần)
+        // Cánh Bắc: Bảng ở v = -210.0, bàn xếp quay mặt về phía Bắc (v giảm dần)
         const cols = roomWidth > 12 ? 4 : 2;
         const colSpacing = roomWidth / (cols + 1);
-        const rows = [3.5, 6.0, 8.5];
+        const rows = [room.minV + 3.0, room.minV + 5.5, room.minV + 8.0];
 
         for (let c = 1; c <= cols; c++) {
           const u = room.minU + c * colSpacing;
           for (const v of rows) {
-            matrices.push(createInstanceMatrix(toWorld, u, v, 0.38, 0, 2.0, 0.75, 0.6));
+            matrices.push(createInstanceMatrix(toWorld, u, v, 0.38, 0, 1.8, 0.75, 0.55));
           }
         }
       } else {
-        // Cánh Nam: Bảng ở v = 44.0, bàn xếp quay mặt về phía Nam
+        // Cánh Nam: Bảng ở v = -166.2, bàn xếp quay mặt về phía Nam (v tăng dần)
         const cols = roomWidth > 12 ? 4 : 2;
         const colSpacing = roomWidth / (cols + 1);
-        const rows = [34.0, 36.5, 39.0, 41.5];
+        const rows = [room.maxV - 3.0, room.maxV - 5.5, room.maxV - 8.0, room.maxV - 10.5];
 
         for (let c = 1; c <= cols; c++) {
           const u = room.minU + c * colSpacing;
           for (const v of rows) {
-            matrices.push(createInstanceMatrix(toWorld, u, v, 0.38, Math.PI, 2.0, 0.75, 0.6));
+            matrices.push(createInstanceMatrix(toWorld, u, v, 0.38, Math.PI, 1.8, 0.75, 0.55));
           }
         }
       }
@@ -118,30 +118,30 @@ function B8Furniture({ floor }: { floor: number }) {
       if (!room.code.includes('.B8')) continue;
 
       const roomWidth = room.maxU - room.minU;
-      const isNorth = room.minV === 0;
+      const isNorth = room.maxV <= -200.0;
 
       if (isNorth) {
         const cols = roomWidth > 12 ? 4 : 2;
         const colSpacing = roomWidth / (cols + 1);
-        const rows = [4.1, 6.6, 9.1];
+        const rows = [room.minV + 3.0, room.minV + 5.5, room.minV + 8.0];
 
         for (let c = 1; c <= cols; c++) {
           const u = room.minU + c * colSpacing;
           for (const v of rows) {
-            matrices.push(createInstanceMatrix(toWorld, u - 0.5, v, 0.42, 0, 0.45, 0.82, 0.45));
-            matrices.push(createInstanceMatrix(toWorld, u + 0.5, v, 0.42, 0, 0.45, 0.82, 0.45));
+            matrices.push(createInstanceMatrix(toWorld, u - 0.45, v + 0.6, 0.42, 0, 0.45, 0.82, 0.45));
+            matrices.push(createInstanceMatrix(toWorld, u + 0.45, v + 0.6, 0.42, 0, 0.45, 0.82, 0.45));
           }
         }
       } else {
         const cols = roomWidth > 12 ? 4 : 2;
         const colSpacing = roomWidth / (cols + 1);
-        const rows = [33.4, 35.9, 38.4, 40.9];
+        const rows = [room.maxV - 3.0, room.maxV - 5.5, room.maxV - 8.0, room.maxV - 10.5];
 
         for (let c = 1; c <= cols; c++) {
           const u = room.minU + c * colSpacing;
           for (const v of rows) {
-            matrices.push(createInstanceMatrix(toWorld, u - 0.5, v, 0.42, Math.PI, 0.45, 0.82, 0.45));
-            matrices.push(createInstanceMatrix(toWorld, u + 0.5, v, 0.42, Math.PI, 0.45, 0.82, 0.45));
+            matrices.push(createInstanceMatrix(toWorld, u - 0.45, v - 0.6, 0.42, Math.PI, 0.45, 0.82, 0.45));
+            matrices.push(createInstanceMatrix(toWorld, u + 0.45, v - 0.6, 0.42, Math.PI, 0.45, 0.82, 0.45));
           }
         }
       }
@@ -156,22 +156,24 @@ function B8Furniture({ floor }: { floor: number }) {
 
     for (const room of rooms) {
       if (!room.code.includes('.B8')) continue;
+      const roomWidth = room.maxU - room.minU;
       const centerU = (room.minU + room.maxU) / 2;
-      const isNorth = room.minV === 0;
+      const isNorth = room.maxV <= -200.0;
+      const boardWidth = Math.min(roomWidth - 2.0, 4.0);
 
       if (isNorth) {
         // Gắn tường Bắc
-        matrices.push(createInstanceMatrix(toWorld, centerU, 0.15, 1.8, 0, 3.8, 1.3, 0.06));
+        matrices.push(createInstanceMatrix(toWorld, centerU, room.minV + 0.15, 1.8, 0, boardWidth, 1.3, 0.06));
       } else {
         // Gắn tường Nam
-        matrices.push(createInstanceMatrix(toWorld, centerU, 44.05, 1.8, Math.PI, 3.8, 1.3, 0.06));
+        matrices.push(createInstanceMatrix(toWorld, centerU, room.maxV - 0.15, 1.8, Math.PI, boardWidth, 1.3, 0.06));
       }
     }
 
     return matrices;
   }, [rooms, toWorld]);
 
-  // 5. Lan can inox bảo vệ sân trong (chỉ tầng 2, 3, 4)
+  // 5. Lan can inox bảo vệ sân trong (chỉ tầng 2, 3, 4 — KHÔNG DÙNG KÍNH)
   const railingMatrices = useMemo(() => {
     if (floor === 1) return [];
     const matrices: Matrix4[] = [];
@@ -179,16 +181,17 @@ function B8Furniture({ floor }: { floor: number }) {
     // Các đoạn mép sân trong:
     const edges = [
       // Sân Tây
-      { u1: 6.8, v1: 14.5, u2: 41.4, v2: 14.5 },
-      { u1: 6.8, v1: 27.3, u2: 41.4, v2: 27.3 },
-      { u1: 6.8, v1: 14.5, u2: 6.8, v2: 27.3 },
-      { u1: 41.4, v1: 14.5, u2: 41.4, v2: 27.3 },
+      { u1: 13.5, v1: -197.0, u2: 50.0, v2: -197.0 },
+      { u1: 13.5, v1: -180.1, u2: 50.0, v2: -180.1 },
+      { u1: 13.5, v1: -197.0, u2: 13.5, v2: -180.1 },
+      { u1: 50.0, v1: -197.0, u2: 50.0, v2: -180.1 },
       // Sân Đông
-      { u1: 45.8, v1: 14.5, u2: 105.4, v2: 14.5 },
-      { u1: 45.8, v1: 27.3, u2: 105.4, v2: 27.3 },
-      { u1: 45.8, v1: 14.5, u2: 45.8, v2: 18.5 },
-      { u1: 45.8, v1: 22.5, u2: 45.8, v2: 27.3 },
-      { u1: 105.4, v1: 14.5, u2: 105.4, v2: 27.3 },
+      { u1: 54.1, v1: -196.5, u2: 114.9, v2: -196.5 },
+      { u1: 54.1, v1: -179.6, u2: 114.9, v2: -179.6 },
+      { u1: 54.1, v1: -196.5, u2: 54.1, v2: -190.2 },
+      { u1: 54.1, v1: -186.5, u2: 54.1, v2: -179.6 },
+      { u1: 114.9, v1: -196.5, u2: 114.9, v2: -190.3 },
+      { u1: 114.9, v1: -184.8, u2: 114.9, v2: -179.6 },
     ];
 
     for (const e of edges) {
@@ -222,15 +225,31 @@ function B8Furniture({ floor }: { floor: number }) {
     if (floor === 1) return [];
     const matrices: Matrix4[] = [];
 
-    // Mép Bắc sân trong (v = 14.5) viền lùi vào hành lang ở v = 14.3
-    const lenWest = 41.4 - 6.8;
-    matrices.push(createInstanceMatrix(toWorld, (6.8 + 41.4) / 2, 14.3, 0.005, 0, lenWest, 0.01, 0.35));
-    const lenEast = 105.4 - 45.8;
-    matrices.push(createInstanceMatrix(toWorld, (45.8 + 105.4) / 2, 14.3, 0.005, 0, lenEast, 0.01, 0.35));
+    // Mép Bắc Sân Tây (v = -197.0) viền lùi vào hành lang ở v = -197.2
+    const lenWestU = 50.0 - 13.5;
+    const lenWestV = -180.1 - (-197.0);
+    matrices.push(createInstanceMatrix(toWorld, (13.5 + 50.0) / 2, -197.2, 0.005, 0, lenWestU, 0.01, 0.35));
+    // Mép Nam Sân Tây (v = -180.1) viền lùi vào hành lang ở v = -179.9
+    matrices.push(createInstanceMatrix(toWorld, (13.5 + 50.0) / 2, -179.9, 0.005, 0, lenWestU, 0.01, 0.35));
+    // Mép Tây Sân Tây
+    matrices.push(createInstanceMatrix(toWorld, 13.3, (-197.0 + -180.1) / 2, 0.005, Math.PI / 2, lenWestV, 0.01, 0.35));
+    // Mép Đông Sân Tây
+    matrices.push(createInstanceMatrix(toWorld, 50.2, (-197.0 + -180.1) / 2, 0.005, Math.PI / 2, lenWestV, 0.01, 0.35));
 
-    // Mép Nam sân trong (v = 27.3) viền lùi vào hành lang ở v = 27.5
-    matrices.push(createInstanceMatrix(toWorld, (6.8 + 41.4) / 2, 27.5, 0.005, 0, lenWest, 0.01, 0.35));
-    matrices.push(createInstanceMatrix(toWorld, (45.8 + 105.4) / 2, 27.5, 0.005, 0, lenEast, 0.01, 0.35));
+    // Mép Sân Đông
+    const lenEastU = 114.9 - 54.1;
+    matrices.push(createInstanceMatrix(toWorld, (54.1 + 114.9) / 2, -196.7, 0.005, 0, lenEastU, 0.01, 0.35));
+    matrices.push(createInstanceMatrix(toWorld, (54.1 + 114.9) / 2, -179.4, 0.005, 0, lenEastU, 0.01, 0.35));
+    // Mép Tây Sân Đông (2 đoạn)
+    const lenW1 = -190.2 - (-196.5);
+    const lenW2 = -179.6 - (-186.5);
+    matrices.push(createInstanceMatrix(toWorld, 53.9, (-196.5 + -190.2) / 2, 0.005, Math.PI / 2, lenW1, 0.01, 0.35));
+    matrices.push(createInstanceMatrix(toWorld, 53.9, (-186.5 + -179.6) / 2, 0.005, Math.PI / 2, lenW2, 0.01, 0.35));
+    // Mép Đông Sân Đông (2 đoạn)
+    const lenE1 = -190.3 - (-196.5);
+    const lenE2 = -179.6 - (-184.8);
+    matrices.push(createInstanceMatrix(toWorld, 115.1, (-196.5 + -190.3) / 2, 0.005, Math.PI / 2, lenE1, 0.01, 0.35));
+    matrices.push(createInstanceMatrix(toWorld, 115.1, (-184.8 + -179.6) / 2, 0.005, Math.PI / 2, lenE2, 0.01, 0.35));
 
     return matrices;
   }, [floor, toWorld]);
@@ -240,18 +259,17 @@ function B8Furniture({ floor }: { floor: number }) {
     if (floor === 1) return [];
     const matrices: Matrix4[] = [];
 
-    // Lam nhôm ngang ở độ cao 3.2m - 3.6m
     const louverHeights = [3.2, 3.4, 3.6];
-    const lenWest = 41.4 - 6.8;
-    const lenEast = 105.4 - 45.8;
+    const lenWest = 50.0 - 13.5;
+    const lenEast = 114.9 - 54.1;
 
     for (const y of louverHeights) {
       // Dãy Bắc nhìn vào sân trong
-      matrices.push(createInstanceMatrix(toWorld, (6.8 + 41.4) / 2, 14.5, y, 0, lenWest, 0.04, 0.25));
-      matrices.push(createInstanceMatrix(toWorld, (45.8 + 105.4) / 2, 14.5, y, 0, lenEast, 0.04, 0.25));
+      matrices.push(createInstanceMatrix(toWorld, (13.5 + 50.0) / 2, -197.0, y, 0, lenWest, 0.04, 0.25));
+      matrices.push(createInstanceMatrix(toWorld, (54.1 + 114.9) / 2, -196.5, y, 0, lenEast, 0.04, 0.25));
       // Dãy Nam nhìn vào sân trong
-      matrices.push(createInstanceMatrix(toWorld, (6.8 + 41.4) / 2, 27.3, y, 0, lenWest, 0.04, 0.25));
-      matrices.push(createInstanceMatrix(toWorld, (45.8 + 105.4) / 2, 27.3, y, 0, lenEast, 0.04, 0.25));
+      matrices.push(createInstanceMatrix(toWorld, (13.5 + 50.0) / 2, -180.1, y, 0, lenWest, 0.04, 0.25));
+      matrices.push(createInstanceMatrix(toWorld, (54.1 + 114.9) / 2, -179.6, y, 0, lenEast, 0.04, 0.25));
     }
 
     return matrices;
@@ -259,20 +277,19 @@ function B8Furniture({ floor }: { floor: number }) {
 
   // 8. Cây xanh & bồn cây trong sân trong ở tầng 1 (hiển thị khi đứng ở bất kỳ tầng nào)
   const courtyardTrees = useMemo(() => {
-    // Độ cao tầng trệt so với tầng hiện tại
     const groundElevation = -(floor - 1) * FLOOR_HEIGHT;
 
-    // Vị trí các cây lớn trong sân trong (u, v)
     const treeLocs: [number, number][] = [
       // Sân Tây
-      [15.0, 20.9],
-      [26.0, 20.9],
-      [36.0, 20.9],
+      [25.0, -188.5],
+      [35.0, -188.5],
+      [45.0, -188.5],
       // Sân Đông
-      [58.0, 20.9],
-      [70.0, 20.9],
-      [82.0, 20.9],
-      [94.0, 20.9],
+      [65.0, -188.0],
+      [75.0, -188.0],
+      [85.0, -188.0],
+      [95.0, -188.0],
+      [105.0, -188.0],
     ];
 
     const planterMatrices: Matrix4[] = [];
@@ -291,16 +308,17 @@ function B8Furniture({ floor }: { floor: number }) {
     return { planterMatrices, trunkMatrices, foliageMatrices };
   }, [floor, toWorld]);
 
-  // 9. Cầu thang bộ (4 cụm cầu thang)
+  // 9. Cầu thang bộ (4 cụm cầu thang: Tây Bắc, Tây Nam, Giữa Bắc/Nam, Đông)
   const stairSteps = useMemo(() => {
     const matrices: Matrix4[] = [];
     const stepCount = 14;
 
     const stairLocations = [
-      { startU: 2.0, startV: 5.0, dirU: 0.3, dirV: 0 },   // Tây Bắc
-      { startU: 2.0, startV: 38.0, dirU: 0.3, dirV: 0 },  // Tây Nam
-      { startU: 42.0, startV: 18.5, dirU: 0, dirV: 0.3 }, // Giữa
-      { startU: 100.0, startV: 20.0, dirU: 0.3, dirV: 0 }, // Đông
+      { startU: 11.0, startV: -201.0, dirU: 0, dirV: -0.65 }, // Tây Bắc
+      { startU: 11.6, startV: -177.0, dirU: 0, dirV: 0.65 },  // Tây Nam
+      { startU: 51.9, startV: -201.0, dirU: 0, dirV: -0.65 }, // Giữa Bắc
+      { startU: 51.85, startV: -177.0, dirU: 0, dirV: 0.65 }, // Giữa Nam
+      { startU: 113.5, startV: -187.55, dirU: -0.45, dirV: 0 }, // Đông
     ];
 
     for (const st of stairLocations) {
@@ -308,7 +326,8 @@ function B8Furniture({ floor }: { floor: number }) {
         const u = st.startU + i * st.dirU;
         const v = st.startV + i * st.dirV;
         const y = (i / stepCount) * FLOOR_HEIGHT + 0.12;
-        matrices.push(createInstanceMatrix(toWorld, u, v, y, 0, 1.4, 0.22, 1.2));
+        const angle = Math.atan2(st.dirV, st.dirU);
+        matrices.push(createInstanceMatrix(toWorld, u, v, y, angle, 1.4, 0.22, 1.2));
       }
     }
 
