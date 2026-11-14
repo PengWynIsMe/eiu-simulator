@@ -9,15 +9,11 @@ import { useWalkStore } from '../../store/useWalkStore';
 import type { Vec2 } from '../../types';
 import { isPointInPond } from '../zone1/pondLayout';
 import {
-  resolveInteriorPosition,
-  getNearInteractive,
-  getActiveRoom,
-  INSIDE_ENTRANCE,
-  OUTSIDE_ENTRANCE,
-  ELEVATOR_SPAWN_WORLD,
+  getInteriorLayout,
+  getExteriorInteractive,
   type InteractivePoint,
   type RoomArea,
-} from '../interior/b3Layout';
+} from '../interior/layouts';
 
 const WALK_SPEED = 5;
 const RUN_SPEED = 12;
@@ -101,7 +97,9 @@ export default function WalkMode() {
 
   const currentInterior = useWalkStore.getState().interior;
   if (currentInterior && (globalPlayerPos[0] === START[0] && globalPlayerPos[1] === START[1])) {
-    globalPlayerPos = [INSIDE_ENTRANCE[0], INSIDE_ENTRANCE[1]];
+    const layout = getInteriorLayout(currentInterior.buildingId);
+    const defaultInside = layout?.defaultInsideEntrance ?? START;
+    globalPlayerPos = [defaultInside[0], defaultInside[1]];
     globalCameraYaw = Math.PI / 2;
     globalFacingYaw = Math.PI / 2;
   }
@@ -126,6 +124,18 @@ export default function WalkMode() {
   const lastInteractiveId = useRef<string | null | undefined>(undefined);
   const lastRoomCode = useRef<string | null | undefined>(undefined);
   const currentInteractive = useRef<InteractivePoint | null>(null);
+  const lastUsedInteractive = useRef<InteractivePoint | null>(null);
+  const isTopDownView = useRef(false);
+
+  // Lắng nghe sự kiện chuyển góc nhìn từ trên xuống để so sánh sơ đồ
+  useEffect(() => {
+    const onTopDown = (event: Event) => {
+      const custom = event as CustomEvent<{ enabled: boolean }>;
+      isTopDownView.current = custom.detail.enabled;
+    };
+    window.addEventListener('campussim:topdown-camera', onTopDown);
+    return () => window.removeEventListener('campussim:topdown-camera', onTopDown);
+  }, []);
 
   // Lắng nghe thay đổi trạng thái interior (vào / ra / đổi tầng)
   useEffect(() => {
@@ -134,41 +144,56 @@ export default function WalkMode() {
       const prev = prevInterior.current;
 
       if (!prev && cur) {
-        // Vừa bước vào bên trong Block 3 -> đặt vị trí ở sảnh tầng 1
-        player.current[0] = INSIDE_ENTRANCE[0];
+        // Vừa bước vào bên trong tòa nhà
+        const layout = getInteriorLayout(cur.buildingId);
+        const lastPt = lastUsedInteractive.current;
+        const spawnPos = lastPt?.spawnPosWorld ?? layout?.defaultInsideEntrance ?? START;
+        const spawnYaw = lastPt?.spawnYaw ?? Math.PI / 2;
+
+        player.current[0] = spawnPos[0];
         player.current[1] = 0.6;
-        player.current[2] = INSIDE_ENTRANCE[1];
-        cameraYaw.current = Math.PI / 2;
-        facingYaw.current = Math.PI / 2;
-        globalPlayerPos = [INSIDE_ENTRANCE[0], INSIDE_ENTRANCE[1]];
-        globalCameraYaw = Math.PI / 2;
-        globalFacingYaw = Math.PI / 2;
+        player.current[2] = spawnPos[1];
+        cameraYaw.current = spawnYaw;
+        facingYaw.current = spawnYaw;
+        globalPlayerPos = [spawnPos[0], spawnPos[1]];
+        globalCameraYaw = spawnYaw;
+        globalFacingYaw = spawnYaw;
       } else if (prev && !cur) {
-        // Vừa bước ra ngoài khuôn viên -> đặt vị trí trước cửa Block 3 quay mặt ra đường
-        player.current[0] = OUTSIDE_ENTRANCE[0];
+        // Vừa bước ra ngoài khuôn viên
+        const prevLayout = getInteriorLayout(prev.buildingId);
+        const lastPt = lastUsedInteractive.current;
+        const spawnPos = lastPt?.spawnPosWorld ?? prevLayout?.defaultOutsideEntrance ?? START;
+        const spawnYaw = lastPt?.spawnYaw ?? -Math.PI / 2;
+
+        player.current[0] = spawnPos[0];
         player.current[1] = 0.6;
-        player.current[2] = OUTSIDE_ENTRANCE[1];
-        cameraYaw.current = -Math.PI / 2;
-        facingYaw.current = -Math.PI / 2;
-        globalPlayerPos = [OUTSIDE_ENTRANCE[0], OUTSIDE_ENTRANCE[1]];
-        globalCameraYaw = -Math.PI / 2;
-        globalFacingYaw = -Math.PI / 2;
+        player.current[2] = spawnPos[1];
+        cameraYaw.current = spawnYaw;
+        facingYaw.current = spawnYaw;
+        globalPlayerPos = [spawnPos[0], spawnPos[1]];
+        globalCameraYaw = spawnYaw;
+        globalFacingYaw = spawnYaw;
       } else if (prev && cur && prev.floor !== cur.floor) {
         // Đổi tầng thang máy -> đặt vị trí trước cửa thang máy tầng mới
-        player.current[0] = ELEVATOR_SPAWN_WORLD[0];
+        const layout = getInteriorLayout(cur.buildingId);
+        const spawnPos = layout?.elevator.spawnWorld ?? [0, 0];
+        const spawnYaw = layout?.elevator.facingYaw ?? Math.PI;
+
+        player.current[0] = spawnPos[0];
         player.current[1] = 0.6;
-        player.current[2] = ELEVATOR_SPAWN_WORLD[1];
-        cameraYaw.current = Math.PI;
-        facingYaw.current = Math.PI;
-        globalPlayerPos = [ELEVATOR_SPAWN_WORLD[0], ELEVATOR_SPAWN_WORLD[1]];
-        globalCameraYaw = Math.PI;
-        globalFacingYaw = Math.PI;
+        player.current[2] = spawnPos[1];
+        cameraYaw.current = spawnYaw;
+        facingYaw.current = spawnYaw;
+        globalPlayerPos = [spawnPos[0], spawnPos[1]];
+        globalCameraYaw = spawnYaw;
+        globalFacingYaw = spawnYaw;
       }
 
       prevInterior.current = cur ? { ...cur } : null;
       lastInteractiveId.current = undefined;
       lastRoomCode.current = undefined;
       currentInteractive.current = null;
+      lastUsedInteractive.current = null;
       window.dispatchEvent(
         new CustomEvent('campussim:interior-proximity', {
           detail: {
@@ -193,8 +218,9 @@ export default function WalkMode() {
       if (key === 'e' && !event.repeat) {
         const interactive = currentInteractive.current;
         if (interactive) {
-          if (interactive.type === 'exterior-door') {
-            useWalkStore.getState().enterInterior('b3');
+          lastUsedInteractive.current = interactive;
+          if (interactive.type === 'exterior-door' && interactive.buildingId) {
+            useWalkStore.getState().enterInterior(interactive.buildingId);
           } else if (interactive.type === 'interior-door') {
             useWalkStore.getState().exitInterior();
           } else if (interactive.type === 'elevator') {
@@ -263,17 +289,23 @@ export default function WalkMode() {
       const targetZ = player.current[2] + dz * speed * dt;
 
       if (isInterior) {
-        // Va chạm nội thất theo từng tầng
-        const resolved = resolveInteriorPosition(
-          targetX,
-          targetZ,
-          player.current[0],
-          player.current[2],
-          interiorState.floor,
-          PLAYER_RADIUS
-        );
-        player.current[0] = resolved[0];
-        player.current[2] = resolved[1];
+        // Va chạm nội thất theo từng tòa và từng tầng
+        const layout = getInteriorLayout(interiorState.buildingId);
+        if (layout) {
+          const resolved = layout.resolvePosition(
+            targetX,
+            targetZ,
+            player.current[0],
+            player.current[2],
+            interiorState.floor,
+            PLAYER_RADIUS
+          );
+          player.current[0] = resolved[0];
+          player.current[2] = resolved[1];
+        } else {
+          player.current[0] = targetX;
+          player.current[2] = targetZ;
+        }
       } else {
         // Va chạm ngoài khuôn viên
         resolvePosition(targetX, targetZ, player.current[0], player.current[2], resolvedPosition.current);
@@ -298,6 +330,17 @@ export default function WalkMode() {
     globalFacingYaw = facingYaw.current;
 
     // --- Điều khiển Camera ---
+    if (isTopDownView.current && isInterior) {
+      const layout = getInteriorLayout(interiorState.buildingId);
+      if (layout) {
+        const center = layout.toWorld(55.0, 22.1);
+        camera.position.set(center[0], 90, center[1]);
+        camera.up.set(Math.sin(layout.rotationY), 0, -Math.cos(layout.rotationY));
+        camera.lookAt(center[0], 0, center[1]);
+        return;
+      }
+    }
+
     target.set(player.current[0], player.current[1] + (isInterior ? 0.9 : 1.1), player.current[2]);
     forward.set(Math.cos(cameraYaw.current), 0, Math.sin(cameraYaw.current));
 
@@ -324,13 +367,20 @@ export default function WalkMode() {
     }
 
     // --- Kiểm tra tương tác và thông tin phòng (phát event sang UI) ---
-    const interactive = getNearInteractive(player.current[0], player.current[2], isInterior ? interiorState.floor : null);
-    currentInteractive.current = interactive;
-
+    let interactive: InteractivePoint | null = null;
     let activeRoom: RoomArea | null = null;
+
     if (isInterior) {
-      activeRoom = getActiveRoom(player.current[0], player.current[2], interiorState.floor);
+      const layout = getInteriorLayout(interiorState.buildingId);
+      if (layout) {
+        interactive = layout.getNearInteractive(player.current[0], player.current[2], interiorState.floor);
+        activeRoom = layout.getActiveRoom(player.current[0], player.current[2], interiorState.floor);
+      }
+    } else {
+      interactive = getExteriorInteractive(player.current[0], player.current[2]);
     }
+
+    currentInteractive.current = interactive;
 
     const interId = interactive ? interactive.id : null;
     const roomCode = activeRoom ? activeRoom.code : null;

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import {
   Shape,
+  Path,
   ExtrudeGeometry,
   BoxGeometry,
   BufferGeometry,
@@ -9,38 +10,22 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { useWalkStore } from '../../store/useWalkStore';
 import { FLOOR_HEIGHT } from '../../data';
 import type { Vec2 } from '../../types';
-import {
-  getFloorWalls,
-  getFloorRooms,
-  toWorld,
-} from './b3Layout';
+import { getInteriorLayout } from './layouts';
+import { b3Layout } from './layouts/b3';
 import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
 
 export default function InteriorScene() {
   const interior = useWalkStore((s) => s.interior);
+  const buildingId = interior?.buildingId ?? 'b3';
   const floor = interior?.floor ?? 1;
+
+  const layout = useMemo(() => getInteriorLayout(buildingId) ?? b3Layout, [buildingId]);
+  const isB8 = buildingId.toLowerCase() === 'b8';
 
   // 1. Sàn tầng dựng trực tiếp trong hệ tọa độ thế giới (x, z)
   const floorGeometry = useMemo(() => {
-    // Đa giác biên sàn tính sang tọa độ thế giới bằng toWorld
-    const floorPtsWorld: Vec2[] =
-      floor === 3
-        ? [
-            toWorld(-18, 12),
-            toWorld(0, 12),
-            toWorld(0, 0),
-            toWorld(35.8, 0),
-            toWorld(35.8, 40.1),
-            toWorld(-18, 40.1),
-          ]
-        : [
-            toWorld(-72, 12),
-            toWorld(0, 12),
-            toWorld(0, 0),
-            toWorld(35.8, 0),
-            toWorld(35.8, 40.1),
-            toWorld(-72, 40.1),
-          ];
+    const floorPtsWorld: Vec2[] = layout.getFloorBoundaryPts(floor);
+    if (!floorPtsWorld || floorPtsWorld.length < 3) return null;
 
     const shape = new Shape();
     floorPtsWorld.forEach(([x, z], i) => {
@@ -50,21 +35,36 @@ export default function InteriorScene() {
     });
     shape.closePath();
 
+    // Các lỗ khoét (giếng trời sân trong ở B8 tầng 2–4)
+    if (layout.getFloorHoles) {
+      const holesWorld = layout.getFloorHoles(floor);
+      for (const holePts of holesWorld) {
+        if (holePts.length < 3) continue;
+        const holePath = new Path();
+        holePts.forEach(([hx, hz], hi) => {
+          if (hi === 0) holePath.moveTo(hx, -hz);
+          else holePath.lineTo(hx, -hz);
+        });
+        holePath.closePath();
+        shape.holes.push(holePath);
+      }
+    }
+
     const extrude = new ExtrudeGeometry(shape, { depth: 0.15, bevelEnabled: false });
     extrude.rotateX(-Math.PI / 2);
     extrude.translate(0, -0.15, 0); // Mặt sàn trên cùng nằm tại y = 0
     return extrude;
-  }, [floor]);
+  }, [layout, floor]);
 
-  // Sàn hội trường 200.B3 nhìn xuống qua khoảng thông tầng (chỉ tầng 3)
+  // Sàn hội trường B3 bên dưới khi nhìn từ tầng 3
   const auditoriumFloorGeometry = useMemo(() => {
-    if (floor !== 3) return null;
+    if (isB8 || floor !== 3) return null;
 
     const voidPtsWorld: Vec2[] = [
-      toWorld(-72, 12),
-      toWorld(-18, 12),
-      toWorld(-18, 40.1),
-      toWorld(-72, 40.1),
+      layout.toWorld(-72, 12),
+      layout.toWorld(-18, 12),
+      layout.toWorld(-18, 40.1),
+      layout.toWorld(-72, 40.1),
     ];
 
     const shape = new Shape();
@@ -78,11 +78,59 @@ export default function InteriorScene() {
     extrude.rotateX(-Math.PI / 2);
     extrude.translate(0, -FLOOR_HEIGHT - 0.1, 0);
     return extrude;
-  }, [floor]);
+  }, [layout, floor, isB8]);
+
+  // Nền lát đá sân trong B8 ở tầng trệt (nhìn thấy khi đứng ở tầng 2, 3, 4 nhìn xuống)
+  const b8CourtyardGroundGeometry = useMemo(() => {
+    if (!isB8 || floor === 1) return null;
+
+    const groundElevation = -(floor - 1) * FLOOR_HEIGHT - 0.1;
+    const geos: BufferGeometry[] = [];
+
+    // Nền sân Tây
+    const westPts: Vec2[] = [
+      layout.toWorld(6.8, 14.5),
+      layout.toWorld(41.4, 14.5),
+      layout.toWorld(41.4, 27.3),
+      layout.toWorld(6.8, 27.3),
+    ];
+    const shapeWest = new Shape();
+    westPts.forEach(([x, z], i) => {
+      if (i === 0) shapeWest.moveTo(x, -z);
+      else shapeWest.lineTo(x, -z);
+    });
+    shapeWest.closePath();
+    const extrudeWest = new ExtrudeGeometry(shapeWest, { depth: 0.1, bevelEnabled: false });
+    extrudeWest.rotateX(-Math.PI / 2);
+    extrudeWest.translate(0, groundElevation, 0);
+    geos.push(extrudeWest);
+
+    // Nền sân Đông
+    const eastPts: Vec2[] = [
+      layout.toWorld(45.8, 14.5),
+      layout.toWorld(105.4, 14.5),
+      layout.toWorld(105.4, 27.3),
+      layout.toWorld(45.8, 27.3),
+    ];
+    const shapeEast = new Shape();
+    eastPts.forEach(([x, z], i) => {
+      if (i === 0) shapeEast.moveTo(x, -z);
+      else shapeEast.lineTo(x, -z);
+    });
+    shapeEast.closePath();
+    const extrudeEast = new ExtrudeGeometry(shapeEast, { depth: 0.1, bevelEnabled: false });
+    extrudeEast.rotateX(-Math.PI / 2);
+    extrudeEast.translate(0, groundElevation, 0);
+    geos.push(extrudeEast);
+
+    const merged = BufferGeometryUtils.mergeGeometries(geos);
+    geos.forEach((g) => g.dispose());
+    return merged;
+  }, [layout, floor, isB8]);
 
   // 2. Tường đặc và vách kính gộp theo tọa độ thế giới
   const { solidWallsGeo, glassWallsGeo, baseboardsGeo } = useMemo(() => {
-    const walls = getFloorWalls(floor);
+    const walls = layout.getFloorWalls(floor);
     const solidGeos: BufferGeometry[] = [];
     const glassGeos: BufferGeometry[] = [];
     const baseboardGeos: BufferGeometry[] = [];
@@ -91,9 +139,8 @@ export default function InteriorScene() {
     const baseboardHeight = 0.12;
 
     for (const wall of walls) {
-      // Đổi 2 điểm đầu mút sang tọa độ thế giới
-      const [x1, z1] = toWorld(wall.u1, wall.v1);
-      const [x2, z2] = toWorld(wall.u2, wall.v2);
+      const [x1, z1] = layout.toWorld(wall.u1, wall.v1);
+      const [x2, z2] = layout.toWorld(wall.u2, wall.v2);
 
       const dx = x2 - x1;
       const dz = z2 - z1;
@@ -102,17 +149,15 @@ export default function InteriorScene() {
 
       const midX = (x1 + x2) / 2;
       const midZ = (z1 + z2) / 2;
-      // Góc quay của đoạn thẳng trên mặt phẳng XZ thế giới
       const angle = -Math.atan2(dz, dx);
 
       if (wall.isGlass) {
-        // Vách kính trong suốt
+        // Vách kính trong suốt / lan can kính
         const glassBox = new BoxGeometry(length, wallHeight - 0.2, 0.06);
         glassBox.rotateY(angle);
         glassBox.translate(midX, wallHeight / 2, midZ);
         glassGeos.push(glassBox);
 
-        // Khung nẹp chân vách kính
         const sillBox = new BoxGeometry(length, 0.08, 0.12);
         sillBox.rotateY(angle);
         sillBox.translate(midX, 0.04, midZ);
@@ -124,7 +169,7 @@ export default function InteriorScene() {
         wallBox.translate(midX, wallHeight / 2, midZ);
         solidGeos.push(wallBox);
 
-        // Len chân tường sẫm màu
+        // Len chân tường
         const baseBox = new BoxGeometry(length, baseboardHeight, wall.thickness + 0.04);
         baseBox.rotateY(angle);
         baseBox.translate(midX, baseboardHeight / 2, midZ);
@@ -145,33 +190,49 @@ export default function InteriorScene() {
       glassWallsGeo: mergedGlass,
       baseboardsGeo: mergedBaseboards,
     };
-  }, [floor]);
+  }, [layout, floor]);
 
-  // Biển hiệu tên phòng nhỏ gắn tường
+  // 3. Biển tên phòng nhỏ gắn tường
   const roomSigns = useMemo(() => {
-    const rooms = getFloorRooms(floor);
-    const yaw = getLocalFacingYaw(0);
-    return rooms.map((room) => {
-      const centerU = (room.minU + room.maxU) / 2;
-      const edgeV = room.minV < 24 ? room.maxV : room.minV;
-      const [worldX, worldZ] = toWorld(centerU, edgeV);
-      return {
-        code: room.code,
-        worldX,
-        worldZ,
-        yaw,
-      };
-    });
-  }, [floor]);
+    const rooms = layout.getFloorRooms(floor);
+    const yaw = getLocalFacingYaw(layout.toWorld, 0);
+
+    return rooms
+      .filter((r) => r.code.includes('.B') || r.code.startsWith('P.'))
+      .map((room) => {
+        const centerU = (room.minU + room.maxU) / 2;
+        // Gắn ở mép hành lang
+        const isNorth = room.minV === 0 || room.minV < 15;
+        const edgeV = isNorth ? room.maxV : room.minV;
+        const [worldX, worldZ] = layout.toWorld(centerU, edgeV);
+        return {
+          code: room.code,
+          worldX,
+          worldZ,
+          yaw,
+        };
+      });
+  }, [layout, floor]);
+
+  // Tọa độ tâm tòa nhà để bố trí nguồn sáng
+  const centerPos = useMemo(() => {
+    return isB8 ? layout.toWorld(55.0, 22.1) : layout.toWorld(0, 20.0);
+  }, [layout, isB8]);
+
+  // Màu tường và sàn theo tài liệu thực tế của từng tòa
+  const wallColor = isB8 ? '#42322c' : '#f8fafc'; // B8: nâu sẫm, B3: trắng sáng
+  const baseboardColor = isB8 ? '#261e1b' : '#334155';
+  const floorColor = isB8 ? '#cbd5e1' : '#f1f5f9'; // B8: gạch xám, B3: terrazzo sáng
 
   return (
     <group>
       <color attach="background" args={['#0f172a']} />
+
       {/* Chiếu sáng nội thất */}
-      <ambientLight intensity={0.8} color="#f8fafc" />
+      <ambientLight intensity={isB8 ? 0.95 : 0.8} color="#f8fafc" />
 
       <directionalLight
-        position={[toWorld(16, 0)[0] + 15, 20, toWorld(16, 0)[1] - 15]}
+        position={[centerPos[0] + 20, 25, centerPos[1] - 20]}
         intensity={0.9}
         color="#fffbeb"
         castShadow
@@ -179,39 +240,58 @@ export default function InteriorScene() {
         shadow-mapSize-height={1024}
       />
 
-      <pointLight position={[toWorld(16, 12)[0], 3.4, toWorld(16, 12)[1]]} intensity={0.65} distance={20} color="#fef08a" />
-      <pointLight position={[toWorld(-20, 26)[0], 3.4, toWorld(-20, 26)[1]]} intensity={0.55} distance={25} color="#e0f2fe" />
-      <pointLight position={[toWorld(-50, 26)[0], 3.4, toWorld(-50, 26)[1]]} intensity={0.55} distance={25} color="#e0f2fe" />
+      <pointLight position={[centerPos[0], 3.5, centerPos[1]]} intensity={0.7} distance={35} color="#fef08a" />
+      {isB8 ? (
+        <>
+          {/* Đèn dọc 2 sân trong B8 */}
+          <pointLight position={[layout.toWorld(25, 20.9)[0], 3.6, layout.toWorld(25, 20.9)[1]]} intensity={0.65} distance={30} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(75, 20.9)[0], 3.6, layout.toWorld(75, 20.9)[1]]} intensity={0.65} distance={35} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(43.8, 20.5)[0], 3.4, layout.toWorld(43.8, 20.5)[1]]} intensity={0.7} distance={15} color="#fffbeb" />
+        </>
+      ) : (
+        <>
+          <pointLight position={[layout.toWorld(16, 12)[0], 3.4, layout.toWorld(16, 12)[1]]} intensity={0.65} distance={20} color="#fef08a" />
+          <pointLight position={[layout.toWorld(-20, 26)[0], 3.4, layout.toWorld(-20, 26)[1]]} intensity={0.55} distance={25} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(-50, 26)[0], 3.4, layout.toWorld(-50, 26)[1]]} intensity={0.55} distance={25} color="#e0f2fe" />
+        </>
+      )}
 
-      {/* 1. Mặt sàn Terrazzo thế giới */}
+      {/* 1. Mặt sàn thế giới */}
       {floorGeometry && (
         <mesh geometry={floorGeometry} receiveShadow>
-          <meshStandardMaterial color="#f1f5f9" roughness={0.4} metalness={0.05} />
+          <meshStandardMaterial color={floorColor} roughness={0.45} metalness={0.05} />
         </mesh>
       )}
 
-      {/* Mặt sàn hội trường bên dưới khi nhìn từ tầng 3 */}
+      {/* Sàn hội trường B3 nhìn từ tầng 3 */}
       {auditoriumFloorGeometry && (
         <mesh geometry={auditoriumFloorGeometry} receiveShadow>
           <meshStandardMaterial color="#334155" roughness={0.6} />
         </mesh>
       )}
 
+      {/* Nền đá sân trong B8 nhìn từ các tầng trên xuống */}
+      {b8CourtyardGroundGeometry && (
+        <mesh geometry={b8CourtyardGroundGeometry} receiveShadow>
+          <meshStandardMaterial color="#475569" roughness={0.7} />
+        </mesh>
+      )}
+
       {/* 2. Thân tường đặc */}
       {solidWallsGeo && (
         <mesh geometry={solidWallsGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#f8fafc" roughness={0.85} flatShading />
+          <meshStandardMaterial color={wallColor} roughness={0.85} flatShading />
         </mesh>
       )}
 
-      {/* Len chân tường sẫm màu */}
+      {/* Len chân tường */}
       {baseboardsGeo && (
         <mesh geometry={baseboardsGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#334155" roughness={0.5} />
+          <meshStandardMaterial color={baseboardColor} roughness={0.5} />
         </mesh>
       )}
 
-      {/* 3. Vách kính trong suốt phòng họp & sảnh */}
+      {/* 3. Vách kính trong suốt */}
       {glassWallsGeo && (
         <mesh geometry={glassWallsGeo}>
           <meshStandardMaterial
@@ -225,7 +305,7 @@ export default function InteriorScene() {
       )}
 
       {/* 4. Nội thất instancing */}
-      <InteriorFurniture floor={floor} />
+      <InteriorFurniture buildingId={buildingId} floor={floor} />
 
       {/* 5. Biển số phòng nhỏ gắn tường */}
       {roomSigns.map((sign, idx) => (
@@ -240,7 +320,6 @@ export default function InteriorScene() {
           </mesh>
         </group>
       ))}
-
     </group>
   );
 }

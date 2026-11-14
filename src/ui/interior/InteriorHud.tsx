@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useWalkStore } from '../../store/useWalkStore';
-import { getBuildingDetail } from '../../data';
+import { getBuilding, getBuildingDetail } from '../../data';
+import { getInteriorLayout } from '../../scene/interior/layouts';
 
 interface ProximityState {
   interactive: {
     id: string;
     type: 'exterior-door' | 'interior-door' | 'elevator';
     label: string;
+    buildingId?: string;
   } | null;
   activeRoom: {
     code: string;
@@ -25,8 +27,12 @@ export default function InteriorHud() {
 
   const prevInterior = useRef<{ buildingId: string; floor: number } | null>(null);
 
-  // Đọc chi tiết thông tin các tầng từ dữ liệu chuẩn EIU
-  const b3Detail = getBuildingDetail('b3');
+  // Xác định tòa nhà hiện tại (khi đang ở trong hoặc đang đứng trước cửa)
+  const currentBuildingId = interior?.buildingId ?? proximity.interactive?.buildingId;
+  const buildingInfo = currentBuildingId ? getBuilding(currentBuildingId) : undefined;
+  const buildingDetail = currentBuildingId ? getBuildingDetail(currentBuildingId) : undefined;
+  const layout = currentBuildingId ? getInteriorLayout(currentBuildingId) : undefined;
+  const maxFloors = layout?.floors ?? buildingDetail?.floors?.length ?? 3;
 
   // Lắng nghe sự kiện tiệm cận tương tác từ WalkMode
   useEffect(() => {
@@ -47,7 +53,7 @@ export default function InteriorHud() {
     };
   }, []);
 
-  // Hiệu ứng Fade chuyển cảnh (~0.4s) khi vào, ra hoặc đổi tầng
+  // Hiệu ứng Fade chuyển cảnh (~0.3s) khi vào, ra hoặc đổi tầng
   useEffect(() => {
     const prev = prevInterior.current;
     const cur = interior;
@@ -58,10 +64,8 @@ export default function InteriorHud() {
     const isChangingFloor = prev && cur && prev.floor !== cur.floor;
 
     if (isEntering || isExiting || isChangingFloor) {
-      // Fade in to black
       setFadeOpacity(1);
       const timer = setTimeout(() => {
-        // Fade out from black
         setFadeOpacity(0);
       }, 250);
       return () => clearTimeout(timer);
@@ -69,7 +73,6 @@ export default function InteriorHud() {
   }, [interior]);
 
   useEffect(() => {
-    // Reset proximity ngay khi trạng thái interior thay đổi
     setProximity({ interactive: null, activeRoom: null });
   }, [interior]);
 
@@ -80,20 +83,15 @@ export default function InteriorHud() {
     }
   }, [walkMode, interior]);
 
-  // Phím tắt 1, 2, 3 và Escape cho bảng thang máy
+  // Phím tắt chọn tầng (1..maxFloors) và Escape cho bảng thang máy
   useEffect(() => {
     if (!elevatorOpen) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
-      if (e.key === '1') {
-        useWalkStore.getState().setInteriorFloor(1);
-        setElevatorOpen(false);
-      } else if (e.key === '2') {
-        useWalkStore.getState().setInteriorFloor(2);
-        setElevatorOpen(false);
-      } else if (e.key === '3') {
-        useWalkStore.getState().setInteriorFloor(3);
+      const num = Number.parseInt(e.key, 10);
+      if (!Number.isNaN(num) && num >= 1 && num <= maxFloors) {
+        useWalkStore.getState().setInteriorFloor(num);
         setElevatorOpen(false);
       } else if (e.key === 'Escape') {
         setElevatorOpen(false);
@@ -102,15 +100,15 @@ export default function InteriorHud() {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [elevatorOpen]);
+  }, [elevatorOpen, maxFloors]);
 
   if (!walkMode) return null;
 
   const handleActionClick = () => {
     const inter = proximity.interactive;
     if (!inter) return;
-    if (inter.type === 'exterior-door') {
-      useWalkStore.getState().enterInterior('b3');
+    if (inter.type === 'exterior-door' && inter.buildingId) {
+      useWalkStore.getState().enterInterior(inter.buildingId);
     } else if (inter.type === 'interior-door') {
       useWalkStore.getState().exitInterior();
     } else if (inter.type === 'elevator') {
@@ -128,6 +126,26 @@ export default function InteriorHud() {
       ? 'Tầng 1 (Trệt)'
       : `Tầng ${interior.floor}`
     : '';
+
+  // Danh sách các tầng của tòa nhà (xếp từ tầng cao nhất xuống tầng 1)
+  const elevatorFloors = Array.from({ length: maxFloors }, (_, idx) => {
+    const floorNum = maxFloors - idx;
+    const detailFloor = buildingDetail?.floors?.find((f) => f.floorNumber === floorNum);
+
+    let desc = detailFloor?.architecturalNote ?? '';
+    if (!desc && detailFloor?.groups) {
+      desc = detailFloor.groups
+        .flatMap((g) => g.rooms.map((r) => r.code))
+        .slice(0, 4)
+        .join(' · ');
+    }
+
+    return {
+      floorNum,
+      label: detailFloor?.label ?? `Tầng ${floorNum}`,
+      desc,
+    };
+  });
 
   return (
     <>
@@ -173,7 +191,7 @@ export default function InteriorHud() {
         </div>
       )}
 
-      {/* 4. Bảng điều khiển Thang máy Block 3 (Elevator Modal) */}
+      {/* 4. Bảng điều khiển Thang máy (Elevator Modal) */}
       {elevatorOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div
@@ -189,9 +207,11 @@ export default function InteriorHud() {
                 </span>
                 <div>
                   <h3 id="elevator-modal-title" className="font-semibold text-white">
-                    Thang máy Block 3
+                    {`Thang máy ${buildingInfo?.shortName ?? buildingInfo?.name ?? 'Tòa nhà'}`}
                   </h3>
-                  <p className="text-xs text-slate-400">Khoa Quản trị Kinh doanh</p>
+                  <p className="text-xs text-slate-400">
+                    {buildingDetail?.subtitle ?? buildingInfo?.name ?? ''}
+                  </p>
                 </div>
               </div>
               <button
@@ -205,23 +225,7 @@ export default function InteriorHud() {
             </div>
 
             <div className="mt-4 flex flex-col gap-2.5">
-              {[
-                {
-                  floorNum: 3,
-                  label: 'Tầng 3',
-                  desc: 'Thông tầng 200.B3 · Giảng đường 5 & 6 · Văn phòng QTKD',
-                },
-                {
-                  floorNum: 2,
-                  label: 'Tầng 2',
-                  desc: 'Hội trường 200.B3 (544 chỗ) · Giảng đường 1 đến 4',
-                },
-                {
-                  floorNum: 1,
-                  label: 'Tầng 1 (Trệt)',
-                  desc: 'Sảnh đón tiếp · Văn phòng Khoa QTKD & Honors · Phòng VIP · Hội thảo · OCE',
-                },
-              ].map((f) => {
+              {elevatorFloors.map((f) => {
                 const isCurrent = interior?.floor === f.floorNum;
                 return (
                   <button
@@ -254,9 +258,9 @@ export default function InteriorHud() {
               })}
             </div>
 
-            {b3Detail?.subtitle && (
-              <p className="mt-4 text-center text-xs text-slate-400">
-                {b3Detail.subtitle}
+            {buildingDetail?.source?.label && (
+              <p className="mt-4 text-center text-[10px] text-slate-400">
+                {buildingDetail.source.label}
               </p>
             )}
           </div>
