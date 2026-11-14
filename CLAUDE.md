@@ -15,6 +15,10 @@ Claude là **tech lead / điều phối**, không phải thợ code chính của
 
 ## Khi viết brief cho Gemini
 
+- **Claude tự phân tích tài liệu thật trước khi giao** (người dùng yêu cầu 2026-11-14, sau lỗi T13): sơ đồ, ảnh, kích thước, vị trí
+  → Claude đo/đọc và chốt thành **bảng số cụ thể** (tọa độ mét, danh sách phòng, hướng) đặt trong brief hoặc file JSON đi kèm.
+  Agent **chỉ dựng theo số**, không tự đọc ảnh rồi đoán bố cục. Ảnh chỉ để agent tham khảo màu sắc / vật liệu.
+
 - Ghi rõ: mục tiêu, file được sửa, file KHÔNG được sửa, hợp đồng store/data dùng được, tiêu chí xong, checklist kiểm tra tay.
 - Đưa ví dụ API drei/R3F cụ thể khi có bẫy (vd `CameraControls.setLookAt(..., true)`), vì Gemini làm nhanh nhưng dễ tự thêm thư viện hoặc tự đổi kiến trúc.
 - Một brief = một task nhỏ, xong trong một phiên.
