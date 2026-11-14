@@ -6,6 +6,7 @@ import type { Road, Vec2 } from '../types';
 import { useReviewStore } from '../store/useReviewStore';
 import { useCampusStore } from '../store/useCampusStore';
 import { getCameraPose } from './cameraUtils';
+import { FOOTWAY, FOOTWAY_WIDTH, GRASS, INTERNAL, PARKING, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUNDABOUT_ROAD, ROUNDABOUT_ROAD_WIDTH, STREET, STREET_LANE_WIDTH, GROUND } from './groundLevels';
 
 /** Chuyển [x, z] sang [x, -z] trên mặt phẳng XY để khi xoay -90° quanh X sẽ khớp với hệ tọa độ thế giới. */
 function toShapePoints(pts: Vec2[]): [number, number][] {
@@ -63,11 +64,11 @@ function buildRoadGeometry(roads: Road[], elevation: number, maxRadius = 600): B
   roads.forEach((road) => {
     if (road.kind === 'bridge' || road.points.length < 2) return;
 
-    let width = 7;
+    let width = ROAD_WIDTH;
     if (road.kind === 'street') {
-      width = (road.lanes ?? 2) * 3.5;
+      width = (road.lanes ?? 2) * STREET_LANE_WIDTH;
     } else if (road.kind === 'footway') {
-      width = 2.5;
+      width = FOOTWAY_WIDTH;
     }
     const hw = width / 2;
 
@@ -143,27 +144,27 @@ export default function Ground() {
     [layout.parking],
   );
 
-  // Đường phố bao ngoài (street): rộng theo số làn, cắt bớt ngoài 600m — cao y = 0.45m
+  // Đường phố bao ngoài (street): rộng theo số làn, cắt bớt ngoài 600m.
   const streetGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'street'), 0.45, 600),
+    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'street'), STREET, 600),
     [layout.roads],
   );
 
-  // Đường nội bộ (internal): rộng 7m — cao y = 0.60m
+  // Đường nội bộ (internal): rộng 7m.
   const internalGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'internal'), 0.6, 600),
+    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'internal'), INTERNAL, 600),
     [layout.roads],
   );
 
-  // Lối đi bộ (footway): rộng 2.5m — cao y = 0.75m
+  // Lối đi bộ (footway): rộng 2.5m.
   const footwayGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'footway'), 0.75, 600),
+    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'footway'), FOOTWAY, 600),
     [layout.roads],
   );
 
   const rbRadius = layout.roundabout.radius;
-  const rbInner = rbRadius - 4.5;
-  const rbOuter = rbRadius + 4.5;
+  const rbInner = rbRadius - ROUNDABOUT_ROAD_WIDTH / 2;
+  const rbOuter = rbRadius + ROUNDABOUT_ROAD_WIDTH / 2;
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     // Bỏ qua nếu là thao tác kéo xoay camera
@@ -186,13 +187,13 @@ export default function Ground() {
   return (
     <group onClick={handleClick}>
       {/* 1. Đất cỏ lớn xung quanh (~2400m) — y = 0 */}
-      <mesh rotation-x={-Math.PI / 2} position-y={0} receiveShadow>
+      <mesh rotation-x={-Math.PI / 2} position-y={GROUND} receiveShadow>
         <planeGeometry args={[2400, 2400]} />
         <meshStandardMaterial color="#b2c9a6" roughness={0.9} />
       </mesh>
 
       {/* 2. Cỏ bên trong ranh giới trường EIU — y = 0.15 */}
-      <mesh rotation-x={-Math.PI / 2} position-y={0.15} receiveShadow>
+      <mesh rotation-x={-Math.PI / 2} position-y={GRASS} receiveShadow>
         <shapeGeometry args={[boundaryShape]} />
         <meshStandardMaterial
           color="#9ec08d"
@@ -205,7 +206,7 @@ export default function Ground() {
 
       {/* 3. Bãi đỗ xe dạng mặt đường trải nhựa — y = 0.30 */}
       {parkingShapes.map((shape, i) => (
-        <mesh key={i} rotation-x={-Math.PI / 2} position-y={0.3} receiveShadow>
+        <mesh key={i} rotation-x={-Math.PI / 2} position-y={PARKING} receiveShadow>
           <shapeGeometry args={[shape]} />
           <meshStandardMaterial
             color="#6f747d"
@@ -218,7 +219,7 @@ export default function Ground() {
       ))}
 
       {/* 4. Vòng xoay: bãi cỏ trung tâm — y = 0.30 */}
-      <mesh rotation-x={-Math.PI / 2} position-y={0.3} receiveShadow>
+      <mesh rotation-x={-Math.PI / 2} position-y={ROUNDABOUT_GRASS} receiveShadow>
         <circleGeometry args={[rbInner, 96]} />
         <meshStandardMaterial
           color="#91b681"
@@ -230,7 +231,7 @@ export default function Ground() {
       </mesh>
 
       {/* 5. Vòng xoay: vành đường rộng 9m xám sáng — y = 0.45 */}
-      <mesh rotation-x={-Math.PI / 2} position-y={0.45} receiveShadow>
+      <mesh rotation-x={-Math.PI / 2} position-y={ROUNDABOUT_ROAD} receiveShadow>
         <ringGeometry args={[rbInner, rbOuter, 96]} />
         <meshStandardMaterial
           color="#7b7f86"
