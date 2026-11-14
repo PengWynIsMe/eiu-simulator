@@ -29,9 +29,18 @@
 | 3 | [thang] 320, 318, 316, 314 ‖ 312, 310, 308, 306, 304, 302, [WC + thang] | [WC + thang] 311, 309 (lớn) ‖ 307, 305, 303, 301 |
 | 4 | [thang] 420, 418, 416, 414 ‖ 412, 410, 408, 406, 404, 402, [WC + thang] | [WC + thang] 419, 417, 415, 413 ‖ 411 (lớn), 409, 407, 405, 403, 401 |
 
-`‖` = **hành lang ngang ở giữa** nối dãy Bắc–Nam, giữa 2 sân trong, có cầu thang ở 2 đầu.
-**Thang máy**: cạnh hành lang ngang giữa, mép trái sân trong lớn (ký hiệu thang máy trên sơ đồ). Đầu Đông có **lõi cầu thang** trong sân lớn.
+`‖` = **hành lang ngang ở giữa** nối dãy Bắc–Nam, giữa 2 sân trong, có cầu thang bộ ở 2 đầu.
+**Người dùng xác nhận (2026-11-14): mỗi tầng chỉ có ĐÚNG 1 THANG MÁY**, ở giữa — cạnh hành lang ngang, mép trái sân trong lớn (ký hiệu thang máy trên sơ đồ).
+**Hai đầu tòa (Tây, Đông) và các ô thang khác trên sơ đồ đều là THANG BỘ** — dựng hình bậc thang để nhìn, KHÔNG phải thang máy, KHÔNG có bảng chọn tầng.
+Chỉ chỗ thang máy giữa mới hiện "E – Thang máy".
 Hành lang của mỗi dãy chạy **dọc phía sân trong** (mở, có lan can); phòng nằm phía ngoài. Bề rộng phòng: **đo tỷ lệ trên ảnh sơ đồ**.
+
+## Cách làm: chi tiết 1 tầng rồi nhân bản (người dùng chốt)
+
+Tầng 2, 3, 4 **cùng khung** (hành lang, 2 sân trong, cầu thang bộ, thang máy, WC) — chỉ khác **mã phòng** và vài phòng gộp lớn (311, 309, 411).
+→ Dựng **tầng 2 thật kỹ làm "tầng mẫu"** (khung + tường + vách + nội thất), rồi sinh tầng 3, 4 bằng **danh sách mã phòng + ô gộp**
+(vd 311 chiếm chỗ 2–3 ô phòng). **Tầng 1 riêng** (ít phòng hơn, phòng lớn, lối ra vào, hành lang tầng trệt).
+Không chép tay hình học 3 lần — một hàm dựng tầng nhận "danh sách ô phòng" là đủ.
 
 ## Yêu cầu kỹ thuật
 
@@ -52,6 +61,8 @@ Hành lang của mỗi dãy chạy **dọc phía sân trong** (mở, có lan can
 - B3: **đi bộ tới được thang máy** từ sảnh (có lối đi, hiện "E – Thang máy").
 - **Cửa "Ra ngoài" bằng phím E** hoạt động (B3 và B8), ra đúng trước cửa đã vào.
 - Vị trí nhân vật đang lưu ở biến cấp module trong `WalkMode.tsx` — giữ nguyên được, nhưng đặt tên/ghi chú rõ.
+- **Không** sửa cách tính độ cao nhân vật ngoài trời (`player.current[1] = 0.6`) — luồng T14 (Codex) đang làm hàm độ cao mặt đất,
+  Claude sẽ nối vào `WalkMode` khi gộp. Trong nhà giữ độ cao sàn tầng như hiện tại.
 
 ## Được sửa / tạo
 
