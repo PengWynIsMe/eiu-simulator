@@ -25,6 +25,8 @@ phần còn lại tạm là khối đúng khung nền, nâng cấp dần theo t�
 | **T12** Vào Block 3: sảnh, 3 tầng, thang máy, phòng | Gemini | Bản thử nội thất theo tour 360 (chưa có sơ đồ thoát hiểm) | ✅ 2026-11-14 (bản thử; lỗi còn lại xem HANDOFF mục 2) |
 | **T13** Nội thất dùng chung + vào B8 | Gemini | Bố cục theo sơ đồ thoát hiểm thật 4 tầng; tổng quát hóa hệ nội thất T12; sửa lỗi thang máy/cửa ra B3 | ✅ 2026-11-14 (+ T13b sửa theo tọa độ đo) |
 | **T14** Độ cao mặt đất cho nhân vật | Codex (gpt-6-luna, medium) | `getGroundHeight(x,z)` theo layout; hết lún chân/lơ lửng | ✅ 2026-11-14 |
+| **T15a** Nội thất B8: thang gấp thật, vườn sân trong, bàn ghế đúng mật độ | Gemini | theo số Claude chốt | Đang làm — `docs/tasks/T15a-noi-that-b8-hinh.md` |
+| **T15b** Góc nhìn thứ nhất, robot 1.70 m, đi thang bộ, hết giật | Codex (gpt-6-luna, medium) | | Đang làm — `docs/tasks/T15b-camera-robot-cau-thang.md` |
 | **T09** Chế độ đi bộ | **Codex (gpt-6-luna, medium)** — luồng C | Nhân vật + camera bám sau, WASD/cần ảo, va chạm tòa nhà/hồ | ✅ 2026-11-13 (gộp) |
 
 Thứ tự: T02 → T03 → (T04, T05) → T06 → T07. T08 làm song song được với T04–T06 (chỉ đụng `ui/`).
