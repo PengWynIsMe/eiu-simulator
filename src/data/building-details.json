@@ -305,7 +305,8 @@
     "facts": [
       "Cụm nhà đôi 4 tầng cao 15,2 m (~120 m × 44,4 m) với 2 giếng trời sân trong ở giữa.",
       "Tầng trệt mở 3 hành lang thông gió cụm Tây – Giữa – Đông; tầng 2–4 có hành lang lan can bao quanh giếng trời.",
-      "Lõi thang máy đặt ở nhịp giữa và tháp cầu thang kính nằm tại vạt góc phía Đông."
+      "Lõi thang máy đặt ở nhịp giữa và tháp cầu thang kính nằm tại vạt góc phía Đông.",
+      "Mã phòng theo sơ đồ thoát hiểm dán tại mỗi tầng (chụp 2026-11-14): dãy Bắc số chẵn, dãy Nam số lẻ; phòng 101/102 ở đầu Đông."
     ],
     "floors": [
       {
@@ -322,8 +323,16 @@
                 "name": "Phòng Kỹ thuật điện"
               },
               {
-                "code": "104–120.B8",
-                "name": "Dãy phòng học số chẵn (quy mô 25 SV/phòng) & khu WC"
+                "code": "104–112.B8",
+                "name": "Dãy phòng học số chẵn"
+              },
+              {
+                "code": "114.B8, 116.B8",
+                "name": "Phòng học lớn (đầu Tây)"
+              },
+              {
+                "code": "WC",
+                "name": "Khu vệ sinh góc Đông Bắc"
               }
             ]
           },
@@ -331,8 +340,16 @@
             "title": "Cánh Nam (hướng sân trong nội khu)",
             "rooms": [
               {
-                "code": "101–121.B8",
-                "name": "Dãy phòng học số lẻ (quy mô 25 SV/phòng) & WC góc Tây Nam"
+                "code": "101–107.B8",
+                "name": "Dãy phòng học số lẻ (phòng lớn)"
+              },
+              {
+                "code": "109.B8, 111.B8",
+                "name": "Phòng học lớn (đầu Tây)"
+              },
+              {
+                "code": "WC",
+                "name": "Khu vệ sinh góc Tây Nam"
               }
             ]
           }
@@ -383,11 +400,11 @@
             "title": "Cánh Nam",
             "rooms": [
               {
-                "code": "301–309, 313–319",
+                "code": "301–309.B8",
                 "name": "Cụm phòng học cỡ vừa (40 SV/phòng)"
               },
               {
-                "code": "Phòng 311.B8",
+                "code": "311.B8",
                 "name": "Phòng học / Giảng đường lớn (60 SV)"
               }
             ]
@@ -404,7 +421,7 @@
             "title": "Cánh Bắc",
             "rooms": [
               {
-                "code": "402–418.B8",
+                "code": "402–420.B8",
                 "name": "Dãy phòng học số chẵn (25 SV/phòng) & WC"
               }
             ]
@@ -417,7 +434,7 @@
                 "name": "Phòng học (25 SV/phòng)"
               },
               {
-                "code": "405–409, 413–419",
+                "code": "405–409, 413–419.B8",
                 "name": "Cụm phòng học cỡ vừa (40 SV/phòng)"
               },
               {
@@ -431,7 +448,7 @@
     ],
     "source": {
       "status": "xac-minh",
-      "label": "Số liệu thực tế — đồng nghiệp Hieuthao63d xác minh, 2026-11-13"
+      "label": "Mã phòng: sơ đồ thoát hiểm tại trường (ảnh 2026-11-14); sức chứa: đồng nghiệp Hieuthao63d xác minh 2026-11-13"
     }
   },
   "b9": {

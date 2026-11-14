@@ -19,6 +19,12 @@ Mới vào? Đọc `docs/ONBOARDING.md` trước, rồi file này, rồi `AGENTS
 Claude đã tự chơi thử T12 (2026-11-14): vào cửa ✅, sảnh có vách kính/quầy + thẻ "Sảnh chính" ✅, đi lạc vào 100.B3 → thẻ phòng đổi đúng ✅,
 bảng thang máy → tầng 2 ra trước thang máy ✅, Esc trong nhà → về toàn cảnh ✅, console sạch ✅. typecheck/lint/build sạch.
 
+## 1b. Mới (2026-11-14 chiều)
+
+- Người dùng chụp **sơ đồ thoát hiểm 4 tầng B8** + ảnh hành lang/sân trong → `references/toa-b8/` (không lên git; danh mục `info.md`).
+- Claude sửa **mã phòng B8** trong `building-details.json` theo sơ đồ (dữ liệu cũ lệch ở tầng 1, 3, 4).
+- **Đang làm: T13** (Gemini, worktree `t13-noi-that-b8`, cổng 5174) — nội thất dùng chung + vào B8 + sửa lỗi thang máy/cửa ra của B3.
+
 ## 2. Lỗi / hạn chế đã biết (ưu tiên sửa trước)
 
 1. **T12 — chưa ai đi bộ tới được thang máy** trong lần thử (Claude mở bảng thang máy bằng sự kiện `campussim:open-elevator`). Cần đi tay kiểm:
