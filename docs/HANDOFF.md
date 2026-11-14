@@ -23,11 +23,15 @@ bảng thang máy → tầng 2 ra trước thang máy ✅, Esc trong nhà → v�
 
 - Người dùng chụp **sơ đồ thoát hiểm 4 tầng B8** + ảnh hành lang/sân trong → `references/toa-b8/` (không lên git; danh mục `info.md`).
 - Claude sửa **mã phòng B8** trong `building-details.json` theo sơ đồ (dữ liệu cũ lệch ở tầng 1, 3, 4).
-- **Đang làm: T13** (Gemini, worktree `t13-noi-that-b8`, cổng 5174) — nội thất dùng chung + vào B8 + sửa lỗi thang máy/cửa ra của B3.
+- **T13 + T13b + T14 xong, đã push (2026-11-14 tối):** vào được B8 (4 tầng, dựng theo tọa độ Claude đo từ sơ đồ — `docs/tasks/T13b-b8-toa-do.json`),
+  1 thang máy/tầng, thang bộ 2 đầu + giữa + lõi Đông, sân trong lan can (không kính); camera trong nhà sau vai + phím C nhìn từ trên;
+  nhân vật ngoài trời bám độ cao mặt đất (`walk/groundHeight.ts`). Hệ nội thất dùng chung: `scene/interior/layouts/<id>.ts`.
+- Bài học: lần đầu (T13) để agent tự đọc sơ đồ → sai vị trí. **Claude phải đo/chốt số trước khi giao** (ghi trong `CLAUDE.md`).
+- Còn thiếu ảnh B8: trong phòng học, cầu thang, sảnh thang máy, lối vào tầng 1.
 
 ## 2. Lỗi / hạn chế đã biết (ưu tiên sửa trước)
 
-1. **T12 — chưa ai đi bộ tới được thang máy** trong lần thử (Claude mở bảng thang máy bằng sự kiện `campussim:open-elevator`). Cần đi tay kiểm:
+1. ~~T12 — chưa đi bộ tới được thang máy~~ (T13 báo đã sửa; Claude chưa tự đi lại được — cần người thử). **T12 — chưa ai đi bộ tới được thang máy** trong lần thử (Claude mở bảng thang máy bằng sự kiện `campussim:open-elevator`). Cần đi tay kiểm:
    từ sảnh có đường tới thang máy không, nút "E – Thang máy" có hiện không. Vị trí: `ELEVATOR_SPAWN_LOCAL` trong `src/scene/interior/b3Layout.ts`.
 2. **T12 — chưa kiểm cửa "Ra ngoài" bằng phím E** (chỉ kiểm Esc). Và chưa kiểm trên điện thoại thật.
 3. **T12 — nội thất là bản thử theo ảnh tour 360**, bố cục gần đúng; sàn đang xám trơn, chưa có trần (cố ý, để camera nhìn được).
