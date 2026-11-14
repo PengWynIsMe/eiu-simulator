@@ -1,4 +1,5 @@
 import { campus } from '../../data';
+import { isOnMedianPlanter, MEDIAN_TOP } from '../zone1/medianLayout';
 import type { Vec2 } from '../../types';
 import {
   BRIDGE,
@@ -103,6 +104,7 @@ function onBridge(x: number, z: number): boolean {
 /** Trả cao độ lớp mặt đất cao nhất phủ lên tọa độ thế giới [x, z]. */
 export function getGroundHeight(x: number, z: number): number {
   if (onBridge(x, z)) return BRIDGE;
+  if (isOnMedianPlanter(x, z)) return MEDIAN_TOP;
   if (inPond(x, z)) return POND_RIM;
   if (nearRoads(x, z, 'footway')) return FOOTWAY;
   if (nearRoads(x, z, 'internal')) return INTERNAL;

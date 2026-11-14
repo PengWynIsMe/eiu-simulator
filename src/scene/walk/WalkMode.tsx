@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { dampHeight, getGroundHeight } from './groundHeight';
 import { Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Vector3, type Group } from 'three';
@@ -166,7 +167,7 @@ export default function WalkMode() {
         const spawnYaw = lastPt?.spawnYaw ?? -Math.PI / 2;
 
         player.current[0] = spawnPos[0];
-        player.current[1] = 0.6;
+        player.current[1] = getGroundHeight(spawnPos[0], spawnPos[1]);
         player.current[2] = spawnPos[1];
         cameraYaw.current = spawnYaw;
         facingYaw.current = spawnYaw;
@@ -316,6 +317,11 @@ export default function WalkMode() {
       const targetFacingYaw = Math.atan2(dz, dx);
       const yawDifference = Math.atan2(Math.sin(targetFacingYaw - facingYaw.current), Math.cos(targetFacingYaw - facingYaw.current));
       facingYaw.current += yawDifference * (1 - Math.exp(-10 * dt));
+    }
+
+    // Ngoài trời: bám độ cao mặt đất thật (cỏ 0.15, đường 0.6, lối đi 0.75, cầu 0.8...) — T14.
+    if (!isInterior) {
+      player.current[1] = dampHeight(player.current[1], getGroundHeight(player.current[0], player.current[2]), dt);
     }
 
     if (body.current) {

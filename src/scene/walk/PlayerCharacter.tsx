@@ -64,7 +64,7 @@ export default function PlayerCharacter({ moving, running }: PlayerCharacterProp
   }, [actions]);
 
   return (
-    <group ref={root} position={[0, -0.6, 0]} scale={MODEL_SCALE}>
+    <group ref={root} scale={MODEL_SCALE}>
       <primitive object={model} />
     </group>
   );

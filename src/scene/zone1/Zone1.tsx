@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { MEDIAN_BASE, MEDIAN_HEIGHT, MEDIAN_PLANTERS } from './medianLayout';
 import { BoxGeometry, CylinderGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import Pond from './Pond';
@@ -45,15 +46,9 @@ export default function Zone1() {
   // 2. Bồn cây dải phân cách giữa các làn đường vào từ cổng chính (campus, ve-tinh-khu-cong-2026)
   const medianPlantersGeo = useMemo(() => {
     const planters: BufferGeometry[] = [];
-    const medians = [
-      { x: 236, z: -40, w: 22, d: 2.2 },
-      { x: 236, z: -23, w: 22, d: 2.2 },
-      { x: 236, z: -8, w: 22, d: 2.2 },
-    ];
-
-    medians.forEach((m) => {
-      const box = new BoxGeometry(m.w, 0.35, m.d);
-      box.translate(m.x, 0.45 + 0.175, m.z);
+    MEDIAN_PLANTERS.forEach((m) => {
+      const box = new BoxGeometry(m.w, MEDIAN_HEIGHT, m.d);
+      box.translate(m.x, MEDIAN_BASE + MEDIAN_HEIGHT / 2, m.z);
       planters.push(box);
     });
 
