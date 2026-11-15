@@ -9,6 +9,7 @@ import B11Furniture from './B11Furniture';
 interface FurnitureProps {
   buildingId: string;
   floor: number;
+  showUpperFloors?: boolean;
 }
 
 /**
@@ -43,13 +44,17 @@ export function createInstanceMatrix(
   return new Matrix4().compose(position, rotation, scale);
 }
 
-export default function InteriorFurniture({ buildingId, floor }: FurnitureProps) {
+export default function InteriorFurniture({
+  buildingId,
+  floor,
+  showUpperFloors = true,
+}: FurnitureProps) {
   const id = buildingId.toLowerCase();
   if (id === 'b8') {
     return <B8Furniture floor={floor} />;
   }
   if (id === 'b11') {
-    return <B11Furniture floor={floor} />;
+    return <B11Furniture floor={floor} showUpperFloors={showUpperFloors} />;
   }
   return <B3Furniture floor={floor} />;
 }

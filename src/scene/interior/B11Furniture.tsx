@@ -42,7 +42,8 @@ function addRailingSegment(
   u1: number,
   v1: number,
   u2: number,
-  v2: number
+  v2: number,
+  baseY = 0
 ): void {
   const du = u2 - u1;
   const dv = v2 - v1;
@@ -56,7 +57,7 @@ function addRailingSegment(
   // 4 thanh inox ngang (tay vịn trên + 3 thanh ngang như ảnh 2c912454)
   for (const ry of [0.34, 0.58, 0.82, 1.08]) {
     const thickness = ry > 1.0 ? 0.065 : 0.032;
-    railMatrices.push(createInstanceMatrix(b11ToWorld, cu, cv, ry, yaw, len, thickness, thickness));
+    railMatrices.push(createInstanceMatrix(b11ToWorld, cu, cv, baseY + ry, yaw, len, thickness, thickness));
   }
 
   const posts = Math.max(2, Math.floor(len / 2.2) + 1);
@@ -64,7 +65,7 @@ function addRailingSegment(
     const t = posts === 1 ? 0.5 : i / (posts - 1);
     const pu = u1 + du * t;
     const pv = v1 + dv * t;
-    postMatrices.push(createInstanceMatrix(b11ToWorld, pu, pv, 0.54, 0, 0.045, 1.08, 0.045));
+    postMatrices.push(createInstanceMatrix(b11ToWorld, pu, pv, baseY + 0.54, 0, 0.045, 1.08, 0.045));
   }
 }
 
@@ -132,7 +133,13 @@ function InstancedBatch({
  * - Tủ PCCC đỏ, bình chữa cháy, bảng EXIT xanh, đèn thả trần hành lang
  * - Phòng DatBike 101/103, PTN 4.0, Skill Lab 307, CLB Bóng bàn 410.B11 (kính trong + 2 bàn bóng bàn), WC vách ngăn & bồn rửa đen
  */
-export default function B11Furniture({ floor }: { floor: number }) {
+export default function B11Furniture({
+  floor,
+  showUpperFloors = true,
+}: {
+  floor: number;
+  showUpperFloors?: boolean;
+}) {
   const sharedGeos = useMemo(() => {
     const box = new BoxGeometry(1, 1, 1);
     const cyl = new CylinderGeometry(0.5, 0.5, 1, 8);
@@ -166,71 +173,82 @@ export default function B11Furniture({ floor }: { floor: number }) {
     const bikeAccent: Matrix4[] = [];
     const clinicalWhite: Matrix4[] = [];
     const signYellow: Matrix4[] = [];
-    const lowerCourtyardWalls: Matrix4[] = [];
 
-    // 1. Hàng cột kết cấu kem (#d6cec2) & dầm trần ngang dọc hành lang Bắc / Nam
+    // 1–3. Kết cấu lặp đầy đủ cả 4 tầng (1–4 trừ tầng trên khi bật Top-Down C)
+    // Đứng ở Tầng Trệt (1) nhìn lên thấy rõ hệ cột kem, dầm trần, lam trắng 5 thanh, lan can inox & viền xanh của Tầng 2–4
     const colUs = [1.5, 8.2, 16.0, 23.8, 31.6, 39.4, 47.2, 55.2, 61.3, 64.95, 68.5, 77.8, 87.2, 96.6, 106.0, 115.35, 121.4];
-    for (const u of colUs) {
-      creamColumns.push(createInstanceMatrix(b11ToWorld, u, B.vCyN, FLOOR_HEIGHT * 0.5, 0, 0.46, FLOOR_HEIGHT, 0.46));
-      creamColumns.push(createInstanceMatrix(b11ToWorld, u, B.vCyS, FLOOR_HEIGHT * 0.5, 0, 0.46, FLOOR_HEIGHT, 0.46));
+    for (let f = 1; f <= 4; f++) {
+      if (!showUpperFloors && f > floor) continue;
+      const dy = (f - floor) * FLOOR_HEIGHT;
 
-      // Dầm trần trắng ngang hành lang [vCyN..vNCorrIn] & [vSCorrIn..vCyS]
-      ceilingBeams.push(createInstanceMatrix(b11ToWorld, u, (B.vNCorrIn + B.vCyN) * 0.5, FLOOR_HEIGHT - 0.16, 0, 0.34, 0.32, 3.7));
-      ceilingBeams.push(createInstanceMatrix(b11ToWorld, u, (B.vCyS + B.vSCorrIn) * 0.5, FLOOR_HEIGHT - 0.16, 0, 0.34, 0.32, 3.7));
+      // Cột kết cấu kem (#d6cec2) & dầm trần ngang dọc hành lang Bắc / Nam
+      for (const u of colUs) {
+        creamColumns.push(createInstanceMatrix(b11ToWorld, u, B.vCyN, dy + FLOOR_HEIGHT * 0.5, 0, 0.46, FLOOR_HEIGHT, 0.46));
+        creamColumns.push(createInstanceMatrix(b11ToWorld, u, B.vCyS, dy + FLOOR_HEIGHT * 0.5, 0, 0.46, FLOOR_HEIGHT, 0.46));
+
+        ceilingBeams.push(createInstanceMatrix(b11ToWorld, u, (B.vNCorrIn + B.vCyN) * 0.5, dy + FLOOR_HEIGHT - 0.16, 0, 0.34, 0.32, 3.7));
+        ceilingBeams.push(createInstanceMatrix(b11ToWorld, u, (B.vCyS + B.vSCorrIn) * 0.5, dy + FLOOR_HEIGHT - 0.16, 0, 0.34, 0.32, 3.7));
+      }
+
+      // Đố nhôm vách kính mặt tiền hành lang
+      for (const u of [16, 24, 32, 40, 48, 73, 82, 91, 100, 110]) {
+        glassMullions.push(createInstanceMatrix(b11ToWorld, u, B.vNCorrIn, dy + FLOOR_HEIGHT * 0.42, 0, 0.08, FLOOR_HEIGHT * 0.84, 0.14));
+        glassMullions.push(createInstanceMatrix(b11ToWorld, u, B.vSCorrIn, dy + FLOOR_HEIGHT * 0.42, 0, 0.08, FLOOR_HEIGHT * 0.84, 0.14));
+      }
+
+      // Đèn trần tròn ánh sáng ấm dọc hành lang Bắc & Nam & cầu giữa
+      for (let u = 5; u <= 119; u += 7.5) {
+        warmLights.push(createInstanceMatrix(b11ToWorld, u, (B.vNCorrIn + B.vCyN) * 0.5, dy + FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
+        warmLights.push(createInstanceMatrix(b11ToWorld, u, (B.vCyS + B.vSCorrIn) * 0.5, dy + FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
+      }
+      for (let v = -133; v <= -120; v += 4.2) {
+        warmLights.push(createInstanceMatrix(b11ToWorld, 63.1, v, dy + FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
+        warmLights.push(createInstanceMatrix(b11ToWorld, 4.8, v, dy + FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
+        warmLights.push(createInstanceMatrix(b11ToWorld, 118.4, v, dy + FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
+      }
+
+      // Hệ lam chắn nắng 5 thanh trắng dọc 2 sân trong & hai bên cầu nối giữa (ảnh thực tế B11)
+      for (let b = 0; b < 5; b++) {
+        const ly = dy + 2.62 + b * 0.2;
+        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 34.75, B.vCyN - 0.05, ly, 0, 53.1, 0.04, 0.15));
+        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 34.75, -120.4, ly, 0, 53.1, 0.04, 0.15));
+        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 92.4, B.vCyN - 0.05, ly, 0, 45.5, 0.04, 0.15));
+        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 88.8, -120.9, ly, 0, 38.2, 0.04, 0.15));
+        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 61.35, -126.45, ly, Math.PI / 2, 11.7, 0.04, 0.15));
+        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 64.9, -130.65, ly, Math.PI / 2, 3.3, 0.04, 0.15));
+        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 64.9, -122.95, ly, Math.PI / 2, 4.1, 0.04, 0.15));
+      }
+
+      // Lan can inox 4 thanh & dải viền xanh dương quanh sân trong ở mọi tầng trên (Tầng 2–4)
+      if (f >= 2) {
+        addRailingSegment(steelParts, steelParts, 8.2, -132.3, 61.3, -132.3, dy);
+        addRailingSegment(steelParts, steelParts, 8.2, -120.4, 61.3, -120.4, dy);
+        addRailingSegment(steelParts, steelParts, 8.2, -132.3, 8.2, -120.4, dy);
+        addRailingSegment(steelParts, steelParts, 61.3, -132.3, 61.3, -120.4, dy);
+
+        addRailingSegment(steelParts, steelParts, 64.95, -132.3, 115.35, -132.3, dy);
+        addRailingSegment(steelParts, steelParts, 64.95, -120.9, 115.35, -120.9, dy);
+        addRailingSegment(steelParts, steelParts, 64.95, -132.3, 64.95, -129.0, dy);
+        addRailingSegment(steelParts, steelParts, 64.95, -125.0, 64.95, -120.9, dy);
+        addRailingSegment(steelParts, steelParts, 115.35, -132.3, 115.35, -129.6, dy);
+        addRailingSegment(steelParts, steelParts, 115.35, -123.7, 115.35, -120.9, dy);
+        addRailingSegment(steelParts, steelParts, 108.05, -129.6, 115.35, -129.6, dy);
+        addRailingSegment(steelParts, steelParts, 108.05, -129.6, 108.05, -123.7, dy);
+        addRailingSegment(steelParts, steelParts, 108.05, -123.7, 115.35, -123.7, dy);
+
+        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 34.75, -132.3, dy - 0.05, 0, 53.1, 0.14, 0.1));
+        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 34.75, -120.4, dy - 0.05, 0, 53.1, 0.14, 0.1));
+        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 8.2, -126.35, dy - 0.05, Math.PI / 2, 11.9, 0.14, 0.1));
+        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 61.3, -126.35, dy - 0.05, Math.PI / 2, 11.9, 0.14, 0.1));
+        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 90.15, -132.3, dy - 0.05, 0, 50.4, 0.14, 0.1));
+        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 90.15, -120.9, dy - 0.05, 0, 50.4, 0.14, 0.1));
+      }
     }
 
-    // Dầm dọc & đố nhôm vách kính mặt tiền hành lang
-    for (const u of [16, 24, 32, 40, 48, 73, 82, 91, 100, 110]) {
-      glassMullions.push(createInstanceMatrix(b11ToWorld, u, B.vNCorrIn, FLOOR_HEIGHT * 0.42, 0, 0.08, FLOOR_HEIGHT * 0.84, 0.14));
-      glassMullions.push(createInstanceMatrix(b11ToWorld, u, B.vSCorrIn, FLOOR_HEIGHT * 0.42, 0, 0.08, FLOOR_HEIGHT * 0.84, 0.14));
-    }
-
-    // Đèn trần tròn ánh sáng ấm dọc hành lang Bắc & Nam & cầu giữa
-    for (let u = 5; u <= 119; u += 7.5) {
-      warmLights.push(createInstanceMatrix(b11ToWorld, u, (B.vNCorrIn + B.vCyN) * 0.5, FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
-      warmLights.push(createInstanceMatrix(b11ToWorld, u, (B.vCyS + B.vSCorrIn) * 0.5, FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
-    }
-    for (let v = -133; v <= -120; v += 4.2) {
-      warmLights.push(createInstanceMatrix(b11ToWorld, 63.1, v, FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
-      warmLights.push(createInstanceMatrix(b11ToWorld, 4.8, v, FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
-      warmLights.push(createInstanceMatrix(b11ToWorld, 118.4, v, FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
-    }
-
-    // 2. Hệ lam chắn nắng 5 thanh trắng dọc 2 sân trong trên mọi tầng (ảnh dbfc837a & 2c912454)
-    for (let b = 0; b < 5; b++) {
-      const ly = 2.62 + b * 0.2;
-      whiteLouvers.push(createInstanceMatrix(b11ToWorld, 34.75, B.vCyN - 0.05, ly, 0, 53.1, 0.04, 0.15));
-      whiteLouvers.push(createInstanceMatrix(b11ToWorld, 34.75, -120.4, ly, 0, 53.1, 0.04, 0.15));
-      whiteLouvers.push(createInstanceMatrix(b11ToWorld, 92.4, B.vCyN - 0.05, ly, 0, 45.5, 0.04, 0.15));
-      whiteLouvers.push(createInstanceMatrix(b11ToWorld, 88.8, -120.9, ly, 0, 38.2, 0.04, 0.15));
-    }
-
-    // 3. Lan can inox 4 thanh & dải viền xanh dương quanh sân trong ở TẦNG 2–4
-    if (floor >= 2) {
-      // Sân trong Tây
-      addRailingSegment(steelParts, steelParts, 8.2, -132.3, 61.3, -132.3);
-      addRailingSegment(steelParts, steelParts, 8.2, -120.4, 61.3, -120.4);
-      addRailingSegment(steelParts, steelParts, 8.2, -132.3, 8.2, -120.4);
-      addRailingSegment(steelParts, steelParts, 61.3, -132.3, 61.3, -120.4);
-
-      // Sân trong Đông (vòng quanh lõi thang máy & thang bộ Đông)
-      addRailingSegment(steelParts, steelParts, 64.95, -132.3, 115.35, -132.3);
-      addRailingSegment(steelParts, steelParts, 64.95, -120.9, 115.35, -120.9);
-      addRailingSegment(steelParts, steelParts, 64.95, -132.3, 64.95, -129.0);
-      addRailingSegment(steelParts, steelParts, 64.95, -125.0, 64.95, -120.9);
-      addRailingSegment(steelParts, steelParts, 115.35, -132.3, 115.35, -129.6);
-      addRailingSegment(steelParts, steelParts, 115.35, -123.7, 115.35, -120.9);
-      addRailingSegment(steelParts, steelParts, 108.05, -129.6, 115.35, -129.6);
-      addRailingSegment(steelParts, steelParts, 108.05, -129.6, 108.05, -123.7);
-      addRailingSegment(steelParts, steelParts, 108.05, -123.7, 115.35, -123.7);
-
-      // Dải viền chống thấm màu xanh dương quanh mép sàn giếng trời (ảnh 2c912454)
-      blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 34.75, -132.3, -0.05, 0, 53.1, 0.14, 0.1));
-      blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 34.75, -120.4, -0.05, 0, 53.1, 0.14, 0.1));
-      blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 8.2, -126.35, -0.05, Math.PI / 2, 11.9, 0.14, 0.1));
-      blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 61.3, -126.35, -0.05, Math.PI / 2, 11.9, 0.14, 0.1));
-      blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 90.15, -132.3, -0.05, 0, 50.4, 0.14, 0.1));
-      blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 90.15, -120.9, -0.05, 0, 50.4, 0.14, 0.1));
+    if (showUpperFloors) {
+      // Kim thu lôi trên đỉnh tháp thang máy vượt mái
+      const roofY = (5 - floor) * FLOOR_HEIGHT;
+      steelParts.push(createInstanceMatrix(b11ToWorld, 67.25, -127.0, roofY + 4.4, 0, 0.06, 3.0, 0.06));
     }
 
     // 4. Bậc cầu thang bộ đá đen & máng cáp điện đục lỗ chạy ngang trần cầu thang (ảnh 24a8477c)
@@ -275,30 +293,6 @@ export default function B11Furniture({ floor }: { floor: number }) {
 
     // 7. Sân trong tầng trệt (nhìn trực tiếp ở tầng 1 & nhìn từ trên lan can tầng 2–4 xuống!)
     const groundOff = -(floor - 1) * FLOOR_HEIGHT;
-    if (floor >= 2) {
-      const belowH = (floor - 1) * FLOOR_HEIGHT;
-      const midBelowY = groundOff * 0.5;
-      // Kéo dài cột hàng hiên & mặt tường tầng dưới quanh giếng trời để nhìn xuống không bị hở nền
-      for (const u of colUs) {
-        if (u >= 8.0 && u <= 116.0) {
-          creamColumns.push(createInstanceMatrix(b11ToWorld, u, B.vCyN, midBelowY, 0, 0.44, belowH, 0.44));
-          creamColumns.push(createInstanceMatrix(b11ToWorld, u, B.vCyS, midBelowY, 0, 0.44, belowH, 0.44));
-        }
-      }
-      lowerCourtyardWalls.push(createInstanceMatrix(b11ToWorld, 61.8, B.vNCorrIn, midBelowY, 0, 114.0, belowH, 0.2));
-      lowerCourtyardWalls.push(createInstanceMatrix(b11ToWorld, 61.8, B.vSCorrIn, midBelowY, 0, 114.0, belowH, 0.2));
-      lowerCourtyardWalls.push(createInstanceMatrix(b11ToWorld, B.uWOut, -126.4, midBelowY, Math.PI / 2, 16.0, belowH, 0.25));
-      lowerCourtyardWalls.push(createInstanceMatrix(b11ToWorld, B.uEMainOut, -126.4, midBelowY, Math.PI / 2, 16.0, belowH, 0.25));
-      for (let subF = 1; subF < floor; subF++) {
-        const subY = -subF * FLOOR_HEIGHT - 0.05;
-        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 34.75, -132.3, subY, 0, 53.1, 0.14, 0.1));
-        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 34.75, -120.4, subY, 0, 53.1, 0.14, 0.1));
-        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 90.15, -132.3, subY, 0, 50.4, 0.14, 0.1));
-        blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 90.15, -120.9, subY, 0, 50.4, 0.14, 0.1));
-        darkGranite.push(createInstanceMatrix(b11ToWorld, 61.8, (B.vNCorrIn + B.vCyN) * 0.5, subY, 0, 114.0, 0.16, 3.7));
-        darkGranite.push(createInstanceMatrix(b11ToWorld, 61.8, (B.vCyS + B.vSCorrIn) * 0.5, subY, 0, 114.0, 0.16, 3.7));
-      }
-    }
     const stoneBeds: Matrix4[] = [];
     const trunks: Matrix4[] = [];
     const leaves: Matrix4[] = [];
@@ -435,17 +429,15 @@ export default function B11Furniture({ floor }: { floor: number }) {
       bikeAccent,
       clinicalWhite,
       signYellow,
-      lowerCourtyardWalls,
       stoneBeds,
       trunks,
       leaves,
       lilies,
     };
-  }, [floor]);
+  }, [floor, showUpperFloors]);
 
   return (
     <group key={floor}>
-      <InstancedBatch batchKey="lowWall" matrices={data.lowerCourtyardWalls} geometry={sharedGeos.box} color="#42322c" roughness={0.85} />
       <InstancedBatch batchKey="col" matrices={data.creamColumns} geometry={sharedGeos.box} color="#d6cec2" roughness={0.78} />
       <InstancedBatch batchKey="beam" matrices={data.ceilingBeams} geometry={sharedGeos.box} color="#e2e8f0" roughness={0.75} castShadow={false} />
       <InstancedBatch batchKey="louver" matrices={data.whiteLouvers} geometry={sharedGeos.box} color="#f8fafc" roughness={0.5} />

@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Sky } from '@react-three/drei';
 import {
   Shape,
   Path,
@@ -12,51 +13,77 @@ import { FLOOR_HEIGHT } from '../../data';
 import type { Vec2 } from '../../types';
 import { getInteriorLayout } from './layouts';
 import { b3Layout } from './layouts/b3';
+import { B11_BOUNDS } from './layouts/b11';
 import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
+
+/** Dựng hình học bản sàn từ đa giác biên + các lỗ khoét giếng trời trong mặt phẳng (x, z). */
+function buildSlabGeometry(
+  boundaryPts: readonly Vec2[],
+  holesPts: readonly (readonly Vec2[])[],
+  depth: number,
+  yBottom: number
+): BufferGeometry | null {
+  if (boundaryPts.length < 3) return null;
+  const shape = new Shape();
+  boundaryPts.forEach(([x, z], i) => {
+    if (i === 0) shape.moveTo(x, -z);
+    else shape.lineTo(x, -z);
+  });
+  shape.closePath();
+
+  for (const holePts of holesPts) {
+    if (holePts.length < 3) continue;
+    const holePath = new Path();
+    holePts.forEach(([hx, hz], hi) => {
+      if (hi === 0) holePath.moveTo(hx, -hz);
+      else holePath.lineTo(hx, -hz);
+    });
+    holePath.closePath();
+    shape.holes.push(holePath);
+  }
+
+  const extrude = new ExtrudeGeometry(shape, { depth, bevelEnabled: false });
+  extrude.rotateX(-Math.PI / 2);
+  extrude.translate(0, yBottom, 0);
+  return extrude;
+}
 
 export default function InteriorScene() {
   const interior = useWalkStore((s) => s.interior);
   const buildingId = interior?.buildingId ?? 'b3';
   const floor = interior?.floor ?? 1;
+  const [isTopDown, setIsTopDown] = useState(false);
+
+  useEffect(() => {
+    setIsTopDown(false);
+  }, [buildingId]);
+
+  useEffect(() => {
+    const onTopDown = (event: Event) => {
+      const detail = (event as CustomEvent<{ enabled?: boolean }>).detail;
+      setIsTopDown(Boolean(detail?.enabled));
+    };
+    window.addEventListener('campussim:topdown-camera', onTopDown);
+    return () => window.removeEventListener('campussim:topdown-camera', onTopDown);
+  }, []);
 
   const layout = useMemo(() => getInteriorLayout(buildingId) ?? b3Layout, [buildingId]);
   const isB8 = buildingId.toLowerCase() === 'b8';
   const isB11 = buildingId.toLowerCase() === 'b11';
   const isTwinWing = isB8 || isB11;
 
-  // 1. Sàn tầng dựng trực tiếp trong hệ tọa độ thế giới (x, z)
+  // 1. Sàn tầng hiện tại (y = -0.15 .. 0)
   const floorGeometry = useMemo(() => {
     const floorPtsWorld: Vec2[] = layout.getFloorBoundaryPts(floor);
-    if (!floorPtsWorld || floorPtsWorld.length < 3) return null;
-
-    const shape = new Shape();
-    floorPtsWorld.forEach(([x, z], i) => {
-      // Quy ước chuẩn của dự án: điểm 2D Shape là [x, -z], sau đó rotateX(-PI/2)
-      if (i === 0) shape.moveTo(x, -z);
-      else shape.lineTo(x, -z);
-    });
-    shape.closePath();
-
-    // Các lỗ khoét (giếng trời sân trong ở B8 tầng 2–4)
-    if (layout.getFloorHoles) {
-      const holesWorld = layout.getFloorHoles(floor);
-      for (const holePts of holesWorld) {
-        if (holePts.length < 3) continue;
-        const holePath = new Path();
-        holePts.forEach(([hx, hz], hi) => {
-          if (hi === 0) holePath.moveTo(hx, -hz);
-          else holePath.lineTo(hx, -hz);
-        });
-        holePath.closePath();
-        shape.holes.push(holePath);
-      }
-    }
-
-    const extrude = new ExtrudeGeometry(shape, { depth: 0.15, bevelEnabled: false });
-    extrude.rotateX(-Math.PI / 2);
-    extrude.translate(0, -0.15, 0); // Mặt sàn trên cùng nằm tại y = 0
-    return extrude;
+    const holesWorld = layout.getFloorHoles ? layout.getFloorHoles(floor) : [];
+    return buildSlabGeometry(floorPtsWorld, holesWorld, 0.15, -0.15);
   }, [layout, floor]);
+
+  useEffect(() => {
+    return () => {
+      floorGeometry?.dispose();
+    };
+  }, [floorGeometry]);
 
   // Sàn hội trường B3 bên dưới khi nhìn từ tầng 3
   const auditoriumFloorGeometry = useMemo(() => {
@@ -82,34 +109,9 @@ export default function InteriorScene() {
     return extrude;
   }, [layout, floor, isTwinWing]);
 
-  // Nền lát đá sân trong B8 ở tầng trệt (nhìn thấy khi đứng ở tầng 2, 3, 4 nhìn xuống)
+  // Nền lát đá sân trong B8 ở tầng trệt (B11 dùng trực tiếp bản sàn tầng 1 của multiFloorB11Geo)
   const b8CourtyardGroundGeometry = useMemo(() => {
-    if (floor === 1) return null;
-
-    if (isB11 && layout.getFloorHoles) {
-      const groundElevation = -(floor - 1) * FLOOR_HEIGHT - 0.1;
-      const holesWorld = layout.getFloorHoles(floor);
-      const geos: BufferGeometry[] = [];
-      for (const holePts of holesWorld) {
-        const shape = new Shape();
-        holePts.forEach((pt, idx) => {
-          const sx = pt[0];
-          const sy = -pt[1];
-          if (idx === 0) shape.moveTo(sx, sy);
-          else shape.lineTo(sx, sy);
-        });
-        const ext = new ExtrudeGeometry(shape, { depth: 0.1, bevelEnabled: false });
-        ext.rotateX(-Math.PI / 2);
-        ext.translate(0, groundElevation, 0);
-        geos.push(ext);
-      }
-      if (geos.length === 0) return null;
-      const merged = BufferGeometryUtils.mergeGeometries(geos);
-      geos.forEach((g) => g.dispose());
-      return merged;
-    }
-
-    if (!isB8) return null;
+    if (floor === 1 || !isB8) return null;
 
     const groundElevation = -(floor - 1) * FLOOR_HEIGHT - 0.1;
     const geos: BufferGeometry[] = [];
@@ -153,7 +155,130 @@ export default function InteriorScene() {
     const merged = BufferGeometryUtils.mergeGeometries(geos);
     geos.forEach((g) => g.dispose());
     return merged;
-  }, [layout, floor, isB8, isB11]);
+  }, [floor, isB8, layout]);
+
+  // Các tầng còn lại (1–4 trừ tầng đang đứng) & mái chìa sân trong Block 11
+  // Giúp đứng ở Tầng 1 nhìn lên vẫn thấy đủ Tầng 2, 3, 4 + mái + cầu nối; ẩn tầng trên khi bật C (nhìn từ trên xuống)
+  const multiFloorB11 = useMemo(() => {
+    if (!isB11) {
+      return {
+        otherFloorsGeo: null,
+        otherSolidWallsGeo: null,
+        otherGlassWallsGeo: null,
+        roofOverhangGeo: null,
+        elevatorTowerGeo: null,
+      };
+    }
+
+    const slabGeos: BufferGeometry[] = [];
+    const solidGeos: BufferGeometry[] = [];
+    const glassGeos: BufferGeometry[] = [];
+
+    for (let otherF = 1; otherF <= layout.floors; otherF++) {
+      if (otherF === floor) continue;
+      if (isTopDown && otherF > floor) continue;
+
+      const dy = (otherF - floor) * FLOOR_HEIGHT;
+      const boundaryPts = layout.getFloorBoundaryPts(otherF);
+      const holePts = layout.getFloorHoles ? layout.getFloorHoles(otherF) : [];
+      const slabGeo = buildSlabGeometry(boundaryPts, holePts, 0.18, dy - 0.18);
+      if (slabGeo) slabGeos.push(slabGeo);
+
+      const walls = layout.getFloorWalls(otherF);
+      for (const wall of walls) {
+        if (wall.isRailing) continue;
+        const [x1, z1] = layout.toWorld(wall.u1, wall.v1);
+        const [x2, z2] = layout.toWorld(wall.u2, wall.v2);
+        const dx = x2 - x1;
+        const dz = z2 - z1;
+        const length = Math.hypot(dx, dz);
+        if (length < 0.05) continue;
+
+        const midX = (x1 + x2) / 2;
+        const midZ = (z1 + z2) / 2;
+        const angle = -Math.atan2(dz, dx);
+
+        if (wall.isGlass) {
+          const glassBox = new BoxGeometry(length, FLOOR_HEIGHT - 0.2, 0.06);
+          glassBox.rotateY(angle);
+          glassBox.translate(midX, dy + FLOOR_HEIGHT / 2, midZ);
+          glassGeos.push(glassBox);
+        } else {
+          const wallBox = new BoxGeometry(length, FLOOR_HEIGHT, wall.thickness);
+          wallBox.rotateY(angle);
+          wallBox.translate(midX, dy + FLOOR_HEIGHT / 2, midZ);
+          solidGeos.push(wallBox);
+        }
+      }
+    }
+
+    let roofOverhangGeo: BufferGeometry | null = null;
+    let elevatorTowerGeo: BufferGeometry | null = null;
+
+    if (!isTopDown) {
+      const roofY = (layout.floors + 1 - floor) * FLOOR_HEIGHT;
+      const B = B11_BOUNDS;
+      const roofOuterPts: Vec2[] = [
+        layout.toWorld(B.uNwOut - 0.5, B.vNOut - 0.5),
+        layout.toWorld(B.uNeOut + 0.5, B.vNOut - 0.5),
+        layout.toWorld(B.uNeOut + 0.5, B.vCyN + 1.5),
+        layout.toWorld(B.uEMainOut + 0.5, B.vCyN + 1.5),
+        layout.toWorld(B.uEMainOut + 0.5, B.vSOut + 0.5),
+        layout.toWorld(B.uWOut - 0.5, B.vSOut + 0.5),
+        layout.toWorld(B.uWOut - 0.5, B.vCyN + 1.5),
+        layout.toWorld(B.uNwOut - 0.5, B.vCyN + 1.5),
+      ];
+      // Hai ô giếng trời trên mái chừa phần mái chìa 1.5 m quanh hành lang tầng 4 & cầu nối giữa
+      const roofHolesPts: Vec2[][] = [
+        [
+          layout.toWorld(9.7, -130.8),
+          layout.toWorld(59.8, -130.8),
+          layout.toWorld(59.8, -122.1),
+          layout.toWorld(9.7, -122.1),
+        ],
+        [
+          layout.toWorld(69.55, -130.8),
+          layout.toWorld(113.85, -130.8),
+          layout.toWorld(113.85, -122.1),
+          layout.toWorld(69.55, -122.1),
+        ],
+      ];
+      roofOverhangGeo = buildSlabGeometry(roofOuterPts, roofHolesPts, 0.34, roofY - 0.14);
+
+      const towerCenter = layout.toWorld(67.25, -127.0);
+      const yaw = getLocalFacingYaw(layout.toWorld, 0);
+      const tower = new BoxGeometry(4.6, 3.0, 4.2);
+      tower.rotateY(yaw);
+      tower.translate(towerCenter[0], roofY + 1.5, towerCenter[1]);
+      elevatorTowerGeo = tower;
+    }
+
+    const otherFloorsGeo = slabGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(slabGeos) : null;
+    const otherSolidWallsGeo = solidGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(solidGeos) : null;
+    const otherGlassWallsGeo = glassGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(glassGeos) : null;
+
+    slabGeos.forEach((g) => g.dispose());
+    solidGeos.forEach((g) => g.dispose());
+    glassGeos.forEach((g) => g.dispose());
+
+    return {
+      otherFloorsGeo,
+      otherSolidWallsGeo,
+      otherGlassWallsGeo,
+      roofOverhangGeo,
+      elevatorTowerGeo,
+    };
+  }, [layout, floor, isB11, isTopDown]);
+
+  useEffect(() => {
+    return () => {
+      multiFloorB11.otherFloorsGeo?.dispose();
+      multiFloorB11.otherSolidWallsGeo?.dispose();
+      multiFloorB11.otherGlassWallsGeo?.dispose();
+      multiFloorB11.roofOverhangGeo?.dispose();
+      multiFloorB11.elevatorTowerGeo?.dispose();
+    };
+  }, [multiFloorB11]);
 
   // 2. Tường đặc và vách kính gộp theo tọa độ thế giới (B8 không có vách kính sân trong)
   const { solidWallsGeo, glassWallsGeo, baseboardsGeo } = useMemo(() => {
@@ -260,20 +385,32 @@ export default function InteriorScene() {
   const floorColor = isTwinWing ? '#cbd5e1' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng
 
   return (
-    <group>
-      <color attach="background" args={['#0f172a']} />
+    <>
+      <color attach="background" args={[isTwinWing ? '#8cc8f5' : '#0f172a']} />
+      {isTwinWing && (
+        <Sky
+          distance={2000}
+          sunPosition={[180, 160, 100]}
+          turbidity={4}
+          rayleigh={0.35}
+          mieCoefficient={0.002}
+          mieDirectionalG={0.8}
+        />
+      )}
 
-      {/* Chiếu sáng nội thất */}
-      <ambientLight intensity={isTwinWing ? 0.95 : 0.8} color="#f8fafc" />
+      <group>
+        {/* Chiếu sáng nội thất */}
+        <ambientLight intensity={isTwinWing ? 0.8 : 0.8} color="#f8fafc" />
+        {isTwinWing && <hemisphereLight args={['#e0f2fe', '#94a3b8', 0.85]} />}
 
-      <directionalLight
-        position={[centerPos[0] + 20, 25, centerPos[1] - 20]}
-        intensity={0.9}
-        color="#fffbeb"
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-      />
+        <directionalLight
+          position={[centerPos[0] + 20, 45, centerPos[1] - 20]}
+          intensity={isTwinWing ? 1.05 : 0.9}
+          color="#fffbeb"
+          castShadow
+          shadow-mapSize-width={1024}
+          shadow-mapSize-height={1024}
+        />
 
       <pointLight position={[centerPos[0], 3.5, centerPos[1]]} intensity={0.7} distance={35} color="#fef08a" />
       {isB11 ? (
@@ -347,8 +484,35 @@ export default function InteriorScene() {
         </mesh>
       )}
 
+      {/* 2b. Kết cấu các tầng còn lại (nhìn lên thấy Tầng 2–4, mái chìa, tháp thang máy) */}
+      {multiFloorB11.otherFloorsGeo && (
+        <mesh geometry={multiFloorB11.otherFloorsGeo} receiveShadow>
+          <meshStandardMaterial color={floorColor} roughness={0.55} />
+        </mesh>
+      )}
+      {multiFloorB11.otherSolidWallsGeo && (
+        <mesh geometry={multiFloorB11.otherSolidWallsGeo}>
+          <meshStandardMaterial color={wallColor} roughness={0.85} flatShading />
+        </mesh>
+      )}
+      {multiFloorB11.otherGlassWallsGeo && (
+        <mesh geometry={multiFloorB11.otherGlassWallsGeo}>
+          <meshStandardMaterial color="#bae6fd" transparent opacity={0.35} roughness={0.1} metalness={0.2} />
+        </mesh>
+      )}
+      {multiFloorB11.roofOverhangGeo && (
+        <mesh geometry={multiFloorB11.roofOverhangGeo} receiveShadow>
+          <meshStandardMaterial color="#94a3b8" roughness={0.65} />
+        </mesh>
+      )}
+      {multiFloorB11.elevatorTowerGeo && (
+        <mesh geometry={multiFloorB11.elevatorTowerGeo}>
+          <meshStandardMaterial color="#d6cec2" roughness={0.72} />
+        </mesh>
+      )}
+
       {/* 4. Nội thất instancing */}
-      <InteriorFurniture buildingId={buildingId} floor={floor} />
+      <InteriorFurniture buildingId={buildingId} floor={floor} showUpperFloors={!isTopDown} />
 
       {/* 5. Biển số phòng nhỏ gắn tường */}
       {roomSigns.map((sign, idx) => (
@@ -363,6 +527,7 @@ export default function InteriorScene() {
           </mesh>
         </group>
       ))}
-    </group>
+      </group>
+    </>
   );
 }

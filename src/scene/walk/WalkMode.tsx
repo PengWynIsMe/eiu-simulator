@@ -31,6 +31,7 @@ const BRIDGES: readonly { start: Vec2; end: Vec2 }[] = [
 // Lưu vị trí nhân vật xuyên suốt các lần mount/unmount của WalkMode khi chuyển cảnh
 let globalPlayerPos: Vec2 = [START[0], START[1]];
 let globalCameraYaw: number = Math.PI;
+let globalCameraPitch = -0.08;
 let globalFacingYaw: number = Math.PI;
 
 function pointInPolygon(x: number, z: number, polygon: Vec2[]): boolean {
@@ -118,6 +119,7 @@ export default function WalkMode() {
 
   const player = useRef<[number, number, number]>([globalPlayerPos[0], 0.6, globalPlayerPos[1]]);
   const cameraYaw = useRef(globalCameraYaw);
+  const cameraPitch = useRef(globalCameraPitch);
   const facingYaw = useRef(globalFacingYaw);
   const outdoorDistance = useRef(8);
   const indoorDesiredDistance = useRef(4.0);
@@ -128,6 +130,7 @@ export default function WalkMode() {
   const resolvedPosition = useRef<Vec2>([globalPlayerPos[0], globalPlayerPos[1]]);
   const isDragging = useRef(false);
   const previousPointerX = useRef(0);
+  const previousPointerY = useRef(0);
   const body = useRef<Group>(null);
   const target = useMemo(() => new Vector3(), []);
   const desiredCamera = useMemo(() => new Vector3(), []);
@@ -299,12 +302,20 @@ export default function WalkMode() {
       if (event.button === 0) {
         isDragging.current = true;
         previousPointerX.current = event.clientX;
+        previousPointerY.current = event.clientY;
       }
     };
     const onPointerMove = (event: PointerEvent) => {
       if (!isDragging.current) return;
       cameraYaw.current -= (event.clientX - previousPointerX.current) * 0.005;
+      if (useWalkStore.getState().interior !== null) {
+        cameraPitch.current = Math.max(
+          -0.45,
+          Math.min(1.08, cameraPitch.current + (event.clientY - previousPointerY.current) * 0.0045)
+        );
+      }
       previousPointerX.current = event.clientX;
+      previousPointerY.current = event.clientY;
     };
     const onPointerUp = () => { isDragging.current = false; };
     const onWheel = (event: WheelEvent) => {
@@ -410,6 +421,7 @@ export default function WalkMode() {
     globalPlayerPos[0] = player.current[0];
     globalPlayerPos[1] = player.current[2];
     globalCameraYaw = cameraYaw.current;
+    globalCameraPitch = cameraPitch.current;
     globalFacingYaw = facingYaw.current;
 
     // --- Điều khiển Camera ---
@@ -452,14 +464,17 @@ export default function WalkMode() {
     }
 
     if (isInterior) {
-      // Trong nội thất: camera sau vai thấp (mặc định cách 4m, cao 2.2m trên sàn, nhìn vào đầu nhân vật 1.4m)
-      target.set(player.current[0], player.current[1] + 1.4, player.current[2]);
-
+      // Trong nội thất: camera sau vai hỗ trợ xoay nhìn ngang + ngước nhìn lên các tầng trên
+      const pitch = cameraPitch.current;
+      const cosP = Math.max(0.25, Math.cos(pitch));
+      const sinP = Math.sin(pitch);
       const px = player.current[0];
+      const py = player.current[1];
       const pz = player.current[2];
       const desiredDist = indoorDesiredDistance.current;
-      const desiredCamX = px - forward.x * desiredDist;
-      const desiredCamZ = pz - forward.z * desiredDist;
+      const desiredHorizDist = desiredDist * cosP;
+      const desiredCamX = px - forward.x * desiredHorizDist;
+      const desiredCamZ = pz - forward.z * desiredHorizDist;
 
       // Kiểm tra giao đoạn thẳng 2D giữa nhân vật và camera với các đoạn tường đặc của tầng
       let minT = 1.0;
@@ -493,15 +508,24 @@ export default function WalkMode() {
       const lerpSpeed = targetDist < indoorActualDistance.current ? 25 : 10;
       indoorActualDistance.current += (targetDist - indoorActualDistance.current) * (1 - Math.exp(-lerpSpeed * dt));
 
-      // Chiều cao camera trên sàn (tỷ lệ với khoảng cách thực tế)
-      const camHeight = 1.4 + 0.8 * (indoorActualDistance.current / desiredDist);
+      const actualDist = indoorActualDistance.current;
+      const horizDist = actualDist * cosP;
+      const pivotY = py + 1.45;
+      const camY = Math.max(py + 0.35, Math.min(py + 3.15, pivotY - sinP * actualDist));
 
       desiredCamera.set(
-        px - forward.x * indoorActualDistance.current,
-        player.current[1] + camHeight,
-        pz - forward.z * indoorActualDistance.current
+        px - forward.x * horizDist,
+        camY,
+        pz - forward.z * horizDist
       );
       camera.position.copy(desiredCamera);
+
+      const lookDist = Math.max(4.0, actualDist);
+      target.set(
+        desiredCamera.x + forward.x * cosP * lookDist,
+        desiredCamera.y + sinP * lookDist,
+        desiredCamera.z + forward.z * cosP * lookDist
+      );
       camera.lookAt(target.x, target.y, target.z);
     } else {
       // Ngoài khuôn viên: camera góc nghiêng bình thường
