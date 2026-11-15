@@ -11,8 +11,11 @@ import {
 import { FLOOR_HEIGHT } from '../../data';
 import { createInstanceMatrix, getLocalFacingYaw } from './InteriorFurniture';
 import {
+  B11_BENCH_SPANS,
   B11_BOUNDS,
+  B11_COLUMN_US,
   B11_ELEVATOR_LOCAL,
+  B11_LOUVER_SPANS,
   B11_PCCC_POINTS,
   B11_PINGPONG_BOUNDS,
   B11_STAIRWELLS,
@@ -34,6 +37,155 @@ function makeTiltedBoxMatrix(
   const mid = new Vector3().addVectors(a, b).multiplyScalar(0.5);
   const quat = new Quaternion().setFromUnitVectors(UP_VEC, dir.normalize());
   return new Matrix4().compose(mid, quat, new Vector3(radius * 2, len, radius * 2));
+}
+
+function makeRampSlabMatrix(
+  u1: number,
+  v1: number,
+  y1: number,
+  u2: number,
+  v2: number,
+  y2: number,
+  crossWidth: number,
+  thickness: number
+): Matrix4 {
+  const [x1, z1] = b11ToWorld(u1, v1);
+  const [x2, z2] = b11ToWorld(u2, v2);
+  const a = new Vector3(x1, y1, z1);
+  const b = new Vector3(x2, y2, z2);
+  const dir = new Vector3().subVectors(b, a);
+  const len = dir.length();
+  if (len < 0.01) return new Matrix4().makeScale(0, 0, 0);
+  dir.divideScalar(len);
+  const cross = new Vector3().crossVectors(UP_VEC, dir).normalize();
+  const normal = new Vector3().crossVectors(dir, cross).normalize();
+  const mid = new Vector3().addVectors(a, b).multiplyScalar(0.5);
+  return new Matrix4()
+    .makeBasis(
+      cross.multiplyScalar(crossWidth),
+      normal.multiplyScalar(thickness),
+      dir.multiplyScalar(len)
+    )
+    .setPosition(mid);
+}
+
+function addSwitchbackFlight(
+  treads: Matrix4[],
+  soffits: Matrix4[],
+  rails: Matrix4[],
+  u1: number,
+  v1: number,
+  y1: number,
+  u2: number,
+  v2: number,
+  y2: number,
+  width: number,
+  stepCount: number
+): void {
+  const du = u2 - u1;
+  const dv = v2 - v1;
+  const hLen = Math.hypot(du, dv);
+  if (hLen < 0.2) return;
+  const yaw = -Math.atan2(dv, du);
+  const runPerStep = hLen / stepCount;
+  const rise = y2 - y1;
+  const risePerStep = rise / stepCount;
+  const treadThickness = risePerStep + 0.015;
+
+  for (let s = 0; s < stepCount; s++) {
+    const u = u1 + du * ((s + 0.5) / stepCount);
+    const v = v1 + dv * ((s + 0.5) / stepCount);
+    const topY = y1 + rise * ((s + 1) / stepCount);
+    treads.push(
+      createInstanceMatrix(
+        b11ToWorld,
+        u,
+        v,
+        topY - treadThickness * 0.5,
+        yaw,
+        runPerStep + 0.05,
+        treadThickness,
+        width
+      )
+    );
+  }
+
+  // Bản thang bê tông mặt dưới phẳng nghiêng (dày hơn độ sụt cổ bậc để mặt dưới gầm Vế 2 hoàn toàn mịn, không lộ sọc đen)
+  const trimStart = y1 % FLOOR_HEIGHT < 0.05 ? 0.35 / hLen : 0;
+  soffits.push(
+    makeRampSlabMatrix(
+      u1 + du * trimStart,
+      v1 + dv * trimStart,
+      y1 + rise * trimStart - 0.12,
+      u2,
+      v2,
+      y2 - 0.12,
+      width + 0.04,
+      0.24
+    )
+  );
+
+  // Tay vịn inox 3 thanh dọc hai bên vế thang + trụ đứng
+  const perpU = -dv / hLen;
+  const perpV = du / hLen;
+  const railOffset = width * 0.47;
+  for (const side of [-1, 1]) {
+    const ox = perpU * railOffset * side;
+    const oz = perpV * railOffset * side;
+    for (const ry of [0.44, 0.74, 1.04]) {
+      const thick = ry > 1.0 ? 0.05 : 0.028;
+      rails.push(makeRampSlabMatrix(u1 + ox, v1 + oz, y1 + ry, u2 + ox, v2 + oz, y2 + ry, thick, thick));
+    }
+    for (const t of [0.02, 0.34, 0.67, 0.98]) {
+      const pu = u1 + du * t + ox;
+      const pv = v1 + dv * t + oz;
+      const py = y1 + rise * t;
+      rails.push(createInstanceMatrix(b11ToWorld, pu, pv, py + 0.52, 0, 0.04, 1.04, 0.04));
+    }
+  }
+}
+
+/** Dựng 1 mảng khung lam chắn nắng trắng khép kín nằm lọt giữa 2 cột (khung bao + đố dọc chia ô + 4 lá lam ngang). */
+function addFramedLouverBay(
+  matrices: Matrix4[],
+  axis: 'u' | 'v',
+  fixedCoord: number,
+  startCoord: number,
+  endCoord: number,
+  baseY: number,
+  startPad = 0.2,
+  endPad = 0.2
+): void {
+  const s1 = startCoord + startPad;
+  const s2 = endCoord - endPad;
+  const clearLen = s2 - s1;
+  if (clearLen < 0.6) return;
+
+  const midCoord = (s1 + s2) * 0.5;
+  const yaw = axis === 'u' ? 0 : Math.PI / 2;
+  const toUV = (s: number): readonly [number, number] => (axis === 'u' ? [s, fixedCoord] : [fixedCoord, s]);
+
+  const yBottom = baseY + 2.58;
+  const yTop = baseY + 3.62;
+  const frameH = yTop - yBottom;
+  const yMid = (yBottom + yTop) * 0.5;
+  const frameDepth = 0.16;
+
+  const [cu, cv] = toUV(midCoord);
+  matrices.push(createInstanceMatrix(b11ToWorld, cu, cv, yBottom + 0.03, yaw, clearLen, 0.06, frameDepth));
+  matrices.push(createInstanceMatrix(b11ToWorld, cu, cv, yTop - 0.03, yaw, clearLen, 0.06, frameDepth));
+
+  for (const ly of [2.8, 3.0, 3.2, 3.4]) {
+    matrices.push(createInstanceMatrix(b11ToWorld, cu, cv, baseY + ly, yaw, clearLen - 0.04, 0.045, 0.12));
+  }
+
+  const cells = Math.max(2, Math.round(clearLen / 1.5));
+  for (let i = 0; i <= cells; i++) {
+    const pos = s1 + (clearLen * i) / cells;
+    const [mu, mv] = toUV(pos);
+    const barW = i === 0 || i === cells ? 0.06 : 0.055;
+    matrices.push(createInstanceMatrix(b11ToWorld, mu, mv, yMid, yaw, barW, frameH, frameDepth + 0.015));
+  }
 }
 
 function addRailingSegment(
@@ -176,13 +328,12 @@ export default function B11Furniture({
 
     // 1–3. Kết cấu lặp đầy đủ cả 4 tầng (1–4 trừ tầng trên khi bật Top-Down C)
     // Đứng ở Tầng Trệt (1) nhìn lên thấy rõ hệ cột kem, dầm trần, lam trắng 5 thanh, lan can inox & viền xanh của Tầng 2–4
-    const colUs = [1.5, 8.2, 16.0, 23.8, 31.6, 39.4, 47.2, 55.2, 61.3, 64.95, 68.5, 77.8, 87.2, 96.6, 106.0, 115.35, 121.4];
     for (let f = 1; f <= 4; f++) {
       if (!showUpperFloors && f > floor) continue;
       const dy = (f - floor) * FLOOR_HEIGHT;
 
       // Cột kết cấu kem (#d6cec2) & dầm trần ngang dọc hành lang Bắc / Nam
-      for (const u of colUs) {
+      for (const u of B11_COLUMN_US) {
         creamColumns.push(createInstanceMatrix(b11ToWorld, u, B.vCyN, dy + FLOOR_HEIGHT * 0.5, 0, 0.46, FLOOR_HEIGHT, 0.46));
         creamColumns.push(createInstanceMatrix(b11ToWorld, u, B.vCyS, dy + FLOOR_HEIGHT * 0.5, 0, 0.46, FLOOR_HEIGHT, 0.46));
 
@@ -207,17 +358,14 @@ export default function B11Furniture({
         warmLights.push(createInstanceMatrix(b11ToWorld, 118.4, v, dy + FLOOR_HEIGHT - 0.28, 0, 0.42, 0.08, 0.42));
       }
 
-      // Hệ lam chắn nắng 5 thanh trắng dọc 2 sân trong & hai bên cầu nối giữa (ảnh thực tế B11)
-      for (let b = 0; b < 5; b++) {
-        const ly = dy + 2.62 + b * 0.2;
-        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 34.75, B.vCyN - 0.05, ly, 0, 53.1, 0.04, 0.15));
-        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 34.75, -120.4, ly, 0, 53.1, 0.04, 0.15));
-        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 92.4, B.vCyN - 0.05, ly, 0, 45.5, 0.04, 0.15));
-        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 88.8, -120.9, ly, 0, 38.2, 0.04, 0.15));
-        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 61.35, -126.45, ly, Math.PI / 2, 11.7, 0.04, 0.15));
-        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 64.9, -130.65, ly, Math.PI / 2, 3.3, 0.04, 0.15));
-        whiteLouvers.push(createInstanceMatrix(b11ToWorld, 64.9, -122.95, ly, Math.PI / 2, 4.1, 0.04, 0.15));
+      // Hệ khung lam chắn nắng trắng chia ô gắn khít giữa từng cặp cột (nằm lọt trục cột B.vCyN / B.vCyS & 2 bên cầu nối)
+      for (const span of B11_LOUVER_SPANS) {
+        addFramedLouverBay(whiteLouvers, 'u', B.vCyN, span.u1, span.u2, dy);
+        addFramedLouverBay(whiteLouvers, 'u', B.vCyS, span.u1, span.u2, dy);
       }
+      addFramedLouverBay(whiteLouvers, 'v', 61.3, B.vCyN, B.vCyS, dy);
+      addFramedLouverBay(whiteLouvers, 'v', 64.95, B.vCyN, -129.0, dy, 0.2, -0.02);
+      addFramedLouverBay(whiteLouvers, 'v', 64.95, -125.0, B.vCyS, dy, -0.02, 0.2);
 
       // Lan can inox 4 thanh & dải viền xanh dương quanh sân trong ở mọi tầng trên (Tầng 2–4)
       if (f >= 2) {
@@ -243,6 +391,35 @@ export default function B11Furniture({
         blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 90.15, -132.3, dy - 0.05, 0, 50.4, 0.14, 0.1));
         blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 90.15, -120.9, dy - 0.05, 0, 50.4, 0.14, 0.1));
       }
+
+      // Máng cáp điện trần đôi dọc tiền sảnh Bắc & Nam vào buồng thang giữa (không băng qua giếng trời mở)
+      ceilingBeams.push(createInstanceMatrix(b11ToWorld, 55.9, -134.6, dy + FLOOR_HEIGHT - 0.3, Math.PI / 2, 4.4, 0.1, 0.26));
+      ceilingBeams.push(createInstanceMatrix(b11ToWorld, 60.9, -134.6, dy + FLOOR_HEIGHT - 0.3, Math.PI / 2, 4.4, 0.1, 0.26));
+      ceilingBeams.push(createInstanceMatrix(b11ToWorld, 58.4, -136.6, dy + FLOOR_HEIGHT - 0.3, 0, 5.2, 0.1, 0.26));
+      ceilingBeams.push(createInstanceMatrix(b11ToWorld, 55.9, -118.15, dy + FLOOR_HEIGHT - 0.3, Math.PI / 2, 4.3, 0.1, 0.26));
+      ceilingBeams.push(createInstanceMatrix(b11ToWorld, 60.9, -118.15, dy + FLOOR_HEIGHT - 0.3, Math.PI / 2, 4.3, 0.1, 0.26));
+      ceilingBeams.push(createInstanceMatrix(b11ToWorld, 58.4, -116.2, dy + FLOOR_HEIGHT - 0.3, 0, 5.2, 0.1, 0.26));
+
+      // Biển EXIT xanh treo thanh mảnh phía trên lối đi dưới vế 2
+      for (const exitV of [-135.4, -117.5]) {
+        greenExit.push(createInstanceMatrix(b11ToWorld, 57.1, exitV, dy + 2.95, 0, 0.62, 0.24, 0.05));
+        steelParts.push(createInstanceMatrix(b11ToWorld, 56.9, exitV, dy + 3.44, 0, 0.025, 0.72, 0.025));
+        steelParts.push(createInstanceMatrix(b11ToWorld, 57.3, exitV, dy + 3.44, 0, 0.025, 0.72, 0.025));
+      }
+
+      // Hệ đố nhôm vách kính lấy sáng ngoài khoang thang giữa Bắc & Nam
+      for (const vMul of [B.vNOut + 0.06, B.vSOut - 0.06]) {
+        const yMin = f === 1 ? 2.24 : 0;
+        const hWin = FLOOR_HEIGHT - yMin;
+        const yMid = dy + yMin + hWin * 0.5;
+        for (const uMul of [55.65, 57.5, 59.35, 61.15]) {
+          glassMullions.push(createInstanceMatrix(b11ToWorld, uMul, vMul, yMid, 0, 0.07, hWin, 0.09));
+        }
+        const horizYs = f === 1 ? [2.27, 3.05, 3.76] : [0.08, 1.32, 2.58, 3.76];
+        for (const hy of horizYs) {
+          glassMullions.push(createInstanceMatrix(b11ToWorld, 58.4, vMul, dy + hy, 0, 5.55, 0.07, 0.09));
+        }
+      }
     }
 
     if (showUpperFloors) {
@@ -251,25 +428,131 @@ export default function B11Furniture({
       steelParts.push(createInstanceMatrix(b11ToWorld, 67.25, -127.0, roofY + 4.4, 0, 0.06, 3.0, 0.06));
     }
 
-    // 4. Bậc cầu thang bộ đá đen & máng cáp điện đục lỗ chạy ngang trần cầu thang (ảnh 24a8477c)
+    // 4. Hệ cầu thang bộ chữ U hai vế ở cả 5 buồng thang (Vế 1 đá đen bên Đông + chiếu nghỉ + Vế 2 bên Tây gầm cao chừa lối thông ra B4/B8)
+    const switchbackStairs = [
+      // Giữa Bắc (Thang G-B, hướng về Block 8): nhìn ra Bắc thấy Vế 1 bên phải, lối đi dưới Vế 2 bên trái
+      {
+        f1: [59.8, -137.0, 59.8, -144.8] as const,
+        f2: [57.0, -144.8, 57.0, -137.2] as const,
+        width: 2.3,
+        steps1: 12,
+        steps2: 10,
+        landRatio: 2.24 / FLOOR_HEIGHT,
+        land: [58.4, -146.4, 5.4, 3.2] as const,
+        backRail: [55.8, -147.85, 61.0, -147.85] as const,
+      },
+      // Giữa Nam (Thang G-N, hướng về Block 4): nhìn ra Nam thấy Vế 1 bên trái, lối đi dưới Vế 2 bên phải
+      {
+        f1: [59.8, -115.9, 59.8, -108.1] as const,
+        f2: [57.0, -108.1, 57.0, -115.7] as const,
+        width: 2.3,
+        steps1: 12,
+        steps2: 10,
+        landRatio: 2.24 / FLOOR_HEIGHT,
+        land: [58.4, -105.85, 5.4, 4.5] as const,
+        backRail: [55.8, -103.7, 61.0, -103.7] as const,
+      },
+      // Tây Bắc
+      {
+        f1: [5.4, -137.0, 5.4, -144.8] as const,
+        f2: [2.6, -144.8, 2.6, -137.2] as const,
+        width: 2.3,
+        steps1: 12,
+        steps2: 10,
+        landRatio: 2.24 / FLOOR_HEIGHT,
+        land: [4.0, -146.4, 5.4, 3.2] as const,
+        backRail: [1.4, -147.85, 6.6, -147.85] as const,
+      },
+      // Tây Nam
+      {
+        f1: [6.2, -115.9, 6.2, -108.1] as const,
+        f2: [3.4, -108.1, 3.4, -115.7] as const,
+        width: 2.2,
+        steps1: 12,
+        steps2: 10,
+        landRatio: 2.24 / FLOOR_HEIGHT,
+        land: [4.8, -105.85, 5.2, 4.5] as const,
+        backRail: [2.3, -103.7, 7.3, -103.7] as const,
+      },
+      // Đầu Đông (lên theo hướng Đông +u)
+      {
+        f1: [108.4, -125.1, 112.9, -125.1] as const,
+        f2: [112.9, -128.1, 108.4, -128.1] as const,
+        width: 2.2,
+        steps1: 10,
+        steps2: 10,
+        landRatio: 0.5,
+        land: [114.1, -126.65, 2.2, 5.4] as const,
+        backRail: [115.05, -129.2, 115.05, -124.1] as const,
+      },
+    ];
+
+    for (let f = 1; f <= 3; f++) {
+      if (!showUpperFloors && f > floor) continue;
+      const dy = (f - floor) * FLOOR_HEIGHT;
+      for (const st of switchbackStairs) {
+        const midY = dy + st.landRatio * FLOOR_HEIGHT;
+        addSwitchbackFlight(
+          blackMetal,
+          ceilingBeams,
+          steelParts,
+          st.f1[0],
+          st.f1[1],
+          dy,
+          st.f1[2],
+          st.f1[3],
+          midY,
+          st.width,
+          st.steps1
+        );
+        addSwitchbackFlight(
+          blackMetal,
+          ceilingBeams,
+          steelParts,
+          st.f2[0],
+          st.f2[1],
+          midY,
+          st.f2[2],
+          st.f2[3],
+          dy + FLOOR_HEIGHT,
+          st.width,
+          st.steps2
+        );
+        ceilingBeams.push(
+          createInstanceMatrix(b11ToWorld, st.land[0], st.land[1], midY - 0.1, 0, st.land[2], 0.16, st.land[3])
+        );
+        darkGranite.push(
+          createInstanceMatrix(b11ToWorld, st.land[0], st.land[1], midY - 0.015, 0, st.land[2], 0.04, st.land[3])
+        );
+        addRailingSegment(
+          steelParts,
+          steelParts,
+          st.backRail[0],
+          st.backRail[1],
+          st.backRail[2],
+          st.backRail[3],
+          midY
+        );
+      }
+    }
+
+    // Biển EXIT phụ ở 3 buồng thang góc
     for (const sw of B11_STAIRWELLS) {
+      if (sw.id === 'mn' || sw.id === 'ms') continue;
       const cu = (sw.minU + sw.maxU) * 0.5;
       const cv = (sw.minV + sw.maxV) * 0.5;
-      const shiftU = sw.id === 'mn' ? 1.2 : 0; // Để trống sảnh cửa Bắc tại mn
-      for (let s = 0; s < 10; s++) {
-        const stepU = cu + shiftU - 1.2 + s * 0.28;
-        const stepY = s * 0.22 + 0.11;
-        darkGranite.push(createInstanceMatrix(b11ToWorld, stepU, cv, stepY, 0, 0.3, 0.2, 2.2));
-      }
-      // Tay vịn inox cầu thang
-      steelParts.push(createInstanceMatrix(b11ToWorld, cu + shiftU, cv - 1.05, 1.35, 0, 2.8, 0.04, 0.04));
-      steelParts.push(createInstanceMatrix(b11ToWorld, cu + shiftU, cv + 1.05, 1.35, 0, 2.8, 0.04, 0.04));
-
-      // Máng cáp điện thép chạy vắt ngang trần buồng thang (đặc trưng ảnh 24a8477c)
-      steelParts.push(createInstanceMatrix(b11ToWorld, cu, cv, FLOOR_HEIGHT - 0.45, Math.PI / 2, (sw.maxV - sw.minV) * 0.58, 0.09, 0.36));
-
-      // Biển EXIT xanh treo trần cạnh mỗi đầu cầu thang
-      greenExit.push(createInstanceMatrix(b11ToWorld, cu, cv < -130 ? B.vCyN - 1.1 : B.vCyS + 1.1, 2.75, 0, 0.65, 0.26, 0.05));
+      greenExit.push(
+        createInstanceMatrix(
+          b11ToWorld,
+          sw.id === 'east' ? sw.minU - 0.4 : cu,
+          sw.id === 'east' ? cv : cv < -130 ? B.vCyN - 1.1 : B.vCyS + 1.1,
+          2.75,
+          0,
+          0.65,
+          0.26,
+          0.05
+        )
+      );
     }
 
     // 5. Cụm tủ PCCC, bình chữa cháy, sơ đồ thoát hiểm tại các điểm PCCC chuẩn (ảnh dbfc837a)
@@ -278,6 +561,13 @@ export default function B11Furniture({
       redPccc.push(createInstanceMatrix(b11ToWorld, pt.u, pt.v, 1.15, rot, 0.72, 1.05, 0.22));
       redPccc.push(createInstanceMatrix(b11ToWorld, pt.u + 0.55, pt.v, 0.36, rot, 0.2, 0.65, 0.2));
       boardsWhite.push(createInstanceMatrix(b11ToWorld, pt.u - 0.75, pt.v, 1.48, rot, 0.55, 0.42, 0.04));
+    }
+    if (floor === 1) {
+      // Bình & hộp báo cháy PCCC ngay chân vế 1 cầu thang giữa Bắc & Nam (ảnh thực tế B4/B8)
+      for (const pcccV of [-137.4, -115.5]) {
+        redPccc.push(createInstanceMatrix(b11ToWorld, 61.15, pcccV, 1.38, Math.PI / 2, 0.46, 0.76, 0.14));
+        redPccc.push(createInstanceMatrix(b11ToWorld, 61.02, pcccV, 0.34, 0, 0.22, 0.64, 0.22));
+      }
     }
 
     // 6. Bố trí Nhà vệ sinh WC Tây Bắc & WC Đông Bắc (ảnh 660e0503)
@@ -326,10 +616,18 @@ export default function B11Furniture({
         }
       }
     }
-    // Ghế đá hàng cột sân trong
-    for (const bu of [13.5, 21.0, 29.5, 38.0, 46.5, 76.0, 84.5, 93.0, 101.5]) {
-      stoneBeds.push(createInstanceMatrix(b11ToWorld, bu, B.vCyN + 0.35, groundOff + 0.42, 0, 2.6, 0.14, 0.55));
-      stoneBeds.push(createInstanceMatrix(b11ToWorld, bu, B.vCyS - 0.35, groundOff + 0.42, 0, 2.6, 0.14, 0.55));
+    // Băng ghế đá dài nối liền giữa 2 cột dọc 2 hàng cột sân trong (mặt đá + 3 trụ chân + gờ chân đế)
+    for (const span of B11_BENCH_SPANS) {
+      const cu = (span.u1 + span.u2) * 0.5;
+      const clearLen = span.u2 - span.u1 - 0.42;
+      for (const benchV of [B.vCyN, B.vCyS]) {
+        stoneBeds.push(createInstanceMatrix(b11ToWorld, cu, benchV, groundOff + 0.445, 0, clearLen, 0.11, 0.56));
+        darkGranite.push(createInstanceMatrix(b11ToWorld, cu, benchV, groundOff + 0.04, 0, clearLen, 0.08, 0.48));
+        for (const t of [0.25, 0.5, 0.75]) {
+          const pierU = span.u1 + 0.21 + t * clearLen;
+          darkGranite.push(createInstanceMatrix(b11ToWorld, pierU, benchV, groundOff + 0.235, 0, 0.26, 0.31, 0.42));
+        }
+      }
     }
 
     // 8. Nội thất đặc trưng từng phòng theo TẦNG

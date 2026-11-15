@@ -117,7 +117,8 @@ export default function WalkMode() {
     }
   }
 
-  const player = useRef<[number, number, number]>([globalPlayerPos[0], 0.6, globalPlayerPos[1]]);
+  const initialY = currentInterior ? 0.0 : getGroundHeight(globalPlayerPos[0], globalPlayerPos[1]);
+  const player = useRef<[number, number, number]>([globalPlayerPos[0], initialY, globalPlayerPos[1]]);
   const cameraYaw = useRef(globalCameraYaw);
   const cameraPitch = useRef(globalCameraPitch);
   const facingYaw = useRef(globalFacingYaw);
@@ -407,13 +408,15 @@ export default function WalkMode() {
       facingYaw.current += yawDifference * (1 - Math.exp(-10 * dt));
     }
 
-    // Ngoài trời: bám độ cao mặt đất thật (cỏ 0.15, đường 0.6, lối đi 0.75, cầu 0.8...) — T14.
-    if (!isInterior) {
+    // Trong nhà luôn bám sát mặt sàn y = 0 (tránh kẹt ở độ cao ngoài trời 0.6 m khi mount/HMR); ngoài trời bám địa hình.
+    if (isInterior) {
+      player.current[1] = 0.0;
+    } else {
       player.current[1] = dampHeight(player.current[1], getGroundHeight(player.current[0], player.current[2]), dt);
     }
 
     if (body.current) {
-      body.current.position.set(player.current[0], player.current[1] + (moving.current ? Math.sin(performance.now() * 0.012) * 0.035 : 0), player.current[2]);
+      body.current.position.set(player.current[0], player.current[1] + (moving.current ? Math.abs(Math.sin(performance.now() * 0.012)) * 0.035 : 0), player.current[2]);
       // This model faces local +Z, so add π to keep its back toward the trailing camera.
       body.current.rotation.y = -facingYaw.current + Math.PI / 2;
     }

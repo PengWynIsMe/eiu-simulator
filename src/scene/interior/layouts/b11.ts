@@ -97,6 +97,31 @@ export const B11_TREE_BEDS: readonly CourtyardBed[] = [
   { minU: 92.0, maxU: 101.0, minV: -128.3, maxV: -124.9, courtyard: 'east' },
 ];
 
+/** Tọa độ trục U của hàng cột hành lang Bắc–Nam dọc 2 sân trong */
+export const B11_COLUMN_US: readonly number[] = [
+  1.5, 8.2, 16.0, 23.8, 31.6, 39.4, 47.2, 55.2, 61.3, 64.95, 68.5, 77.8, 87.2, 96.6, 106.0, 115.35, 121.4,
+];
+
+/** Các nhịp băng ghế đá dài nối liền từng cặp cột kế tiếp dọc 2 sân trong tầng trệt (trừ các lối đi chính) */
+export const B11_BENCH_SPANS: readonly { readonly u1: number; readonly u2: number }[] = [
+  { u1: 8.2, u2: 16.0 },
+  { u1: 16.0, u2: 23.8 },
+  { u1: 23.8, u2: 31.6 },
+  { u1: 31.6, u2: 39.4 },
+  { u1: 39.4, u2: 47.2 },
+  { u1: 47.2, u2: 55.2 },
+  { u1: 68.5, u2: 77.8 },
+  { u1: 77.8, u2: 87.2 },
+  { u1: 87.2, u2: 96.6 },
+  { u1: 96.6, u2: 106.0 },
+];
+
+/** Các nhịp khung lam chắn nắng nối khít từng cặp cột dọc hành lang Bắc & Nam 2 sân trong */
+export const B11_LOUVER_SPANS: readonly { readonly u1: number; readonly u2: number }[] = [
+  ...B11_BENCH_SPANS,
+  { u1: 106.0, u2: 115.35 },
+];
+
 /** 5 lõi thang bộ + 1 lõi thang máy B11 */
 export interface StairwellSpec {
   readonly id: string;
@@ -159,6 +184,9 @@ const DOOR_SOUTH_W_IN = b11ToWorld(31.0, -106.2);
 const DOOR_SOUTH_E_OUT = b11ToWorld(88.0, -101.9);
 const DOOR_SOUTH_E_IN = b11ToWorld(88.0, -106.2);
 
+const DOOR_SOUTH_MID_OUT = b11ToWorld(57.2, -102.0);
+const DOOR_SOUTH_MID_IN = b11ToWorld(57.2, -106.0);
+
 export const b11ExteriorEntrances: readonly ExteriorEntrance[] = [
   {
     id: 'exterior-b11-north',
@@ -213,6 +241,17 @@ export const b11ExteriorEntrances: readonly ExteriorEntrance[] = [
     spawnInsideWorld: DOOR_SOUTH_E_IN,
     spawnInsideYaw: -Math.PI / 2,
     spawnOutsideWorld: DOOR_SOUTH_E_OUT,
+    spawnOutsideYaw: Math.PI / 2,
+  },
+  {
+    id: 'exterior-b11-south-mid',
+    buildingId: 'b11',
+    worldPos: DOOR_SOUTH_MID_OUT,
+    radius: 4.0,
+    label: 'Vào Block 11 (Sảnh cầu thang giữa Nam — hướng Block 4)',
+    spawnInsideWorld: DOOR_SOUTH_MID_IN,
+    spawnInsideYaw: -Math.PI / 2,
+    spawnOutsideWorld: DOOR_SOUTH_MID_OUT,
     spawnOutsideYaw: Math.PI / 2,
   },
 ];
@@ -310,12 +349,15 @@ function buildWingRoomsAndWalls(
   const rooms: RoomArea[] = [];
   const walls: WallSegment[] = [];
 
-  // 1. Tường bao ngoài cánh Bắc (có lỗ cửa Bắc tại cầu thang giữa tầng 1)
+  // 1. Tường bao ngoài cánh Bắc (có lối thông cầu thang giữa hướng B8 tầng 1 & vách kính giếng thang tầng 2–4)
   if (floor === 1) {
     walls.push({ u1: B.uNwOut, v1: B.vNOut, u2: 55.6, v2: B.vNOut, thickness: 0.3 });
-    walls.push({ u1: 58.8, v1: B.vNOut, u2: B.uNeOut, v2: B.vNOut, thickness: 0.3 });
+    walls.push({ u1: 58.8, v1: B.vNOut, u2: 61.2, v2: B.vNOut, thickness: 0.25, isRailing: true });
+    walls.push({ u1: 61.2, v1: B.vNOut, u2: B.uNeOut, v2: B.vNOut, thickness: 0.3 });
   } else {
-    walls.push({ u1: B.uNwOut, v1: B.vNOut, u2: B.uNeOut, v2: B.vNOut, thickness: 0.3 });
+    walls.push({ u1: B.uNwOut, v1: B.vNOut, u2: 55.6, v2: B.vNOut, thickness: 0.3 });
+    walls.push({ u1: 55.6, v1: B.vNOut, u2: 61.2, v2: B.vNOut, thickness: 0.1, isGlass: true });
+    walls.push({ u1: 61.2, v1: B.vNOut, u2: B.uNeOut, v2: B.vNOut, thickness: 0.3 });
   }
 
   // Hai chái WC Tây Bắc & Đông Bắc
@@ -338,7 +380,7 @@ function buildWingRoomsAndWalls(
     walls.push({ u1: B.uEMainOut, v1: B.vCyN, u2: B.uEMainOut, v2: B.vSOut, thickness: 0.3 });
   }
 
-  // Tường bao ngoài cánh Nam (có 2 cửa sảnh mái kính trên tầng 1)
+  // Tường bao ngoài cánh Nam (có 2 cửa sảnh mái kính + lối thông thang giữa hướng B4 trên tầng 1 & kính giếng thang tầng 2–4)
   if (floor === 1 && southWallDoors && southWallDoors.length > 0) {
     let cursor: number = B.uWOut;
     for (const d of southWallDoors) {
@@ -346,8 +388,11 @@ function buildWingRoomsAndWalls(
       cursor = d.u2;
     }
     if (cursor < B.uEMainOut) walls.push({ u1: cursor, v1: B.vSOut, u2: B.uEMainOut, v2: B.vSOut, thickness: 0.3 });
+    walls.push({ u1: 58.8, v1: B.vSOut, u2: 61.2, v2: B.vSOut, thickness: 0.25, isRailing: true });
   } else {
-    walls.push({ u1: B.uWOut, v1: B.vSOut, u2: B.uEMainOut, v2: B.vSOut, thickness: 0.3 });
+    walls.push({ u1: B.uWOut, v1: B.vSOut, u2: 55.6, v2: B.vSOut, thickness: 0.3 });
+    walls.push({ u1: 55.6, v1: B.vSOut, u2: 61.2, v2: B.vSOut, thickness: 0.1, isGlass: true });
+    walls.push({ u1: 61.2, v1: B.vSOut, u2: B.uEMainOut, v2: B.vSOut, thickness: 0.3 });
   }
 
   // 2. Cụm WC Tây Bắc & Đông Bắc cố định mọi tầng
@@ -447,14 +492,26 @@ function buildWingRoomsAndWalls(
 
   // 6. Lan can inox 4 thanh dọc 2 sân trong trên tầng 2–4 hoặc bồn cây tầng 1
   if (floor === 1) {
-    // Ranh giới va chạm bồn cây tầng trệt (khối đá xây nổi được render ở B11Furniture)
+    // Ranh giới va chạm bồn cây & dải ghế đá nối liền cột ở tầng trệt (được render ở B11Furniture)
     for (const bed of B11_TREE_BEDS) {
       walls.push({ u1: bed.minU, v1: bed.minV, u2: bed.maxU, v2: bed.minV, thickness: 0.22, isRailing: true });
       walls.push({ u1: bed.minU, v1: bed.maxV, u2: bed.maxU, v2: bed.maxV, thickness: 0.22, isRailing: true });
       walls.push({ u1: bed.minU, v1: bed.minV, u2: bed.minU, v2: bed.maxV, thickness: 0.22, isRailing: true });
       walls.push({ u1: bed.maxU, v1: bed.minV, u2: bed.maxU, v2: bed.maxV, thickness: 0.22, isRailing: true });
     }
+    for (const span of B11_BENCH_SPANS) {
+      walls.push({ u1: span.u1 + 0.23, v1: B.vCyN, u2: span.u2 - 0.23, v2: B.vCyN, thickness: 0.54, isRailing: true });
+      walls.push({ u1: span.u1 + 0.23, v1: B.vCyS, u2: span.u2 - 0.23, v2: B.vCyS, thickness: 0.54, isRailing: true });
+    }
+    // Chặn va chạm dưới vế 1 cầu thang giữa (để vế 2 bên Tây u = 55.6..58.5 vẫn đi thông suốt ra B4/B8)
+    walls.push({ u1: 58.6, v1: -144.8, u2: 61.1, v2: -144.8, thickness: 0.2, isRailing: true });
+    walls.push({ u1: 58.6, v1: -144.8, u2: 58.6, v2: -137.0, thickness: 0.2, isRailing: true });
+    walls.push({ u1: 58.6, v1: -108.1, u2: 61.1, v2: -108.1, thickness: 0.2, isRailing: true });
+    walls.push({ u1: 58.6, v1: -115.9, u2: 58.6, v2: -108.1, thickness: 0.2, isRailing: true });
   } else {
+    // Ranh giới an toàn lỗ thông giếng thang giữa Bắc & Nam trên tầng 2–4
+    walls.push({ u1: 55.6, v1: -137.0, u2: 61.2, v2: -137.0, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 55.6, v1: -115.9, u2: 61.2, v2: -115.9, thickness: 0.15, isRailing: true });
     // Sân trong Tây [8.2..61.3 x -132.3..-120.4]
     walls.push({ u1: 8.2, v1: -132.3, u2: 61.3, v2: -132.3, thickness: 0.15, isRailing: true });
     walls.push({ u1: 8.2, v1: -120.4, u2: 61.3, v2: -120.4, thickness: 0.15, isRailing: true });
@@ -495,6 +552,7 @@ const FLOOR_1_DATA = buildWingRoomsAndWalls(
   ],
   [
     { u1: 29.8, u2: 32.2 },
+    { u1: 55.6, u2: 61.2 },
     { u1: 86.8, u2: 89.2 },
   ]
 );
@@ -645,11 +703,27 @@ export function getFloorBoundaryPts(): Vec2[] {
   ];
 }
 
+const B11_NORTH_STAIR_HOLE_UV: readonly Vec2[] = [
+  [55.6, -148.0],
+  [61.2, -148.0],
+  [61.2, -137.0],
+  [55.6, -137.0],
+];
+
+const B11_SOUTH_STAIR_HOLE_UV: readonly Vec2[] = [
+  [55.6, -115.9],
+  [61.2, -115.9],
+  [61.2, -103.55],
+  [55.6, -103.55],
+];
+
 export function getFloorHoles(floor: number): Vec2[][] {
   if (floor === 1) return [];
   return [
     B11_WEST_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
     B11_EAST_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
+    B11_NORTH_STAIR_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
+    B11_SOUTH_STAIR_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
   ];
 }
 
@@ -688,9 +762,11 @@ function isInsideWalkableB11(u: number, v: number, floor: number): boolean {
   if (!inMain && !inNwWing && !inNeWing) return false;
   if (floor === 1) return true;
 
-  // Tầng 2–4: loại trừ giếng trời sân trong Tây & Đông
+  // Tầng 2–4: loại trừ giếng trời sân trong Tây & Đông và 2 giếng chiếu nghỉ thang giữa
   if (pointInPolyUV(u, v, B11_WEST_HOLE_UV)) return false;
   if (pointInPolyUV(u, v, B11_EAST_HOLE_UV)) return false;
+  if (pointInPolyUV(u, v, B11_NORTH_STAIR_HOLE_UV)) return false;
+  if (pointInPolyUV(u, v, B11_SOUTH_STAIR_HOLE_UV)) return false;
   return true;
 }
 

@@ -16,6 +16,93 @@ import { b3Layout } from './layouts/b3';
 import { B11_BOUNDS } from './layouts/b11';
 import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
 
+function makeOrientedLocalBox(
+  toWorld: (u: number, v: number) => Vec2,
+  cu: number,
+  cv: number,
+  cy: number,
+  wU: number,
+  hY: number,
+  wV: number
+): BufferGeometry {
+  const [x0, z0] = toWorld(0, 0);
+  const [x1, z1] = toWorld(1, 0);
+  const [wx, wz] = toWorld(cu, cv);
+  const box = new BoxGeometry(wU, hY, wV);
+  box.rotateY(-Math.atan2(z1 - z0, x1 - x0));
+  box.translate(wx, cy, wz);
+  return box;
+}
+
+function mergeAndDispose(geos: BufferGeometry[]): BufferGeometry | null {
+  if (geos.length === 0) return null;
+  const merged = BufferGeometryUtils.mergeGeometries(geos);
+  geos.forEach((g) => g.dispose());
+  return merged;
+}
+
+/** Đóng tường spandrel dưới chiếu nghỉ, vách ngăn hông lối đi và vách kính lấy sáng tầng trệt ở 2 khoang thang giữa Block 11. */
+function addB11StairwellOuterClosure(
+  solidGeos: BufferGeometry[],
+  glassGeos: BufferGeometry[],
+  toWorld: (u: number, v: number) => Vec2,
+  dy: number
+): void {
+  for (const [vOut, vInnerLand] of [
+    [B11_BOUNDS.vNOut, -144.8],
+    [B11_BOUNDS.vSOut, -108.1],
+  ] as const) {
+    // Tường spandrel dưới chiếu nghỉ phía sau vế 1 (chừa trống lối thông u=55.6..58.8 dưới vế 2)
+    solidGeos.push(makeOrientedLocalBox(toWorld, 60.0, vOut, dy + 1.08, 2.4, 2.16, 0.24));
+    // Vách ngăn dọc dưới chiếu nghỉ tách gầm vế 1 với lối đi thông hướng B4/B8
+    const midV = (vOut + vInnerLand) * 0.5;
+    const spanV = Math.abs(vOut - vInnerLand);
+    solidGeos.push(makeOrientedLocalBox(toWorld, 58.55, midV, dy + 1.06, 0.22, 2.12, spanV));
+    // Vách kính lấy sáng tầng trệt phía trên chiếu nghỉ và lối thông
+    glassGeos.push(makeOrientedLocalBox(toWorld, 58.4, vOut, dy + 3.02, 5.6, 1.56, 0.06));
+  }
+}
+
+/** Cảnh quan khuôn viên bên ngoài cửa thoát B4/B8 để nhìn xuyên qua buồng thang giữa không bị khoảng trắng trống. */
+function buildB11ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, groundY: number) {
+  const grassGeos = [
+    makeOrientedLocalBox(toWorld, 60, -168, groundY - 0.14, 140, 0.1, 40),
+    makeOrientedLocalBox(toWorld, 60, -83.5, groundY - 0.14, 140, 0.1, 40),
+  ];
+  const pathGeos = [
+    makeOrientedLocalBox(toWorld, 57.2, -157.5, groundY - 0.05, 4.2, 0.08, 19.0),
+    makeOrientedLocalBox(toWorld, 57.2, -94.0, groundY - 0.05, 4.2, 0.08, 19.0),
+    makeOrientedLocalBox(toWorld, 60, -149.2, groundY - 0.05, 120, 0.08, 2.4),
+    makeOrientedLocalBox(toWorld, 60, -102.2, groundY - 0.05, 120, 0.08, 2.6),
+  ];
+  const facadeGeos = [
+    makeOrientedLocalBox(toWorld, 60, -172, groundY + 6.0, 68, 12, 6),
+    makeOrientedLocalBox(toWorld, 60, -79, groundY + 6.0, 68, 12, 6),
+  ];
+  const trunkGeos: BufferGeometry[] = [];
+  const canopyGeos: BufferGeometry[] = [];
+  for (const [tu, tv] of [
+    [53.2, -153],
+    [61.4, -154.5],
+    [53.5, -161],
+    [61.0, -162],
+    [53.2, -98],
+    [61.4, -96.5],
+    [53.5, -90],
+    [61.0, -89],
+  ] as const) {
+    trunkGeos.push(makeOrientedLocalBox(toWorld, tu, tv, groundY + 2.4, 0.34, 4.8, 0.34));
+    canopyGeos.push(makeOrientedLocalBox(toWorld, tu, tv, groundY + 5.2, 3.6, 2.6, 3.6));
+  }
+  return {
+    extGrassGeo: mergeAndDispose(grassGeos),
+    extPathGeo: mergeAndDispose(pathGeos),
+    extFacadeGeo: mergeAndDispose(facadeGeos),
+    extTrunkGeo: mergeAndDispose(trunkGeos),
+    extCanopyGeo: mergeAndDispose(canopyGeos),
+  };
+}
+
 /** Dựng hình học bản sàn từ đa giác biên + các lỗ khoét giếng trời trong mặt phẳng (x, z). */
 function buildSlabGeometry(
   boundaryPts: readonly Vec2[],
@@ -167,6 +254,11 @@ export default function InteriorScene() {
         otherGlassWallsGeo: null,
         roofOverhangGeo: null,
         elevatorTowerGeo: null,
+        extGrassGeo: null,
+        extPathGeo: null,
+        extFacadeGeo: null,
+        extTrunkGeo: null,
+        extCanopyGeo: null,
       };
     }
 
@@ -209,6 +301,10 @@ export default function InteriorScene() {
           wallBox.translate(midX, dy + FLOOR_HEIGHT / 2, midZ);
           solidGeos.push(wallBox);
         }
+      }
+
+      if (otherF === 1) {
+        addB11StairwellOuterClosure(solidGeos, glassGeos, layout.toWorld, dy);
       }
     }
 
@@ -261,12 +357,15 @@ export default function InteriorScene() {
     solidGeos.forEach((g) => g.dispose());
     glassGeos.forEach((g) => g.dispose());
 
+    const ext = buildB11ExteriorBackdrop(layout.toWorld, -(floor - 1) * FLOOR_HEIGHT);
+
     return {
       otherFloorsGeo,
       otherSolidWallsGeo,
       otherGlassWallsGeo,
       roofOverhangGeo,
       elevatorTowerGeo,
+      ...ext,
     };
   }, [layout, floor, isB11, isTopDown]);
 
@@ -277,6 +376,11 @@ export default function InteriorScene() {
       multiFloorB11.otherGlassWallsGeo?.dispose();
       multiFloorB11.roofOverhangGeo?.dispose();
       multiFloorB11.elevatorTowerGeo?.dispose();
+      multiFloorB11.extGrassGeo?.dispose();
+      multiFloorB11.extPathGeo?.dispose();
+      multiFloorB11.extFacadeGeo?.dispose();
+      multiFloorB11.extTrunkGeo?.dispose();
+      multiFloorB11.extCanopyGeo?.dispose();
     };
   }, [multiFloorB11]);
 
@@ -332,6 +436,10 @@ export default function InteriorScene() {
       }
     }
 
+    if (isB11 && floor === 1) {
+      addB11StairwellOuterClosure(solidGeos, glassGeos, layout.toWorld, 0);
+    }
+
     const mergedSolid = solidGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(solidGeos) : null;
     const mergedGlass = glassGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(glassGeos) : null;
     const mergedBaseboards = baseboardGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(baseboardGeos) : null;
@@ -345,7 +453,7 @@ export default function InteriorScene() {
       glassWallsGeo: mergedGlass,
       baseboardsGeo: mergedBaseboards,
     };
-  }, [layout, floor, isB8]);
+  }, [layout, floor, isB8, isB11]);
 
   // 3. Biển tên phòng nhỏ gắn tường
   const roomSigns = useMemo(() => {
@@ -508,6 +616,31 @@ export default function InteriorScene() {
       {multiFloorB11.elevatorTowerGeo && (
         <mesh geometry={multiFloorB11.elevatorTowerGeo}>
           <meshStandardMaterial color="#d6cec2" roughness={0.72} />
+        </mesh>
+      )}
+      {multiFloorB11.extGrassGeo && (
+        <mesh geometry={multiFloorB11.extGrassGeo} receiveShadow>
+          <meshStandardMaterial color="#65a30d" roughness={0.9} />
+        </mesh>
+      )}
+      {multiFloorB11.extPathGeo && (
+        <mesh geometry={multiFloorB11.extPathGeo} receiveShadow>
+          <meshStandardMaterial color="#94a3b8" roughness={0.75} />
+        </mesh>
+      )}
+      {multiFloorB11.extFacadeGeo && (
+        <mesh geometry={multiFloorB11.extFacadeGeo}>
+          <meshStandardMaterial color="#d6cec2" roughness={0.8} />
+        </mesh>
+      )}
+      {multiFloorB11.extTrunkGeo && (
+        <mesh geometry={multiFloorB11.extTrunkGeo}>
+          <meshStandardMaterial color="#5c4033" roughness={0.9} />
+        </mesh>
+      )}
+      {multiFloorB11.extCanopyGeo && (
+        <mesh geometry={multiFloorB11.extCanopyGeo}>
+          <meshStandardMaterial color="#2e6f2b" roughness={0.85} flatShading />
         </mesh>
       )}
 

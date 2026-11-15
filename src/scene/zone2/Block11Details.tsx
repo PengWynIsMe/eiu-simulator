@@ -10,7 +10,10 @@ import {
   type BufferGeometry,
 } from 'three';
 import {
+  B11_BENCH_SPANS,
   B11_BOUNDS,
+  B11_COLUMN_US,
+  B11_LOUVER_SPANS,
   B11_ROTATION_Y,
   B11_TREE_BEDS,
   b11ToWorld,
@@ -130,6 +133,7 @@ export default function Block11Details() {
     const glassCanopyParts: BufferGeometry[] = [];
     const acUnitParts: BufferGeometry[] = [];
     const signOrangeParts: BufferGeometry[] = [];
+    const darkStoneParts: BufferGeometry[] = [];
 
     // 1. Nền đá xám sân trong & thềm 5 cửa vào Block 11
     stoneParts.push(makeOrientedBox((8.2 + 61.3) * 0.5, (-132.3 - 120.4) * 0.5, 0.17, 53.1, 0.04, 11.9));
@@ -137,6 +141,7 @@ export default function Block11Details() {
     stoneParts.push(makeOrientedBox(31.0, -101.8, 0.17, 6.2, 0.05, 3.3));
     stoneParts.push(makeOrientedBox(88.0, -101.8, 0.17, 6.2, 0.05, 3.3));
     stoneParts.push(makeOrientedBox(57.2, -149.2, 0.17, 5.0, 0.05, 2.4));
+    stoneParts.push(makeOrientedBox(57.2, -102.2, 0.17, 4.4, 0.05, 2.6));
     stoneParts.push(makeOrientedBox(122.8, -125.6, 0.17, 2.6, 0.05, 4.6));
     stoneParts.push(makeOrientedBox(0.2, -126.5, 0.17, 2.4, 0.05, 6.5));
 
@@ -201,45 +206,78 @@ export default function Block11Details() {
       }
     }
 
-    // 3. Băng ghế đá built-in dọc 2 hàng cột sân trong (ảnh dbfc837a & 8bd13e20)
-    const benchPositionsU = [13.5, 21.0, 29.5, 38.0, 46.5, 76.0, 84.5, 93.0, 101.5];
-    for (const bu of benchPositionsU) {
-      stoneParts.push(makeOrientedBox(bu, B.vCyN + 0.35, 0.58, 2.6, 0.14, 0.55));
-      stoneParts.push(makeOrientedBox(bu - 0.95, B.vCyN + 0.35, 0.34, 0.2, 0.36, 0.45));
-      stoneParts.push(makeOrientedBox(bu + 0.95, B.vCyN + 0.35, 0.34, 0.2, 0.36, 0.45));
-
-      stoneParts.push(makeOrientedBox(bu, B.vCyS - 0.35, 0.58, 2.6, 0.14, 0.55));
-      stoneParts.push(makeOrientedBox(bu - 0.95, B.vCyS - 0.35, 0.34, 0.2, 0.36, 0.45));
-      stoneParts.push(makeOrientedBox(bu + 0.95, B.vCyS - 0.35, 0.34, 0.2, 0.36, 0.45));
+    // 3. Băng ghế đá dài nối liền giữa 2 cột dọc 2 hàng cột sân trong
+    for (const span of B11_BENCH_SPANS) {
+      const cu = (span.u1 + span.u2) * 0.5;
+      const clearLen = span.u2 - span.u1 - 0.42;
+      for (const benchV of [B.vCyN, B.vCyS]) {
+        stoneParts.push(makeOrientedBox(cu, benchV, 0.635, clearLen, 0.11, 0.56));
+        darkStoneParts.push(makeOrientedBox(cu, benchV, 0.23, clearLen, 0.08, 0.48));
+        for (const t of [0.25, 0.5, 0.75]) {
+          const pierU = span.u1 + 0.21 + t * clearLen;
+          darkStoneParts.push(makeOrientedBox(pierU, benchV, 0.425, 0.26, 0.31, 0.42));
+        }
+      }
     }
 
-    // 4. Đường viền lam xanh dương mép sàn tầng 2–4 & lam che nắng 5 thanh trên hành lang sân trong
+    // 4. Hàng cột hành lang sân trong, viền lam xanh dương mép sàn tầng 2–4 & hệ khung lam chắn nắng gắn giữa các cột
+    for (const u of B11_COLUMN_US) {
+      creamParts.push(makeOrientedBox(u, B.vCyN, 2 * FLOOR_HEIGHT, 0.46, 4 * FLOOR_HEIGHT, 0.46));
+      creamParts.push(makeOrientedBox(u, B.vCyS, 2 * FLOOR_HEIGHT, 0.46, 4 * FLOOR_HEIGHT, 0.46));
+    }
+
+    const pushFramedLouver = (
+      axis: 'u' | 'v',
+      fixedCoord: number,
+      startCoord: number,
+      endCoord: number,
+      baseY: number,
+      startPad = 0.2,
+      endPad = 0.2
+    ) => {
+      const s1 = startCoord + startPad;
+      const s2 = endCoord - endPad;
+      const clearLen = s2 - s1;
+      if (clearLen < 0.6) return;
+      const midCoord = (s1 + s2) * 0.5;
+      const extraYaw = axis === 'u' ? 0 : Math.PI / 2;
+      const toUV = (s: number): readonly [number, number] => (axis === 'u' ? [s, fixedCoord] : [fixedCoord, s]);
+      const yBottom = baseY + 2.58;
+      const yTop = baseY + 3.62;
+      const frameH = yTop - yBottom;
+      const yMid = (yBottom + yTop) * 0.5;
+      const [cu, cv] = toUV(midCoord);
+
+      whiteLouverParts.push(makeOrientedBox(cu, cv, yBottom + 0.03, clearLen, 0.06, 0.16, extraYaw));
+      whiteLouverParts.push(makeOrientedBox(cu, cv, yTop - 0.03, clearLen, 0.06, 0.16, extraYaw));
+      for (const ly of [2.8, 3.0, 3.2, 3.4]) {
+        whiteLouverParts.push(makeOrientedBox(cu, cv, baseY + ly, clearLen - 0.04, 0.045, 0.12, extraYaw));
+      }
+      const cells = Math.max(2, Math.round(clearLen / 1.5));
+      for (let i = 0; i <= cells; i++) {
+        const [mu, mv] = toUV(s1 + (clearLen * i) / cells);
+        const barW = i === 0 || i === cells ? 0.06 : 0.055;
+        whiteLouverParts.push(makeOrientedBox(mu, mv, yMid, barW, frameH, 0.175, extraYaw));
+      }
+    };
+
     for (let fl = 1; fl <= 3; fl++) {
       const slabY = fl * FLOOR_HEIGHT - 0.08;
-      // Viền xanh dương đặc trưng ảnh 2c912454 & 3bb3d9af
       blueTrimParts.push(makeOrientedBox((8.2 + 61.3) * 0.5, B.vCyN, slabY, 53.1, 0.18, 0.08));
       blueTrimParts.push(makeOrientedBox((8.2 + 61.3) * 0.5, -120.4, slabY, 53.1, 0.18, 0.08));
       blueTrimParts.push(makeOrientedBox((64.95 + 115.35) * 0.5, B.vCyN, slabY, 50.4, 0.18, 0.08));
       blueTrimParts.push(makeOrientedBox((64.95 + 115.35) * 0.5, -120.9, slabY, 50.4, 0.18, 0.08));
-
-      // Thanh lam chắn nắng 5 tầng ngang sát trần hành lang (ảnh dbfc837a & 6cec9508)
-      const louverBaseY = (fl - 1) * FLOOR_HEIGHT + 2.55;
-      for (let blade = 0; blade < 5; blade++) {
-        const ly = louverBaseY + blade * 0.22;
-        whiteLouverParts.push(makeOrientedBox((8.2 + 61.3) * 0.5, B.vCyN - 0.05, ly, 52.8, 0.04, 0.14));
-        whiteLouverParts.push(makeOrientedBox((8.2 + 61.3) * 0.5, -120.35, ly, 52.8, 0.04, 0.14));
-        whiteLouverParts.push(makeOrientedBox((69.55 + 115.35) * 0.5, B.vCyN - 0.05, ly, 45.5, 0.04, 0.14));
-        whiteLouverParts.push(makeOrientedBox((69.55 + 108.05) * 0.5, -120.85, ly, 38.2, 0.04, 0.14));
-      }
     }
 
-    // Lam chắn nắng cho tầng 4
-    for (let blade = 0; blade < 5; blade++) {
-      const ly = 3 * FLOOR_HEIGHT + 2.55 + blade * 0.22;
-      whiteLouverParts.push(makeOrientedBox((8.2 + 61.3) * 0.5, B.vCyN - 0.05, ly, 52.8, 0.04, 0.14));
-      whiteLouverParts.push(makeOrientedBox((8.2 + 61.3) * 0.5, -120.35, ly, 52.8, 0.04, 0.14));
-      whiteLouverParts.push(makeOrientedBox((69.55 + 115.35) * 0.5, B.vCyN - 0.05, ly, 45.5, 0.04, 0.14));
-      whiteLouverParts.push(makeOrientedBox((69.55 + 108.05) * 0.5, -120.85, ly, 38.2, 0.04, 0.14));
+    for (let fl = 1; fl <= 4; fl++) {
+      const baseY = (fl - 1) * FLOOR_HEIGHT;
+      for (const span of B11_LOUVER_SPANS) {
+        pushFramedLouver('u', B.vCyN, span.u1, span.u2, baseY);
+        pushFramedLouver('u', B.vCyS, span.u1, span.u2, baseY);
+      }
+      pushFramedLouver('v', 61.3, B.vCyN, B.vCyS, baseY);
+      pushFramedLouver('v', 64.95, B.vCyN, -129.0, baseY, 0.2, -0.02);
+      pushFramedLouver('v', 64.95, -125.0, B.vCyS, baseY, -0.02, 0.2);
     }
 
     // 5. Tháp giếng thang máy vượt tầng + nắp mái chìa + kim thu sét trên nóc B11 (ảnh 3bb3d9af)
@@ -293,6 +331,7 @@ export default function Block11Details() {
       glassCanopyGeo: safeMerge(glassCanopyParts),
       acUnitGeo: safeMerge(acUnitParts),
       signOrangeGeo: safeMerge(signOrangeParts),
+      darkStoneGeo: safeMerge(darkStoneParts),
     };
   }, []);
 
@@ -309,6 +348,11 @@ export default function Block11Details() {
       {geometries.stoneGeo && (
         <mesh geometry={geometries.stoneGeo} receiveShadow castShadow>
           <meshStandardMaterial color="#b8bcc2" roughness={0.85} />
+        </mesh>
+      )}
+      {geometries.darkStoneGeo && (
+        <mesh geometry={geometries.darkStoneGeo} receiveShadow castShadow>
+          <meshStandardMaterial color="#475569" roughness={0.7} />
         </mesh>
       )}
       {geometries.soilGeo && (
