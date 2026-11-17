@@ -497,35 +497,60 @@ export function getFloorBoundaryPts(): Vec2[] {
   ];
 }
 
+/** Mép 2 lỗ giếng trời sân trong chuẩn (tọa độ địa phương [u, v]) */
+export const B8_WEST_HOLE_UV: readonly Vec2[] = [
+  [13.5, -197.0],
+  [50.0, -197.0],
+  [50.0, -180.1],
+  [13.5, -180.1],
+];
+
+export const B8_EAST_HOLE_UV: readonly Vec2[] = [
+  [54.1, -196.5],
+  [114.9, -196.5],
+  [114.9, -190.3],
+  [106.9, -190.3],
+  [106.9, -184.8],
+  [114.9, -184.8],
+  [114.9, -179.6],
+  [54.1, -179.6],
+  [54.1, -186.5],
+  [58.2, -186.5],
+  [58.2, -190.2],
+  [54.1, -190.2],
+];
+
+export interface B8PcccPoint {
+  readonly u: number;
+  readonly v: number;
+  readonly facingV: 1 | -1;
+}
+
+/** Vị trí tủ PCCC + kệ bình chữa cháy + sơ đồ thoát hiểm trên tường hành lang (mọi tầng) */
+export const B8_PCCC_POINTS: readonly B8PcccPoint[] = [
+  { u: 16.2, v: -199.9, facingV: 1 }, // lùi khỏi cửa Tây phòng x20 (u 13.7–14.7) ở tầng 2–4
+  { u: 50.2, v: -199.9, facingV: 1 },
+  { u: 15.0, v: -177.8, facingV: -1 },
+  { u: 50.2, v: -177.8, facingV: -1 },
+];
+
+/** Vị trí biển EXIT xanh treo giữa hành lang trước mỗi cầu thang (mọi tầng) */
+export const B8_EXIT_SIGNS: readonly Vec2[] = [
+  [11.05, -198.5],
+  [51.9, -198.5],
+  [11.6, -178.9],
+  [51.85, -178.9],
+  [110.0, -188.0],
+];
+
 // 2 Lỗ giếng trời sân trong cho các tầng 2, 3, 4 (KHÔNG CÓ KÍNH)
 export function getFloorHoles(floor: number): Vec2[][] {
   if (floor === 1) return []; // Tầng 1 phủ kín sàn sân vườn
 
-  // Sân Tây: [13.5, 50.0] x [-197.0, -180.1]
-  const westCourtyardHole: Vec2[] = [
-    toWorld(13.5, -197.0),
-    toWorld(50.0, -197.0),
-    toWorld(50.0, -180.1),
-    toWorld(13.5, -180.1),
+  return [
+    B8_WEST_HOLE_UV.map(([u, v]) => toWorld(u, v)),
+    B8_EAST_HOLE_UV.map(([u, v]) => toWorld(u, v)),
   ];
-
-  // Sân Đông: [54.1, 114.9] x [-196.5, -179.6], chừa buồng thang máy và lõi thang bộ
-  const eastCourtyardHole: Vec2[] = [
-    toWorld(54.1, -196.5),
-    toWorld(114.9, -196.5),
-    toWorld(114.9, -190.3),
-    toWorld(106.9, -190.3),
-    toWorld(106.9, -184.8),
-    toWorld(114.9, -184.8),
-    toWorld(114.9, -179.6),
-    toWorld(54.1, -179.6),
-    toWorld(54.1, -186.5),
-    toWorld(58.2, -186.5),
-    toWorld(58.2, -190.2),
-    toWorld(54.1, -190.2),
-  ];
-
-  return [westCourtyardHole, eastCourtyardHole];
 }
 
 // =============================================================================

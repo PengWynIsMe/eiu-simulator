@@ -245,10 +245,10 @@ export default function InteriorScene() {
     return merged;
   }, [floor, isB8, layout]);
 
-  // Các tầng còn lại (1–4 trừ tầng đang đứng) & mái chìa sân trong Block 11
-  // Giúp đứng ở Tầng 1 nhìn lên vẫn thấy đủ Tầng 2, 3, 4 + mái + cầu nối; ẩn tầng trên khi bật C (nhìn từ trên xuống)
+  // Các tầng còn lại (1–4 trừ tầng đang đứng) & mái chìa sân trong Block 11 / Block 8
+  // Giúp đứng ở Tầng 1 nhìn lên vẫn thấy đủ Tầng 2, 3, 4 + mái; ẩn tầng trên khi bật C (nhìn từ trên xuống)
   const multiFloorB11 = useMemo(() => {
-    if (!isB11) {
+    if (!isB11 && !isB8) {
       return {
         otherFloorsGeo: null,
         otherSolidWallsGeo: null,
@@ -304,8 +304,30 @@ export default function InteriorScene() {
         }
       }
 
-      if (otherF === 1) {
+      if (isB11 && otherF === 1) {
         addB11StairwellOuterClosure(solidGeos, glassGeos, layout.toWorld, dy);
+      }
+
+      if (isB8) {
+        const b8Doors = getFloorDoors(otherF);
+        const lintelHeight = FLOOR_HEIGHT - 2.2;
+        const lintelCenterY = dy + 2.2 + lintelHeight / 2;
+        for (const d of b8Doors) {
+          const [x1, z1] = layout.toWorld(d.u1, d.v);
+          const [x2, z2] = layout.toWorld(d.u2, d.v);
+          const dx = x2 - x1;
+          const dz = z2 - z1;
+          const length = Math.hypot(dx, dz);
+          if (length < 0.05) continue;
+          const midX = (x1 + x2) / 2;
+          const midZ = (z1 + z2) / 2;
+          const angle = -Math.atan2(dz, dx);
+
+          const lintelBox = new BoxGeometry(length, lintelHeight, 0.2);
+          lintelBox.rotateY(angle);
+          lintelBox.translate(midX, lintelCenterY, midZ);
+          solidGeos.push(lintelBox);
+        }
       }
     }
 
@@ -314,40 +336,64 @@ export default function InteriorScene() {
 
     if (!isTopDown) {
       const roofY = (layout.floors + 1 - floor) * FLOOR_HEIGHT;
-      const B = B11_BOUNDS;
-      const roofOuterPts: Vec2[] = [
-        layout.toWorld(B.uNwOut - 0.5, B.vNOut - 0.5),
-        layout.toWorld(B.uNeOut + 0.5, B.vNOut - 0.5),
-        layout.toWorld(B.uNeOut + 0.5, B.vCyN + 1.5),
-        layout.toWorld(B.uEMainOut + 0.5, B.vCyN + 1.5),
-        layout.toWorld(B.uEMainOut + 0.5, B.vSOut + 0.5),
-        layout.toWorld(B.uWOut - 0.5, B.vSOut + 0.5),
-        layout.toWorld(B.uWOut - 0.5, B.vCyN + 1.5),
-        layout.toWorld(B.uNwOut - 0.5, B.vCyN + 1.5),
-      ];
-      // Hai ô giếng trời trên mái chừa phần mái chìa 1.5 m quanh hành lang tầng 4 & cầu nối giữa
-      const roofHolesPts: Vec2[][] = [
-        [
-          layout.toWorld(9.7, -130.8),
-          layout.toWorld(59.8, -130.8),
-          layout.toWorld(59.8, -122.1),
-          layout.toWorld(9.7, -122.1),
-        ],
-        [
-          layout.toWorld(69.55, -130.8),
-          layout.toWorld(113.85, -130.8),
-          layout.toWorld(113.85, -122.1),
-          layout.toWorld(69.55, -122.1),
-        ],
-      ];
-      roofOverhangGeo = buildSlabGeometry(roofOuterPts, roofHolesPts, 0.34, roofY - 0.14);
+      if (isB11) {
+        const B = B11_BOUNDS;
+        const roofOuterPts: Vec2[] = [
+          layout.toWorld(B.uNwOut - 0.5, B.vNOut - 0.5),
+          layout.toWorld(B.uNeOut + 0.5, B.vNOut - 0.5),
+          layout.toWorld(B.uNeOut + 0.5, B.vCyN + 1.5),
+          layout.toWorld(B.uEMainOut + 0.5, B.vCyN + 1.5),
+          layout.toWorld(B.uEMainOut + 0.5, B.vSOut + 0.5),
+          layout.toWorld(B.uWOut - 0.5, B.vSOut + 0.5),
+          layout.toWorld(B.uWOut - 0.5, B.vCyN + 1.5),
+          layout.toWorld(B.uNwOut - 0.5, B.vCyN + 1.5),
+        ];
+        // Hai ô giếng trời trên mái chừa phần mái chìa 1.5 m quanh hành lang tầng 4 & cầu nối giữa
+        const roofHolesPts: Vec2[][] = [
+          [
+            layout.toWorld(9.7, -130.8),
+            layout.toWorld(59.8, -130.8),
+            layout.toWorld(59.8, -122.1),
+            layout.toWorld(9.7, -122.1),
+          ],
+          [
+            layout.toWorld(69.55, -130.8),
+            layout.toWorld(113.85, -130.8),
+            layout.toWorld(113.85, -122.1),
+            layout.toWorld(69.55, -122.1),
+          ],
+        ];
+        roofOverhangGeo = buildSlabGeometry(roofOuterPts, roofHolesPts, 0.34, roofY - 0.14);
 
-      const towerCenter = layout.toWorld(67.25, -127.0);
-      const yaw = getLocalFacingYaw(layout.toWorld, 0);
-      const tower = new BoxGeometry(4.6, 3.0, 4.2);
-      tower.rotateY(yaw);
-      tower.translate(towerCenter[0], roofY + 1.5, towerCenter[1]);
-      elevatorTowerGeo = tower;
+        const towerCenter = layout.toWorld(67.25, -127.0);
+        const yaw = getLocalFacingYaw(layout.toWorld, 0);
+        const tower = new BoxGeometry(4.6, 3.0, 4.2);
+        tower.rotateY(yaw);
+        tower.translate(towerCenter[0], roofY + 1.5, towerCenter[1]);
+        elevatorTowerGeo = tower;
+      } else if (isB8) {
+        const roofOuterPts: Vec2[] = [
+          layout.toWorld(8.0, -211.2),
+          layout.toWorld(121.4, -211.2),
+          layout.toWorld(121.4, -165.0),
+          layout.toWorld(8.0, -165.0),
+        ];
+        const roofHolesPts: Vec2[][] = [
+          [
+            layout.toWorld(14.7, -195.8),
+            layout.toWorld(48.8, -195.8),
+            layout.toWorld(48.8, -181.3),
+            layout.toWorld(14.7, -181.3),
+          ],
+          [
+            layout.toWorld(55.3, -195.3),
+            layout.toWorld(113.7, -195.3),
+            layout.toWorld(113.7, -180.8),
+            layout.toWorld(55.3, -180.8),
+          ],
+        ];
+        roofOverhangGeo = buildSlabGeometry(roofOuterPts, roofHolesPts, 0.34, roofY - 0.14);
+      }
     }
 
     const otherFloorsGeo = slabGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(slabGeos) : null;
@@ -358,7 +404,15 @@ export default function InteriorScene() {
     solidGeos.forEach((g) => g.dispose());
     glassGeos.forEach((g) => g.dispose());
 
-    const ext = buildB11ExteriorBackdrop(layout.toWorld, -(floor - 1) * FLOOR_HEIGHT);
+    const ext = isB11
+      ? buildB11ExteriorBackdrop(layout.toWorld, -(floor - 1) * FLOOR_HEIGHT)
+      : {
+          extGrassGeo: null,
+          extPathGeo: null,
+          extFacadeGeo: null,
+          extTrunkGeo: null,
+          extCanopyGeo: null,
+        };
 
     return {
       otherFloorsGeo,
@@ -368,7 +422,7 @@ export default function InteriorScene() {
       elevatorTowerGeo,
       ...ext,
     };
-  }, [layout, floor, isB11, isTopDown]);
+  }, [layout, floor, isB11, isB8, isTopDown]);
 
   useEffect(() => {
     return () => {
@@ -461,45 +515,6 @@ export default function InteriorScene() {
         lintelBox.rotateY(angle);
         lintelBox.translate(midX, lintelCenterY, midZ);
         solidGeos.push(lintelBox);
-      }
-    }
-
-    // 2c. Vách sân trong B8 ở các tầng trên (tầng 2-4: từ mặt đất lên tới sàn tầng hiện tại)
-    if (isB8 && floor >= 2) {
-      const groundElevation = -(floor - 1) * FLOOR_HEIGHT;
-      const wellHeight = Math.abs(groundElevation);
-      const wellCenterY = groundElevation / 2;
-
-      const courtyardEdges = [
-        // Sân Tây
-        { u1: 13.5, v1: -197.0, u2: 50.0, v2: -197.0 },
-        { u1: 13.5, v1: -180.1, u2: 50.0, v2: -180.1 },
-        { u1: 13.5, v1: -197.0, u2: 13.5, v2: -180.1 },
-        { u1: 50.0, v1: -197.0, u2: 50.0, v2: -180.1 },
-        // Sân Đông
-        { u1: 54.1, v1: -196.5, u2: 114.9, v2: -196.5 },
-        { u1: 54.1, v1: -179.6, u2: 114.9, v2: -179.6 },
-        { u1: 54.1, v1: -196.5, u2: 54.1, v2: -190.2 },
-        { u1: 54.1, v1: -186.5, u2: 54.1, v2: -179.6 },
-        { u1: 114.9, v1: -196.5, u2: 114.9, v2: -190.3 },
-        { u1: 114.9, v1: -184.8, u2: 114.9, v2: -179.6 },
-      ];
-
-      for (const edge of courtyardEdges) {
-        const [x1, z1] = layout.toWorld(edge.u1, edge.v1);
-        const [x2, z2] = layout.toWorld(edge.u2, edge.v2);
-        const dx = x2 - x1;
-        const dz = z2 - z1;
-        const length = Math.hypot(dx, dz);
-        if (length < 0.05) continue;
-        const midX = (x1 + x2) / 2;
-        const midZ = (z1 + z2) / 2;
-        const angle = -Math.atan2(dz, dx);
-
-        const wellBox = new BoxGeometry(length, wellHeight, 0.2);
-        wellBox.rotateY(angle);
-        wellBox.translate(midX, wellCenterY, midZ);
-        solidGeos.push(wellBox);
       }
     }
 
