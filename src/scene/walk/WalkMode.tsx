@@ -19,6 +19,7 @@ import {
 
 /** Phải khớp `near` của <Canvas> trong App.tsx. */
 const OUTDOOR_CAMERA_NEAR = 5;
+const OUTDOOR_CAMERA_FAR = 2500;
 const WALK_SPEED = 5;
 const RUN_SPEED = 12;
 const PLAYER_RADIUS = 0.4;
@@ -121,6 +122,7 @@ export default function WalkMode() {
   const player = useRef<[number, number, number]>([globalPlayerPos[0], initialY, globalPlayerPos[1]]);
   const cameraYaw = useRef(globalCameraYaw);
   const cameraPitch = useRef(globalCameraPitch);
+  const viewMode = useRef<0 | 1 | 2>(0); // sau vai → FPS → từ trên xuống
   const facingYaw = useRef(globalFacingYaw);
   const outdoorDistance = useRef(8);
   const indoorDesiredDistance = useRef(4.0);
@@ -132,6 +134,7 @@ export default function WalkMode() {
   const isDragging = useRef(false);
   const previousPointerX = useRef(0);
   const previousPointerY = useRef(0);
+  const lookPointerId = useRef<number | null>(null);
   const body = useRef<Group>(null);
   const target = useMemo(() => new Vector3(), []);
   const desiredCamera = useMemo(() => new Vector3(), []);
@@ -165,8 +168,10 @@ export default function WalkMode() {
   const lastInteractiveId = useRef<string | null | undefined>(undefined);
   const lastRoomCode = useRef<string | null | undefined>(undefined);
   const currentInteractive = useRef<InteractivePoint | null>(null);
+  const currentActiveRoom = useRef<RoomArea | null>(null);
   const lastUsedInteractive = useRef<InteractivePoint | null>(null);
   const isTopDownView = useRef(false);
+  const stairArrival = useRef<{ stairCode: string; floor: number } | null>(null);
 
   // Lắng nghe sự kiện chuyển góc nhìn từ trên xuống để so sánh sơ đồ
   useEffect(() => {
@@ -184,11 +189,20 @@ export default function WalkMode() {
         facingYaw.current = custom.detail.yaw;
       }
     };
+    const onStairMove = (event: Event) => {
+      const custom = event as CustomEvent<{ stairCode: string; floor: number }>;
+      stairArrival.current = custom.detail;
+    };
+    const onElevatorMove = () => { stairArrival.current = null; };
     window.addEventListener('campussim:topdown-camera', onTopDown);
     window.addEventListener('campussim:set-player-pose', onSetPose);
+    window.addEventListener('campussim:stair-move', onStairMove);
+    window.addEventListener('campussim:elevator-move', onElevatorMove);
     return () => {
       window.removeEventListener('campussim:topdown-camera', onTopDown);
       window.removeEventListener('campussim:set-player-pose', onSetPose);
+      window.removeEventListener('campussim:stair-move', onStairMove);
+      window.removeEventListener('campussim:elevator-move', onElevatorMove);
     };
   }, []);
 
@@ -231,10 +245,39 @@ export default function WalkMode() {
         globalFacingYaw = spawnYaw;
         currentFloorWallLines.current = [];
       } else if (prev && cur && prev.floor !== cur.floor) {
-        // Đổi tầng thang máy -> đặt vị trí trước cửa thang máy tầng mới
         const layout = getInteriorLayout(cur.buildingId);
-        const spawnPos = layout?.elevator.spawnWorld ?? [0, 0];
-        const spawnYaw = layout?.elevator.facingYaw ?? Math.PI;
+        const stair = stairArrival.current;
+        const rooms = layout?.getFloorRooms(cur.floor) ?? [];
+        const stairRooms = rooms.filter((room) => room.code.startsWith('Thang bộ'));
+        const named = stair ? stairRooms.find((room) => room.code === stair.stairCode) : undefined;
+        const originLocal = stair ? layout?.toLocal(player.current[0], player.current[2]) : undefined;
+        const chosen = named ?? (stair && stairRooms.length > 0
+          ? stairRooms.reduce((nearest, room) => {
+            if (!originLocal) return nearest;
+            const nearestDistance = Math.hypot((nearest.minU + nearest.maxU) / 2 - originLocal[0], (nearest.minV + nearest.maxV) / 2 - originLocal[1]);
+            const roomDistance = Math.hypot((room.minU + room.maxU) / 2 - originLocal[0], (room.minV + room.maxV) / 2 - originLocal[1]);
+            return roomDistance < nearestDistance ? room : nearest;
+          })
+          : undefined);
+        const spawnPos = chosen && layout
+          ? layout.toWorld((chosen.minU + chosen.maxU) / 2, (chosen.minV + chosen.maxV) / 2)
+          : layout?.elevator.spawnWorld ?? [0, 0];
+        const hallway = chosen && layout
+          ? rooms.filter((room) => /hành lang/i.test(`${room.code} ${room.name}`)).reduce<RoomArea | null>((nearest, room) => {
+            if (!nearest) return room;
+            const centerU = (chosen.minU + chosen.maxU) / 2;
+            const centerV = (chosen.minV + chosen.maxV) / 2;
+            const nearestDistance = Math.hypot((nearest.minU + nearest.maxU) / 2 - centerU, (nearest.minV + nearest.maxV) / 2 - centerV);
+            const roomDistance = Math.hypot((room.minU + room.maxU) / 2 - centerU, (room.minV + room.maxV) / 2 - centerV);
+            return roomDistance < nearestDistance ? room : nearest;
+          }, null)
+          : null;
+        const hallwayPos = hallway && layout
+          ? layout.toWorld((hallway.minU + hallway.maxU) / 2, (hallway.minV + hallway.maxV) / 2)
+          : null;
+        const spawnYaw = hallwayPos
+          ? Math.atan2(hallwayPos[1] - spawnPos[1], hallwayPos[0] - spawnPos[0])
+          : layout?.elevator.facingYaw ?? Math.PI;
 
         player.current[0] = spawnPos[0];
         player.current[1] = 0.0;
@@ -245,6 +288,7 @@ export default function WalkMode() {
         globalCameraYaw = spawnYaw;
         globalFacingYaw = spawnYaw;
         updateCachedWalls(cur.buildingId, cur.floor);
+        stairArrival.current = null;
       }
 
       prevInterior.current = cur ? { ...cur } : null;
@@ -266,6 +310,8 @@ export default function WalkMode() {
   }, []);
 
   useEffect(() => {
+    const originalTouchAction = gl.domElement.style.touchAction;
+    gl.domElement.style.touchAction = 'none';
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]')) return;
       const key = event.key.toLowerCase();
@@ -275,7 +321,7 @@ export default function WalkMode() {
       // Phím E để tương tác cửa hoặc thang máy
       if (key === 'e' && !event.repeat) {
         const interactive = currentInteractive.current;
-        if (interactive) {
+        if (interactive && !(currentActiveRoom.current?.code.startsWith('Thang bộ') && interactive.type === 'elevator')) {
           lastUsedInteractive.current = interactive;
           if (interactive.type === 'exterior-door' && interactive.buildingId) {
             useWalkStore.getState().enterInterior(interactive.buildingId);
@@ -287,9 +333,13 @@ export default function WalkMode() {
         }
       }
 
-      // Phím C để chuyển đổi góc nhìn trên xuống / sau vai trong nội thất
-      if (key === 'c' && !event.repeat && useWalkStore.getState().interior !== null) {
-        isTopDownView.current = !isTopDownView.current;
+      // Phím C xoay vòng sau vai → FPS → trên xuống.
+      if (key === 'c' && !event.repeat) {
+        if (viewMode.current === 1 && document.pointerLockElement === gl.domElement) document.exitPointerLock();
+        viewMode.current = ((viewMode.current + 1) % 3) as 0 | 1 | 2;
+        isTopDownView.current = viewMode.current === 2;
+        cameraPitch.current = 0;
+        window.dispatchEvent(new CustomEvent('campussim:view-mode', { detail: { mode: viewMode.current } }));
         window.dispatchEvent(
           new CustomEvent('campussim:topdown-camera', {
             detail: { enabled: isTopDownView.current },
@@ -300,6 +350,19 @@ export default function WalkMode() {
     const onKeyUp = (event: KeyboardEvent) => keys.current.delete(event.key.toLowerCase());
     const onBlur = () => keys.current.clear();
     const onPointerDown = (event: PointerEvent) => {
+      if (viewMode.current === 1) {
+        if (event.pointerType === 'touch') {
+          if (event.clientX >= window.innerWidth / 2) {
+            lookPointerId.current = event.pointerId;
+            previousPointerX.current = event.clientX;
+            previousPointerY.current = event.clientY;
+            gl.domElement.setPointerCapture(event.pointerId);
+          }
+        } else if (event.button === 0) {
+          void gl.domElement.requestPointerLock().catch(() => undefined);
+        }
+        return;
+      }
       if (event.button === 0) {
         isDragging.current = true;
         previousPointerX.current = event.clientX;
@@ -307,6 +370,21 @@ export default function WalkMode() {
       }
     };
     const onPointerMove = (event: PointerEvent) => {
+      if (viewMode.current === 1 && event.pointerType === 'touch') {
+        if (lookPointerId.current !== event.pointerId) return;
+        const deltaX = event.clientX - previousPointerX.current;
+        const deltaY = event.clientY - previousPointerY.current;
+        previousPointerX.current = event.clientX;
+        previousPointerY.current = event.clientY;
+        cameraYaw.current -= deltaX * 0.0022;
+        cameraPitch.current = Math.max(-1.396, Math.min(1.396, cameraPitch.current - deltaY * 0.0022));
+        return;
+      }
+      if (viewMode.current === 1 && document.pointerLockElement === gl.domElement) {
+        cameraYaw.current -= event.movementX * 0.0022;
+        cameraPitch.current = Math.max(-1.396, Math.min(1.396, cameraPitch.current - event.movementY * 0.0022));
+        return;
+      }
       if (!isDragging.current) return;
       cameraYaw.current -= (event.clientX - previousPointerX.current) * 0.005;
       if (useWalkStore.getState().interior !== null) {
@@ -318,7 +396,13 @@ export default function WalkMode() {
       previousPointerX.current = event.clientX;
       previousPointerY.current = event.clientY;
     };
-    const onPointerUp = () => { isDragging.current = false; };
+    const onPointerUp = (event: PointerEvent) => {
+      isDragging.current = false;
+      if (lookPointerId.current === event.pointerId) {
+        lookPointerId.current = null;
+        if (gl.domElement.hasPointerCapture(event.pointerId)) gl.domElement.releasePointerCapture(event.pointerId);
+      }
+    };
     const onWheel = (event: WheelEvent) => {
       if (useWalkStore.getState().interior !== null) {
         indoorDesiredDistance.current = Math.max(2.5, Math.min(7.0, indoorDesiredDistance.current + event.deltaY * 0.005));
@@ -341,17 +425,20 @@ export default function WalkMode() {
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
       gl.domElement.removeEventListener('wheel', onWheel);
+      gl.domElement.style.touchAction = originalTouchAction;
       useWalkStore.getState().setMoveInput(0, 0);
     };
-  }, [gl]);
+  }, [gl, gl.domElement]);
 
   // Thoát chế độ đi bộ khi đang ở trong nhà: trả near về giá trị ngoài trời cho CameraRig.
   useEffect(() => {
     return () => {
       camera.near = OUTDOOR_CAMERA_NEAR;
+      camera.far = OUTDOOR_CAMERA_FAR;
       camera.updateProjectionMatrix();
+      if (document.pointerLockElement === gl.domElement) document.exitPointerLock();
     };
-  }, [camera]);
+  }, [camera, gl.domElement]);
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
@@ -416,6 +503,7 @@ export default function WalkMode() {
     }
 
     if (body.current) {
+      body.current.visible = viewMode.current !== 1;
       body.current.position.set(player.current[0], player.current[1] + (moving.current ? Math.abs(Math.sin(performance.now() * 0.012)) * 0.035 : 0), player.current[2]);
       // This model faces local +Z, so add π to keep its back toward the trailing camera.
       body.current.rotation.y = -facingYaw.current + Math.PI / 2;
@@ -428,6 +516,14 @@ export default function WalkMode() {
     globalFacingYaw = facingYaw.current;
 
     // --- Điều khiển Camera ---
+    const wantedNear = viewMode.current === 1 ? (isInterior ? 0.1 : 0.3) : (isInterior ? 0.1 : OUTDOOR_CAMERA_NEAR);
+    const wantedFar = viewMode.current === 1 ? (isInterior ? 400 : 1500) : (isInterior ? 400 : OUTDOOR_CAMERA_FAR);
+    if (camera.near !== wantedNear || camera.far !== wantedFar) {
+      camera.near = wantedNear;
+      camera.far = wantedFar;
+      camera.updateProjectionMatrix();
+    }
+
     if (isTopDownView.current && isInterior) {
       const layout = getInteriorLayout(interiorState.buildingId);
       if (layout) {
@@ -453,20 +549,28 @@ export default function WalkMode() {
       }
     }
 
+    forward.set(Math.cos(cameraYaw.current), 0, Math.sin(cameraYaw.current));
+
+    if (viewMode.current === 2 && !isInterior) {
+      const ground = player.current[1];
+      camera.up.set(0, 1, 0);
+      camera.position.lerp(desiredCamera.set(player.current[0] - forward.x * 8, ground + 3.4, player.current[2] - forward.z * 8), 1 - Math.exp(-4 * dt));
+      camera.lookAt(player.current[0], ground + 1.5, player.current[2]);
+      return;
+    }
+
     // Đảm bảo camera.up luôn là [0, 1, 0] khi ở góc nhìn thông thường (người thứ 3)
     camera.up.set(0, 1, 0);
 
-    forward.set(Math.cos(cameraYaw.current), 0, Math.sin(cameraYaw.current));
-
     // Camera ngoài trời dùng near = 5 (chống nhấp nháy mặt đất, T03). Trong nhà camera chỉ cách nhân vật ~4 m
     // nên phải hạ near, nếu không nhân vật và tường gần bị cắt mất khỏi hình.
-    const wantedNear = isInterior ? 0.1 : OUTDOOR_CAMERA_NEAR;
-    if (camera.near !== wantedNear) {
-      camera.near = wantedNear;
-      camera.updateProjectionMatrix();
-    }
-
-    if (isInterior) {
+    if (viewMode.current === 1) {
+      camera.position.set(player.current[0], player.current[1] + 1.6, player.current[2]);
+      const cosPitch = Math.cos(cameraPitch.current);
+      forward.set(Math.cos(cameraYaw.current) * cosPitch, Math.sin(cameraPitch.current), Math.sin(cameraYaw.current) * cosPitch);
+      target.set(camera.position.x + forward.x, camera.position.y + forward.y, camera.position.z + forward.z);
+      camera.lookAt(target);
+    } else if (isInterior) {
       // Trong nội thất: camera sau vai hỗ trợ xoay nhìn ngang + ngước nhìn lên các tầng trên
       const pitch = cameraPitch.current;
       const cosP = Math.max(0.25, Math.cos(pitch));
@@ -557,6 +661,7 @@ export default function WalkMode() {
     }
 
     currentInteractive.current = interactive;
+    currentActiveRoom.current = activeRoom;
 
     const interId = interactive ? interactive.id : null;
     const roomCode = activeRoom ? activeRoom.code : null;
@@ -578,7 +683,7 @@ export default function WalkMode() {
   return (
     <group ref={body}>
       <Suspense fallback={<CapsuleFallback />}>
-        <PlayerCharacter moving={moving} running={running} />
+        <PlayerCharacter moving={moving} running={running} visible={viewMode.current !== 1} />
       </Suspense>
     </group>
   );

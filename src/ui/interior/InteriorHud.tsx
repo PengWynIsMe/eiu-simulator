@@ -91,6 +91,7 @@ export default function InteriorHud() {
       if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
       const num = Number.parseInt(e.key, 10);
       if (!Number.isNaN(num) && num >= 1 && num <= maxFloors) {
+        window.dispatchEvent(new CustomEvent('campussim:elevator-move'));
         useWalkStore.getState().setInteriorFloor(num);
         setElevatorOpen(false);
       } else if (e.key === 'Escape') {
@@ -101,8 +102,6 @@ export default function InteriorHud() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [elevatorOpen, maxFloors]);
-
-  if (!walkMode) return null;
 
   const handleActionClick = () => {
     const inter = proximity.interactive;
@@ -117,9 +116,37 @@ export default function InteriorHud() {
   };
 
   const handleFloorSelect = (targetFloor: number) => {
+    window.dispatchEvent(new CustomEvent('campussim:elevator-move'));
     useWalkStore.getState().setInteriorFloor(targetFloor);
     setElevatorOpen(false);
   };
+
+  const stairCode = proximity.activeRoom?.code.startsWith('Thang bộ') ? proximity.activeRoom.code : null;
+  const moveByStair = (targetFloor: number) => {
+    if (!interior || !stairCode) return;
+    window.dispatchEvent(new CustomEvent('campussim:stair-move', { detail: { stairCode, floor: targetFloor } }));
+    useWalkStore.getState().setInteriorFloor(targetFloor);
+  };
+
+  useEffect(() => {
+    if (!interior || elevatorOpen || !stairCode) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]')) return;
+      if (event.repeat) return;
+      const key = event.key.toLowerCase();
+      const targetFloor = key === 'e' && interior.floor < maxFloors
+        ? interior.floor + 1
+        : key === 'q' && interior.floor > 1
+          ? interior.floor - 1
+          : null;
+      if (targetFloor !== null) {
+        window.dispatchEvent(new CustomEvent('campussim:stair-move', { detail: { stairCode, floor: targetFloor } }));
+        useWalkStore.getState().setInteriorFloor(targetFloor);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [interior, elevatorOpen, stairCode, maxFloors]);
 
   const currentFloorLabel = interior
     ? interior.floor === 1
@@ -146,6 +173,8 @@ export default function InteriorHud() {
       desc,
     };
   });
+
+  if (!walkMode) return null;
 
   return (
     <>
@@ -188,6 +217,13 @@ export default function InteriorHud() {
             </span>
             <span>{proximity.interactive.label}</span>
           </button>
+        </div>
+      )}
+
+      {interior && stairCode && (
+        <div className="fixed bottom-24 left-1/2 z-40 flex -translate-x-1/2 gap-2 select-none md:bottom-20">
+          {interior.floor < maxFloors && <button type="button" onClick={() => moveByStair(interior.floor + 1)} className="rounded-full border border-sky-300/60 bg-sky-950/90 px-4 py-3 text-sm font-semibold text-white shadow-2xl">E · Lên tầng {interior.floor + 1}</button>}
+          {interior.floor > 1 && <button type="button" onClick={() => moveByStair(interior.floor - 1)} className="rounded-full border border-sky-300/60 bg-sky-950/90 px-4 py-3 text-sm font-semibold text-white shadow-2xl">Q · Xuống tầng {interior.floor - 1}</button>}
         </div>
       )}
 
@@ -272,7 +308,7 @@ export default function InteriorHud() {
         <div className="pointer-events-none fixed bottom-5 left-5 z-40 hidden rounded-xl border border-slate-700/60 bg-slate-950/85 px-4 py-2.5 text-xs text-slate-300 shadow-xl backdrop-blur-md md:block">
           <div className="flex items-center gap-2">
             <span className="rounded bg-sky-500/20 px-1.5 py-0.5 font-mono font-bold text-sky-300">C</span>
-            <span>Góc nhìn trên xuống</span>
+            <span>Đổi góc nhìn</span>
             <span className="text-slate-500">·</span>
             <span>Kéo chuột: Xoay nhìn</span>
             <span className="text-slate-500">·</span>

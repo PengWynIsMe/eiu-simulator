@@ -255,6 +255,48 @@ export function getFloorRooms(floor: number): readonly RoomArea[] {
 // TẠO HÌNH HỌC TƯỜNG CHO TỪNG TẦNG (TƯỜNG ĐẶC + RAILING CHẶN RƠI SÂN TRONG)
 // =============================================================================
 
+export interface B8DoorOpening {
+  u1: number;
+  u2: number;
+  v: number;
+  roomCode: string;
+}
+
+export function getFloorDoors(floor: number): readonly B8DoorOpening[] {
+  const doors: B8DoorOpening[] = [];
+  const rooms = getFloorRooms(floor);
+
+  // Nhóm phòng cánh Bắc (v: -210.2 .. -200.0)
+  const northRooms = rooms.filter((r) => r.code.includes('.B8') && r.maxV <= -200.0);
+  for (const r of northRooms) {
+    const corridorV = r.maxV;
+    const width = r.maxU - r.minU;
+    if (width >= 8.5) {
+      // 2 cửa rộng 1.0 m: cửa Tây (front) và cửa Đông (back)
+      doors.push({ u1: r.minU + 0.6, u2: r.minU + 1.6, v: corridorV, roomCode: r.code });
+      doors.push({ u1: r.maxU - 1.6, u2: r.maxU - 0.6, v: corridorV, roomCode: r.code });
+    } else {
+      // 1 cửa rộng 1.0 m
+      doors.push({ u1: r.minU + 0.6, u2: r.minU + 1.6, v: corridorV, roomCode: r.code });
+    }
+  }
+
+  // Nhóm phòng cánh Nam (v: -177.7 .. -166.0)
+  const southRooms = rooms.filter((r) => r.code.includes('.B8') && r.minV >= -178.0);
+  for (const r of southRooms) {
+    const corridorV = r.minV;
+    const width = r.maxU - r.minU;
+    if (width >= 8.5) {
+      doors.push({ u1: r.minU + 0.6, u2: r.minU + 1.6, v: corridorV, roomCode: r.code });
+      doors.push({ u1: r.maxU - 1.6, u2: r.maxU - 0.6, v: corridorV, roomCode: r.code });
+    } else {
+      doors.push({ u1: r.minU + 0.6, u2: r.minU + 1.6, v: corridorV, roomCode: r.code });
+    }
+  }
+
+  return doors;
+}
+
 function createFloorWalls(floor: number): WallSegment[] {
   const walls: WallSegment[] = [];
 
@@ -295,18 +337,28 @@ function createFloorWalls(floor: number): WallSegment[] {
     walls.push({ u1: 9.0, v1: -181.0, u2: 9.0, v2: -210.2, thickness: 0.3 });
   }
 
-  // 2. Tường ngăn hành lang và phòng học (có cửa mở ra hành lang)
+  // 2. Tường ngăn hành lang và phòng học (có cửa 1.0 m mở ra hành lang)
   const rooms = getFloorRooms(floor);
+  const doors = getFloorDoors(floor);
 
   // Nhóm phòng cánh Bắc (v: -210.2 .. -200.0)
   const northRooms = rooms.filter((r) => r.code.includes('.B8') && r.maxV <= -200.0);
   for (const r of northRooms) {
     const corridorV = r.maxV; // -200.0 hoặc -200.3
-    // Cửa hở 1.3m mở ra hành lang
-    const doorStart = r.maxU - 1.7;
-    const doorEnd = r.maxU - 0.4;
-    walls.push({ u1: r.minU, v1: corridorV, u2: doorStart, v2: corridorV, thickness: 0.2 });
-    walls.push({ u1: doorEnd, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+    const roomDoors = doors.filter((d) => d.roomCode === r.code);
+    const firstDoor = roomDoors[0];
+    const secondDoor = roomDoors[1];
+    if (firstDoor && secondDoor) {
+      const [d1, d2] = firstDoor.u1 < secondDoor.u1 ? [firstDoor, secondDoor] : [secondDoor, firstDoor];
+      walls.push({ u1: r.minU, v1: corridorV, u2: d1.u1, v2: corridorV, thickness: 0.2 });
+      walls.push({ u1: d1.u2, v1: corridorV, u2: d2.u1, v2: corridorV, thickness: 0.2 });
+      walls.push({ u1: d2.u2, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+    } else if (firstDoor) {
+      walls.push({ u1: r.minU, v1: corridorV, u2: firstDoor.u1, v2: corridorV, thickness: 0.2 });
+      walls.push({ u1: firstDoor.u2, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+    } else {
+      walls.push({ u1: r.minU, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+    }
 
     // Tường ngăn dọc giữa các phòng
     walls.push({ u1: r.maxU, v1: r.minV, u2: r.maxU, v2: r.maxV, thickness: 0.2 });
@@ -316,11 +368,20 @@ function createFloorWalls(floor: number): WallSegment[] {
   const southRooms = rooms.filter((r) => r.code.includes('.B8') && r.minV >= -178.0);
   for (const r of southRooms) {
     const corridorV = r.minV; // -177.7 hoặc -177.8
-    // Cửa hở 1.3m mở ra hành lang
-    const doorStart = r.minU + 0.4;
-    const doorEnd = r.minU + 1.7;
-    walls.push({ u1: r.minU, v1: corridorV, u2: doorStart, v2: corridorV, thickness: 0.2 });
-    walls.push({ u1: doorEnd, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+    const roomDoors = doors.filter((d) => d.roomCode === r.code);
+    const firstDoor = roomDoors[0];
+    const secondDoor = roomDoors[1];
+    if (firstDoor && secondDoor) {
+      const [d1, d2] = firstDoor.u1 < secondDoor.u1 ? [firstDoor, secondDoor] : [secondDoor, firstDoor];
+      walls.push({ u1: r.minU, v1: corridorV, u2: d1.u1, v2: corridorV, thickness: 0.2 });
+      walls.push({ u1: d1.u2, v1: corridorV, u2: d2.u1, v2: corridorV, thickness: 0.2 });
+      walls.push({ u1: d2.u2, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+    } else if (firstDoor) {
+      walls.push({ u1: r.minU, v1: corridorV, u2: firstDoor.u1, v2: corridorV, thickness: 0.2 });
+      walls.push({ u1: firstDoor.u2, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+    } else {
+      walls.push({ u1: r.minU, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+    }
 
     // Tường ngăn dọc giữa các phòng
     walls.push({ u1: r.maxU, v1: r.minV, u2: r.maxU, v2: r.maxV, thickness: 0.2 });

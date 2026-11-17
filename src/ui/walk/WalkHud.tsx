@@ -1,19 +1,27 @@
 import { useEffect, useRef } from 'react';
 import { useWalkStore } from '../../store/useWalkStore';
+import { useState } from 'react';
 
 export default function WalkHud() {
   const walkMode = useWalkStore((state) => state.walkMode);
   const knob = useRef<HTMLDivElement>(null);
   const activePointer = useRef<number | null>(null);
+  const [viewMode, setViewMode] = useState(0);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]')) return;
       if (event.key.toLowerCase() === 'v' && !event.repeat) useWalkStore.getState().toggleWalkMode();
-      if (event.key === 'Escape') useWalkStore.getState().exitWalkMode();
+      if (event.key === 'Escape' && document.pointerLockElement === null) useWalkStore.getState().exitWalkMode();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const onViewMode = (event: Event) => setViewMode((event as CustomEvent<{ mode: number }>).detail.mode);
+    window.addEventListener('campussim:view-mode', onViewMode);
+    return () => window.removeEventListener('campussim:view-mode', onViewMode);
   }, []);
 
   if (!walkMode) return null;
@@ -42,8 +50,10 @@ export default function WalkHud() {
   return (
     <>
       <div className="pointer-events-none fixed bottom-5 left-5 z-40 hidden rounded-xl bg-slate-950/75 px-4 py-3 text-sm text-white shadow-lg md:block">
-        W A S D / ↑↓←→: đi · Shift: chạy · Kéo chuột: xoay nhìn · Esc: thoát
+        Góc nhìn: {['Sau vai', 'Thứ nhất (FPS)', 'Trên xuống'][viewMode]} · {viewMode === 1 ? 'W A S D: đi · Shift: chạy · Bấm vào màn hình để điều khiển bằng chuột · Esc: nhả chuột' : 'W A S D / ↑↓←→: đi · Shift: chạy · Kéo chuột: xoay nhìn'} · C: đổi góc nhìn
       </div>
+      {viewMode === 1 && <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center" aria-hidden="true"><span className="text-xl font-bold leading-none text-white" style={{ textShadow: '-1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000, 1px 1px 1px #000' }}>+</span></div>}
+      <button type="button" className="fixed right-6 top-20 z-50 rounded-xl bg-slate-950/80 px-4 py-3 font-semibold text-white shadow-lg [@media(pointer:fine)]:hidden" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c' }))}>Góc nhìn: {['Sau vai', 'Thứ nhất', 'Trên xuống'][viewMode]} · C</button>
       <div
         role="group"
         aria-label="Cần điều khiển đi bộ"

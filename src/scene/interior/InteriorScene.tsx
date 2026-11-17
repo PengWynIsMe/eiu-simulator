@@ -14,6 +14,7 @@ import type { Vec2 } from '../../types';
 import { getInteriorLayout } from './layouts';
 import { b3Layout } from './layouts/b3';
 import { B11_BOUNDS } from './layouts/b11';
+import { getFloorDoors } from './layouts/b8';
 import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
 
 function makeOrientedLocalBox(
@@ -174,7 +175,7 @@ export default function InteriorScene() {
 
   // Sàn hội trường B3 bên dưới khi nhìn từ tầng 3
   const auditoriumFloorGeometry = useMemo(() => {
-    if (isTwinWing || floor !== 3) return null;
+    if (buildingId.toLowerCase() !== 'b3' || floor !== 3) return null;
 
     const voidPtsWorld: Vec2[] = [
       layout.toWorld(-72, 12),
@@ -194,7 +195,7 @@ export default function InteriorScene() {
     extrude.rotateX(-Math.PI / 2);
     extrude.translate(0, -FLOOR_HEIGHT - 0.1, 0);
     return extrude;
-  }, [layout, floor, isTwinWing]);
+  }, [layout, floor, buildingId]);
 
   // Nền lát đá sân trong B8 ở tầng trệt (B11 dùng trực tiếp bản sàn tầng 1 của multiFloorB11Geo)
   const b8CourtyardGroundGeometry = useMemo(() => {
@@ -440,6 +441,68 @@ export default function InteriorScene() {
       addB11StairwellOuterClosure(solidGeos, glassGeos, layout.toWorld, 0);
     }
 
+    // 2b. Lintel tường trên cửa phòng B8 (từ cao độ 2.2 m tới 3.8 m)
+    if (isB8) {
+      const b8Doors = getFloorDoors(floor);
+      const lintelHeight = FLOOR_HEIGHT - 2.2; // 1.6 m
+      const lintelCenterY = 2.2 + lintelHeight / 2; // 3.0 m
+      for (const d of b8Doors) {
+        const [x1, z1] = layout.toWorld(d.u1, d.v);
+        const [x2, z2] = layout.toWorld(d.u2, d.v);
+        const dx = x2 - x1;
+        const dz = z2 - z1;
+        const length = Math.hypot(dx, dz);
+        if (length < 0.05) continue;
+        const midX = (x1 + x2) / 2;
+        const midZ = (z1 + z2) / 2;
+        const angle = -Math.atan2(dz, dx);
+
+        const lintelBox = new BoxGeometry(length, lintelHeight, 0.2);
+        lintelBox.rotateY(angle);
+        lintelBox.translate(midX, lintelCenterY, midZ);
+        solidGeos.push(lintelBox);
+      }
+    }
+
+    // 2c. Vách sân trong B8 ở các tầng trên (tầng 2-4: từ mặt đất lên tới sàn tầng hiện tại)
+    if (isB8 && floor >= 2) {
+      const groundElevation = -(floor - 1) * FLOOR_HEIGHT;
+      const wellHeight = Math.abs(groundElevation);
+      const wellCenterY = groundElevation / 2;
+
+      const courtyardEdges = [
+        // Sân Tây
+        { u1: 13.5, v1: -197.0, u2: 50.0, v2: -197.0 },
+        { u1: 13.5, v1: -180.1, u2: 50.0, v2: -180.1 },
+        { u1: 13.5, v1: -197.0, u2: 13.5, v2: -180.1 },
+        { u1: 50.0, v1: -197.0, u2: 50.0, v2: -180.1 },
+        // Sân Đông
+        { u1: 54.1, v1: -196.5, u2: 114.9, v2: -196.5 },
+        { u1: 54.1, v1: -179.6, u2: 114.9, v2: -179.6 },
+        { u1: 54.1, v1: -196.5, u2: 54.1, v2: -190.2 },
+        { u1: 54.1, v1: -186.5, u2: 54.1, v2: -179.6 },
+        { u1: 114.9, v1: -196.5, u2: 114.9, v2: -190.3 },
+        { u1: 114.9, v1: -184.8, u2: 114.9, v2: -179.6 },
+      ];
+
+      for (const edge of courtyardEdges) {
+        const [x1, z1] = layout.toWorld(edge.u1, edge.v1);
+        const [x2, z2] = layout.toWorld(edge.u2, edge.v2);
+        const dx = x2 - x1;
+        const dz = z2 - z1;
+        const length = Math.hypot(dx, dz);
+        if (length < 0.05) continue;
+        const midX = (x1 + x2) / 2;
+        const midZ = (z1 + z2) / 2;
+        const angle = -Math.atan2(dz, dx);
+
+        const wellBox = new BoxGeometry(length, wellHeight, 0.2);
+        wellBox.rotateY(angle);
+        wellBox.translate(midX, wellCenterY, midZ);
+        solidGeos.push(wellBox);
+      }
+    }
+
     const mergedSolid = solidGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(solidGeos) : null;
     const mergedGlass = glassGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(glassGeos) : null;
     const mergedBaseboards = baseboardGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(baseboardGeos) : null;
@@ -536,13 +599,13 @@ export default function InteriorScene() {
           <pointLight position={[layout.toWorld(84.5, -188.0)[0], 3.6, layout.toWorld(84.5, -188.0)[1]]} intensity={0.65} distance={35} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(53.5, -188.35)[0], 3.4, layout.toWorld(53.5, -188.35)[1]]} intensity={0.7} distance={15} color="#fffbeb" />
         </>
-      ) : (
+      ) : buildingId.toLowerCase() === 'b3' ? (
         <>
           <pointLight position={[layout.toWorld(16, 12)[0], 3.4, layout.toWorld(16, 12)[1]]} intensity={0.65} distance={20} color="#fef08a" />
           <pointLight position={[layout.toWorld(-20, 26)[0], 3.4, layout.toWorld(-20, 26)[1]]} intensity={0.55} distance={25} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(-50, 26)[0], 3.4, layout.toWorld(-50, 26)[1]]} intensity={0.55} distance={25} color="#e0f2fe" />
         </>
-      )}
+      ) : null}
 
       {/* 1. Mặt sàn thế giới */}
       {floorGeometry && (
@@ -561,7 +624,7 @@ export default function InteriorScene() {
       {/* Nền đá sân trong nhìn từ các tầng trên xuống */}
       {b8CourtyardGroundGeometry && (
         <mesh geometry={b8CourtyardGroundGeometry} receiveShadow>
-          <meshStandardMaterial color={isB11 ? '#94a3b8' : '#475569'} roughness={0.7} />
+          <meshStandardMaterial color={isB11 ? '#94a3b8' : '#c9c4bb'} roughness={0.7} />
         </mesh>
       )}
 

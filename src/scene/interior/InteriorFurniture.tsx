@@ -56,7 +56,10 @@ export default function InteriorFurniture({
   if (id === 'b11') {
     return <B11Furniture floor={floor} showUpperFloors={showUpperFloors} />;
   }
-  return <B3Furniture floor={floor} />;
+  if (id === 'b3') {
+    return <B3Furniture floor={floor} />;
+  }
+  return null;
 }
 
 // =============================================================================
@@ -80,107 +83,71 @@ function B8Furniture({ floor }: { floor: number }) {
     return matrices;
   }, [toWorld]);
 
-  // 2. Bàn học sinh / sinh viên trong các phòng học (hàng lối)
-  const deskMatrices = useMemo(() => {
-    const matrices: Matrix4[] = [];
+  // 2. Bàn ghế lớp học theo đúng mật độ thật (phòng thường 48–56 chỗ, phòng gộp ~100+ chỗ)
+  const { deskMatrices, chairMatrices, boardMatrices, teacherDeskMatrices } = useMemo(() => {
+    const desks: Matrix4[] = [];
+    const chairs: Matrix4[] = [];
+    const boards: Matrix4[] = [];
+    const teacherDesks: Matrix4[] = [];
 
     for (const room of rooms) {
-      if (!room.code.includes('.B8')) continue;
+      if (!room.code.includes('.B8') || room.code.includes('102') || room.code.startsWith('WC')) continue;
 
-      const roomWidth = room.maxU - room.minU;
+      const vCenter = (room.minV + room.maxV) / 2;
       const isNorth = room.maxV <= -200.0;
 
+      // a. Bảng gắn tường Tây (u = minU), mép dưới 0.9 m, cao 1.2 m (center y = 1.5 m)
+      // Bảng rộng 3.5 m dọc theo v, dày 0.06 m dọc theo u
+      boards.push(createInstanceMatrix(toWorld, room.minU + 0.05, vCenter, 1.5, 0, 0.06, 1.2, 3.5));
+
+      // b. Bàn giáo viên 1.4 (v) x 0.7 (u) m, cao 0.75 m, cách bảng 1.2 m (u = minU + 1.2)
+      teacherDesks.push(createInstanceMatrix(toWorld, room.minU + 1.2, vCenter, 0.375, 0, 0.7, 0.75, 1.4));
+      // Ghế giáo viên ngồi phía sau bàn GV (u = minU + 0.65), quay mặt về phía Đông
+      chairs.push(createInstanceMatrix(toWorld, room.minU + 0.65, vCenter, 0.41, 0, 0.45, 0.82, 0.45));
+
+      // c. Bàn đôi học sinh: 1.2 m (v) x 0.5 m (u), cao 0.75 m + 2 ghế 0.42 x 0.42 m
+      // Hàng đầu cách tường Tây 2.4 m, bước hàng 0.9 m theo u, tới khi còn cách tường Đông 0.6 m
+      const deskPitchU = 0.9;
+      const deskWidthU = 0.5;
+      const deskLengthV = 1.2;
+      const aisleV = 0.7;
+      const desksPerRow = 4;
+      const totalDesksSpanV = desksPerRow * deskLengthV + (desksPerRow - 1) * aisleV; // 4 * 1.2 + 3 * 0.7 = 6.9 m
+
+      let vAvailableStart: number;
+      let vAvailableEnd: number;
       if (isNorth) {
-        // Cánh Bắc: Bảng ở v = -210.0, bàn xếp quay mặt về phía Bắc (v giảm dần)
-        const cols = roomWidth > 12 ? 4 : 2;
-        const colSpacing = roomWidth / (cols + 1);
-        const rows = [room.minV + 3.0, room.minV + 5.5, room.minV + 8.0];
-
-        for (let c = 1; c <= cols; c++) {
-          const u = room.minU + c * colSpacing;
-          for (const v of rows) {
-            matrices.push(createInstanceMatrix(toWorld, u, v, 0.38, 0, 1.8, 0.75, 0.55));
-          }
-        }
+        // Cánh Bắc: cửa phía hành lang ở maxV (chừa 1.0 m), tường ngoài ở minV (cách 0.6 m)
+        vAvailableStart = room.minV + 0.6;
+        vAvailableEnd = room.maxV - 1.0;
       } else {
-        // Cánh Nam: Bảng ở v = -166.2, bàn xếp quay mặt về phía Nam (v tăng dần)
-        const cols = roomWidth > 12 ? 4 : 2;
-        const colSpacing = roomWidth / (cols + 1);
-        const rows = [room.maxV - 3.0, room.maxV - 5.5, room.maxV - 8.0, room.maxV - 10.5];
+        // Cánh Nam: cửa phía hành lang ở minV (chừa 1.0 m), tường ngoài ở maxV (cách 0.6 m)
+        vAvailableStart = room.minV + 1.0;
+        vAvailableEnd = room.maxV - 0.6;
+      }
 
-        for (let c = 1; c <= cols; c++) {
-          const u = room.minU + c * colSpacing;
-          for (const v of rows) {
-            matrices.push(createInstanceMatrix(toWorld, u, v, 0.38, Math.PI, 1.8, 0.75, 0.55));
-          }
+      const availableSpanV = vAvailableEnd - vAvailableStart;
+      const marginV = Math.max(0, (availableSpanV - totalDesksSpanV) / 2);
+
+      for (let u = room.minU + 2.4; u + deskWidthU <= room.maxU - 0.6; u += deskPitchU) {
+        for (let col = 0; col < desksPerRow; col++) {
+          const v = vAvailableStart + marginV + col * (deskLengthV + aisleV) + deskLengthV / 2;
+          // Bàn đôi: width 0.5 (u), height 0.75 (y), length 1.2 (v)
+          desks.push(createInstanceMatrix(toWorld, u, v, 0.375, 0, deskWidthU, 0.75, deskLengthV));
+
+          // 2 ghế ngồi phía sau bàn (u + 0.42 m), quay mặt về phía Tây (Math.PI)
+          chairs.push(createInstanceMatrix(toWorld, u + 0.42, v - 0.3, 0.41, Math.PI, 0.42, 0.82, 0.42));
+          chairs.push(createInstanceMatrix(toWorld, u + 0.42, v + 0.3, 0.41, Math.PI, 0.42, 0.82, 0.42));
         }
       }
     }
 
-    return matrices;
-  }, [rooms, toWorld]);
-
-  // 3. Ghế sinh viên
-  const chairMatrices = useMemo(() => {
-    const matrices: Matrix4[] = [];
-
-    for (const room of rooms) {
-      if (!room.code.includes('.B8')) continue;
-
-      const roomWidth = room.maxU - room.minU;
-      const isNorth = room.maxV <= -200.0;
-
-      if (isNorth) {
-        const cols = roomWidth > 12 ? 4 : 2;
-        const colSpacing = roomWidth / (cols + 1);
-        const rows = [room.minV + 3.0, room.minV + 5.5, room.minV + 8.0];
-
-        for (let c = 1; c <= cols; c++) {
-          const u = room.minU + c * colSpacing;
-          for (const v of rows) {
-            matrices.push(createInstanceMatrix(toWorld, u - 0.45, v + 0.6, 0.42, 0, 0.45, 0.82, 0.45));
-            matrices.push(createInstanceMatrix(toWorld, u + 0.45, v + 0.6, 0.42, 0, 0.45, 0.82, 0.45));
-          }
-        }
-      } else {
-        const cols = roomWidth > 12 ? 4 : 2;
-        const colSpacing = roomWidth / (cols + 1);
-        const rows = [room.maxV - 3.0, room.maxV - 5.5, room.maxV - 8.0, room.maxV - 10.5];
-
-        for (let c = 1; c <= cols; c++) {
-          const u = room.minU + c * colSpacing;
-          for (const v of rows) {
-            matrices.push(createInstanceMatrix(toWorld, u - 0.45, v - 0.6, 0.42, Math.PI, 0.45, 0.82, 0.45));
-            matrices.push(createInstanceMatrix(toWorld, u + 0.45, v - 0.6, 0.42, Math.PI, 0.45, 0.82, 0.45));
-          }
-        }
-      }
-    }
-
-    return matrices;
-  }, [rooms, toWorld]);
-
-  // 4. Bảng từ ở đầu mỗi phòng học
-  const boardMatrices = useMemo(() => {
-    const matrices: Matrix4[] = [];
-
-    for (const room of rooms) {
-      if (!room.code.includes('.B8')) continue;
-      const roomWidth = room.maxU - room.minU;
-      const centerU = (room.minU + room.maxU) / 2;
-      const isNorth = room.maxV <= -200.0;
-      const boardWidth = Math.min(roomWidth - 2.0, 4.0);
-
-      if (isNorth) {
-        // Gắn tường Bắc
-        matrices.push(createInstanceMatrix(toWorld, centerU, room.minV + 0.15, 1.8, 0, boardWidth, 1.3, 0.06));
-      } else {
-        // Gắn tường Nam
-        matrices.push(createInstanceMatrix(toWorld, centerU, room.maxV - 0.15, 1.8, Math.PI, boardWidth, 1.3, 0.06));
-      }
-    }
-
-    return matrices;
+    return {
+      deskMatrices: desks,
+      chairMatrices: chairs,
+      boardMatrices: boards,
+      teacherDeskMatrices: teacherDesks,
+    };
   }, [rooms, toWorld]);
 
   // 5. Lan can inox bảo vệ sân trong (chỉ tầng 2, 3, 4 — KHÔNG DÙNG KÍNH)
@@ -285,63 +252,299 @@ function B8Furniture({ floor }: { floor: number }) {
     return matrices;
   }, [floor, toWorld]);
 
-  // 8. Cây xanh & bồn cây trong sân trong ở tầng 1 (hiển thị khi đứng ở bất kỳ tầng nào)
-  const courtyardTrees = useMemo(() => {
+  // 8. Sân trong — Vườn mở (lát gạch xám nhạt #c9c4bb + bồn cây viền bê tông cao 0.4 m, mặt cỏ #6f9a5b + cây lớn)
+  const courtyardGarden = useMemo(() => {
     const groundElevation = -(floor - 1) * FLOOR_HEIGHT;
 
-    const treeLocs: [number, number][] = [
-      // Sân Tây
-      [25.0, -188.5],
-      [35.0, -188.5],
-      [45.0, -188.5],
-      // Sân Đông
-      [65.0, -188.0],
-      [75.0, -188.0],
-      [85.0, -188.0],
-      [95.0, -188.0],
-      [105.0, -188.0],
+    const tileWalkwayMatrices: Matrix4[] = [];
+    const planterRimMatrices: Matrix4[] = [];
+    const planterSoilMatrices: Matrix4[] = [];
+    const treeTrunkMatrices: Matrix4[] = [];
+    const treeFoliageMatrices: Matrix4[] = [];
+
+    // Danh sách các bồn cây chữ nhật:
+    // Sân Tây: 3 bồn dọc giữa
+    const westPlanters = [
+      { centerU: 25.0, lenU: 8.5, centerV: -188.55, widthV: 5.0 },
+      { centerU: 35.0, lenU: 8.5, centerV: -188.55, widthV: 5.0 },
+      { centerU: 45.0, lenU: 7.2, centerV: -188.55, widthV: 5.0 },
+    ];
+    // Sân Đông: 5 bồn dọc giữa
+    const eastPlanters = [
+      { centerU: 65.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
+      { centerU: 75.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
+      { centerU: 85.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
+      { centerU: 95.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
+      { centerU: 104.0, lenU: 6.5, centerV: -188.05, widthV: 5.0 },
     ];
 
-    const planterMatrices: Matrix4[] = [];
-    const trunkMatrices: Matrix4[] = [];
-    const foliageMatrices: Matrix4[] = [];
-
-    for (const [u, v] of treeLocs) {
-      // Bồn cây vuông bằng đá
-      planterMatrices.push(createInstanceMatrix(toWorld, u, v, groundElevation + 0.35, 0, 3.2, 0.7, 3.2));
-      // Thân cây cao vươn lên
-      trunkMatrices.push(createInstanceMatrix(toWorld, u, v, groundElevation + 4.5, 0, 0.45, 8.0, 0.45));
-      // Tán lá xanh um tùm
-      foliageMatrices.push(createInstanceMatrix(toWorld, u, v, groundElevation + 8.5, 0, 5.0, 6.0, 5.0));
+    // Tạo viền bê tông cao 0.4 m và mặt cỏ cao 0.35 m cho từng bồn cây
+    for (const p of [...westPlanters, ...eastPlanters]) {
+      // Viền bê tông bồn cây (cao 0.4 m)
+      planterRimMatrices.push(
+        createInstanceMatrix(toWorld, p.centerU, p.centerV, groundElevation + 0.2, 0, p.lenU, 0.4, p.widthV)
+      );
+      // Mặt cỏ xanh / cây bụi bên trong (cao 0.35 m)
+      planterSoilMatrices.push(
+        createInstanceMatrix(toWorld, p.centerU, p.centerV, groundElevation + 0.22, 0, p.lenU - 0.4, 0.38, p.widthV - 0.4)
+      );
     }
 
-    return { planterMatrices, trunkMatrices, foliageMatrices };
-  }, [floor, toWorld]);
-
-  // 9. Cầu thang bộ (4 cụm cầu thang: Tây Bắc, Tây Nam, Giữa Bắc/Nam, Đông)
-  const stairSteps = useMemo(() => {
-    const matrices: Matrix4[] = [];
-    const stepCount = 14;
-
-    const stairLocations = [
-      { startU: 11.0, startV: -201.0, dirU: 0, dirV: -0.65 }, // Tây Bắc
-      { startU: 11.6, startV: -177.0, dirU: 0, dirV: 0.65 },  // Tây Nam
-      { startU: 51.9, startV: -201.0, dirU: 0, dirV: -0.65 }, // Giữa Bắc
-      { startU: 51.85, startV: -177.0, dirU: 0, dirV: 0.65 }, // Giữa Nam
-      { startU: 113.5, startV: -187.55, dirU: -0.45, dirV: 0 }, // Đông
+    // Cây lớn: 1 cây mỗi ~12 m dọc bồn (tán rộng 6–8 m, cao 8–10 m)
+    // Sân Tây 3 cây, Sân Đông 5 cây
+    const treeLocs: [number, number][] = [
+      // Sân Tây
+      [25.0, -188.55],
+      [35.0, -188.55],
+      [45.0, -188.55],
+      // Sân Đông
+      [65.0, -188.05],
+      [75.0, -188.05],
+      [85.0, -188.05],
+      [95.0, -188.05],
+      [104.0, -188.05],
     ];
 
-    for (const st of stairLocations) {
-      for (let i = 0; i < stepCount; i++) {
-        const u = st.startU + i * st.dirU;
-        const v = st.startV + i * st.dirV;
-        const y = (i / stepCount) * FLOOR_HEIGHT + 0.12;
-        const angle = Math.atan2(st.dirV, st.dirU);
-        matrices.push(createInstanceMatrix(toWorld, u, v, y, angle, 1.4, 0.22, 1.2));
+    for (const [u, v] of treeLocs) {
+      // Thân cây cao 8 m vươn lên từ mặt đất
+      treeTrunkMatrices.push(
+        createInstanceMatrix(toWorld, u, v, groundElevation + 4.0, 0, 0.5, 8.0, 0.5)
+      );
+      // Tán lá xum xuê rộng 7.0 m, cao 7.0 m
+      treeFoliageMatrices.push(
+        createInstanceMatrix(toWorld, u, v, groundElevation + 8.0, 0, 7.0, 7.0, 7.0)
+      );
+    }
+
+    // Viền lối lát gạch rộng 1.5 m sát mép sân, màu #c9c4bb
+    // Sân Tây: [13.5, 50.0] x [-197.0, -180.1]
+    const lenWestU = 50.0 - 13.5;
+    const lenWestV = -180.1 - (-197.0);
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, (13.5 + 50.0) / 2, -197.0 + 0.75, groundElevation + 0.02, 0, lenWestU, 0.04, 1.5));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, (13.5 + 50.0) / 2, -180.1 - 0.75, groundElevation + 0.02, 0, lenWestU, 0.04, 1.5));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 13.5 + 0.75, (-197.0 + -180.1) / 2, groundElevation + 0.02, 0, 1.5, 0.04, lenWestV));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 50.0 - 0.75, (-197.0 + -180.1) / 2, groundElevation + 0.02, 0, 1.5, 0.04, lenWestV));
+
+    // Lối đi ngang 1.5 m cắt ngang giữa các bồn cây sân Tây
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 30.0, -188.55, groundElevation + 0.02, 0, 1.5, 0.04, 5.0));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 40.0, -188.55, groundElevation + 0.02, 0, 1.5, 0.04, 5.0));
+
+    // Sân Đông: [54.1, 114.9] x [-196.5, -179.6]
+    const lenEastU = 114.9 - 54.1;
+    const lenEastV = -179.6 - (-196.5);
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, (54.1 + 114.9) / 2, -196.5 + 0.75, groundElevation + 0.02, 0, lenEastU, 0.04, 1.5));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, (54.1 + 114.9) / 2, -179.6 - 0.75, groundElevation + 0.02, 0, lenEastU, 0.04, 1.5));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 54.1 + 0.75, (-196.5 + -179.6) / 2, groundElevation + 0.02, 0, 1.5, 0.04, lenEastV));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 114.9 - 0.75, (-196.5 + -179.6) / 2, groundElevation + 0.02, 0, 1.5, 0.04, lenEastV));
+
+    // Lối đi ngang 1.5 m cắt ngang giữa các bồn cây sân Đông
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 70.0, -188.05, groundElevation + 0.02, 0, 1.5, 0.04, 5.0));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 80.0, -188.05, groundElevation + 0.02, 0, 1.5, 0.04, 5.0));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 90.0, -188.05, groundElevation + 0.02, 0, 1.5, 0.04, 5.0));
+    tileWalkwayMatrices.push(createInstanceMatrix(toWorld, 100.0, -188.05, groundElevation + 0.02, 0, 1.5, 0.04, 5.0));
+
+    return {
+      tileWalkwayMatrices,
+      planterRimMatrices,
+      planterSoilMatrices,
+      treeTrunkMatrices,
+      treeFoliageMatrices,
+    };
+  }, [floor, toWorld]);
+
+  // 9. Cầu thang bộ gấp 2 đoạn chuẩn kiến trúc (5 cụm: Tây Bắc, Giữa Bắc, Tây Nam, Giữa Nam, Lõi Đông)
+  const stairData = useMemo(() => {
+    const stepMatrices: Matrix4[] = [];
+    const landingMatrices: Matrix4[] = [];
+    const railMatrices: Matrix4[] = [];
+
+    const RISE = FLOOR_HEIGHT / 24; // 0.15833 m (24 bậc / 3.8 m)
+    const TREAD = 0.28; // 0.28 m
+    const FLIGHT_W = 1.3; // 1.3 m
+    const GAP = 0.2; // 0.2 m
+    const LANDING_DEPTH = 1.3; // 1.3 m
+    const LANDING_W = 2 * FLIGHT_W + GAP; // 2.8 m
+
+    // Cấu hình 5 buồng thang
+    interface StairConfig {
+      axis: 'v' | 'u';
+      corridorEdge: number; // Tọa độ mép giáp hành lang
+      dir: 1 | -1;          // Hướng đoạn 1 đi xa hành lang
+      centerCross: number;  // Tọa độ tâm theo trục ngang
+    }
+
+    const stairs: StairConfig[] = [
+      // Tây Bắc: trục v, mép v = -200.0, đi về -v, tâm u = (9.0 + 13.1) / 2 = 11.05
+      { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 11.05 },
+      // Giữa Bắc: trục v, mép v = -200.0, đi về -v, tâm u = (49.7 + 54.1) / 2 = 51.9
+      { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 51.9 },
+      // Tây Nam: trục v, mép v = -177.7, đi về +v, tâm u = (9.7 + 13.5) / 2 = 11.6
+      { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 11.6 },
+      // Giữa Nam: trục v, mép v = -177.7, đi về +v, tâm u = (50.0 + 53.7) / 2 = 51.85
+      { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 51.85 },
+      // Lõi Đông: trục u, mép u = 114.5, đi về -u, tâm v = (-190.3 + -184.8) / 2 = -187.55
+      { axis: 'u', corridorEdge: 114.5, dir: -1, centerCross: -187.55 },
+    ];
+
+    for (const st of stairs) {
+      const isV = st.axis === 'v';
+
+      // --- ĐOẠN 1 (Flight 1): 12 bậc đi từ hành lang lên chiếu nghỉ (y: 0 -> 1.9 m) ---
+      // Đoạn 1 nằm ở nhánh bên phải khi nhìn từ hành lang vào
+      const crossOffsetF1 = +(GAP / 2 + FLIGHT_W / 2); // +0.75 m
+
+      for (let i = 0; i < 12; i++) {
+        const distAlong = (i + 0.5) * TREAD;
+        const mainCoord = st.corridorEdge + st.dir * distAlong;
+        const crossCoord = st.centerCross + crossOffsetF1;
+
+        const u = isV ? crossCoord : mainCoord;
+        const v = isV ? mainCoord : crossCoord;
+
+        // Bậc thấp nhất (i = 0): cao hơn sàn >= 0.02 m để tránh trùng mặt phẳng
+        let stepH = RISE;
+        let stepCenterY: number;
+        if (i === 0) {
+          stepH = RISE - 0.02;
+          stepCenterY = 0.02 + stepH / 2;
+        } else {
+          stepCenterY = (i + 0.5) * RISE;
+        }
+
+        const sx = isV ? FLIGHT_W : TREAD;
+        const sz = isV ? TREAD : FLIGHT_W;
+        stepMatrices.push(createInstanceMatrix(toWorld, u, v, stepCenterY, 0, sx, stepH, sz));
+      }
+
+      // --- CHIẾU NGHỈ (Landing): ở đầu xa hành lang (y: 1.9 m) ---
+      const landingCenterDist = 12 * TREAD + LANDING_DEPTH / 2; // 3.36 + 0.65 = 4.01 m
+      const landingMainCoord = st.corridorEdge + st.dir * landingCenterDist;
+      const landingCrossCoord = st.centerCross;
+
+      const landingU = isV ? landingCrossCoord : landingMainCoord;
+      const landingV = isV ? landingMainCoord : landingCrossCoord;
+
+      const landingThickness = 0.16;
+      const landingCenterY = 1.90 - landingThickness / 2; // 1.82 m (mặt trên đúng 1.90 m)
+      const landingSx = isV ? LANDING_W : LANDING_DEPTH;
+      const landingSz = isV ? LANDING_DEPTH : LANDING_W;
+      landingMatrices.push(
+        createInstanceMatrix(toWorld, landingU, landingV, landingCenterY, 0, landingSx, landingThickness, landingSz)
+      );
+
+      // --- ĐOẠN 2 (Flight 2): 12 bậc quay ngược về hành lang lên sàn tầng trên (y: 1.9 -> 3.8 m) ---
+      // Đoạn 2 nằm ở nhánh bên trái khi nhìn từ hành lang vào
+      const crossOffsetF2 = -(GAP / 2 + FLIGHT_W / 2); // -0.75 m
+
+      for (let j = 0; j < 12; j++) {
+        // Bắt đầu từ mép chiếu nghỉ (dist = 3.36 m) quay ngược về 0
+        const distAlong = 12 * TREAD - (j + 0.5) * TREAD;
+        const mainCoord = st.corridorEdge + st.dir * distAlong;
+        const crossCoord = st.centerCross + crossOffsetF2;
+
+        const u = isV ? crossCoord : mainCoord;
+        const v = isV ? mainCoord : crossCoord;
+
+        const stepCenterY = (12 + j + 0.5) * RISE;
+        const sx = isV ? FLIGHT_W : TREAD;
+        const sz = isV ? TREAD : FLIGHT_W;
+        stepMatrices.push(createInstanceMatrix(toWorld, u, v, stepCenterY, 0, sx, RISE, sz));
+      }
+
+      // --- LAN CAN THANG INOX (Railings & Posts) ---
+      // Các trụ đứng inox (0.04 x 0.04 m, cao 0.9 m)
+      const postLocations = [
+        // Chân thang Đoạn 1 (gần hành lang)
+        { dist: 0.14, cross: crossOffsetF1 + FLIGHT_W / 2, baseY: 0 },
+        { dist: 0.14, cross: crossOffsetF1 - FLIGHT_W / 2, baseY: 0 },
+        // Giữa Đoạn 1
+        { dist: 1.82, cross: crossOffsetF1 + FLIGHT_W / 2, baseY: 6 * RISE },
+        { dist: 1.82, cross: crossOffsetF1 - FLIGHT_W / 2, baseY: 6 * RISE },
+        // Mép chiếu nghỉ phía Đoạn 1
+        { dist: 3.36, cross: crossOffsetF1 + FLIGHT_W / 2, baseY: 1.90 },
+        { dist: 3.36, cross: crossOffsetF1 - FLIGHT_W / 2, baseY: 1.90 },
+        // Lưng chiếu nghỉ (4 trụ)
+        { dist: 4.66, cross: +LANDING_W / 2, baseY: 1.90 },
+        { dist: 4.66, cross: +0.4, baseY: 1.90 },
+        { dist: 4.66, cross: -0.4, baseY: 1.90 },
+        { dist: 4.66, cross: -LANDING_W / 2, baseY: 1.90 },
+        // Mép chiếu nghỉ phía Đoạn 2
+        { dist: 3.36, cross: crossOffsetF2 + FLIGHT_W / 2, baseY: 1.90 },
+        { dist: 3.36, cross: crossOffsetF2 - FLIGHT_W / 2, baseY: 1.90 },
+        // Giữa Đoạn 2
+        { dist: 1.82, cross: crossOffsetF2 + FLIGHT_W / 2, baseY: 18 * RISE },
+        { dist: 1.82, cross: crossOffsetF2 - FLIGHT_W / 2, baseY: 18 * RISE },
+        // Đỉnh thang Đoạn 2 (gần hành lang)
+        { dist: 0.14, cross: crossOffsetF2 + FLIGHT_W / 2, baseY: 3.80 },
+        { dist: 0.14, cross: crossOffsetF2 - FLIGHT_W / 2, baseY: 3.80 },
+      ];
+
+      for (const p of postLocations) {
+        const mCoord = st.corridorEdge + st.dir * p.dist;
+        const cCoord = st.centerCross + p.cross;
+        const pu = isV ? cCoord : mCoord;
+        const pv = isV ? mCoord : cCoord;
+        railMatrices.push(
+          createInstanceMatrix(toWorld, pu, pv, p.baseY + 0.45, 0, 0.04, 0.9, 0.04)
+        );
+      }
+
+      // Thanh tay vịn ngang lưng chiếu nghỉ
+      const backRailMCoord = st.corridorEdge + st.dir * 4.66;
+      const backRailCCoord = st.centerCross;
+      const backU = isV ? backRailCCoord : backRailMCoord;
+      const backV = isV ? backRailMCoord : backRailCCoord;
+      const backSx = isV ? LANDING_W : 0.04;
+      const backSz = isV ? 0.04 : LANDING_W;
+      railMatrices.push(
+        createInstanceMatrix(toWorld, backU, backV, 1.90 + 0.9, 0, backSx, 0.04, backSz)
+      );
+
+      // Thanh tay vịn 2 bên hông chiếu nghỉ
+      const sideDist = 3.36 + LANDING_DEPTH / 2;
+      const sideMCoord = st.corridorEdge + st.dir * sideDist;
+      for (const sideSign of [-1, 1]) {
+        const sideCCoord = st.centerCross + sideSign * (LANDING_W / 2);
+        const su = isV ? sideCCoord : sideMCoord;
+        const sv = isV ? sideMCoord : sideCCoord;
+        const ssx = isV ? 0.04 : LANDING_DEPTH;
+        const ssz = isV ? LANDING_DEPTH : 0.04;
+        railMatrices.push(
+          createInstanceMatrix(toWorld, su, sv, 1.90 + 0.9, 0, ssx, 0.04, ssz)
+        );
+      }
+
+      // Thanh tay vịn dốc cho Đoạn 1 & Đoạn 2 (thể hiện bằng 6 phân đoạn tay vịn liên tục)
+      for (let s = 0; s < 6; s++) {
+        const segDist1 = (s * 2 + 1) * TREAD;
+        const segY1 = (s * 2 + 1) * RISE + 0.9;
+        const segM1 = st.corridorEdge + st.dir * segDist1;
+        // Tay vịn ngoài & trong Đoạn 1
+        for (const sign of [-1, 1]) {
+          const segC1 = st.centerCross + crossOffsetF1 + sign * (FLIGHT_W / 2);
+          const su1 = isV ? segC1 : segM1;
+          const sv1 = isV ? segM1 : segC1;
+          railMatrices.push(
+            createInstanceMatrix(toWorld, su1, sv1, segY1, 0, isV ? 0.04 : TREAD * 2, 0.04, isV ? TREAD * 2 : 0.04)
+          );
+        }
+
+        // Tay vịn ngoài & trong Đoạn 2
+        const segDist2 = 12 * TREAD - (s * 2 + 1) * TREAD;
+        const segY2 = (12 + s * 2 + 1) * RISE + 0.9;
+        const segM2 = st.corridorEdge + st.dir * segDist2;
+        for (const sign of [-1, 1]) {
+          const segC2 = st.centerCross + crossOffsetF2 + sign * (FLIGHT_W / 2);
+          const su2 = isV ? segC2 : segM2;
+          const sv2 = isV ? segM2 : segC2;
+          railMatrices.push(
+            createInstanceMatrix(toWorld, su2, sv2, segY2, 0, isV ? 0.04 : TREAD * 2, 0.04, isV ? TREAD * 2 : 0.04)
+          );
+        }
       }
     }
 
-    return matrices;
+    return { stepMatrices, landingMatrices, railMatrices };
   }, [toWorld]);
 
   const boxGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
@@ -364,7 +567,7 @@ function B8Furniture({ floor }: { floor: number }) {
         </instancedMesh>
       )}
 
-      {/* 2. Bàn học sinh / sinh viên */}
+      {/* 2. Bàn học sinh / sinh viên (Bàn đôi 1.2 x 0.5 m) */}
       {deskMatrices.length > 0 && (
         <instancedMesh
           args={[boxGeo, undefined, deskMatrices.length]}
@@ -379,7 +582,7 @@ function B8Furniture({ floor }: { floor: number }) {
         </instancedMesh>
       )}
 
-      {/* 3. Ghế sinh viên */}
+      {/* 3. Ghế sinh viên & giáo viên */}
       {chairMatrices.length > 0 && (
         <instancedMesh
           args={[boxGeo, undefined, chairMatrices.length]}
@@ -394,7 +597,22 @@ function B8Furniture({ floor }: { floor: number }) {
         </instancedMesh>
       )}
 
-      {/* 4. Bảng từ */}
+      {/* 4. Bàn giáo viên (1.4 x 0.7 m) */}
+      {teacherDeskMatrices.length > 0 && (
+        <instancedMesh
+          args={[boxGeo, undefined, teacherDeskMatrices.length]}
+          castShadow
+          receiveShadow
+          onUpdate={(self) => {
+            teacherDeskMatrices.forEach((m, i) => self.setMatrixAt(i, m));
+            self.instanceMatrix.needsUpdate = true;
+          }}
+        >
+          <meshStandardMaterial color="#b45309" roughness={0.5} />
+        </instancedMesh>
+      )}
+
+      {/* 5. Bảng từ (3.5 x 1.2 m) */}
       {boardMatrices.length > 0 && (
         <instancedMesh
           args={[boxGeo, undefined, boardMatrices.length]}
@@ -408,7 +626,7 @@ function B8Furniture({ floor }: { floor: number }) {
         </instancedMesh>
       )}
 
-      {/* 5. Lan can inox sân trong */}
+      {/* 6. Lan can inox sân trong (tầng 2-4) */}
       {railingMatrices.length > 0 && (
         <instancedMesh
           args={[boxGeo, undefined, railingMatrices.length]}
@@ -423,7 +641,7 @@ function B8Furniture({ floor }: { floor: number }) {
         </instancedMesh>
       )}
 
-      {/* 6. Viền sàn xanh dương */}
+      {/* 7. Viền sàn xanh dương (tầng 2-4) */}
       {blueTrimMatrices.length > 0 && (
         <instancedMesh
           args={[boxGeo, undefined, blueTrimMatrices.length]}
@@ -437,7 +655,7 @@ function B8Furniture({ floor }: { floor: number }) {
         </instancedMesh>
       )}
 
-      {/* 7. Lam che nắng */}
+      {/* 8. Lam che nắng (tầng 2-4) */}
       {louverMatrices.length > 0 && (
         <instancedMesh
           args={[boxGeo, undefined, louverMatrices.length]}
@@ -451,64 +669,113 @@ function B8Furniture({ floor }: { floor: number }) {
         </instancedMesh>
       )}
 
-      {/* 8. Cây xanh & bồn cây sân trong */}
-      {courtyardTrees.planterMatrices.length > 0 && (
-        <>
-          {/* Bồn cây đá */}
-          <instancedMesh
-            args={[boxGeo, undefined, courtyardTrees.planterMatrices.length]}
-            castShadow
-            receiveShadow
-            onUpdate={(self) => {
-              courtyardTrees.planterMatrices.forEach((m, i) => self.setMatrixAt(i, m));
-              self.instanceMatrix.needsUpdate = true;
-            }}
-          >
-            <meshStandardMaterial color="#475569" roughness={0.7} />
-          </instancedMesh>
-          {/* Thân cây gỗ */}
-          <instancedMesh
-            args={[cylinderGeo, undefined, courtyardTrees.trunkMatrices.length]}
-            castShadow
-            receiveShadow
-            onUpdate={(self) => {
-              courtyardTrees.trunkMatrices.forEach((m, i) => self.setMatrixAt(i, m));
-              self.instanceMatrix.needsUpdate = true;
-            }}
-          >
-            <meshStandardMaterial color="#5c3d2e" roughness={0.9} />
-          </instancedMesh>
-          {/* Tán lá xanh um tùm */}
-          <instancedMesh
-            args={[cylinderGeo, undefined, courtyardTrees.foliageMatrices.length]}
-            castShadow
-            receiveShadow
-            onUpdate={(self) => {
-              courtyardTrees.foliageMatrices.forEach((m, i) => self.setMatrixAt(i, m));
-              self.instanceMatrix.needsUpdate = true;
-            }}
-          >
-            <meshStandardMaterial color="#16a34a" roughness={0.8} />
-          </instancedMesh>
-        </>
-      )}
-
-      {/* 9. Bậc thang bộ */}
-      {stairSteps.length > 0 && (
+      {/* 9. Sân trong — Vườn mở (lối lát gạch, bồn cây bê tông + cỏ xanh, cây lớn) */}
+      {courtyardGarden.tileWalkwayMatrices.length > 0 && (
         <instancedMesh
-          args={[boxGeo, undefined, stairSteps.length]}
-          castShadow
+          args={[boxGeo, undefined, courtyardGarden.tileWalkwayMatrices.length]}
           receiveShadow
           onUpdate={(self) => {
-            stairSteps.forEach((m, i) => self.setMatrixAt(i, m));
+            courtyardGarden.tileWalkwayMatrices.forEach((m, i) => self.setMatrixAt(i, m));
             self.instanceMatrix.needsUpdate = true;
           }}
         >
-          <meshStandardMaterial color="#64748b" roughness={0.7} />
+          <meshStandardMaterial color="#c9c4bb" roughness={0.7} />
+        </instancedMesh>
+      )}
+      {courtyardGarden.planterRimMatrices.length > 0 && (
+        <instancedMesh
+          args={[boxGeo, undefined, courtyardGarden.planterRimMatrices.length]}
+          castShadow
+          receiveShadow
+          onUpdate={(self) => {
+            courtyardGarden.planterRimMatrices.forEach((m, i) => self.setMatrixAt(i, m));
+            self.instanceMatrix.needsUpdate = true;
+          }}
+        >
+          <meshStandardMaterial color="#cbd5e1" roughness={0.6} />
+        </instancedMesh>
+      )}
+      {courtyardGarden.planterSoilMatrices.length > 0 && (
+        <instancedMesh
+          args={[boxGeo, undefined, courtyardGarden.planterSoilMatrices.length]}
+          receiveShadow
+          onUpdate={(self) => {
+            courtyardGarden.planterSoilMatrices.forEach((m, i) => self.setMatrixAt(i, m));
+            self.instanceMatrix.needsUpdate = true;
+          }}
+        >
+          <meshStandardMaterial color="#6f9a5b" roughness={0.8} />
+        </instancedMesh>
+      )}
+      {courtyardGarden.treeTrunkMatrices.length > 0 && (
+        <instancedMesh
+          args={[cylinderGeo, undefined, courtyardGarden.treeTrunkMatrices.length]}
+          castShadow
+          receiveShadow
+          onUpdate={(self) => {
+            courtyardGarden.treeTrunkMatrices.forEach((m, i) => self.setMatrixAt(i, m));
+            self.instanceMatrix.needsUpdate = true;
+          }}
+        >
+          <meshStandardMaterial color="#5c3d2e" roughness={0.9} />
+        </instancedMesh>
+      )}
+      {courtyardGarden.treeFoliageMatrices.length > 0 && (
+        <instancedMesh
+          args={[cylinderGeo, undefined, courtyardGarden.treeFoliageMatrices.length]}
+          castShadow
+          receiveShadow
+          onUpdate={(self) => {
+            courtyardGarden.treeFoliageMatrices.forEach((m, i) => self.setMatrixAt(i, m));
+            self.instanceMatrix.needsUpdate = true;
+          }}
+        >
+          <meshStandardMaterial color="#2d6a4f" roughness={0.8} />
         </instancedMesh>
       )}
 
-      {/* 10. Buồng thang máy duy nhất của B8 (ở nhịp giữa) */}
+      {/* 10. Cầu thang bộ gấp 2 đoạn */}
+      {stairData.stepMatrices.length > 0 && (
+        <instancedMesh
+          args={[boxGeo, undefined, stairData.stepMatrices.length]}
+          castShadow
+          receiveShadow
+          onUpdate={(self) => {
+            stairData.stepMatrices.forEach((m, i) => self.setMatrixAt(i, m));
+            self.instanceMatrix.needsUpdate = true;
+          }}
+        >
+          <meshStandardMaterial color="#8c929c" roughness={0.8} />
+        </instancedMesh>
+      )}
+      {stairData.landingMatrices.length > 0 && (
+        <instancedMesh
+          args={[boxGeo, undefined, stairData.landingMatrices.length]}
+          castShadow
+          receiveShadow
+          onUpdate={(self) => {
+            stairData.landingMatrices.forEach((m, i) => self.setMatrixAt(i, m));
+            self.instanceMatrix.needsUpdate = true;
+          }}
+        >
+          <meshStandardMaterial color="#8c929c" roughness={0.8} />
+        </instancedMesh>
+      )}
+      {stairData.railMatrices.length > 0 && (
+        <instancedMesh
+          args={[boxGeo, undefined, stairData.railMatrices.length]}
+          castShadow
+          receiveShadow
+          onUpdate={(self) => {
+            stairData.railMatrices.forEach((m, i) => self.setMatrixAt(i, m));
+            self.instanceMatrix.needsUpdate = true;
+          }}
+        >
+          <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.15} />
+        </instancedMesh>
+      )}
+
+      {/* 11. Buồng thang máy duy nhất của B8 (ở nhịp giữa) */}
       <B8ElevatorBooth floor={floor} />
     </group>
   );
