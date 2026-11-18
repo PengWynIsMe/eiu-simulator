@@ -76,3 +76,26 @@ Ghi số pixel khác nhau trước / sau vào báo cáo.
 ## Báo cáo
 
 `docs/tasks/T18-bao-cao.md`: file đã sửa, kết quả lệnh, bảng pixel trước/sau, ảnh, phần chưa làm được và lý do.
+
+---
+
+## Việc 4 (bổ sung) — Cầu thang rộng sát tường buồng thang
+
+Hiện mỗi vế rộng 1.3 m, tổng 2.8 m, hai bên hở so với tường. **Muốn: 2 vế + khe giữa lấp kín bề ngang buồng thang.**
+Bề ngang lấy theo buồng thang các tầng 2–4 (giếng thang thật), trừ mỗi bên 0.1 m mặt tường, khe giữa giữ `GAP = 0.2`:
+
+| Thang | Buồng (trục ngang) | `centerCross` | Bề rộng thông thủy | `flightW` mới |
+| --- | --- | --- | --- | --- |
+| Tây Bắc | u 9.0 → 13.1 | 11.05 | 3.9 | **1.85** |
+| Giữa Bắc | u 49.7 → 54.1 | 51.9 | 4.2 | **2.00** |
+| Tây Nam | u 9.7 → 13.5 | 11.6 | 3.6 | **1.70** |
+| Giữa Nam | u 50.0 → 53.7 | 51.85 | 3.5 | **1.65** |
+| Lõi Đông | v -190.3 → -184.8 | -187.55 | 5.3 | **2.55** |
+
+1. `layouts/b8.ts`: thêm `flightW` vào từng phần tử `B8_STAIRS` theo bảng (bỏ hằng chung `B8_STAIR_FLIGHT_W`, hoặc chỉ giữ làm mặc định).
+   Chiếu nghỉ: sâu `landingDepth = max(1.3, flightW)` (quy chuẩn: chiếu nghỉ không hẹp hơn vế thang), rộng `2·flightW + GAP`.
+2. `getB8StairHeight`: dùng `flightW` và `landingDepth` **của từng thang** (điều kiện ngoài ô: `|cross| > flightW + GAP/2` hoặc `along > RUN + landingDepth`). RISE / RUN / 1.9 giữ nguyên.
+3. `B8Furniture.tsx`: `addSwitchbackFlight` của mỗi vế dùng `cross = ±(GAP/2 + flightW/2)` và `width = flightW`. Tay vịn ngoài đặt cách mặt tường ≥ 0.05 m.
+   **Kiểm tra độ dày tường buồng thang thực tế** trong `getFloorWalls`. Nếu không phải 0.2 m thì chỉnh `flightW` để mép ngoài vế cách mặt tường 0.05 m và ghi lại vào báo cáo.
+4. Leo thang (T17) phải chạy lại đúng với bề rộng mới: thử thang Giữa Bắc và Lõi Đông, ghi log `y` như T17.
+5. Ảnh thêm: thang Giữa Bắc nhìn từ hành lang, thấy 2 vế sát 2 tường.
