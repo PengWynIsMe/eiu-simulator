@@ -58,6 +58,7 @@ export interface InteriorLayout {
   getFloorRooms: (floor: number) => readonly RoomArea[];
   getFloorBoundaryPts: (floor: number) => Vec2[];
   getFloorHoles?: (floor: number) => Vec2[][];
+  getStairHeight?: (u: number, v: number) => number | null;
   resolvePosition: (
     nextX: number,
     nextZ: number,

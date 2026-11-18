@@ -17,6 +17,13 @@ import {
   B8_EAST_HOLE_UV,
   B8_EXIT_SIGNS,
   B8_PCCC_POINTS,
+  B8_PLANTERS,
+  B8_STAIR_FLIGHT_W,
+  B8_STAIR_GAP,
+  B8_STAIR_LANDING_DEPTH,
+  B8_STAIR_RUN,
+  B8_STAIRS,
+  B8_TREE_UV,
   B8_WEST_HOLE_UV,
   b8Layout,
   getFloorDoors,
@@ -31,11 +38,11 @@ const LOUVER_TILT_RAD = (35 * Math.PI) / 180;
 const WEST_COL_US = [13.75, 22.75, 31.75, 40.75, 49.75] as const;
 const EAST_COL_US = Array.from({ length: 9 }, (_, i) => 54.35 + i * 7.5375);
 
-/** Tạo ma trận cho thanh nghiêng 3D nối từ p1 tới p2 (dùng cho giàn chống thép 4 chân). */
-function makeTiltedPipeMatrix(
+// Chép từ B11Furniture.tsx (đồng nghiệp) — kiểu thang chữ U
+function makeTiltedBoxMatrix(
   p1: readonly [number, number, number],
   p2: readonly [number, number, number],
-  diameter: number
+  radius: number
 ): Matrix4 {
   const a = new Vector3(p1[0], p1[1], p1[2]);
   const b = new Vector3(p2[0], p2[1], p2[2]);
@@ -44,7 +51,119 @@ function makeTiltedPipeMatrix(
   if (len < 0.01) return new Matrix4().makeScale(0, 0, 0);
   const mid = new Vector3().addVectors(a, b).multiplyScalar(0.5);
   const quat = new Quaternion().setFromUnitVectors(UP_VEC, dir.normalize());
-  return new Matrix4().compose(mid, quat, new Vector3(diameter, len, diameter));
+  return new Matrix4().compose(mid, quat, new Vector3(radius * 2, len, radius * 2));
+}
+
+// Chép từ B11Furniture.tsx (đồng nghiệp) — kiểu thang chữ U
+function makeRampSlabMatrix(
+  toWorld: (u: number, v: number) => Vec2,
+  u1: number,
+  v1: number,
+  y1: number,
+  u2: number,
+  v2: number,
+  y2: number,
+  crossWidth: number,
+  thickness: number
+): Matrix4 {
+  const [x1, z1] = toWorld(u1, v1);
+  const [x2, z2] = toWorld(u2, v2);
+  const a = new Vector3(x1, y1, z1);
+  const b = new Vector3(x2, y2, z2);
+  const dir = new Vector3().subVectors(b, a);
+  const len = dir.length();
+  if (len < 0.01) return new Matrix4().makeScale(0, 0, 0);
+  dir.divideScalar(len);
+  const cross = new Vector3().crossVectors(UP_VEC, dir).normalize();
+  const normal = new Vector3().crossVectors(dir, cross).normalize();
+  const mid = new Vector3().addVectors(a, b).multiplyScalar(0.5);
+  return new Matrix4()
+    .makeBasis(
+      cross.multiplyScalar(crossWidth),
+      normal.multiplyScalar(thickness),
+      dir.multiplyScalar(len)
+    )
+    .setPosition(mid);
+}
+
+// Chép từ B11Furniture.tsx (đồng nghiệp) — kiểu thang chữ U
+function addSwitchbackFlight(
+  toWorld: (u: number, v: number) => Vec2,
+  treads: Matrix4[],
+  soffits: Matrix4[],
+  rails: Matrix4[],
+  u1: number,
+  v1: number,
+  y1: number,
+  u2: number,
+  v2: number,
+  y2: number,
+  width: number,
+  stepCount: number
+): void {
+  const du = u2 - u1;
+  const dv = v2 - v1;
+  const hLen = Math.hypot(du, dv);
+  if (hLen < 0.2) return;
+  const yaw = -Math.atan2(dv, du);
+  const runPerStep = hLen / stepCount;
+  const rise = y2 - y1;
+  const risePerStep = rise / stepCount;
+  const treadThickness = risePerStep + 0.015;
+
+  for (let s = 0; s < stepCount; s++) {
+    const u = u1 + du * ((s + 0.5) / stepCount);
+    const v = v1 + dv * ((s + 0.5) / stepCount);
+    const topY = y1 + rise * ((s + 1) / stepCount);
+    treads.push(
+      createInstanceMatrix(
+        toWorld,
+        u,
+        v,
+        topY - treadThickness * 0.5,
+        yaw,
+        runPerStep + 0.05,
+        treadThickness,
+        width
+      )
+    );
+  }
+
+  // Bản thang bê tông mặt dưới phẳng nghiêng
+  const yMod = ((y1 % FLOOR_HEIGHT) + FLOOR_HEIGHT) % FLOOR_HEIGHT;
+  const trimStart = yMod < 0.05 ? 0.35 / hLen : 0;
+  soffits.push(
+    makeRampSlabMatrix(
+      toWorld,
+      u1 + du * trimStart,
+      v1 + dv * trimStart,
+      y1 + rise * trimStart - 0.12,
+      u2,
+      v2,
+      y2 - 0.12,
+      width + 0.04,
+      0.24
+    )
+  );
+
+  // Tay vịn inox 3 thanh dọc hai bên vế thang + trụ đứng
+  const perpU = -dv / hLen;
+  const perpV = du / hLen;
+  const railOffset = width * 0.47;
+  for (const side of [-1, 1]) {
+    const ox = perpU * railOffset * side;
+    const oz = perpV * railOffset * side;
+    for (const ry of [0.44, 0.74, 1.04]) {
+      const thick = ry > 1.0 ? 0.05 : 0.028;
+      rails.push(makeRampSlabMatrix(toWorld, u1 + ox, v1 + oz, y1 + ry, u2 + ox, v2 + oz, y2 + ry, thick, thick));
+    }
+    for (const t of [0.02, 0.34, 0.67, 0.98]) {
+      const pu = u1 + du * t + ox;
+      const pv = v1 + dv * t + oz;
+      const py = y1 + rise * t;
+      rails.push(createInstanceMatrix(toWorld, pu, pv, py + 0.52, 0, 0.04, 1.04, 0.04));
+    }
+  }
 }
 
 /** Tạo ma trận hộp có góc nghiêng quanh trục cục bộ u (dùng cho lá lam che nắng nghiêng 35°). */
@@ -503,19 +622,8 @@ export default function B8Furniture({
     courtyardPaving.push(createInstanceMatrix(toWorld, 31.75, -188.55, groundY + 0.01, 0, 36.5, 0.02, 16.9));
     courtyardPaving.push(createInstanceMatrix(toWorld, 84.5, -188.05, groundY + 0.01, 0, 60.8, 0.02, 16.9));
 
-    const planters = [
-      { centerU: 25.0, lenU: 8.5, centerV: -188.55, widthV: 5.0 },
-      { centerU: 35.0, lenU: 8.5, centerV: -188.55, widthV: 5.0 },
-      { centerU: 45.0, lenU: 7.2, centerV: -188.55, widthV: 5.0 },
-      { centerU: 65.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
-      { centerU: 75.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
-      { centerU: 85.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
-      { centerU: 95.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
-      { centerU: 104.0, lenU: 6.5, centerV: -188.05, widthV: 5.0 },
-    ];
-
     const rng = createSeededRng(202608);
-    for (const p of planters) {
+    for (const p of B8_PLANTERS) {
       const halfU = p.lenU * 0.5;
       const halfV = p.widthV * 0.5;
       const rimThick = 0.15;
@@ -542,18 +650,7 @@ export default function B8Furniture({
       }
     }
 
-    const treeLocs: readonly [number, number][] = [
-      [25.0, -188.55],
-      [35.0, -188.55],
-      [45.0, -188.55],
-      [65.0, -188.05],
-      [75.0, -188.05],
-      [85.0, -188.05],
-      [95.0, -188.05],
-      [104.0, -188.05],
-    ];
-
-    for (const [tu, tv] of treeLocs) {
+    for (const [tu, tv] of B8_TREE_UV) {
       // Thân cây Ø0.35, cao 13.0 m
       treeTrunks.push(createInstanceMatrix(toWorld, tu, tv, groundY + 6.5, 0, 0.35, 13.0, 0.35));
 
@@ -572,163 +669,68 @@ export default function B8Furniture({
         [0, -1.2],
       ] as const) {
         const [bx, bz] = toWorld(tu + du, tv + dv);
-        treeStakes.push(makeTiltedPipeMatrix([bx, groundY, bz], topPt, 0.08));
+        treeStakes.push(makeTiltedBoxMatrix([bx, groundY, bz], topPt, 0.04));
       }
     }
 
-    // 4. Cầu thang bộ gấp 2 đoạn (dựng cho tầng 1–3 để nhìn lên/xuống giữa các tầng đều có thang)
+    // 4. Cầu thang bộ chữ U kiểu B11 (giữ đúng số đo RISE/RUN/chiếu nghỉ 1.9 m của B8)
     const stairSteps: Matrix4[] = [];
-    const stairLandings: Matrix4[] = [];
+    const stairSoffits: Matrix4[] = [];
     const stairRails: Matrix4[] = [];
 
-    const RISE = FLOOR_HEIGHT / 24;
-    const TREAD = 0.28;
-    const FLIGHT_W = 1.3;
-    const GAP = 0.2;
-    const LANDING_DEPTH = 1.3;
+    const FLIGHT_W = B8_STAIR_FLIGHT_W;
+    const GAP = B8_STAIR_GAP;
+    const LANDING_DEPTH = B8_STAIR_LANDING_DEPTH;
+    const RUN = B8_STAIR_RUN;
     const LANDING_W = 2 * FLIGHT_W + GAP;
-
-    const stairs = [
-      { axis: 'v' as const, corridorEdge: -200.0, dir: -1 as const, centerCross: 11.05 },
-      { axis: 'v' as const, corridorEdge: -200.0, dir: -1 as const, centerCross: 51.9 },
-      { axis: 'v' as const, corridorEdge: -177.7, dir: 1 as const, centerCross: 11.6 },
-      { axis: 'v' as const, corridorEdge: -177.7, dir: 1 as const, centerCross: 51.85 },
-      { axis: 'u' as const, corridorEdge: 114.5, dir: -1 as const, centerCross: -187.55 },
-    ];
 
     for (let f = 1; f <= 3; f++) {
       if (!showUpperFloors && f > floor) continue;
       const dy = (f - floor) * FLOOR_HEIGHT;
 
-      for (const st of stairs) {
+      for (const st of B8_STAIRS) {
         const isV = st.axis === 'v';
+        const toUV = (along: number, cross: number): readonly [number, number] => {
+          const main = st.corridorEdge + st.dir * along;
+          const crossC = st.centerCross + cross;
+          return isV ? [crossC, main] : [main, crossC];
+        };
+
         const crossOffsetF1 = +(GAP / 2 + FLIGHT_W / 2);
-
-        for (let i = 0; i < 12; i++) {
-          const distAlong = (i + 0.5) * TREAD;
-          const mainCoord = st.corridorEdge + st.dir * distAlong;
-          const crossCoord = st.centerCross + crossOffsetF1;
-          const u = isV ? crossCoord : mainCoord;
-          const v = isV ? mainCoord : crossCoord;
-          const stepH = i === 0 ? RISE - 0.02 : RISE;
-          const stepCenterY = dy + (i === 0 ? 0.02 + stepH / 2 : (i + 0.5) * RISE);
-          stairSteps.push(
-            createInstanceMatrix(toWorld, u, v, stepCenterY, 0, isV ? FLIGHT_W : TREAD, stepH, isV ? TREAD : FLIGHT_W)
-          );
-        }
-
-        const landingMainCoord = st.corridorEdge + st.dir * (12 * TREAD + LANDING_DEPTH / 2);
-        const landingU = isV ? st.centerCross : landingMainCoord;
-        const landingV = isV ? landingMainCoord : st.centerCross;
-        stairLandings.push(
-          createInstanceMatrix(
-            toWorld,
-            landingU,
-            landingV,
-            dy + 1.9 - 0.08,
-            0,
-            isV ? LANDING_W : LANDING_DEPTH,
-            0.16,
-            isV ? LANDING_DEPTH : LANDING_W
-          )
-        );
-
         const crossOffsetF2 = -(GAP / 2 + FLIGHT_W / 2);
-        for (let j = 0; j < 12; j++) {
-          const distAlong = 12 * TREAD - (j + 0.5) * TREAD;
-          const mainCoord = st.corridorEdge + st.dir * distAlong;
-          const crossCoord = st.centerCross + crossOffsetF2;
-          const u = isV ? crossCoord : mainCoord;
-          const v = isV ? mainCoord : crossCoord;
-          stairSteps.push(
-            createInstanceMatrix(
-              toWorld,
-              u,
-              v,
-              dy + (12 + j + 0.5) * RISE,
-              0,
-              isV ? FLIGHT_W : TREAD,
-              RISE,
-              isV ? TREAD : FLIGHT_W
-            )
-          );
+        const [f1u1, f1v1] = toUV(0, crossOffsetF1);
+        const [f1u2, f1v2] = toUV(RUN, crossOffsetF1);
+        addSwitchbackFlight(toWorld, stairSteps, stairSoffits, stairRails, f1u1, f1v1, dy, f1u2, f1v2, dy + 1.9, FLIGHT_W, 12);
+
+        const [f2u1, f2v1] = toUV(RUN, crossOffsetF2);
+        const [f2u2, f2v2] = toUV(0, crossOffsetF2);
+        addSwitchbackFlight(toWorld, stairSteps, stairSoffits, stairRails, f2u1, f2v1, dy + 1.9, f2u2, f2v2, dy + FLOOR_HEIGHT, FLIGHT_W, 12);
+
+        // Chiếu nghỉ: bản bê tông dưới + mặt đá đen trên cùng y = dy + 1.9
+        const [landingU, landingV] = toUV(RUN + LANDING_DEPTH * 0.5, 0);
+        const landSx = isV ? LANDING_W : LANDING_DEPTH;
+        const landSz = isV ? LANDING_DEPTH : LANDING_W;
+        stairSoffits.push(createInstanceMatrix(toWorld, landingU, landingV, dy + 1.9 - 0.1, 0, landSx, 0.16, landSz));
+        stairSteps.push(createInstanceMatrix(toWorld, landingU, landingV, dy + 1.9 - 0.02, 0, landSx, 0.04, landSz));
+
+        // Lan can chiếu nghỉ (lưng & 2 hông) cùng kiểu 3 thanh + trụ đứng
+        const [backLu, backLv] = toUV(RUN + LANDING_DEPTH - 0.05, -LANDING_W * 0.47);
+        const [backRu, backRv] = toUV(RUN + LANDING_DEPTH - 0.05, +LANDING_W * 0.47);
+        for (const ry of [0.44, 0.74, 1.04]) {
+          const thick = ry > 1.0 ? 0.05 : 0.028;
+          stairRails.push(makeRampSlabMatrix(toWorld, backLu, backLv, dy + 1.9 + ry, backRu, backRv, dy + 1.9 + ry, thick, thick));
         }
-
-        const postLocations = [
-          { dist: 0.14, cross: crossOffsetF1 + FLIGHT_W / 2, baseY: 0 },
-          { dist: 0.14, cross: crossOffsetF1 - FLIGHT_W / 2, baseY: 0 },
-          { dist: 1.82, cross: crossOffsetF1 + FLIGHT_W / 2, baseY: 6 * RISE },
-          { dist: 1.82, cross: crossOffsetF1 - FLIGHT_W / 2, baseY: 6 * RISE },
-          { dist: 3.36, cross: crossOffsetF1 + FLIGHT_W / 2, baseY: 1.9 },
-          { dist: 3.36, cross: crossOffsetF1 - FLIGHT_W / 2, baseY: 1.9 },
-          { dist: 4.66, cross: +LANDING_W / 2, baseY: 1.9 },
-          { dist: 4.66, cross: +0.4, baseY: 1.9 },
-          { dist: 4.66, cross: -0.4, baseY: 1.9 },
-          { dist: 4.66, cross: -LANDING_W / 2, baseY: 1.9 },
-          { dist: 3.36, cross: crossOffsetF2 + FLIGHT_W / 2, baseY: 1.9 },
-          { dist: 3.36, cross: crossOffsetF2 - FLIGHT_W / 2, baseY: 1.9 },
-          { dist: 1.82, cross: crossOffsetF2 + FLIGHT_W / 2, baseY: 18 * RISE },
-          { dist: 1.82, cross: crossOffsetF2 - FLIGHT_W / 2, baseY: 18 * RISE },
-          { dist: 0.14, cross: crossOffsetF2 + FLIGHT_W / 2, baseY: 3.8 },
-          { dist: 0.14, cross: crossOffsetF2 - FLIGHT_W / 2, baseY: 3.8 },
-        ];
-
-        for (const p of postLocations) {
-          const mCoord = st.corridorEdge + st.dir * p.dist;
-          const cCoord = st.centerCross + p.cross;
-          stairRails.push(
-            createInstanceMatrix(toWorld, isV ? cCoord : mCoord, isV ? mCoord : cCoord, dy + p.baseY + 0.45, 0, 0.04, 0.9, 0.04)
-          );
+        for (const crossPos of [-LANDING_W * 0.47, -0.4, 0.4, LANDING_W * 0.47]) {
+          const [pu, pv] = toUV(RUN + LANDING_DEPTH - 0.05, crossPos);
+          stairRails.push(createInstanceMatrix(toWorld, pu, pv, dy + 1.9 + 0.52, 0, 0.04, 1.04, 0.04));
         }
-
-        const backM = st.corridorEdge + st.dir * 4.66;
-        stairRails.push(
-          createInstanceMatrix(
-            toWorld,
-            isV ? st.centerCross : backM,
-            isV ? backM : st.centerCross,
-            dy + 2.8,
-            0,
-            isV ? LANDING_W : 0.04,
-            0.04,
-            isV ? 0.04 : LANDING_W
-          )
-        );
-
-        const sideM = st.corridorEdge + st.dir * (3.36 + LANDING_DEPTH / 2);
-        for (const sideSign of [-1, 1]) {
-          const sideC = st.centerCross + sideSign * (LANDING_W / 2);
-          stairRails.push(
-            createInstanceMatrix(
-              toWorld,
-              isV ? sideC : sideM,
-              isV ? sideM : sideC,
-              dy + 2.8,
-              0,
-              isV ? 0.04 : LANDING_DEPTH,
-              0.04,
-              isV ? LANDING_DEPTH : 0.04
-            )
-          );
-        }
-
-        for (let s = 0; s < 6; s++) {
-          const segM1 = st.corridorEdge + st.dir * ((s * 2 + 1) * TREAD);
-          const segY1 = dy + (s * 2 + 1) * RISE + 0.9;
-          for (const sign of [-1, 1]) {
-            const segC1 = st.centerCross + crossOffsetF1 + sign * (FLIGHT_W / 2);
-            stairRails.push(
-              createInstanceMatrix(toWorld, isV ? segC1 : segM1, isV ? segM1 : segC1, segY1, 0, isV ? 0.04 : TREAD * 2, 0.04, isV ? TREAD * 2 : 0.04)
-            );
-          }
-
-          const segM2 = st.corridorEdge + st.dir * (12 * TREAD - (s * 2 + 1) * TREAD);
-          const segY2 = dy + (12 + s * 2 + 1) * RISE + 0.9;
-          for (const sign of [-1, 1]) {
-            const segC2 = st.centerCross + crossOffsetF2 + sign * (FLIGHT_W / 2);
-            stairRails.push(
-              createInstanceMatrix(toWorld, isV ? segC2 : segM2, isV ? segM2 : segC2, segY2, 0, isV ? 0.04 : TREAD * 2, 0.04, isV ? TREAD * 2 : 0.04)
-            );
+        for (const sideSign of [-1, 1] as const) {
+          const sideCross = sideSign * LANDING_W * 0.47;
+          const [su1, sv1] = toUV(RUN, sideCross);
+          const [su2, sv2] = toUV(RUN + LANDING_DEPTH - 0.05, sideCross);
+          for (const ry of [0.44, 0.74, 1.04]) {
+            const thick = ry > 1.0 ? 0.05 : 0.028;
+            stairRails.push(makeRampSlabMatrix(toWorld, su1, sv1, dy + 1.9 + ry, su2, sv2, dy + 1.9 + ry, thick, thick));
           }
         }
       }
@@ -761,7 +763,7 @@ export default function B8Furniture({
       canopyLight,
       treeStakes,
       stairSteps,
-      stairLandings,
+      stairSoffits,
       stairRails,
     };
   }, [floor, showUpperFloors]);
@@ -822,8 +824,8 @@ export default function B8Furniture({
       <InstancedBatch batchKey="b8-canopyL" matrices={data.canopyLight} geometry={sharedGeos.canopy} color="#4f8f45" roughness={0.85} />
       <InstancedBatch batchKey="b8-stakes" matrices={data.treeStakes} geometry={sharedGeos.cyl} color="#9ca3af" metalness={0.7} roughness={0.3} />
 
-      <InstancedBatch batchKey="b8-step" matrices={data.stairSteps} geometry={sharedGeos.box} color="#8c929c" roughness={0.8} />
-      <InstancedBatch batchKey="b8-land" matrices={data.stairLandings} geometry={sharedGeos.box} color="#8c929c" roughness={0.8} />
+      <InstancedBatch batchKey="b8-step" matrices={data.stairSteps} geometry={sharedGeos.box} color="#1e293b" metalness={0.4} roughness={0.45} />
+      <InstancedBatch batchKey="b8-soffit" matrices={data.stairSoffits} geometry={sharedGeos.box} color="#d6cec2" roughness={0.78} />
       <InstancedBatch batchKey="b8-srail" matrices={data.stairRails} geometry={sharedGeos.box} color="#d8dde3" metalness={0.35} roughness={0.3} />
 
       <B8ElevatorBooth floor={floor} />

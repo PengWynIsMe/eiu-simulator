@@ -543,6 +543,85 @@ export const B8_EXIT_SIGNS: readonly Vec2[] = [
   [110.0, -188.0],
 ];
 
+export interface B8Planter {
+  readonly centerU: number;
+  readonly lenU: number;
+  readonly centerV: number;
+  readonly widthV: number;
+}
+
+/** 8 bồn cây sân trong tầng trệt (dùng chung cho nội thất & ngoại thất) */
+export const B8_PLANTERS: readonly B8Planter[] = [
+  { centerU: 25.0, lenU: 8.5, centerV: -188.55, widthV: 5.0 },
+  { centerU: 35.0, lenU: 8.5, centerV: -188.55, widthV: 5.0 },
+  { centerU: 45.0, lenU: 7.2, centerV: -188.55, widthV: 5.0 },
+  { centerU: 65.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
+  { centerU: 75.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
+  { centerU: 85.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
+  { centerU: 95.0, lenU: 8.5, centerV: -188.05, widthV: 5.0 },
+  { centerU: 104.0, lenU: 6.5, centerV: -188.05, widthV: 5.0 },
+];
+
+/** 8 cây xanh sân trong (3 cây sân Tây, 5 cây sân Đông) */
+export const B8_TREE_UV: readonly Vec2[] = [
+  [25.0, -188.55],
+  [35.0, -188.55],
+  [45.0, -188.55],
+  [65.0, -188.05],
+  [75.0, -188.05],
+  [85.0, -188.05],
+  [95.0, -188.05],
+  [104.0, -188.05],
+];
+
+/** Thông số cầu thang bộ gấp 2 vế Block 8 */
+export const B8_STAIR_RISE = 3.8 / 24;
+export const B8_STAIR_TREAD = 0.28;
+export const B8_STAIR_FLIGHT_W = 1.3;
+export const B8_STAIR_GAP = 0.2;
+export const B8_STAIR_LANDING_DEPTH = 1.3;
+export const B8_STAIR_RUN = 12 * B8_STAIR_TREAD; // 3.36 m
+
+export interface B8StairConfig {
+  readonly axis: 'v' | 'u';
+  readonly corridorEdge: number;
+  readonly dir: 1 | -1;
+  readonly centerCross: number;
+}
+
+export const B8_STAIRS: readonly B8StairConfig[] = [
+  { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 11.05 },   // Tây Bắc
+  { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 51.9 },    // Giữa Bắc
+  { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 11.6 },     // Tây Nam
+  { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 51.85 },    // Giữa Nam
+  { axis: 'u', corridorEdge: 114.5, dir: -1, centerCross: -187.55 },  // Lõi Đông
+];
+
+/**
+ * Trả về độ cao mặt dốc cầu thang (m) so với sàn tầng bắt đầu vế 1, hoặc `null` nếu ngoài ô thang.
+ * Vế 1 (cross >= 0) đi từ 0 → 1.9 m; chiếu nghỉ = 1.9 m; Vế 2 (cross < 0) đi từ 1.9 → 3.8 m.
+ */
+export function getB8StairHeight(u: number, v: number): number | null {
+  for (const st of B8_STAIRS) {
+    const isV = st.axis === 'v';
+    const main = isV ? v : u;
+    const crossC = isV ? u : v;
+    const along = (main - st.corridorEdge) * st.dir;
+    const cross = crossC - st.centerCross;
+    if (
+      along < 0 ||
+      along > B8_STAIR_RUN + B8_STAIR_LANDING_DEPTH ||
+      Math.abs(cross) > B8_STAIR_FLIGHT_W + B8_STAIR_GAP / 2
+    ) {
+      continue;
+    }
+    if (along >= B8_STAIR_RUN) return 1.9;
+    if (cross >= 0) return (along / B8_STAIR_RUN) * 1.9;
+    return 1.9 + ((B8_STAIR_RUN - along) / B8_STAIR_RUN) * 1.9;
+  }
+  return null;
+}
+
 // 2 Lỗ giếng trời sân trong cho các tầng 2, 3, 4 (KHÔNG CÓ KÍNH)
 export function getFloorHoles(floor: number): Vec2[][] {
   if (floor === 1) return []; // Tầng 1 phủ kín sàn sân vườn
@@ -745,6 +824,7 @@ export const b8Layout: InteriorLayout = {
   getFloorRooms,
   getFloorBoundaryPts,
   getFloorHoles,
+  getStairHeight: getB8StairHeight,
   resolvePosition: resolveInteriorPosition,
   getActiveRoom,
   getNearInteractive,

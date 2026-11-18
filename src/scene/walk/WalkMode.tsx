@@ -5,7 +5,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Vector3, type Group } from 'three';
 import { CapsuleFallback } from './PlayerCharacter';
 import PlayerCharacter from './PlayerCharacter';
-import { campus } from '../../data';
+import { campus, FLOOR_HEIGHT } from '../../data';
 import { useCampusStore } from '../../store/useCampusStore';
 import { useWalkStore } from '../../store/useWalkStore';
 import type { Vec2 } from '../../types';
@@ -172,6 +172,7 @@ export default function WalkMode() {
   const lastUsedInteractive = useRef<InteractivePoint | null>(null);
   const isTopDownView = useRef(false);
   const stairArrival = useRef<{ stairCode: string; floor: number } | null>(null);
+  const stairWalkTransition = useRef(false);
 
   // Lắng nghe sự kiện chuyển góc nhìn từ trên xuống để so sánh sơ đồ
   useEffect(() => {
@@ -245,50 +246,56 @@ export default function WalkMode() {
         globalFacingYaw = spawnYaw;
         currentFloorWallLines.current = [];
       } else if (prev && cur && prev.floor !== cur.floor) {
-        const layout = getInteriorLayout(cur.buildingId);
-        const stair = stairArrival.current;
-        const rooms = layout?.getFloorRooms(cur.floor) ?? [];
-        const stairRooms = rooms.filter((room) => room.code.startsWith('Thang bộ'));
-        const named = stair ? stairRooms.find((room) => room.code === stair.stairCode) : undefined;
-        const originLocal = stair ? layout?.toLocal(player.current[0], player.current[2]) : undefined;
-        const chosen = named ?? (stair && stairRooms.length > 0
-          ? stairRooms.reduce((nearest, room) => {
-            if (!originLocal) return nearest;
-            const nearestDistance = Math.hypot((nearest.minU + nearest.maxU) / 2 - originLocal[0], (nearest.minV + nearest.maxV) / 2 - originLocal[1]);
-            const roomDistance = Math.hypot((room.minU + room.maxU) / 2 - originLocal[0], (room.minV + room.maxV) / 2 - originLocal[1]);
-            return roomDistance < nearestDistance ? room : nearest;
-          })
-          : undefined);
-        const spawnPos = chosen && layout
-          ? layout.toWorld((chosen.minU + chosen.maxU) / 2, (chosen.minV + chosen.maxV) / 2)
-          : layout?.elevator.spawnWorld ?? [0, 0];
-        const hallway = chosen && layout
-          ? rooms.filter((room) => /hành lang/i.test(`${room.code} ${room.name}`)).reduce<RoomArea | null>((nearest, room) => {
-            if (!nearest) return room;
-            const centerU = (chosen.minU + chosen.maxU) / 2;
-            const centerV = (chosen.minV + chosen.maxV) / 2;
-            const nearestDistance = Math.hypot((nearest.minU + nearest.maxU) / 2 - centerU, (nearest.minV + nearest.maxV) / 2 - centerV);
-            const roomDistance = Math.hypot((room.minU + room.maxU) / 2 - centerU, (room.minV + room.maxV) / 2 - centerV);
-            return roomDistance < nearestDistance ? room : nearest;
-          }, null)
-          : null;
-        const hallwayPos = hallway && layout
-          ? layout.toWorld((hallway.minU + hallway.maxU) / 2, (hallway.minV + hallway.maxV) / 2)
-          : null;
-        const spawnYaw = hallwayPos
-          ? Math.atan2(hallwayPos[1] - spawnPos[1], hallwayPos[0] - spawnPos[0])
-          : layout?.elevator.facingYaw ?? Math.PI;
+        if (stairWalkTransition.current) {
+          stairWalkTransition.current = false;
+          updateCachedWalls(cur.buildingId, cur.floor);
+          stairArrival.current = null;
+        } else {
+          const layout = getInteriorLayout(cur.buildingId);
+          const stair = stairArrival.current;
+          const rooms = layout?.getFloorRooms(cur.floor) ?? [];
+          const stairRooms = rooms.filter((room) => room.code.startsWith('Thang bộ'));
+          const named = stair ? stairRooms.find((room) => room.code === stair.stairCode) : undefined;
+          const originLocal = stair ? layout?.toLocal(player.current[0], player.current[2]) : undefined;
+          const chosen = named ?? (stair && stairRooms.length > 0
+            ? stairRooms.reduce((nearest, room) => {
+              if (!originLocal) return nearest;
+              const nearestDistance = Math.hypot((nearest.minU + nearest.maxU) / 2 - originLocal[0], (nearest.minV + nearest.maxV) / 2 - originLocal[1]);
+              const roomDistance = Math.hypot((room.minU + room.maxU) / 2 - originLocal[0], (room.minV + room.maxV) / 2 - originLocal[1]);
+              return roomDistance < nearestDistance ? room : nearest;
+            })
+            : undefined);
+          const spawnPos = chosen && layout
+            ? layout.toWorld((chosen.minU + chosen.maxU) / 2, (chosen.minV + chosen.maxV) / 2)
+            : layout?.elevator.spawnWorld ?? [0, 0];
+          const hallway = chosen && layout
+            ? rooms.filter((room) => /hành lang/i.test(`${room.code} ${room.name}`)).reduce<RoomArea | null>((nearest, room) => {
+              if (!nearest) return room;
+              const centerU = (chosen.minU + chosen.maxU) / 2;
+              const centerV = (chosen.minV + chosen.maxV) / 2;
+              const nearestDistance = Math.hypot((nearest.minU + nearest.maxU) / 2 - centerU, (nearest.minV + nearest.maxV) / 2 - centerV);
+              const roomDistance = Math.hypot((room.minU + room.maxU) / 2 - centerU, (room.minV + room.maxV) / 2 - centerV);
+              return roomDistance < nearestDistance ? room : nearest;
+            }, null)
+            : null;
+          const hallwayPos = hallway && layout
+            ? layout.toWorld((hallway.minU + hallway.maxU) / 2, (hallway.minV + hallway.maxV) / 2)
+            : null;
+          const spawnYaw = hallwayPos
+            ? Math.atan2(hallwayPos[1] - spawnPos[1], hallwayPos[0] - spawnPos[0])
+            : layout?.elevator.facingYaw ?? Math.PI;
 
-        player.current[0] = spawnPos[0];
-        player.current[1] = 0.0;
-        player.current[2] = spawnPos[1];
-        cameraYaw.current = spawnYaw;
-        facingYaw.current = spawnYaw;
-        globalPlayerPos = [spawnPos[0], spawnPos[1]];
-        globalCameraYaw = spawnYaw;
-        globalFacingYaw = spawnYaw;
-        updateCachedWalls(cur.buildingId, cur.floor);
-        stairArrival.current = null;
+          player.current[0] = spawnPos[0];
+          player.current[1] = 0.0;
+          player.current[2] = spawnPos[1];
+          cameraYaw.current = spawnYaw;
+          facingYaw.current = spawnYaw;
+          globalPlayerPos = [spawnPos[0], spawnPos[1]];
+          globalCameraYaw = spawnYaw;
+          globalFacingYaw = spawnYaw;
+          updateCachedWalls(cur.buildingId, cur.floor);
+          stairArrival.current = null;
+        }
       }
 
       prevInterior.current = cur ? { ...cur } : null;
@@ -457,6 +464,9 @@ export default function WalkMode() {
     const inputLength = Math.hypot(xInput, yInput);
     moving.current = inputLength > 0.05;
 
+    const prevPlayerX = player.current[0];
+    const prevPlayerZ = player.current[2];
+
     if (moving.current) {
       const norm = Math.max(1, inputLength);
       const dx = (strafeX * xInput + forwardX * yInput) / norm;
@@ -495,9 +505,53 @@ export default function WalkMode() {
       facingYaw.current += yawDifference * (1 - Math.exp(-10 * dt));
     }
 
-    // Trong nhà luôn bám sát mặt sàn y = 0 (tránh kẹt ở độ cao ngoài trời 0.6 m khi mount/HMR); ngoài trời bám địa hình.
+    // Trong nhà: tòa có cầu thang đi bộ thật (B8) cập nhật độ cao + tự đổi tầng; tòa khác bám mặt sàn y = 0.
     if (isInterior) {
-      player.current[1] = 0.0;
+      const layout = getInteriorLayout(interiorState.buildingId);
+      if (layout?.getStairHeight) {
+        const [u, v] = layout.toLocal(player.current[0], player.current[2]);
+        const h = layout.getStairHeight(u, v);
+        if (h === null) {
+          if (Math.abs(player.current[1]) > 1.2) {
+            player.current[0] = prevPlayerX;
+            player.current[2] = prevPlayerZ;
+          } else {
+            player.current[1] += (0 - player.current[1]) * (1 - Math.exp(-20 * dt));
+          }
+        } else {
+          const floorNow = interiorState.floor;
+          const candidates: number[] = [];
+          if (floorNow <= 3) candidates.push(h);
+          if (floorNow >= 2) candidates.push(h - FLOOR_HEIGHT);
+
+          let targetY = player.current[1];
+          if (candidates.length > 0) {
+            targetY = candidates.reduce((best, cand) =>
+              Math.abs(cand - player.current[1]) < Math.abs(best - player.current[1]) ? cand : best
+            );
+          }
+
+          if (Math.abs(targetY - player.current[1]) > 1.2) {
+            player.current[0] = prevPlayerX;
+            player.current[2] = prevPlayerZ;
+          } else {
+            player.current[1] += (targetY - player.current[1]) * (1 - Math.exp(-20 * dt));
+            if (player.current[1] > 2.0 && floorNow < layout.floors) {
+              player.current[1] -= FLOOR_HEIGHT;
+              stairWalkTransition.current = true;
+              window.dispatchEvent(new CustomEvent('campussim:stair-walk-floor'));
+              useWalkStore.getState().setInteriorFloor(floorNow + 1);
+            } else if (player.current[1] < -2.0 && floorNow > 1) {
+              player.current[1] += FLOOR_HEIGHT;
+              stairWalkTransition.current = true;
+              window.dispatchEvent(new CustomEvent('campussim:stair-walk-floor'));
+              useWalkStore.getState().setInteriorFloor(floorNow - 1);
+            }
+          }
+        }
+      } else {
+        player.current[1] = 0.0;
+      }
     } else {
       player.current[1] = dampHeight(player.current[1], getGroundHeight(player.current[0], player.current[2]), dt);
     }

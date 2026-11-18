@@ -26,6 +26,7 @@ export default function InteriorHud() {
   const [fadeOpacity, setFadeOpacity] = useState(0);
 
   const prevInterior = useRef<{ buildingId: string; floor: number } | null>(null);
+  const skipNextFadeRef = useRef(false);
 
   // Xác định tòa nhà hiện tại (khi đang ở trong hoặc đang đứng trước cửa)
   const currentBuildingId = interior?.buildingId ?? proximity.interactive?.buildingId;
@@ -45,19 +46,32 @@ export default function InteriorHud() {
       setElevatorOpen(true);
     };
 
+    const handleStairWalkFloor = () => {
+      skipNextFadeRef.current = true;
+    };
+
     window.addEventListener('campussim:interior-proximity', handleProximity);
     window.addEventListener('campussim:open-elevator', handleOpenElevator);
+    window.addEventListener('campussim:stair-walk-floor', handleStairWalkFloor);
     return () => {
       window.removeEventListener('campussim:interior-proximity', handleProximity);
       window.removeEventListener('campussim:open-elevator', handleOpenElevator);
+      window.removeEventListener('campussim:stair-walk-floor', handleStairWalkFloor);
     };
   }, []);
 
-  // Hiệu ứng Fade chuyển cảnh (~0.3s) khi vào, ra hoặc đổi tầng
+  // Hiệu ứng Fade chuyển cảnh (~0.3s) khi vào, ra hoặc đổi tầng (bỏ qua khi đi bộ qua bậc thang)
   useEffect(() => {
     const prev = prevInterior.current;
     const cur = interior;
     prevInterior.current = cur ? { ...cur } : null;
+
+    if (skipNextFadeRef.current) {
+      skipNextFadeRef.current = false;
+      return;
+    }
+
+    setProximity({ interactive: null, activeRoom: null });
 
     const isEntering = !prev && cur;
     const isExiting = prev && !cur;
@@ -70,10 +84,6 @@ export default function InteriorHud() {
       }, 250);
       return () => clearTimeout(timer);
     }
-  }, [interior]);
-
-  useEffect(() => {
-    setProximity({ interactive: null, activeRoom: null });
   }, [interior]);
 
   // Đóng bảng thang máy khi thoát chế độ đi bộ hoặc ra ngoài
@@ -121,7 +131,10 @@ export default function InteriorHud() {
     setElevatorOpen(false);
   };
 
-  const stairCode = proximity.activeRoom?.code.startsWith('Thang bộ') ? proximity.activeRoom.code : null;
+  const hasPhysicalStairs = Boolean(layout?.getStairHeight);
+  const stairCode = !hasPhysicalStairs && proximity.activeRoom?.code.startsWith('Thang bộ')
+    ? proximity.activeRoom.code
+    : null;
   const moveByStair = (targetFloor: number) => {
     if (!interior || !stairCode) return;
     window.dispatchEvent(new CustomEvent('campussim:stair-move', { detail: { stairCode, floor: targetFloor } }));
@@ -303,19 +316,6 @@ export default function InteriorHud() {
         </div>
       )}
 
-      {/* 5. Gợi ý điều khiển góc nhìn trong nhà (Phím C, chuột) */}
-      {interior && (
-        <div className="pointer-events-none fixed bottom-5 left-5 z-40 hidden rounded-xl border border-slate-700/60 bg-slate-950/85 px-4 py-2.5 text-xs text-slate-300 shadow-xl backdrop-blur-md md:block">
-          <div className="flex items-center gap-2">
-            <span className="rounded bg-sky-500/20 px-1.5 py-0.5 font-mono font-bold text-sky-300">C</span>
-            <span>Đổi góc nhìn</span>
-            <span className="text-slate-500">·</span>
-            <span>Kéo chuột: Xoay nhìn</span>
-            <span className="text-slate-500">·</span>
-            <span>Cuộn chuột: Thu phóng (2.5–7m)</span>
-          </div>
-        </div>
-      )}
     </>
   );
 }
