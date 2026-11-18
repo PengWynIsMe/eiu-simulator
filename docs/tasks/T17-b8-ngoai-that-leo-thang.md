@@ -108,3 +108,20 @@ Sửa: trong nội thất chỉ hiện **một** dải (gộp nội dung), khôn
 ## Báo cáo
 
 `docs/tasks/T17-bao-cao.md`: file đã sửa, kết quả lệnh, log leo thang, ảnh, phần chưa làm được và lý do.
+
+---
+
+## Việc 4 (bổ sung) — Cầu thang B8 dùng kiểu dáng thang B11
+
+Người dùng thích thang B11 của đồng nghiệp. **Chép kiểu dáng, giữ số đo B8.**
+
+1. Chép `addSwitchbackFlight` + `makeRampSlabMatrix` + `makeTiltedBoxMatrix` từ `B11Furniture.tsx` (dòng ≈ 28–147) sang `B8Furniture.tsx`.
+   Đổi `b11ToWorld` thành tham số `toWorld` truyền vào. Ghi chú đầu hàm: `// Chép từ B11Furniture.tsx (đồng nghiệp) — kiểu thang chữ U`. **Không sửa file B11.**
+2. Thay phần dựng thang hiện tại của B8 (`// 4. Cầu thang bộ gấp 2 đoạn` trong `B8Furniture.tsx`) bằng 2 lần gọi `addSwitchbackFlight` cho mỗi buồng thang trong `B8_STAIRS`, mỗi tầng 1–3:
+   - Vế 1: từ `along = 0` tới `along = RUN` ở `cross = +(GAP/2 + FLIGHT_W/2)`, y `dy → dy + 1.9`, rộng `FLIGHT_W`, 12 bậc.
+   - Vế 2: từ `along = RUN` về `along = 0` ở `cross = -(GAP/2 + FLIGHT_W/2)`, y `dy + 1.9 → dy + 3.8`, rộng `FLIGHT_W`, 12 bậc.
+   - Chiếu nghỉ giữ như cũ (`along RUN → RUN + LANDING_DEPTH`, mặt trên y 1.9) nhưng đổi sang màu đá đen như bậc.
+   - Đổi (u, v) theo `axis` như hàm độ cao ở Việc 2.
+3. Vật liệu giống B11: mặt bậc + chiếu nghỉ đá đen `#1e293b` (metalness 0.4, roughness 0.45), gầm thang bê tông như dầm trần, tay vịn inox như lan can B8 (metalness 0.35, roughness 0.3).
+4. **Không đổi** RISE / RUN / chiếu nghỉ 1.9: hàm độ cao leo thang (Việc 2) phải khớp mặt bậc. Kiểm tra: robot đứng trên vế thang không xuyên bậc quá 0.1 m.
+5. Ảnh thêm: (f) cận cảnh thang B8 sau khi đổi, (g) thang B11 cùng góc để so.
