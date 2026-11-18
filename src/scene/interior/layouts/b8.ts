@@ -337,54 +337,49 @@ function createFloorWalls(floor: number): WallSegment[] {
     walls.push({ u1: 9.0, v1: -181.0, u2: 9.0, v2: -210.2, thickness: 0.3 });
   }
 
-  // 2. Tường ngăn hành lang và phòng học (có cửa 1.0 m mở ra hành lang)
+  // 2. Tường ngăn hành lang và phòng học (có cửa 1.0 m mở ra hành lang; đoạn >= 3.0 m mở ô kính nhìn vào phòng)
   const rooms = getFloorRooms(floor);
   const doors = getFloorDoors(floor);
 
-  // Nhóm phòng cánh Bắc (v: -210.2 .. -200.0)
-  const northRooms = rooms.filter((r) => r.code.includes('.B8') && r.maxV <= -200.0);
-  for (const r of northRooms) {
-    const corridorV = r.maxV; // -200.0 hoặc -200.3
-    const roomDoors = doors.filter((d) => d.roomCode === r.code);
+  const pushCorridorSegment = (uStart: number, uEnd: number, v: number) => {
+    const segLen = uEnd - uStart;
+    if (segLen >= 3.0) {
+      walls.push({ u1: uStart, v1: v, u2: +(uStart + 0.6).toFixed(3), v2: v, thickness: 0.2 });
+      walls.push({ u1: +(uStart + 0.6).toFixed(3), v1: v, u2: +(uEnd - 0.6).toFixed(3), v2: v, thickness: 0.1, isGlass: true });
+      walls.push({ u1: +(uEnd - 0.6).toFixed(3), v1: v, u2: uEnd, v2: v, thickness: 0.2 });
+    } else if (segLen > 0.05) {
+      walls.push({ u1: uStart, v1: v, u2: uEnd, v2: v, thickness: 0.2 });
+    }
+  };
+
+  const addRoomCorridorWalls = (r: RoomArea, corridorV: number) => {
+    const roomDoors = doors
+      .filter((d) => d.roomCode === r.code)
+      .sort((a, b) => a.u1 - b.u1);
     const firstDoor = roomDoors[0];
     const secondDoor = roomDoors[1];
     if (firstDoor && secondDoor) {
-      const [d1, d2] = firstDoor.u1 < secondDoor.u1 ? [firstDoor, secondDoor] : [secondDoor, firstDoor];
-      walls.push({ u1: r.minU, v1: corridorV, u2: d1.u1, v2: corridorV, thickness: 0.2 });
-      walls.push({ u1: d1.u2, v1: corridorV, u2: d2.u1, v2: corridorV, thickness: 0.2 });
-      walls.push({ u1: d2.u2, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+      pushCorridorSegment(r.minU, firstDoor.u1, corridorV);
+      pushCorridorSegment(firstDoor.u2, secondDoor.u1, corridorV);
+      pushCorridorSegment(secondDoor.u2, r.maxU, corridorV);
     } else if (firstDoor) {
-      walls.push({ u1: r.minU, v1: corridorV, u2: firstDoor.u1, v2: corridorV, thickness: 0.2 });
-      walls.push({ u1: firstDoor.u2, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+      pushCorridorSegment(r.minU, firstDoor.u1, corridorV);
+      pushCorridorSegment(firstDoor.u2, r.maxU, corridorV);
     } else {
-      walls.push({ u1: r.minU, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
+      pushCorridorSegment(r.minU, r.maxU, corridorV);
     }
-
     // Tường ngăn dọc giữa các phòng
     walls.push({ u1: r.maxU, v1: r.minV, u2: r.maxU, v2: r.maxV, thickness: 0.2 });
+  };
+
+  // Nhóm phòng cánh Bắc (v: -210.2 .. -200.0)
+  for (const r of rooms.filter((rm) => rm.code.includes('.B8') && rm.maxV <= -200.0)) {
+    addRoomCorridorWalls(r, r.maxV);
   }
 
   // Nhóm phòng cánh Nam (v: -177.7 .. -166.0)
-  const southRooms = rooms.filter((r) => r.code.includes('.B8') && r.minV >= -178.0);
-  for (const r of southRooms) {
-    const corridorV = r.minV; // -177.7 hoặc -177.8
-    const roomDoors = doors.filter((d) => d.roomCode === r.code);
-    const firstDoor = roomDoors[0];
-    const secondDoor = roomDoors[1];
-    if (firstDoor && secondDoor) {
-      const [d1, d2] = firstDoor.u1 < secondDoor.u1 ? [firstDoor, secondDoor] : [secondDoor, firstDoor];
-      walls.push({ u1: r.minU, v1: corridorV, u2: d1.u1, v2: corridorV, thickness: 0.2 });
-      walls.push({ u1: d1.u2, v1: corridorV, u2: d2.u1, v2: corridorV, thickness: 0.2 });
-      walls.push({ u1: d2.u2, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
-    } else if (firstDoor) {
-      walls.push({ u1: r.minU, v1: corridorV, u2: firstDoor.u1, v2: corridorV, thickness: 0.2 });
-      walls.push({ u1: firstDoor.u2, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
-    } else {
-      walls.push({ u1: r.minU, v1: corridorV, u2: r.maxU, v2: corridorV, thickness: 0.2 });
-    }
-
-    // Tường ngăn dọc giữa các phòng
-    walls.push({ u1: r.maxU, v1: r.minV, u2: r.maxU, v2: r.maxV, thickness: 0.2 });
+  for (const r of rooms.filter((rm) => rm.code.includes('.B8') && rm.minV >= -178.0)) {
+    addRoomCorridorWalls(r, r.minV);
   }
 
   // 3. Tường WC và các buồng thang bộ
@@ -587,14 +582,16 @@ export interface B8StairConfig {
   readonly corridorEdge: number;
   readonly dir: 1 | -1;
   readonly centerCross: number;
+  readonly flightW: number;
 }
 
 export const B8_STAIRS: readonly B8StairConfig[] = [
-  { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 11.05 },   // Tây Bắc
-  { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 51.9 },    // Giữa Bắc
-  { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 11.6 },     // Tây Nam
-  { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 51.85 },    // Giữa Nam
-  { axis: 'u', corridorEdge: 114.5, dir: -1, centerCross: -187.55 },  // Lõi Đông
+  // Tây Bắc: tường Tây dày 0.3 m (mặt trong 9.15) → flightW = 1.75 để mép ngoài vế cách mặt tường 0.05 m
+  { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 11.05, flightW: 1.75 },
+  { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 51.9, flightW: 2.0 },     // Giữa Bắc
+  { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 11.6, flightW: 1.7 },      // Tây Nam
+  { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 51.85, flightW: 1.65 },    // Giữa Nam
+  { axis: 'u', corridorEdge: 114.5, dir: -1, centerCross: -187.55, flightW: 2.55 },  // Lõi Đông
 ];
 
 /**
@@ -608,10 +605,11 @@ export function getB8StairHeight(u: number, v: number): number | null {
     const crossC = isV ? u : v;
     const along = (main - st.corridorEdge) * st.dir;
     const cross = crossC - st.centerCross;
+    const landingDepth = Math.max(B8_STAIR_LANDING_DEPTH, st.flightW);
     if (
       along < 0 ||
-      along > B8_STAIR_RUN + B8_STAIR_LANDING_DEPTH ||
-      Math.abs(cross) > B8_STAIR_FLIGHT_W + B8_STAIR_GAP / 2
+      along > B8_STAIR_RUN + landingDepth ||
+      Math.abs(cross) > st.flightW + B8_STAIR_GAP / 2
     ) {
       continue;
     }

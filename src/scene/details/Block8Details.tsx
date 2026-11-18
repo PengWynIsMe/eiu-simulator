@@ -24,7 +24,8 @@ import {
 
 const UP_VEC = new Vector3(0, 1, 0);
 const B8_WORLD_YAW = Math.atan2(-B8_EX[1], B8_EX[0]);
-const GROUND_TOP = 0.19;
+// TwinWingBlock đặt nền sân trong ở mặt trên 0.14 m; nâng nền đá Block8Details lên 0.21..0.25 m (cách >= 0.07 m, chống chớp khi camera near=5)
+const GROUND_TOP = 0.25;
 
 const WEST_COL_US = [13.75, 22.75, 31.75, 40.75, 49.75] as const;
 const EAST_COL_US = Array.from({ length: 9 }, (_, i) => 54.35 + i * 7.5375);
@@ -224,11 +225,11 @@ export default function Block8Details() {
         pushFramedLouver(-179.6, u1, u2, louverCenterY);
       }
 
-      const slabEdgeY = (fl - 1) * FLOOR_HEIGHT - 0.02;
-      blueTrimParts.push(makeOrientedBox(31.75, -197.0, slabEdgeY, 36.5, 0.14, 0.12));
-      blueTrimParts.push(makeOrientedBox(31.75, -180.1, slabEdgeY, 36.5, 0.14, 0.12));
-      blueTrimParts.push(makeOrientedBox(84.5, -196.5, slabEdgeY, 60.8, 0.14, 0.12));
-      blueTrimParts.push(makeOrientedBox(84.5, -179.6, slabEdgeY, 60.8, 0.14, 0.12));
+      const slabEdgeY = (fl - 1) * FLOOR_HEIGHT + 0.06;
+      blueTrimParts.push(makeOrientedBox(31.75, -196.93, slabEdgeY, 36.5, 0.14, 0.12));
+      blueTrimParts.push(makeOrientedBox(31.75, -180.17, slabEdgeY, 36.5, 0.14, 0.12));
+      blueTrimParts.push(makeOrientedBox(84.5, -196.43, slabEdgeY, 60.8, 0.14, 0.12));
+      blueTrimParts.push(makeOrientedBox(84.5, -179.67, slabEdgeY, 60.8, 0.14, 0.12));
     }
 
     return {
@@ -255,7 +256,7 @@ export default function Block8Details() {
     <group>
       {geometries.stoneGeo && (
         <mesh geometry={geometries.stoneGeo} receiveShadow>
-          <meshStandardMaterial color="#a8abad" roughness={0.8} />
+          <meshStandardMaterial color="#a8abad" roughness={0.8} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-2} />
         </mesh>
       )}
       {geometries.rimGeo && (
@@ -300,7 +301,7 @@ export default function Block8Details() {
       )}
       {geometries.blueTrimGeo && (
         <mesh geometry={geometries.blueTrimGeo}>
-          <meshStandardMaterial color="#2f7fc1" roughness={0.4} />
+          <meshStandardMaterial color="#2f7fc1" roughness={0.4} polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-4} />
         </mesh>
       )}
     </group>

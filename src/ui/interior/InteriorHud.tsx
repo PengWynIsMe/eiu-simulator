@@ -23,6 +23,7 @@ export default function InteriorHud() {
 
   const [proximity, setProximity] = useState<ProximityState>({ interactive: null, activeRoom: null });
   const [elevatorOpen, setElevatorOpen] = useState(false);
+  const [hoveredElevatorFloor, setHoveredElevatorFloor] = useState<number | null>(null);
   const [fadeOpacity, setFadeOpacity] = useState(0);
 
   const prevInterior = useRef<{ buildingId: string; floor: number } | null>(null);
@@ -105,12 +106,14 @@ export default function InteriorHud() {
         useWalkStore.getState().setInteriorFloor(num);
         setElevatorOpen(false);
       } else if (e.key === 'Escape') {
+        e.stopImmediatePropagation();
+        setHoveredElevatorFloor(null);
         setElevatorOpen(false);
       }
     };
 
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
   }, [elevatorOpen, maxFloors]);
 
   const handleActionClick = () => {
@@ -240,40 +243,57 @@ export default function InteriorHud() {
         </div>
       )}
 
-      {/* 4. Bảng điều khiển Thang máy (Elevator Modal) */}
+      {/* 4. Bảng điều khiển Thang máy (kiểu bảng nút thép tối + màn LED) */}
       {elevatorOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="elevator-modal-title"
-            className="relative w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900/95 p-6 text-white shadow-2xl backdrop-blur-md"
+            className="relative w-full max-w-xs rounded-2xl border-2 border-slate-500/70 bg-gradient-to-b from-slate-700 via-slate-800 to-slate-900 p-5 text-white shadow-2xl"
           >
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-500 text-sm font-bold text-white">
-                  ↕
-                </span>
-                <div>
-                  <h3 id="elevator-modal-title" className="font-semibold text-white">
-                    {`Thang máy ${buildingInfo?.shortName ?? buildingInfo?.name ?? 'Tòa nhà'}`}
-                  </h3>
-                  <p className="text-xs text-slate-400">
-                    {buildingDetail?.subtitle ?? buildingInfo?.name ?? ''}
-                  </p>
-                </div>
+            <div className="flex items-center justify-between pb-3">
+              <div>
+                <h3 id="elevator-modal-title" className="text-sm font-semibold tracking-wide text-slate-100">
+                  {`Thang máy ${buildingInfo?.shortName ?? buildingInfo?.name ?? 'Tòa nhà'}`}
+                </h3>
+                <p className="text-[11px] text-slate-300">
+                  {buildingDetail?.subtitle ?? buildingInfo?.name ?? ''}
+                </p>
               </div>
               <button
                 type="button"
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white"
-                onClick={() => setElevatorOpen(false)}
+                className="rounded-lg p-1.5 text-slate-300 hover:bg-slate-600/60 hover:text-white"
+                onClick={() => {
+                  setHoveredElevatorFloor(null);
+                  setElevatorOpen(false);
+                }}
                 aria-label="Đóng bảng thang máy"
               >
                 ✕
               </button>
             </div>
 
-            <div className="mt-4 flex flex-col gap-2.5">
+            {/* Ô LED nhỏ phía trên hiện số tầng hiện tại + mũi tên ▲▼ */}
+            {(() => {
+              const curFloor = interior?.floor ?? 1;
+              const isMovingUp = hoveredElevatorFloor !== null && hoveredElevatorFloor > curFloor;
+              const isMovingDown = hoveredElevatorFloor !== null && hoveredElevatorFloor < curFloor;
+              return (
+                <div className="mb-4 flex items-center justify-center gap-4 rounded-xl border border-slate-600 bg-slate-950 px-4 py-2.5 shadow-inner">
+                  <span className="font-mono text-2xl font-bold tracking-wider text-sky-400">
+                    {curFloor}
+                  </span>
+                  <div className="flex flex-col leading-none">
+                    <span className={`text-xs ${isMovingUp ? 'text-emerald-400' : 'text-slate-600'}`}>▲</span>
+                    <span className={`text-xs ${isMovingDown ? 'text-amber-400' : 'text-slate-600'}`}>▼</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Các nút tròn 1..maxFloors xếp dọc từ dưới lên */}
+            <div className="flex flex-col gap-2.5">
               {elevatorFloors.map((f) => {
                 const isCurrent = interior?.floor === f.floorNum;
                 return (
@@ -281,34 +301,47 @@ export default function InteriorHud() {
                     key={f.floorNum}
                     type="button"
                     disabled={isCurrent}
-                    onClick={() => handleFloorSelect(f.floorNum)}
-                    className={`flex items-center justify-between rounded-xl border p-3.5 text-left transition-all ${
+                    onMouseEnter={() => setHoveredElevatorFloor(f.floorNum)}
+                    onMouseLeave={() => setHoveredElevatorFloor(null)}
+                    onClick={() => {
+                      setHoveredElevatorFloor(null);
+                      handleFloorSelect(f.floorNum);
+                    }}
+                    className={`flex items-center gap-3.5 rounded-xl border px-3 py-2 text-left transition-all ${
                       isCurrent
-                        ? 'border-sky-500/80 bg-sky-950/40 opacity-80'
-                        : 'border-slate-800 bg-slate-800/60 hover:border-sky-400 hover:bg-slate-800'
+                        ? 'border-sky-400/70 bg-slate-900/80'
+                        : 'border-slate-600/60 bg-slate-900/50 hover:border-sky-300/70 hover:bg-slate-800'
                     }`}
                   >
-                    <div>
+                    <span
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 font-mono text-base font-bold transition-all ${
+                        isCurrent
+                          ? 'border-sky-400 bg-sky-500/25 text-sky-300 shadow-[0_0_12px_rgba(56,189,248,0.6)]'
+                          : 'border-slate-400/70 bg-slate-800 text-slate-100'
+                      }`}
+                    >
+                      {f.floorNum}
+                    </span>
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-white">{f.label}</span>
+                        <span className="text-sm font-semibold text-white">{f.label}</span>
                         {isCurrent && (
-                          <span className="rounded bg-sky-500/30 px-2 py-0.5 text-xs text-sky-300">
-                            Đang ở đây
+                          <span className="rounded bg-sky-500/25 px-1.5 py-0.5 text-[10px] font-medium text-sky-300">
+                            Hiện tại
                           </span>
                         )}
                       </div>
-                      <div className="mt-0.5 text-xs text-slate-300">{f.desc}</div>
+                      {f.desc && (
+                        <div className="truncate text-[11px] text-slate-300">{f.desc}</div>
+                      )}
                     </div>
-                    <span className="hidden rounded bg-slate-700 px-2 py-1 text-xs font-mono text-slate-300 md:inline-block">
-                      Phím {f.floorNum}
-                    </span>
                   </button>
                 );
               })}
             </div>
 
             {buildingDetail?.source?.label && (
-              <p className="mt-4 text-center text-[10px] text-slate-400">
+              <p className="mt-3 text-center text-[10px] text-slate-400">
                 {buildingDetail.source.label}
               </p>
             )}

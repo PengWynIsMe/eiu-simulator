@@ -197,53 +197,8 @@ export default function InteriorScene() {
     return extrude;
   }, [layout, floor, buildingId]);
 
-  // Nền lát đá sân trong B8 ở tầng trệt (B11 dùng trực tiếp bản sàn tầng 1 của multiFloorB11Geo)
-  const b8CourtyardGroundGeometry = useMemo(() => {
-    if (floor === 1 || !isB8) return null;
-
-    const groundElevation = -(floor - 1) * FLOOR_HEIGHT - 0.1;
-    const geos: BufferGeometry[] = [];
-
-    // Nền sân Tây: [13.5, 50.0] x [-197.0, -180.1]
-    const westPts: Vec2[] = [
-      layout.toWorld(13.5, -197.0),
-      layout.toWorld(50.0, -197.0),
-      layout.toWorld(50.0, -180.1),
-      layout.toWorld(13.5, -180.1),
-    ];
-    const shapeWest = new Shape();
-    westPts.forEach(([x, z], i) => {
-      if (i === 0) shapeWest.moveTo(x, -z);
-      else shapeWest.lineTo(x, -z);
-    });
-    shapeWest.closePath();
-    const extrudeWest = new ExtrudeGeometry(shapeWest, { depth: 0.1, bevelEnabled: false });
-    extrudeWest.rotateX(-Math.PI / 2);
-    extrudeWest.translate(0, groundElevation, 0);
-    geos.push(extrudeWest);
-
-    // Nền sân Đông: [54.1, 114.9] x [-196.5, -179.6]
-    const eastPts: Vec2[] = [
-      layout.toWorld(54.1, -196.5),
-      layout.toWorld(114.9, -196.5),
-      layout.toWorld(114.9, -179.6),
-      layout.toWorld(54.1, -179.6),
-    ];
-    const shapeEast = new Shape();
-    eastPts.forEach(([x, z], i) => {
-      if (i === 0) shapeEast.moveTo(x, -z);
-      else shapeEast.lineTo(x, -z);
-    });
-    shapeEast.closePath();
-    const extrudeEast = new ExtrudeGeometry(shapeEast, { depth: 0.1, bevelEnabled: false });
-    extrudeEast.rotateX(-Math.PI / 2);
-    extrudeEast.translate(0, groundElevation, 0);
-    geos.push(extrudeEast);
-
-    const merged = BufferGeometryUtils.mergeGeometries(geos);
-    geos.forEach((g) => g.dispose());
-    return merged;
-  }, [floor, isB8, layout]);
+  // Nền lát đá sân trong (B8 & B11 đều dùng trực tiếp bản sàn tầng 1 của multiFloorB11)
+  const b8CourtyardGroundGeometry = null as BufferGeometry | null;
 
   // Các tầng còn lại (1–4 trừ tầng đang đứng) & mái chìa sân trong Block 11 / Block 8
   // Giúp đứng ở Tầng 1 nhìn lên vẫn thấy đủ Tầng 2, 3, 4 + mái; ẩn tầng trên khi bật C (nhìn từ trên xuống)
@@ -292,9 +247,12 @@ export default function InteriorScene() {
         const angle = -Math.atan2(dz, dx);
 
         if (wall.isGlass) {
-          const glassBox = new BoxGeometry(length, FLOOR_HEIGHT - 0.2, 0.06);
+          const glassH = isB8 ? 1.5 : FLOOR_HEIGHT - 0.2;
+          const glassCenterY = isB8 ? dy + 1.7 : dy + FLOOR_HEIGHT / 2;
+          const glassThick = isB8 ? 0.04 : 0.06;
+          const glassBox = new BoxGeometry(length, glassH, glassThick);
           glassBox.rotateY(angle);
-          glassBox.translate(midX, dy + FLOOR_HEIGHT / 2, midZ);
+          glassBox.translate(midX, glassCenterY, midZ);
           glassGeos.push(glassBox);
         } else {
           const wallBox = new BoxGeometry(length, FLOOR_HEIGHT, wall.thickness);
@@ -465,17 +423,22 @@ export default function InteriorScene() {
       const midZ = (z1 + z2) / 2;
       const angle = -Math.atan2(dz, dx);
 
-      if (wall.isGlass && !isB8) {
-        // Vách kính trong suốt (chỉ B3)
-        const glassBox = new BoxGeometry(length, wallHeight - 0.2, 0.06);
+      if (wall.isGlass) {
+        // Vách kính trong suốt (B3: toàn chiều cao; B8: ô cửa sổ y 0.95 → 2.45)
+        const glassH = isB8 ? 1.5 : wallHeight - 0.2;
+        const glassCenterY = isB8 ? 1.7 : wallHeight / 2;
+        const glassThick = isB8 ? 0.04 : 0.06;
+        const glassBox = new BoxGeometry(length, glassH, glassThick);
         glassBox.rotateY(angle);
-        glassBox.translate(midX, wallHeight / 2, midZ);
+        glassBox.translate(midX, glassCenterY, midZ);
         glassGeos.push(glassBox);
 
-        const sillBox = new BoxGeometry(length, 0.08, 0.12);
-        sillBox.rotateY(angle);
-        sillBox.translate(midX, 0.04, midZ);
-        baseboardGeos.push(sillBox);
+        if (!isB8) {
+          const sillBox = new BoxGeometry(length, 0.08, 0.12);
+          sillBox.rotateY(angle);
+          sillBox.translate(midX, 0.04, midZ);
+          baseboardGeos.push(sillBox);
+        }
       } else {
         // Tường xây đặc
         const wallBox = new BoxGeometry(length, wallHeight, wall.thickness);
@@ -596,6 +559,8 @@ export default function InteriorScene() {
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
+          shadow-bias={-0.0005}
+          shadow-normalBias={0.03}
         />
 
       <pointLight position={[centerPos[0], 3.5, centerPos[1]]} intensity={0.7} distance={35} color="#fef08a" />

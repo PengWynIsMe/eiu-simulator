@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { Text } from '@react-three/drei';
 import {
   BoxGeometry,
   CylinderGeometry,
@@ -18,7 +19,6 @@ import {
   B8_EXIT_SIGNS,
   B8_PCCC_POINTS,
   B8_PLANTERS,
-  B8_STAIR_FLIGHT_W,
   B8_STAIR_GAP,
   B8_STAIR_LANDING_DEPTH,
   B8_STAIR_RUN,
@@ -26,8 +26,8 @@ import {
   B8_TREE_UV,
   B8_WEST_HOLE_UV,
   b8Layout,
-  getFloorDoors,
   getFloorRooms,
+  getFloorWalls,
   toWorld,
 } from './layouts/b8';
 
@@ -146,10 +146,10 @@ function addSwitchbackFlight(
     )
   );
 
-  // Tay vịn inox 3 thanh dọc hai bên vế thang + trụ đứng
+  // Tay vịn inox 3 thanh dọc hai bên vế thang + trụ đứng (cách mép ngoài tối thiểu 0.05 m để không chạm tường)
   const perpU = -dv / hLen;
   const perpV = du / hLen;
-  const railOffset = width * 0.47;
+  const railOffset = Math.min(width * 0.47, width * 0.5 - 0.05);
   for (const side of [-1, 1]) {
     const ox = perpU * railOffset * side;
     const oz = perpV * railOffset * side;
@@ -308,6 +308,9 @@ interface InstancedBatchProps {
   readonly transparent?: boolean;
   readonly opacity?: number;
   readonly castShadow?: boolean;
+  readonly polygonOffset?: boolean;
+  readonly polygonOffsetFactor?: number;
+  readonly polygonOffsetUnits?: number;
 }
 
 function InstancedBatch({
@@ -322,6 +325,9 @@ function InstancedBatch({
   transparent = false,
   opacity = 1,
   castShadow = true,
+  polygonOffset = false,
+  polygonOffsetFactor = 0,
+  polygonOffsetUnits = 0,
 }: InstancedBatchProps) {
   const meshRef = useRef<InstancedMesh | null>(null);
 
@@ -353,6 +359,9 @@ function InstancedBatch({
         emissiveIntensity={emissiveIntensity}
         transparent={transparent}
         opacity={opacity}
+        polygonOffset={polygonOffset}
+        polygonOffsetFactor={polygonOffsetFactor}
+        polygonOffsetUnits={polygonOffsetUnits}
       />
     </instancedMesh>
   );
@@ -400,7 +409,7 @@ export default function B8Furniture({
     const greenExit: Matrix4[] = [];
     const exitRods: Matrix4[] = [];
     const windowFrames: Matrix4[] = [];
-    const windowGlass: Matrix4[] = [];
+    const wallBrown: Matrix4[] = [];
 
     // 1. Kết cấu lặp 4 tầng (1–4, ẩn tầng trên khi bật Top-Down)
     for (let f = 1; f <= 4; f++) {
@@ -501,44 +510,26 @@ export default function B8Furniture({
         exitRods.push(createInstanceMatrix(toWorld, eu + 0.14, ev, dy + 3.3875, 0, 0.01, 0.825, 0.01));
       }
 
-      // Dải cửa sổ giả trên mặt tường phòng phía hành lang (giữa 2 cửa dài >= 3.0 m)
-      const fRooms = getFloorRooms(f);
-      const fDoors = getFloorDoors(f);
-      for (const room of fRooms) {
-        if (!room.code.includes('.B8')) continue;
-        const isNorth = room.maxV <= -200.0;
-        const isSouth = room.minV >= -178.0;
-        if (!isNorth && !isSouth) continue;
+      // Ô cửa sổ kính thật trên tường phòng ↔ hành lang (bệ tường 0→0.95, tường trên 2.45→3.8, khung nhôm #9ca3af)
+      const fWalls = getFloorWalls(f);
+      for (const wall of fWalls) {
+        if (!wall.isGlass) continue;
+        const len = Math.hypot(wall.u2 - wall.u1, wall.v2 - wall.v1);
+        if (len < 0.2) continue;
+        const midU = (wall.u1 + wall.u2) * 0.5;
+        const wallV = wall.v1;
 
-        const roomDoors = fDoors
-          .filter((d) => d.roomCode === room.code)
-          .sort((a, b) => a.u1 - b.u1);
-        if (roomDoors.length < 2) continue;
+        // Bệ tường dưới (0 → 0.95) & tường trên (2.45 → 3.80)
+        wallBrown.push(createInstanceMatrix(toWorld, midU, wallV, dy + 0.475, 0, len, 0.95, 0.22));
+        wallBrown.push(createInstanceMatrix(toWorld, midU, wallV, dy + 3.125, 0, len, 1.35, 0.22));
 
-        const d1 = roomDoors[0];
-        const d2 = roomDoors[1];
-        if (!d1 || !d2) continue;
-        const segLen = d2.u1 - d1.u2;
-        if (segLen < 3.0) continue;
-
-        const winU1 = d1.u2 + 0.6;
-        const winU2 = d2.u1 - 0.6;
-        const winLen = winU2 - winU1;
-        if (winLen < 0.8) continue;
-
-        const midU = (winU1 + winU2) * 0.5;
-        const wallV = isNorth ? room.maxV + 0.12 : room.minV - 0.12;
-
-        // Kính (y 1.0 → 2.4)
-        windowGlass.push(createInstanceMatrix(toWorld, midU, wallV, dy + 1.7, 0, winLen - 0.06, 1.34, 0.02));
-        // Khung nhôm ngang trên & dưới
-        windowFrames.push(createInstanceMatrix(toWorld, midU, wallV, dy + 2.38, 0, winLen, 0.05, 0.04));
-        windowFrames.push(createInstanceMatrix(toWorld, midU, wallV, dy + 1.02, 0, winLen, 0.05, 0.04));
-        // Đố đứng mỗi ~1.2 m (gồm 2 đầu)
-        const mullionCount = Math.max(1, Math.round(winLen / 1.2));
+        // Khung nhôm ngang tại y = 0.95 và y = 2.45 + đố đứng mỗi ~1.2 m
+        windowFrames.push(createInstanceMatrix(toWorld, midU, wallV, dy + 0.95, 0, len, 0.05, 0.08));
+        windowFrames.push(createInstanceMatrix(toWorld, midU, wallV, dy + 2.45, 0, len, 0.05, 0.08));
+        const mullionCount = Math.max(1, Math.round(len / 1.2));
         for (let m = 0; m <= mullionCount; m++) {
-          const mu = winU1 + (winLen * m) / mullionCount;
-          windowFrames.push(createInstanceMatrix(toWorld, mu, wallV, dy + 1.7, 0, 0.045, 1.4, 0.04));
+          const mu = wall.u1 + ((wall.u2 - wall.u1) * m) / mullionCount;
+          windowFrames.push(createInstanceMatrix(toWorld, mu, wallV, dy + 1.7, 0, 0.04, 1.5, 0.08));
         }
       }
 
@@ -547,25 +538,25 @@ export default function B8Furniture({
         addHolePolygonCurbsAndRailings(creamStruct, railingSteel, B8_WEST_HOLE_UV, dy);
         addHolePolygonCurbsAndRailings(creamStruct, railingSteel, B8_EAST_HOLE_UV, dy);
 
-        // Dải sàn xanh dương rộng 0.6 m sát gờ (phía hành lang, khép kín góc)
+        // Dải sàn xanh dương rộng 0.6 m sát gờ (tâm +0.03, dày 0.02 → mặt trên +0.04)
         // Sân Tây
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 31.75, -197.4, dy + 0.005, 0, 37.9, 0.01, 0.6));
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 31.75, -179.7, dy + 0.005, 0, 37.9, 0.01, 0.6));
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 13.1, -188.55, dy + 0.005, Math.PI / 2, 17.1, 0.01, 0.6));
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 50.4, -188.55, dy + 0.005, Math.PI / 2, 17.1, 0.01, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 31.75, -197.4, dy + 0.03, 0, 37.9, 0.02, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 31.75, -179.7, dy + 0.03, 0, 37.9, 0.02, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 13.1, -188.55, dy + 0.03, Math.PI / 2, 17.1, 0.02, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 50.4, -188.55, dy + 0.03, Math.PI / 2, 17.1, 0.02, 0.6));
         // Sân Đông
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 84.5, -196.9, dy + 0.005, 0, 62.2, 0.01, 0.6));
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 84.5, -179.2, dy + 0.005, 0, 62.2, 0.01, 0.6));
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 53.7, -193.4, dy + 0.005, Math.PI / 2, 6.4, 0.01, 0.6));
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 53.7, -183.0, dy + 0.005, Math.PI / 2, 7.0, 0.01, 0.6));
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 115.3, -193.45, dy + 0.005, Math.PI / 2, 6.3, 0.01, 0.6));
-        blueEdgeTrim.push(createInstanceMatrix(toWorld, 115.3, -182.15, dy + 0.005, Math.PI / 2, 5.3, 0.01, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 84.5, -196.9, dy + 0.03, 0, 62.2, 0.02, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 84.5, -179.2, dy + 0.03, 0, 62.2, 0.02, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 53.7, -193.4, dy + 0.03, Math.PI / 2, 6.4, 0.02, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 53.7, -183.0, dy + 0.03, Math.PI / 2, 7.0, 0.02, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 115.3, -193.45, dy + 0.03, Math.PI / 2, 6.3, 0.02, 0.6));
+        blueEdgeTrim.push(createInstanceMatrix(toWorld, 115.3, -182.15, dy + 0.03, Math.PI / 2, 5.3, 0.02, 0.6));
 
-        // Sàn hành lang mở bê tông mài (#a3a8ad)
-        corridorFloor.push(createInstanceMatrix(toWorld, 31.75, -198.5, dy + 0.002, 0, 36.5, 0.004, 3.0));
-        corridorFloor.push(createInstanceMatrix(toWorld, 31.75, -178.9, dy + 0.002, 0, 36.5, 0.004, 2.4));
-        corridorFloor.push(createInstanceMatrix(toWorld, 84.5, -198.25, dy + 0.002, 0, 60.8, 0.004, 3.5));
-        corridorFloor.push(createInstanceMatrix(toWorld, 84.5, -178.65, dy + 0.002, 0, 60.8, 0.004, 1.9));
+        // Sàn hành lang mở bê tông mài (#a3a8ad, tâm +0.01, dày 0.02 → mặt trên +0.02)
+        corridorFloor.push(createInstanceMatrix(toWorld, 31.75, -198.5, dy + 0.01, 0, 36.5, 0.02, 3.0));
+        corridorFloor.push(createInstanceMatrix(toWorld, 31.75, -178.9, dy + 0.01, 0, 36.5, 0.02, 2.4));
+        corridorFloor.push(createInstanceMatrix(toWorld, 84.5, -198.25, dy + 0.01, 0, 60.8, 0.02, 3.5));
+        corridorFloor.push(createInstanceMatrix(toWorld, 84.5, -178.65, dy + 0.01, 0, 60.8, 0.02, 1.9));
       }
     }
 
@@ -618,9 +609,10 @@ export default function B8Furniture({
     const canopyLight: Matrix4[] = [];
     const treeStakes: Matrix4[] = [];
 
-    // Nền lát đá phủ cả sân (#a8abad)
-    courtyardPaving.push(createInstanceMatrix(toWorld, 31.75, -188.55, groundY + 0.01, 0, 36.5, 0.02, 16.9));
-    courtyardPaving.push(createInstanceMatrix(toWorld, 84.5, -188.05, groundY + 0.01, 0, 60.8, 0.02, 16.9));
+    // Nền lát đá phủ cả sân (#a8abad, dày 0.04 → mặt trên groundY + 0.04)
+    const pavingTop = groundY + 0.04;
+    courtyardPaving.push(createInstanceMatrix(toWorld, 31.75, -188.55, groundY + 0.02, 0, 36.5, 0.04, 16.9));
+    courtyardPaving.push(createInstanceMatrix(toWorld, 84.5, -188.05, groundY + 0.02, 0, 60.8, 0.04, 16.9));
 
     const rng = createSeededRng(202608);
     for (const p of B8_PLANTERS) {
@@ -628,7 +620,7 @@ export default function B8Furniture({
       const halfV = p.widthV * 0.5;
       const rimThick = 0.15;
       const rimH = 0.15;
-      const rimY = groundY + rimH * 0.5;
+      const rimY = pavingTop + rimH * 0.5;
 
       // Gờ bồn cây đá tối #3f3f46 (4 cạnh)
       planterRims.push(createInstanceMatrix(toWorld, p.centerU, p.centerV - halfV + rimThick * 0.5, rimY, 0, p.lenU, rimH, rimThick));
@@ -639,29 +631,29 @@ export default function B8Furniture({
       // Thảm lan ý #2f5d34 cao 0.45 m
       const innerLenU = p.lenU - rimThick * 2;
       const innerWidthV = p.widthV - rimThick * 2;
-      lilyFoliage.push(createInstanceMatrix(toWorld, p.centerU, p.centerV, groundY + 0.225, 0, innerLenU, 0.45, innerWidthV));
+      lilyFoliage.push(createInstanceMatrix(toWorld, p.centerU, p.centerV, pavingTop + 0.225, 0, innerLenU, 0.45, innerWidthV));
 
       // Hoa trắng hộp 0.08 m, ~1 bông / 0.8 m²
       const flowerCount = Math.max(8, Math.round((innerLenU * innerWidthV) / 0.8));
       for (let i = 0; i < flowerCount; i++) {
         const fu = p.centerU + (rng() - 0.5) * (innerLenU - 0.4);
         const fv = p.centerV + (rng() - 0.5) * (innerWidthV - 0.4);
-        lilyFlowers.push(createInstanceMatrix(toWorld, fu, fv, groundY + 0.48, rng() * Math.PI, 0.08, 0.08, 0.08));
+        lilyFlowers.push(createInstanceMatrix(toWorld, fu, fv, pavingTop + 0.48, rng() * Math.PI, 0.08, 0.08, 0.08));
       }
     }
 
     for (const [tu, tv] of B8_TREE_UV) {
       // Thân cây Ø0.35, cao 13.0 m
-      treeTrunks.push(createInstanceMatrix(toWorld, tu, tv, groundY + 6.5, 0, 0.35, 13.0, 0.35));
+      treeTrunks.push(createInstanceMatrix(toWorld, tu, tv, pavingTop + 6.5, 0, 0.35, 13.0, 0.35));
 
       // 3 khối icosahedron chồng lệch nhau (Ø4–6, tâm y 9.5 / 11.5 / 13.0)
-      canopyDark.push(createInstanceMatrix(toWorld, tu - 0.3, tv + 0.2, groundY + 9.5, 0, 5.6, 4.2, 5.4));
-      canopyLight.push(createInstanceMatrix(toWorld, tu + 0.4, tv - 0.2, groundY + 11.5, 0.7, 5.0, 4.0, 4.8));
-      canopyDark.push(createInstanceMatrix(toWorld, tu - 0.1, tv - 0.1, groundY + 13.0, 1.3, 4.2, 3.6, 4.2));
+      canopyDark.push(createInstanceMatrix(toWorld, tu - 0.3, tv + 0.2, pavingTop + 9.5, 0, 5.6, 4.2, 5.4));
+      canopyLight.push(createInstanceMatrix(toWorld, tu + 0.4, tv - 0.2, pavingTop + 11.5, 0.7, 5.0, 4.0, 4.8));
+      canopyDark.push(createInstanceMatrix(toWorld, tu - 0.1, tv - 0.1, pavingTop + 13.0, 1.3, 4.2, 3.6, 4.2));
 
       // Giàn chống thép 4 chân Ø0.08 từ cách gốc 1.2 m chụm vào thân ở cao 3.0 m
       const [topX, topZ] = toWorld(tu, tv);
-      const topPt = [topX, groundY + 3.0, topZ] as const;
+      const topPt = [topX, pavingTop + 3.0, topZ] as const;
       for (const [du, dv] of [
         [1.2, 0],
         [-1.2, 0],
@@ -669,26 +661,26 @@ export default function B8Furniture({
         [0, -1.2],
       ] as const) {
         const [bx, bz] = toWorld(tu + du, tv + dv);
-        treeStakes.push(makeTiltedBoxMatrix([bx, groundY, bz], topPt, 0.04));
+        treeStakes.push(makeTiltedBoxMatrix([bx, pavingTop, bz], topPt, 0.04));
       }
     }
 
-    // 4. Cầu thang bộ chữ U kiểu B11 (giữ đúng số đo RISE/RUN/chiếu nghỉ 1.9 m của B8)
+    // 4. Cầu thang bộ chữ U kiểu B11 (giữ đúng số đo RISE/RUN/chiếu nghỉ 1.9 m của B8; bậc cuối lệch chiếu nghỉ >= 0.02 m)
     const stairSteps: Matrix4[] = [];
     const stairSoffits: Matrix4[] = [];
     const stairRails: Matrix4[] = [];
 
-    const FLIGHT_W = B8_STAIR_FLIGHT_W;
     const GAP = B8_STAIR_GAP;
-    const LANDING_DEPTH = B8_STAIR_LANDING_DEPTH;
     const RUN = B8_STAIR_RUN;
-    const LANDING_W = 2 * FLIGHT_W + GAP;
 
     for (let f = 1; f <= 3; f++) {
       if (!showUpperFloors && f > floor) continue;
       const dy = (f - floor) * FLOOR_HEIGHT;
 
       for (const st of B8_STAIRS) {
+        const flightW = st.flightW;
+        const landingDepth = Math.max(B8_STAIR_LANDING_DEPTH, flightW);
+        const landingW = 2 * flightW + GAP;
         const isV = st.axis === 'v';
         const toUV = (along: number, cross: number): readonly [number, number] => {
           const main = st.corridorEdge + st.dir * along;
@@ -696,38 +688,39 @@ export default function B8Furniture({
           return isV ? [crossC, main] : [main, crossC];
         };
 
-        const crossOffsetF1 = +(GAP / 2 + FLIGHT_W / 2);
-        const crossOffsetF2 = -(GAP / 2 + FLIGHT_W / 2);
+        const crossOffsetF1 = +(GAP / 2 + flightW / 2);
+        const crossOffsetF2 = -(GAP / 2 + flightW / 2);
         const [f1u1, f1v1] = toUV(0, crossOffsetF1);
         const [f1u2, f1v2] = toUV(RUN, crossOffsetF1);
-        addSwitchbackFlight(toWorld, stairSteps, stairSoffits, stairRails, f1u1, f1v1, dy, f1u2, f1v2, dy + 1.9, FLIGHT_W, 12);
+        addSwitchbackFlight(toWorld, stairSteps, stairSoffits, stairRails, f1u1, f1v1, dy, f1u2, f1v2, dy + 1.88, flightW, 12);
 
         const [f2u1, f2v1] = toUV(RUN, crossOffsetF2);
         const [f2u2, f2v2] = toUV(0, crossOffsetF2);
-        addSwitchbackFlight(toWorld, stairSteps, stairSoffits, stairRails, f2u1, f2v1, dy + 1.9, f2u2, f2v2, dy + FLOOR_HEIGHT, FLIGHT_W, 12);
+        addSwitchbackFlight(toWorld, stairSteps, stairSoffits, stairRails, f2u1, f2v1, dy + 1.92, f2u2, f2v2, dy + FLOOR_HEIGHT - 0.02, flightW, 12);
 
         // Chiếu nghỉ: bản bê tông dưới + mặt đá đen trên cùng y = dy + 1.9
-        const [landingU, landingV] = toUV(RUN + LANDING_DEPTH * 0.5, 0);
-        const landSx = isV ? LANDING_W : LANDING_DEPTH;
-        const landSz = isV ? LANDING_DEPTH : LANDING_W;
+        const [landingU, landingV] = toUV(RUN + landingDepth * 0.5, 0);
+        const landSx = isV ? landingW : landingDepth;
+        const landSz = isV ? landingDepth : landingW;
         stairSoffits.push(createInstanceMatrix(toWorld, landingU, landingV, dy + 1.9 - 0.1, 0, landSx, 0.16, landSz));
         stairSteps.push(createInstanceMatrix(toWorld, landingU, landingV, dy + 1.9 - 0.02, 0, landSx, 0.04, landSz));
 
-        // Lan can chiếu nghỉ (lưng & 2 hông) cùng kiểu 3 thanh + trụ đứng
-        const [backLu, backLv] = toUV(RUN + LANDING_DEPTH - 0.05, -LANDING_W * 0.47);
-        const [backRu, backRv] = toUV(RUN + LANDING_DEPTH - 0.05, +LANDING_W * 0.47);
+        // Lan can chiếu nghỉ (lưng & 2 hông) cùng kiểu 3 thanh + trụ đứng, cách mép tường >= 0.05 m
+        const railHalfW = landingW * 0.5 - 0.05;
+        const [backLu, backLv] = toUV(RUN + landingDepth - 0.05, -railHalfW);
+        const [backRu, backRv] = toUV(RUN + landingDepth - 0.05, +railHalfW);
         for (const ry of [0.44, 0.74, 1.04]) {
           const thick = ry > 1.0 ? 0.05 : 0.028;
           stairRails.push(makeRampSlabMatrix(toWorld, backLu, backLv, dy + 1.9 + ry, backRu, backRv, dy + 1.9 + ry, thick, thick));
         }
-        for (const crossPos of [-LANDING_W * 0.47, -0.4, 0.4, LANDING_W * 0.47]) {
-          const [pu, pv] = toUV(RUN + LANDING_DEPTH - 0.05, crossPos);
+        for (const crossPos of [-railHalfW, -railHalfW * 0.35, railHalfW * 0.35, railHalfW]) {
+          const [pu, pv] = toUV(RUN + landingDepth - 0.05, crossPos);
           stairRails.push(createInstanceMatrix(toWorld, pu, pv, dy + 1.9 + 0.52, 0, 0.04, 1.04, 0.04));
         }
         for (const sideSign of [-1, 1] as const) {
-          const sideCross = sideSign * LANDING_W * 0.47;
+          const sideCross = sideSign * railHalfW;
           const [su1, sv1] = toUV(RUN, sideCross);
-          const [su2, sv2] = toUV(RUN + LANDING_DEPTH - 0.05, sideCross);
+          const [su2, sv2] = toUV(RUN + landingDepth - 0.05, sideCross);
           for (const ry of [0.44, 0.74, 1.04]) {
             const thick = ry > 1.0 ? 0.05 : 0.028;
             stairRails.push(makeRampSlabMatrix(toWorld, su1, sv1, dy + 1.9 + ry, su2, sv2, dy + 1.9 + ry, thick, thick));
@@ -749,7 +742,7 @@ export default function B8Furniture({
       greenExit,
       exitRods,
       windowFrames,
-      windowGlass,
+      wallBrown,
       desksWood,
       chairsSlate,
       boardsGreen,
@@ -783,8 +776,28 @@ export default function B8Furniture({
       />
       <InstancedBatch batchKey="b8-bin" matrices={data.binSteel} geometry={sharedGeos.cyl} color="#d8dde3" metalness={0.35} roughness={0.3} />
       <InstancedBatch batchKey="b8-rail" matrices={data.railingSteel} geometry={sharedGeos.box} color="#d8dde3" metalness={0.35} roughness={0.3} />
-      <InstancedBatch batchKey="b8-blue" matrices={data.blueEdgeTrim} geometry={sharedGeos.box} color="#2f7fc1" roughness={0.4} castShadow={false} />
-      <InstancedBatch batchKey="b8-corr" matrices={data.corridorFloor} geometry={sharedGeos.box} color="#a3a8ad" roughness={0.5} castShadow={false} />
+      <InstancedBatch
+        batchKey="b8-blue"
+        matrices={data.blueEdgeTrim}
+        geometry={sharedGeos.box}
+        color="#2f7fc1"
+        roughness={0.4}
+        castShadow={false}
+        polygonOffset
+        polygonOffsetFactor={-2}
+        polygonOffsetUnits={-4}
+      />
+      <InstancedBatch
+        batchKey="b8-corr"
+        matrices={data.corridorFloor}
+        geometry={sharedGeos.box}
+        color="#a3a8ad"
+        roughness={0.5}
+        castShadow={false}
+        polygonOffset
+        polygonOffsetFactor={-1}
+        polygonOffsetUnits={-2}
+      />
       <InstancedBatch batchKey="b8-pccc" matrices={data.redPccc} geometry={sharedGeos.box} color="#dc2626" roughness={0.35} />
       <InstancedBatch batchKey="b8-boardW" matrices={data.whiteBoards} geometry={sharedGeos.box} color="#f8fafc" roughness={0.3} castShadow={false} />
       <InstancedBatch
@@ -798,24 +811,24 @@ export default function B8Furniture({
       />
       <InstancedBatch batchKey="b8-exit-rod" matrices={data.exitRods} geometry={sharedGeos.cyl} color="#9ca3af" metalness={0.7} roughness={0.3} castShadow={false} />
       <InstancedBatch batchKey="b8-win-frame" matrices={data.windowFrames} geometry={sharedGeos.box} color="#9ca3af" metalness={0.5} roughness={0.35} />
-      <InstancedBatch
-        batchKey="b8-win-glass"
-        matrices={data.windowGlass}
-        geometry={sharedGeos.box}
-        color="#9fb8c8"
-        transparent
-        opacity={0.55}
-        roughness={0.15}
-        metalness={0.2}
-        castShadow={false}
-      />
+      <InstancedBatch batchKey="b8-wall-brown" matrices={data.wallBrown} geometry={sharedGeos.box} color="#42322c" roughness={0.85} />
 
       <InstancedBatch batchKey="b8-desk" matrices={data.desksWood} geometry={sharedGeos.box} color="#d4a373" roughness={0.6} />
       <InstancedBatch batchKey="b8-chair" matrices={data.chairsSlate} geometry={sharedGeos.box} color="#334155" roughness={0.6} />
       <InstancedBatch batchKey="b8-tdesk" matrices={data.teacherDesks} geometry={sharedGeos.box} color="#b45309" roughness={0.5} />
       <InstancedBatch batchKey="b8-boardG" matrices={data.boardsGreen} geometry={sharedGeos.box} color="#064e3b" roughness={0.3} metalness={0.1} castShadow={false} />
 
-      <InstancedBatch batchKey="b8-paving" matrices={data.courtyardPaving} geometry={sharedGeos.box} color="#a8abad" roughness={0.75} castShadow={false} />
+      <InstancedBatch
+        batchKey="b8-paving"
+        matrices={data.courtyardPaving}
+        geometry={sharedGeos.box}
+        color="#a8abad"
+        roughness={0.75}
+        castShadow={false}
+        polygonOffset
+        polygonOffsetFactor={-1}
+        polygonOffsetUnits={-2}
+      />
       <InstancedBatch batchKey="b8-rim" matrices={data.planterRims} geometry={sharedGeos.box} color="#3f3f46" roughness={0.8} />
       <InstancedBatch batchKey="b8-lily" matrices={data.lilyFoliage} geometry={sharedGeos.box} color="#2f5d34" roughness={0.85} />
       <InstancedBatch batchKey="b8-flower" matrices={data.lilyFlowers} geometry={sharedGeos.box} color="#f8fafc" roughness={0.5} castShadow={false} />
@@ -828,41 +841,88 @@ export default function B8Furniture({
       <InstancedBatch batchKey="b8-soffit" matrices={data.stairSoffits} geometry={sharedGeos.box} color="#d6cec2" roughness={0.78} />
       <InstancedBatch batchKey="b8-srail" matrices={data.stairRails} geometry={sharedGeos.box} color="#d8dde3" metalness={0.35} roughness={0.3} />
 
-      <B8ElevatorBooth floor={floor} />
+      {[1, 2, 3, 4].map((boothFloor) => {
+        if (!showUpperFloors && boothFloor > floor) return null;
+        return (
+          <B8ElevatorBooth
+            key={boothFloor}
+            boothFloor={boothFloor}
+            yOffset={(boothFloor - floor) * FLOOR_HEIGHT}
+            isCurrentFloor={boothFloor === floor}
+          />
+        );
+      })}
     </group>
   );
 }
 
-/** Buồng thang máy B8 tại nhịp giữa */
-function B8ElevatorBooth({ floor }: { floor: number }) {
+/** Sảnh thang máy B8 kiểu B11 dựng ở mọi tầng 1–4 */
+function B8ElevatorBooth({
+  boothFloor,
+  yOffset,
+  isCurrentFloor,
+}: {
+  boothFloor: number;
+  yOffset: number;
+  isCurrentFloor: boolean;
+}) {
   const [worldX, worldZ] = b8Layout.elevator.posWorld;
   const yaw = getLocalFacingYaw(b8Layout.toWorld, 0);
   const ledColors = ['#38bdf8', '#34d399', '#f59e0b', '#ec4899'];
-  const ledColor = ledColors[floor - 1] ?? '#38bdf8';
+  const ledColor = ledColors[(boothFloor - 1) % ledColors.length] ?? '#38bdf8';
 
   return (
-    <group position={[worldX, 0, worldZ]} rotation-y={yaw}>
-      <mesh position={[-0.05, 1.3, 0]} castShadow receiveShadow>
-        <boxGeometry args={[0.2, 2.6, 2.4]} />
-        <meshStandardMaterial color="#334155" metalness={0.7} roughness={0.3} />
+    <group position={[worldX, yOffset, worldZ]} rotation-y={yaw}>
+      {/* Khung đá marble kem be */}
+      <mesh position={[0.04, 1.32, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.18, 2.64, 2.55]} />
+        <meshStandardMaterial color="#d6c8b4" roughness={0.45} />
       </mesh>
-      <mesh position={[-0.12, 1.2, -0.52]} castShadow receiveShadow>
-        <boxGeometry args={[0.04, 2.35, 1.0]} />
-        <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.15} />
+      {/* 2 cánh cửa inox xước */}
+      <mesh position={[-0.06, 1.2, -0.52]} castShadow receiveShadow>
+        <boxGeometry args={[0.05, 2.34, 0.98]} />
+        <meshStandardMaterial color="#cbd5e1" metalness={0.5} roughness={0.3} />
       </mesh>
-      <mesh position={[-0.12, 1.2, 0.52]} castShadow receiveShadow>
-        <boxGeometry args={[0.04, 2.35, 1.0]} />
-        <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.15} />
+      <mesh position={[-0.06, 1.2, 0.52]} castShadow receiveShadow>
+        <boxGeometry args={[0.05, 2.34, 0.98]} />
+        <meshStandardMaterial color="#cbd5e1" metalness={0.5} roughness={0.3} />
       </mesh>
-      <mesh position={[-0.18, 2.6, 0]}>
-        <boxGeometry args={[0.05, 0.35, 0.7]} />
+      {/* Khe giữa 2 cánh cửa */}
+      <mesh position={[-0.065, 1.2, 0]}>
+        <boxGeometry args={[0.06, 2.34, 0.02]} />
+        <meshStandardMaterial color="#475569" roughness={0.6} />
+      </mesh>
+      {/* Bảng nút gọi thang + 2 nút tròn ▲▼ */}
+      <mesh position={[-0.07, 1.25, 1.15]}>
+        <boxGeometry args={[0.04, 0.34, 0.14]} />
+        <meshStandardMaterial color="#0f172a" metalness={0.5} roughness={0.3} />
+      </mesh>
+      <mesh position={[-0.09, 1.31, 1.15]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.01, 12]} />
+        <meshStandardMaterial color="#e2e8f0" emissive="#e2e8f0" emissiveIntensity={0.4} roughness={0.25} />
+      </mesh>
+      <mesh position={[-0.09, 1.19, 1.15]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.01, 12]} />
+        <meshStandardMaterial color="#e2e8f0" emissive="#e2e8f0" emissiveIntensity={0.4} roughness={0.25} />
+      </mesh>
+      {/* Màn LED báo tầng phía trên */}
+      <mesh position={[-0.08, 2.55, 0]}>
+        <boxGeometry args={[0.05, 0.24, 0.56]} />
         <meshStandardMaterial color="#0f172a" />
       </mesh>
-      <mesh position={[-0.22, 2.6, 0]}>
-        <boxGeometry args={[0.01, 0.18, 0.35]} />
-        <meshStandardMaterial color={ledColor} emissive={ledColor} emissiveIntensity={1.2} roughness={0.1} />
-      </mesh>
-      <pointLight position={[-0.8, 2.4, 0]} color={ledColor} intensity={0.6} distance={3.5} />
+      <Text
+        position={[-0.11, 2.55, 0]}
+        rotation={[0, -Math.PI / 2, 0]}
+        fontSize={0.16}
+        color={ledColor}
+        anchorX="center"
+        anchorY="middle"
+      >
+        {String(boothFloor)}
+      </Text>
+      {isCurrentFloor && (
+        <pointLight position={[-0.9, 2.4, 0]} color={ledColor} intensity={0.65} distance={4.5} />
+      )}
     </group>
   );
 }
