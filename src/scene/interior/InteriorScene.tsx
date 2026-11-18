@@ -16,6 +16,7 @@ import { b3Layout } from './layouts/b3';
 import { B11_BOUNDS } from './layouts/b11';
 import { getFloorDoors } from './layouts/b8';
 import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
+import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 
 function makeOrientedLocalBox(
   toWorld: (u: number, v: number) => Vec2,
@@ -80,9 +81,8 @@ function buildB11ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, groun
     makeOrientedLocalBox(toWorld, 60, -172, groundY + 6.0, 68, 12, 6),
     makeOrientedLocalBox(toWorld, 60, -79, groundY + 6.0, 68, 12, 6),
   ];
-  const trunkGeos: BufferGeometry[] = [];
-  const canopyGeos: BufferGeometry[] = [];
-  for (const [tu, tv] of [
+  const extSalixTrees: SalixAlbaInstance[] = [];
+  const backdropSpots: readonly [number, number][] = [
     [53.2, -153],
     [61.4, -154.5],
     [53.5, -161],
@@ -91,16 +91,23 @@ function buildB11ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, groun
     [61.4, -96.5],
     [53.5, -90],
     [61.0, -89],
-  ] as const) {
-    trunkGeos.push(makeOrientedLocalBox(toWorld, tu, tv, groundY + 2.4, 0.34, 4.8, 0.34));
-    canopyGeos.push(makeOrientedLocalBox(toWorld, tu, tv, groundY + 5.2, 3.6, 2.6, 3.6));
-  }
+  ];
+  backdropSpots.forEach(([tu, tv], idx) => {
+    const [wx, wz] = toWorld(tu, tv);
+    extSalixTrees.push({
+      x: wx,
+      y: groundY - 0.1,
+      z: wz,
+      rotY: (idx * 1.61) % (Math.PI * 2),
+      scaleXZ: 0.78,
+      scaleY: 0.8 + (idx % 3) * 0.06,
+    });
+  });
   return {
     extGrassGeo: mergeAndDispose(grassGeos),
     extPathGeo: mergeAndDispose(pathGeos),
     extFacadeGeo: mergeAndDispose(facadeGeos),
-    extTrunkGeo: mergeAndDispose(trunkGeos),
-    extCanopyGeo: mergeAndDispose(canopyGeos),
+    extSalixTrees,
   };
 }
 
@@ -213,8 +220,7 @@ export default function InteriorScene() {
         extGrassGeo: null,
         extPathGeo: null,
         extFacadeGeo: null,
-        extTrunkGeo: null,
-        extCanopyGeo: null,
+        extSalixTrees: [] as SalixAlbaInstance[],
       };
     }
 
@@ -368,8 +374,7 @@ export default function InteriorScene() {
           extGrassGeo: null,
           extPathGeo: null,
           extFacadeGeo: null,
-          extTrunkGeo: null,
-          extCanopyGeo: null,
+          extSalixTrees: [] as SalixAlbaInstance[],
         };
 
     return {
@@ -392,8 +397,6 @@ export default function InteriorScene() {
       multiFloorB11.extGrassGeo?.dispose();
       multiFloorB11.extPathGeo?.dispose();
       multiFloorB11.extFacadeGeo?.dispose();
-      multiFloorB11.extTrunkGeo?.dispose();
-      multiFloorB11.extCanopyGeo?.dispose();
     };
   }, [multiFloorB11]);
 
@@ -676,15 +679,8 @@ export default function InteriorScene() {
           <meshStandardMaterial color="#d6cec2" roughness={0.8} />
         </mesh>
       )}
-      {multiFloorB11.extTrunkGeo && (
-        <mesh geometry={multiFloorB11.extTrunkGeo}>
-          <meshStandardMaterial color="#5c4033" roughness={0.9} />
-        </mesh>
-      )}
-      {multiFloorB11.extCanopyGeo && (
-        <mesh geometry={multiFloorB11.extCanopyGeo}>
-          <meshStandardMaterial color="#2e6f2b" roughness={0.85} flatShading />
-        </mesh>
+      {isB11 && multiFloorB11.extSalixTrees.length > 0 && (
+        <SalixAlbaTrees instances={multiFloorB11.extSalixTrees} castShadow={false} />
       )}
 
       {/* 4. Nội thất instancing */}

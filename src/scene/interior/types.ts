@@ -8,6 +8,9 @@ export interface WallSegment {
   thickness: number;
   isGlass?: boolean;
   isRailing?: boolean;
+  /** Giới hạn cao độ tương đối (theo tầng hiện tại) mà tường/lan can này có hiệu lực va chạm. */
+  minY?: number;
+  maxY?: number;
 }
 
 export interface RoomArea {
@@ -46,6 +49,13 @@ export interface ExteriorEntrance {
   spawnOutsideYaw: number;
 }
 
+export interface StairStepResult {
+  /** Độ cao mặt bậc thang / chiếu nghỉ (theo hệ tọa độ tầng hiện tại, mét). */
+  y: number;
+  /** Tầng đích nếu nhân vật vừa bước hết cầu thang lên tầng trên hoặc xuống tầng dưới. */
+  transitionToFloor?: number;
+}
+
 export interface InteriorLayout {
   buildingId: string;
   name: string;
@@ -65,8 +75,16 @@ export interface InteriorLayout {
     prevX: number,
     prevZ: number,
     floor: number,
-    radius?: number
+    radius?: number,
+    currentY?: number
   ) => Vec2;
+  /** Tính độ cao mặt đứng trên cầu thang & phát hiện chuyển tầng liền mạch khi đi hết thang. */
+  stepStairHeight?: (
+    worldX: number,
+    worldZ: number,
+    prevY: number,
+    floor: number
+  ) => StairStepResult;
   getActiveRoom: (worldX: number, worldZ: number, floor: number) => RoomArea | null;
   getNearInteractive: (
     worldX: number,

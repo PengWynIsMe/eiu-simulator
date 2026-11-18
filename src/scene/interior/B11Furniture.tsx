@@ -10,6 +10,7 @@ import {
 } from 'three';
 import { FLOOR_HEIGHT } from '../../data';
 import { createInstanceMatrix, getLocalFacingYaw } from './InteriorFurniture';
+import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 import {
   B11_BENCH_SPANS,
   B11_BOUNDS,
@@ -19,6 +20,7 @@ import {
   B11_PCCC_POINTS,
   B11_PINGPONG_BOUNDS,
   B11_STAIRWELLS,
+  B11_SWITCHBACK_STAIRS,
   B11_TREE_BEDS,
   b11ToWorld,
 } from './layouts/b11';
@@ -384,6 +386,21 @@ export default function B11Furniture({
         addRailingSegment(steelParts, steelParts, 108.05, -129.6, 108.05, -123.7, dy);
         addRailingSegment(steelParts, steelParts, 108.05, -123.7, 115.35, -123.7, dy);
 
+        // Lan can bảo vệ hông giếng thang Tây Bắc & Tây Nam tầng 2–4
+        addRailingSegment(steelParts, steelParts, 1.3, -148.0, 1.3, -137.0, dy);
+        addRailingSegment(steelParts, steelParts, 6.7, -148.0, 6.7, -137.0, dy);
+        addRailingSegment(steelParts, steelParts, 2.2, -115.9, 2.2, -103.6, dy);
+        addRailingSegment(steelParts, steelParts, 7.4, -115.9, 7.4, -103.6, dy);
+
+        // Tầng 4 trên cùng: rào an toàn nửa miệng vế 1 (vẫn mở rộng nửa vế 2 đi xuống tầng 3)
+        if (f === 4) {
+          addRailingSegment(steelParts, steelParts, 58.6, -137.0, 61.2, -137.0, dy);
+          addRailingSegment(steelParts, steelParts, 58.6, -115.9, 61.2, -115.9, dy);
+          addRailingSegment(steelParts, steelParts, 4.0, -137.0, 6.7, -137.0, dy);
+          addRailingSegment(steelParts, steelParts, 4.8, -115.9, 7.4, -115.9, dy);
+          addRailingSegment(steelParts, steelParts, 115.35, -126.65, 115.35, -123.7, dy);
+        }
+
         blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 34.75, -132.3, dy - 0.05, 0, 53.1, 0.14, 0.1));
         blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 34.75, -120.4, dy - 0.05, 0, 53.1, 0.14, 0.1));
         blueEdgeTrim.push(createInstanceMatrix(b11ToWorld, 8.2, -126.35, dy - 0.05, Math.PI / 2, 11.9, 0.14, 0.1));
@@ -428,69 +445,11 @@ export default function B11Furniture({
       steelParts.push(createInstanceMatrix(b11ToWorld, 67.25, -127.0, roofY + 4.4, 0, 0.06, 3.0, 0.06));
     }
 
-    // 4. Hệ cầu thang bộ chữ U hai vế ở cả 5 buồng thang (Vế 1 đá đen bên Đông + chiếu nghỉ + Vế 2 bên Tây gầm cao chừa lối thông ra B4/B8)
-    const switchbackStairs = [
-      // Giữa Bắc (Thang G-B, hướng về Block 8): nhìn ra Bắc thấy Vế 1 bên phải, lối đi dưới Vế 2 bên trái
-      {
-        f1: [59.8, -137.0, 59.8, -144.8] as const,
-        f2: [57.0, -144.8, 57.0, -137.2] as const,
-        width: 2.3,
-        steps1: 12,
-        steps2: 10,
-        landRatio: 2.24 / FLOOR_HEIGHT,
-        land: [58.4, -146.4, 5.4, 3.2] as const,
-        backRail: [55.8, -147.85, 61.0, -147.85] as const,
-      },
-      // Giữa Nam (Thang G-N, hướng về Block 4): nhìn ra Nam thấy Vế 1 bên trái, lối đi dưới Vế 2 bên phải
-      {
-        f1: [59.8, -115.9, 59.8, -108.1] as const,
-        f2: [57.0, -108.1, 57.0, -115.7] as const,
-        width: 2.3,
-        steps1: 12,
-        steps2: 10,
-        landRatio: 2.24 / FLOOR_HEIGHT,
-        land: [58.4, -105.85, 5.4, 4.5] as const,
-        backRail: [55.8, -103.7, 61.0, -103.7] as const,
-      },
-      // Tây Bắc
-      {
-        f1: [5.4, -137.0, 5.4, -144.8] as const,
-        f2: [2.6, -144.8, 2.6, -137.2] as const,
-        width: 2.3,
-        steps1: 12,
-        steps2: 10,
-        landRatio: 2.24 / FLOOR_HEIGHT,
-        land: [4.0, -146.4, 5.4, 3.2] as const,
-        backRail: [1.4, -147.85, 6.6, -147.85] as const,
-      },
-      // Tây Nam
-      {
-        f1: [6.2, -115.9, 6.2, -108.1] as const,
-        f2: [3.4, -108.1, 3.4, -115.7] as const,
-        width: 2.2,
-        steps1: 12,
-        steps2: 10,
-        landRatio: 2.24 / FLOOR_HEIGHT,
-        land: [4.8, -105.85, 5.2, 4.5] as const,
-        backRail: [2.3, -103.7, 7.3, -103.7] as const,
-      },
-      // Đầu Đông (lên theo hướng Đông +u)
-      {
-        f1: [108.4, -125.1, 112.9, -125.1] as const,
-        f2: [112.9, -128.1, 108.4, -128.1] as const,
-        width: 2.2,
-        steps1: 10,
-        steps2: 10,
-        landRatio: 0.5,
-        land: [114.1, -126.65, 2.2, 5.4] as const,
-        backRail: [115.05, -129.2, 115.05, -124.1] as const,
-      },
-    ];
-
+    // 4. Hệ cầu thang bộ chữ U hai vế ở cả 5 buồng thang (dùng chung thông số chuẩn B11_SWITCHBACK_STAIRS)
     for (let f = 1; f <= 3; f++) {
       if (!showUpperFloors && f > floor) continue;
       const dy = (f - floor) * FLOOR_HEIGHT;
-      for (const st of switchbackStairs) {
+      for (const st of B11_SWITCHBACK_STAIRS) {
         const midY = dy + st.landRatio * FLOOR_HEIGHT;
         addSwitchbackFlight(
           blackMetal,
@@ -584,8 +543,7 @@ export default function B11Furniture({
     // 7. Sân trong tầng trệt (nhìn trực tiếp ở tầng 1 & nhìn từ trên lan can tầng 2–4 xuống!)
     const groundOff = -(floor - 1) * FLOOR_HEIGHT;
     const stoneBeds: Matrix4[] = [];
-    const trunks: Matrix4[] = [];
-    const leaves: Matrix4[] = [];
+    const salixTrees: SalixAlbaInstance[] = [];
     const lilies: Matrix4[] = [];
 
     for (const bed of B11_TREE_BEDS) {
@@ -597,13 +555,19 @@ export default function B11Furniture({
       stoneBeds.push(createInstanceMatrix(b11ToWorld, cu, cv, groundOff + 0.25, 0, lenU, 0.5, lenV));
       for (const du of [-2.3, 2.3]) {
         const tu = cu + du;
-        // Gốc cây cắm vào bồn đá tầng trệt (groundOff + 0.45 m), thân cao 11.8 m vươn ngọn lên ngang tầng 4
-        trunks.push(createInstanceMatrix(b11ToWorld, tu, cv, groundOff + 6.35, 0, 0.28, 11.8, 0.28));
-        leaves.push(createInstanceMatrix(b11ToWorld, tu, cv, groundOff + 12.6, 0, 2.9, 2.0, 2.9));
-        leaves.push(createInstanceMatrix(b11ToWorld, tu, cv, groundOff + 14.0, 0, 2.0, 1.5, 2.0));
+        const [wx, wz] = b11ToWorld(tu, cv);
+        const idx = salixTrees.length;
+        // Gốc cây 3D Salix alba cắm vào bồn đá tầng trệt (groundOff + 0.45 m), tán vươn tới tầm tầng 4
+        salixTrees.push({
+          x: wx,
+          y: groundOff + 0.45,
+          z: wz,
+          rotY: (idx * 1.37) % (Math.PI * 2),
+          scaleXZ: 0.9,
+          scaleY: 0.96 + (idx % 3) * 0.04,
+        });
         lilies.push(createInstanceMatrix(b11ToWorld, tu + 0.85, cv - 0.5, groundOff + 0.68, 0.4, 0.28, 0.28, 0.28));
 
-        const [wx, wz] = b11ToWorld(tu, cv);
         const legOffsets: readonly [number, number][] = [
           [-0.85, -0.85],
           [0.85, -0.85],
@@ -728,8 +692,7 @@ export default function B11Furniture({
       clinicalWhite,
       signYellow,
       stoneBeds,
-      trunks,
-      leaves,
+      salixTrees,
       lilies,
     };
   }, [floor, showUpperFloors]);
@@ -771,8 +734,7 @@ export default function B11Furniture({
       <InstancedBatch batchKey="clinical" matrices={data.clinicalWhite} geometry={sharedGeos.box} color="#e2e8f0" roughness={0.4} />
       <InstancedBatch batchKey="signY" matrices={data.signYellow} geometry={sharedGeos.box} color="#facc15" roughness={0.4} />
       <InstancedBatch batchKey="bed" matrices={data.stoneBeds} geometry={sharedGeos.box} color="#b8bcc2" roughness={0.85} />
-      <InstancedBatch batchKey="trunk" matrices={data.trunks} geometry={sharedGeos.cyl} color="#6d4c3d" roughness={0.9} />
-      <InstancedBatch batchKey="leaf" matrices={data.leaves} geometry={sharedGeos.cyl} color="#2f7d44" roughness={0.85} />
+      <SalixAlbaTrees instances={data.salixTrees} />
       <InstancedBatch batchKey="lily" matrices={data.lilies} geometry={sharedGeos.box} color="#f8fafc" roughness={0.5} />
 
       <B11ElevatorBooth floor={floor} />

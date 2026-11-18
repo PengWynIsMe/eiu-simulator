@@ -1,10 +1,17 @@
+import { FLOOR_HEIGHT } from '../../../data';
 import type { Vec2 } from '../../../types';
+import {
+  evaluateStairHeight,
+  isInsideAnyStairFootprint,
+  type WalkableStairSpec,
+} from '../stairs';
 import type {
   WallSegment,
   RoomArea,
   InteractivePoint,
   InteriorLayout,
   ExteriorEntrance,
+  StairStepResult,
 } from '../types';
 
 /**
@@ -50,6 +57,28 @@ export const ELEVATOR_SPAWN_WORLD: Vec2 = toWorld(ELEVATOR_SPAWN_LOCAL[0], ELEVA
 
 /** Vị trí cầu thang nhiều màu */
 export const STAIRCASE_POS_LOCAL: [number, number] = [25.0, 20.0];
+
+export const B3_STAIRS: readonly WalkableStairSpec[] = [
+  {
+    id: 'b3-colorful',
+    parts: [
+      {
+        kind: 'ramp',
+        u1: 24.8,
+        v1: 20.0,
+        y1: 0,
+        u2: 29.2,
+        v2: 20.0,
+        y2: FLOOR_HEIGHT,
+        halfWidth: 1.1,
+      },
+    ],
+    shaftMinU: 24.8,
+    shaftMaxU: 29.2,
+    shaftMinV: 18.9,
+    shaftMaxV: 21.1,
+  },
+];
 
 // =============================================================================
 // TẦNG 1: Sảnh kính, Không gian chung, Hội thảo, Phòng họp VIP, Phòng học, OCE
@@ -407,13 +436,23 @@ function isInsideFloorBoundary(u: number, v: number): boolean {
   return false;
 }
 
+const STAIR_SIDE_RAILS: readonly WallSegment[] = [
+  { u1: 24.8, v1: 18.85, u2: 29.2, v2: 18.85, thickness: 0.12, isRailing: true },
+  { u1: 24.8, v1: 21.15, u2: 29.2, v2: 21.15, thickness: 0.12, isRailing: true },
+];
+
+function isOnB3StairFootprint(u: number, v: number): boolean {
+  return u >= 24.85 && u <= 29.15 && v >= 18.9 && v <= 21.1;
+}
+
 export function resolveInteriorPosition(
   nextX: number,
   nextZ: number,
   prevX: number,
   prevZ: number,
   floor: number,
-  radius = 0.4
+  radius = 0.4,
+  currentY = 0
 ): Vec2 {
   const [nextU, nextV] = toLocal(nextX, nextZ);
   const [prevU, prevV] = toLocal(prevX, prevZ);
@@ -431,8 +470,13 @@ export function resolveInteriorPosition(
     }
   }
 
-  // 2. Kiểm tra va chạm với từng đoạn tường của tầng
-  const walls = getFloorWalls(floor);
+  if (Math.abs(currentY) > 0.35 && !isInsideAnyStairFootprint(B3_STAIRS, currentU, currentV, floor, 3, currentY)) {
+    currentU = prevU;
+    currentV = prevV;
+  }
+
+  // 2. Kiểm tra va chạm với từng đoạn tường của tầng (+ lan can 2 bên cầu thang)
+  const walls = [...getFloorWalls(floor), ...STAIR_SIDE_RAILS];
   for (const wall of walls) {
     const minDistance = radius + wall.thickness / 2;
     const dist = distanceToSegment(currentU, currentV, wall.u1, wall.v1, wall.u2, wall.v2);
@@ -461,6 +505,12 @@ export function resolveInteriorPosition(
     }
   }
 
+  // Chặn đi ngang vào gầm thấp mặt sau cầu thang ở tầng 1 (chỉ lên từ u = 24.8)
+  if (floor === 1 && Math.abs(currentY) <= 0.35 && currentU >= 27.2 && currentU <= 29.4 && currentV >= 18.8 && currentV <= 21.2) {
+    currentU = prevU;
+    currentV = prevV;
+  }
+
   if (!isInsideFloorBoundary(currentU, currentV)) {
     if (!(floor === 1 && currentU >= 14 && currentU <= 18 && currentV >= -1 && currentV <= 2)) {
       currentU = prevU;
@@ -468,7 +518,30 @@ export function resolveInteriorPosition(
     }
   }
 
+  if (Math.abs(currentY) > 0.35 && !isInsideAnyStairFootprint(B3_STAIRS, currentU, currentV, floor, 3, currentY)) {
+    currentU = prevU;
+    currentV = prevV;
+  }
+
   return toWorld(currentU, currentV);
+}
+
+export function stepStairHeight(
+  worldX: number,
+  worldZ: number,
+  prevY: number,
+  floor: number
+): StairStepResult {
+  return evaluateStairHeight(
+    B3_STAIRS,
+    toLocal,
+    worldX,
+    worldZ,
+    prevY,
+    floor,
+    3,
+    (u, v) => !isOnB3StairFootprint(u, v)
+  );
 }
 
 export function getActiveRoom(worldX: number, worldZ: number, floor: number): RoomArea | null {
@@ -565,6 +638,7 @@ export const b3Layout: InteriorLayout = {
   getFloorRooms,
   getFloorBoundaryPts,
   resolvePosition: resolveInteriorPosition,
+  stepStairHeight,
   getActiveRoom,
   getNearInteractive,
   elevator: {

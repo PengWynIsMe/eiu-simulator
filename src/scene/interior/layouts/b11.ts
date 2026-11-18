@@ -1,9 +1,18 @@
+import { FLOOR_HEIGHT } from '../../../data';
 import type { Vec2 } from '../../../types';
+import {
+  buildSwitchbackWalkableSpec,
+  evaluateStairHeight,
+  isInsideAnyStairFootprint,
+  type SwitchbackStairGeometrySpec,
+  type WalkableStairSpec,
+} from '../stairs';
 import type {
   ExteriorEntrance,
   InteractivePoint,
   InteriorLayout,
   RoomArea,
+  StairStepResult,
   WallSegment,
 } from '../types';
 
@@ -140,6 +149,84 @@ export const B11_STAIRWELLS: readonly StairwellSpec[] = [
   { id: 'ms', label: 'Thang bộ giữa (Nam)', minU: 55.5, maxU: 61.3, minV: -116.9, maxV: -103.45, orientation: 'ew' },
   { id: 'east', label: 'Thang bộ lớn phía Đông', minU: 108.05, maxU: 115.35, minV: -129.6, maxV: -123.7, orientation: 'ew' },
 ];
+
+/** Thông số hình học + đi bộ chuẩn của cả 5 cầu thang chữ U hai vế B11 (1 nguồn sự thật cho 3D & vật lý). */
+export const B11_SWITCHBACK_STAIRS: readonly SwitchbackStairGeometrySpec[] = [
+  // Giữa Bắc (Thang G-B, hướng về Block 8): Vế 1 bên Đông, lối đi gầm Vế 2 bên Tây
+  {
+    id: 'mn',
+    label: 'Thang bộ giữa (Bắc)',
+    f1: [59.8, -137.0, 59.8, -144.8],
+    f2: [57.0, -144.8, 57.0, -137.0],
+    width: 2.3,
+    steps1: 12,
+    steps2: 10,
+    landRatio: 2.24 / FLOOR_HEIGHT,
+    land: [58.4, -146.4, 5.4, 3.2],
+    backRail: [55.8, -147.85, 61.0, -147.85],
+    shaftBounds: [55.5, 61.3, -148.1, -137.0],
+  },
+  // Giữa Nam (Thang G-N, hướng về Block 4): Vế 1 bên Đông, lối đi gầm Vế 2 bên Tây
+  {
+    id: 'ms',
+    label: 'Thang bộ giữa (Nam)',
+    f1: [59.8, -115.9, 59.8, -108.1],
+    f2: [57.0, -108.1, 57.0, -115.9],
+    width: 2.3,
+    steps1: 12,
+    steps2: 10,
+    landRatio: 2.24 / FLOOR_HEIGHT,
+    land: [58.4, -105.85, 5.4, 4.5],
+    backRail: [55.8, -103.7, 61.0, -103.7],
+    shaftBounds: [55.5, 61.3, -116.9, -103.45],
+  },
+  // Tây Bắc
+  {
+    id: 'nw',
+    label: 'Thang bộ Tây Bắc',
+    f1: [5.4, -137.0, 5.4, -144.8],
+    f2: [2.6, -144.8, 2.6, -137.0],
+    width: 2.3,
+    steps1: 12,
+    steps2: 10,
+    landRatio: 2.24 / FLOOR_HEIGHT,
+    land: [4.0, -146.4, 5.4, 3.2],
+    backRail: [1.4, -147.85, 6.6, -147.85],
+    shaftBounds: [1.3, 6.7, -148.1, -137.0],
+  },
+  // Tây Nam
+  {
+    id: 'sw',
+    label: 'Thang bộ Tây Nam',
+    f1: [6.2, -115.9, 6.2, -108.1],
+    f2: [3.4, -108.1, 3.4, -115.9],
+    width: 2.2,
+    steps1: 12,
+    steps2: 10,
+    landRatio: 2.24 / FLOOR_HEIGHT,
+    land: [4.8, -105.85, 5.2, 4.5],
+    backRail: [2.3, -103.7, 7.3, -103.7],
+    shaftBounds: [2.2, 7.4, -116.9, -103.45],
+  },
+  // Đầu Đông (lên/xuống nối trực tiếp với sảnh Đông u = 115.35)
+  {
+    id: 'east',
+    label: 'Thang bộ lớn phía Đông',
+    f1: [115.35, -125.35, 110.8, -125.35],
+    f2: [110.8, -127.95, 115.35, -127.95],
+    width: 2.0,
+    steps1: 10,
+    steps2: 10,
+    landRatio: 0.5,
+    land: [109.6, -126.65, 2.4, 5.1],
+    backRail: [108.55, -129.0, 108.55, -124.3],
+    shaftBounds: [108.05, 115.35, -129.6, -123.7],
+  },
+];
+
+export const B11_WALKABLE_STAIRS: readonly WalkableStairSpec[] = B11_SWITCHBACK_STAIRS.map(
+  buildSwitchbackWalkableSpec
+);
 
 /** Tủ PCCC (chứa cuộn vòi + bình chữa cháy) đặt chuẩn tại các đầu hồi cầu thang sân trong */
 export const B11_PCCC_POINTS: readonly { readonly u: number; readonly v: number; readonly facingYawDeg: number }[] = [
@@ -490,7 +577,20 @@ function buildWingRoomsAndWalls(
   walls.push({ u1: B.uBridgeE, v1: -129.0, u2: B.uBridgeE, v2: -128.1, thickness: 0.22 });
   walls.push({ u1: B.uBridgeE, v1: -125.9, u2: B.uBridgeE, v2: -125.0, thickness: 0.22 });
 
-  // 6. Lan can inox 4 thanh dọc 2 sân trong trên tầng 2–4 hoặc bồn cây tầng 1
+  // 6. Vách chia vế thang & lan can an toàn giếng thang ở mọi tầng
+  // Dải chia giữa Vế 1 và Vế 2 của 5 cầu thang (chừa khoảng chiếu nghỉ để vòng chữ U lên/xuống)
+  walls.push({ u1: 58.6, v1: -144.6, u2: 58.6, v2: -137.0, thickness: 0.16, isRailing: true });
+  walls.push({ u1: 58.6, v1: -115.9, u2: 58.6, v2: -108.3, thickness: 0.16, isRailing: true });
+  walls.push({ u1: 4.0, v1: -144.6, u2: 4.0, v2: -137.0, thickness: 0.16, isRailing: true });
+  walls.push({ u1: 4.8, v1: -115.9, u2: 4.8, v2: -108.3, thickness: 0.16, isRailing: true });
+  walls.push({ u1: 110.8, v1: -126.65, u2: 115.35, v2: -126.65, thickness: 0.16, isRailing: true });
+
+  // Lan can bao ngoài hốc Thang bộ Đông (trên tất cả tầng 1–4 để sân Đông tầng trệt không chui dưới gầm thang)
+  walls.push({ u1: 108.05, v1: -129.6, u2: 115.35, v2: -129.6, thickness: 0.15, isRailing: true });
+  walls.push({ u1: 108.05, v1: -129.6, u2: 108.05, v2: -123.7, thickness: 0.15, isRailing: true });
+  walls.push({ u1: 108.05, v1: -123.7, u2: 115.35, v2: -123.7, thickness: 0.15, isRailing: true });
+
+  // 7. Lan can inox 4 thanh dọc 2 sân trong trên tầng 2–4 hoặc bồn cây tầng 1
   if (floor === 1) {
     // Ranh giới va chạm bồn cây & dải ghế đá nối liền cột ở tầng trệt (được render ở B11Furniture)
     for (const bed of B11_TREE_BEDS) {
@@ -503,15 +603,25 @@ function buildWingRoomsAndWalls(
       walls.push({ u1: span.u1 + 0.23, v1: B.vCyN, u2: span.u2 - 0.23, v2: B.vCyN, thickness: 0.54, isRailing: true });
       walls.push({ u1: span.u1 + 0.23, v1: B.vCyS, u2: span.u2 - 0.23, v2: B.vCyS, thickness: 0.54, isRailing: true });
     }
-    // Chặn va chạm dưới vế 1 cầu thang giữa (để vế 2 bên Tây u = 55.6..58.5 vẫn đi thông suốt ra B4/B8)
-    walls.push({ u1: 58.6, v1: -144.8, u2: 61.1, v2: -144.8, thickness: 0.2, isRailing: true });
-    walls.push({ u1: 58.6, v1: -144.8, u2: 58.6, v2: -137.0, thickness: 0.2, isRailing: true });
-    walls.push({ u1: 58.6, v1: -108.1, u2: 61.1, v2: -108.1, thickness: 0.2, isRailing: true });
-    walls.push({ u1: 58.6, v1: -115.9, u2: 58.6, v2: -108.1, thickness: 0.2, isRailing: true });
   } else {
-    // Ranh giới an toàn lỗ thông giếng thang giữa Bắc & Nam trên tầng 2–4
-    walls.push({ u1: 55.6, v1: -137.0, u2: 61.2, v2: -137.0, thickness: 0.15, isRailing: true });
-    walls.push({ u1: 55.6, v1: -115.9, u2: 61.2, v2: -115.9, thickness: 0.15, isRailing: true });
+    // Lan can bên hông lỗ thông tầng thang Tây Bắc & Tây Nam trên tầng 2–4 (chừa thoáng lối vào cầu thang)
+    walls.push({ u1: 1.3, v1: -148.0, u2: 1.3, v2: -137.0, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 6.7, v1: -148.0, u2: 6.7, v2: -137.0, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 1.3, v1: -148.0, u2: 6.7, v2: -148.0, thickness: 0.15, isRailing: true });
+
+    walls.push({ u1: 2.2, v1: -115.9, u2: 2.2, v2: -103.6, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 7.4, v1: -115.9, u2: 7.4, v2: -103.6, thickness: 0.15, isRailing: true });
+    walls.push({ u1: 2.2, v1: -103.6, u2: 7.4, v2: -103.6, thickness: 0.15, isRailing: true });
+
+    // Tầng 4 (tầng trên cùng, không còn vế 1 đi tiếp): rào lan can phía vế 1 ở cao độ sàn tầng 4 (minY = -1.5 để không chắn lối xuống tầng 3)
+    if (floor === 4) {
+      walls.push({ u1: 58.6, v1: -137.0, u2: 61.2, v2: -137.0, thickness: 0.15, isRailing: true, minY: -1.5 });
+      walls.push({ u1: 58.6, v1: -115.9, u2: 61.2, v2: -115.9, thickness: 0.15, isRailing: true, minY: -1.5 });
+      walls.push({ u1: 4.0, v1: -137.0, u2: 6.7, v2: -137.0, thickness: 0.15, isRailing: true, minY: -1.5 });
+      walls.push({ u1: 4.8, v1: -115.9, u2: 7.4, v2: -115.9, thickness: 0.15, isRailing: true, minY: -1.5 });
+      walls.push({ u1: 115.35, v1: -126.65, u2: 115.35, v2: -123.7, thickness: 0.15, isRailing: true, minY: -1.5 });
+    }
+
     // Sân trong Tây [8.2..61.3 x -132.3..-120.4]
     walls.push({ u1: 8.2, v1: -132.3, u2: 61.3, v2: -132.3, thickness: 0.15, isRailing: true });
     walls.push({ u1: 8.2, v1: -120.4, u2: 61.3, v2: -120.4, thickness: 0.15, isRailing: true });
@@ -525,10 +635,6 @@ function buildWingRoomsAndWalls(
     walls.push({ u1: 64.95, v1: -125.0, u2: 64.95, v2: -120.9, thickness: 0.15, isRailing: true });
     walls.push({ u1: 115.35, v1: -132.3, u2: 115.35, v2: -129.6, thickness: 0.15, isRailing: true });
     walls.push({ u1: 115.35, v1: -123.7, u2: 115.35, v2: -120.9, thickness: 0.15, isRailing: true });
-    // Lan can vịnh thang bộ Đông
-    walls.push({ u1: 108.05, v1: -129.6, u2: 115.35, v2: -129.6, thickness: 0.15, isRailing: true });
-    walls.push({ u1: 108.05, v1: -129.6, u2: 108.05, v2: -123.7, thickness: 0.15, isRailing: true });
-    walls.push({ u1: 108.05, v1: -123.7, u2: 115.35, v2: -123.7, thickness: 0.15, isRailing: true });
   }
 
   return { rooms, walls };
@@ -717,6 +823,28 @@ const B11_SOUTH_STAIR_HOLE_UV: readonly Vec2[] = [
   [55.6, -103.55],
 ];
 
+const B11_NW_STAIR_HOLE_UV: readonly Vec2[] = [
+  [1.3, -148.0],
+  [6.7, -148.0],
+  [6.7, -137.0],
+  [1.3, -137.0],
+];
+
+const B11_SW_STAIR_HOLE_UV: readonly Vec2[] = [
+  [2.2, -115.9],
+  [7.4, -115.9],
+  [7.4, -103.6],
+  [2.2, -103.6],
+];
+
+// Lùi mép Đông 0.05 m (115.30) để không trùng cạnh thẳng hàng với B11_EAST_HOLE_UV (115.35)
+const B11_EAST_STAIR_HOLE_UV: readonly Vec2[] = [
+  [108.4, -129.2],
+  [115.3, -129.2],
+  [115.3, -124.1],
+  [108.4, -124.1],
+];
+
 export function getFloorHoles(floor: number): Vec2[][] {
   if (floor === 1) return [];
   return [
@@ -724,6 +852,9 @@ export function getFloorHoles(floor: number): Vec2[][] {
     B11_EAST_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
     B11_NORTH_STAIR_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
     B11_SOUTH_STAIR_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
+    B11_NW_STAIR_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
+    B11_SW_STAIR_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
+    B11_EAST_STAIR_HOLE_UV.map(([u, v]) => b11ToWorld(u, v)),
   ];
 }
 
@@ -753,20 +884,60 @@ function distanceToSegment(u: number, v: number, u1: number, v1: number, u2: num
   return Math.hypot(u - (u1 + t * du), v - (v1 + t * dv));
 }
 
-function isInsideWalkableB11(u: number, v: number, floor: number): boolean {
+function canStandOnFloorZeroB11(u: number, v: number, floor: number): boolean {
+  if (floor === 1) {
+    // Vế 1 thang giữa và buồng thang góc/Đông: ưu tiên bám dốc thang ngay từ mép cửa thang
+    if (u >= 58.65 && u <= 61.2 && v >= -148.0 && v <= -137.0) return false;
+    if (u >= 58.65 && u <= 61.2 && v >= -115.9 && v <= -103.55) return false;
+    if (pointInPolyUV(u, v, B11_NW_STAIR_HOLE_UV)) return false;
+    if (pointInPolyUV(u, v, B11_SW_STAIR_HOLE_UV)) return false;
+    if (pointInPolyUV(u, v, B11_EAST_STAIR_HOLE_UV)) return false;
+    return true;
+  }
+
+  if (pointInPolyUV(u, v, B11_WEST_HOLE_UV)) return false;
+  if (pointInPolyUV(u, v, B11_EAST_HOLE_UV)) return false;
+  if (pointInPolyUV(u, v, B11_NORTH_STAIR_HOLE_UV)) return false;
+  if (pointInPolyUV(u, v, B11_SOUTH_STAIR_HOLE_UV)) return false;
+  if (pointInPolyUV(u, v, B11_NW_STAIR_HOLE_UV)) return false;
+  if (pointInPolyUV(u, v, B11_SW_STAIR_HOLE_UV)) return false;
+  if (pointInPolyUV(u, v, B11_EAST_STAIR_HOLE_UV)) return false;
+  return true;
+}
+
+function isInsideWalkableB11(u: number, v: number, floor: number, currentY = 0): boolean {
   const B = B11_BOUNDS;
   const inMain = u >= B.uWOut && u <= B.uEMainOut && v >= B.vNOut && v <= B.vSOut;
   const inNwWing = u >= B.uNwOut && u < B.uWOut && v >= B.vNOut && v <= B.vCyN;
   const inNeWing = u > B.uEMainOut && u <= B.uNeOut && v >= B.vNOut && v <= B.vCyN;
 
   if (!inMain && !inNwWing && !inNeWing) return false;
-  if (floor === 1) return true;
 
-  // Tầng 2–4: loại trừ giếng trời sân trong Tây & Đông và 2 giếng chiếu nghỉ thang giữa
+  // Khi đang leo/xuống lưng chừng trên cầu thang (|y| > 0.35 m), chỉ cho phép đi trong lòng vế thang & chiếu nghỉ hợp lệ
+  if (Math.abs(currentY) > 0.35) {
+    return isInsideAnyStairFootprint(B11_WALKABLE_STAIRS, u, v, floor, 4, currentY);
+  }
+
+  if (floor === 1) {
+    // Chặn gầm thấp Vế 2 ở các thang không có cửa thoát (Tây Bắc, Tây Nam, Đông) tại cao độ trệt
+    if (u >= 1.3 && u <= 4.0 && v < -137.0) return false;
+    if (u >= 2.2 && u <= 4.8 && v > -115.9) return false;
+    if (u >= 108.05 && u < 115.35 && v >= -129.6 && v <= -126.65) return false;
+    return true;
+  }
+
   if (pointInPolyUV(u, v, B11_WEST_HOLE_UV)) return false;
   if (pointInPolyUV(u, v, B11_EAST_HOLE_UV)) return false;
-  if (pointInPolyUV(u, v, B11_NORTH_STAIR_HOLE_UV)) return false;
-  if (pointInPolyUV(u, v, B11_SOUTH_STAIR_HOLE_UV)) return false;
+
+  const inAnyStairHole =
+    pointInPolyUV(u, v, B11_NORTH_STAIR_HOLE_UV) ||
+    pointInPolyUV(u, v, B11_SOUTH_STAIR_HOLE_UV) ||
+    pointInPolyUV(u, v, B11_NW_STAIR_HOLE_UV) ||
+    pointInPolyUV(u, v, B11_SW_STAIR_HOLE_UV) ||
+    pointInPolyUV(u, v, B11_EAST_STAIR_HOLE_UV);
+  if (inAnyStairHole) {
+    return isInsideAnyStairFootprint(B11_WALKABLE_STAIRS, u, v, floor, 4, currentY);
+  }
   return true;
 }
 
@@ -776,7 +947,8 @@ export function resolveInteriorPosition(
   prevX: number,
   prevZ: number,
   floor: number,
-  radius = 0.4
+  radius = 0.4,
+  currentY = 0
 ): Vec2 {
   const [nextU, nextV] = b11ToLocal(nextX, nextZ);
   const [prevU, prevV] = b11ToLocal(prevX, prevZ);
@@ -784,13 +956,15 @@ export function resolveInteriorPosition(
   let currentU = nextU;
   let currentV = nextV;
 
-  if (!isInsideWalkableB11(currentU, currentV, floor)) {
+  if (!isInsideWalkableB11(currentU, currentV, floor, currentY)) {
     currentU = prevU;
     currentV = prevV;
   }
 
   const walls = getFloorWalls(floor);
   for (const wall of walls) {
+    if (wall.minY !== undefined && currentY < wall.minY) continue;
+    if (wall.maxY !== undefined && currentY > wall.maxY) continue;
     const minDist = radius + wall.thickness / 2;
     const dist = distanceToSegment(currentU, currentV, wall.u1, wall.v1, wall.u2, wall.v2);
     if (dist < minDist) {
@@ -818,12 +992,42 @@ export function resolveInteriorPosition(
     }
   }
 
-  if (!isInsideWalkableB11(currentU, currentV, floor)) {
+  // Trên chiếu nghỉ tầng 1 -> 2 của thang giữa, đóng vách kính sau lưng ở v = -148.1 / -103.45 (tránh lọt qua cửa thoát trệt bên dưới)
+  if (floor === 1 && currentY > 0.8) {
+    if (currentU >= 55.5 && currentU <= 61.3) {
+      if (currentV < B11_BOUNDS.vNOut + radius + 0.12 && currentV > -148.5) {
+        currentV = B11_BOUNDS.vNOut + radius + 0.12;
+      }
+      if (currentV > B11_BOUNDS.vSOut - radius - 0.12 && currentV < -103.0) {
+        currentV = B11_BOUNDS.vSOut - radius - 0.12;
+      }
+    }
+  }
+
+  if (!isInsideWalkableB11(currentU, currentV, floor, currentY)) {
     currentU = prevU;
     currentV = prevV;
   }
 
   return b11ToWorld(currentU, currentV);
+}
+
+export function stepStairHeight(
+  worldX: number,
+  worldZ: number,
+  prevY: number,
+  floor: number
+): StairStepResult {
+  return evaluateStairHeight(
+    B11_WALKABLE_STAIRS,
+    b11ToLocal,
+    worldX,
+    worldZ,
+    prevY,
+    floor,
+    4,
+    (u, v) => canStandOnFloorZeroB11(u, v, floor)
+  );
 }
 
 export function getActiveRoom(worldX: number, worldZ: number, floor: number): RoomArea | null {
@@ -861,7 +1065,7 @@ export function getNearInteractive(
     return null;
   }
 
-  // 1. Thang máy Block 11 (tại cầu nối giữa mọi tầng 1–4)
+  // 1. Thang máy Block 11 (chỉ thang máy mới mở bảng chọn tầng; cầu thang bộ đi trực tiếp từng bậc)
   const distElev = Math.hypot(worldX - B11_ELEVATOR_WORLD[0], worldZ - B11_ELEVATOR_WORLD[1]);
   if (distElev <= 3.4) {
     return {
@@ -874,24 +1078,7 @@ export function getNearInteractive(
     };
   }
 
-  // 2. Cầu thang bộ ở 5 lõi thang (cho phép đổi tầng thuận tiện)
-  const [u, v] = b11ToLocal(worldX, worldZ);
-  for (const sw of B11_STAIRWELLS) {
-    const cu = (sw.minU + sw.maxU) * 0.5;
-    const cv = (sw.minV + sw.maxV) * 0.5;
-    if (Math.hypot(u - cu, v - cv) <= 3.6) {
-      return {
-        id: `b11-stair-${sw.id}`,
-        type: 'elevator',
-        worldPos: b11ToWorld(cu, cv),
-        radius: 3.6,
-        label: `${sw.label} — Chọn tầng (1–4)`,
-        buildingId: 'b11',
-      };
-    }
-  }
-
-  // 3. 5 cửa ra ngoài khuôn viên (trên tầng 1)
+  // 2. 5 cửa ra ngoài khuôn viên (trên tầng 1)
   if (floor === 1) {
     for (const ent of b11ExteriorEntrances) {
       const dist = Math.hypot(worldX - ent.spawnInsideWorld[0], worldZ - ent.spawnInsideWorld[1]);
@@ -926,6 +1113,7 @@ export const b11Layout: InteriorLayout = {
   getFloorBoundaryPts,
   getFloorHoles,
   resolvePosition: resolveInteriorPosition,
+  stepStairHeight,
   getActiveRoom,
   getNearInteractive,
   elevator: {

@@ -61,7 +61,7 @@ export default function InteriorHud() {
     };
   }, []);
 
-  // Hiệu ứng Fade chuyển cảnh (~0.3s) khi vào, ra hoặc đổi tầng (bỏ qua khi đi bộ qua bậc thang)
+  // Hiệu ứng Fade chuyển cảnh (~0.3s) khi vào, ra hoặc đổi tầng bằng thang máy (đi thang bộ liền mạch không chớp tối)
   useEffect(() => {
     const prev = prevInterior.current;
     const cur = interior;
@@ -76,7 +76,7 @@ export default function InteriorHud() {
 
     const isEntering = !prev && cur;
     const isExiting = prev && !cur;
-    const isChangingFloor = prev && cur && prev.floor !== cur.floor;
+    const isChangingFloor = Boolean(prev && cur && prev.floor !== cur.floor);
 
     if (isEntering || isExiting || isChangingFloor) {
       setFadeOpacity(1);
@@ -201,21 +201,25 @@ export default function InteriorHud() {
         aria-hidden="true"
       />
 
-      {/* 2. Thẻ thông tin phòng học / không gian đang đứng (Active Room Card) */}
-      {interior && proximity.activeRoom && (
+      {/* 2. Thẻ thông tin tầng & phòng học / hành lang đang đứng */}
+      {interior && (
         <div className="pointer-events-none fixed top-16 left-1/2 z-40 -translate-x-1/2">
-          <div className="flex max-w-md flex-col items-center rounded-2xl border border-sky-400/40 bg-slate-950/80 px-5 py-3 text-center shadow-xl backdrop-blur-md">
+          <div className="flex max-w-md flex-col items-center rounded-2xl border border-sky-400/40 bg-slate-950/80 px-5 py-2.5 text-center shadow-xl backdrop-blur-md">
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-sky-500/20 px-2.5 py-0.5 text-xs font-semibold text-sky-300">
                 {currentFloorLabel}
               </span>
-              <span className="text-sm font-bold text-sky-400">
-                {proximity.activeRoom.code}
-              </span>
+              {proximity.activeRoom && (
+                <span className="text-sm font-bold text-sky-400">
+                  {proximity.activeRoom.code}
+                </span>
+              )}
             </div>
-            <div className="mt-1 text-sm font-medium text-white">
-              {proximity.activeRoom.name}
-            </div>
+            {proximity.activeRoom && (
+              <div className="mt-1 text-sm font-medium text-white">
+                {proximity.activeRoom.name}
+              </div>
+            )}
           </div>
         </div>
       )}

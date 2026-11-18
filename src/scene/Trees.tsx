@@ -9,6 +9,8 @@ import {
 } from 'three';
 import { campus } from '../data';
 import type { Vec2 } from '../types';
+import { b11ToLocal } from './interior/layouts/b11';
+import SalixAlbaTrees, { type SalixAlbaInstance } from './trees/SalixAlbaTrees';
 import { isPointInPond } from './zone1/pondLayout';
 
 /** Bộ sinh số giả ngẫu nhiên có hạt giống cố định (Mulberry32) để vị trí không đổi mỗi lần render. */
@@ -67,12 +69,17 @@ interface TreeData {
 
 const TREE_COLORS = ['#38632a', '#447532', '#50853b', '#335b24', '#487d37'];
 
+function isNearBlock11Precinct(x: number, z: number): boolean {
+  const [u, v] = b11ToLocal(x, z);
+  return u >= -24 && u <= 155 && v >= -164 && v <= -92;
+}
+
 export default function Trees() {
   const { layout, buildings } = campus;
 
-  const trees = useMemo(() => {
+  const { genericTrees, b11SalixTrees } = useMemo(() => {
     const rng = createPrng(20261113);
-    const result: TreeData[] = [];
+    const all: TreeData[] = [];
     const minSpacing = 5.8;
 
     const isValidPosition = (pt: Vec2): boolean => {
@@ -122,7 +129,7 @@ export default function Trees() {
       }
 
       // 6. Khoảng cách với các cây đã tạo
-      for (const t of result) {
+      for (const t of all) {
         if (Math.hypot(pt[0] - t.x, pt[1] - t.z) < minSpacing) return false;
       }
 
@@ -130,7 +137,7 @@ export default function Trees() {
     };
 
     const addTree = (pt: Vec2) => {
-      if (result.length >= 520) return;
+      if (all.length >= 520) return;
       if (!isValidPosition(pt)) return;
 
       const rotY = rng() * Math.PI * 2;
@@ -138,7 +145,7 @@ export default function Trees() {
       const scaleY = 0.85 + rng() * 0.40;
       const color = TREE_COLORS[Math.floor(rng() * TREE_COLORS.length)] ?? '#447532';
 
-      result.push({ x: pt[0], z: pt[1], rotY, scaleXZ, scaleY, color });
+      all.push({ x: pt[0], z: pt[1], rotY, scaleXZ, scaleY, color });
     };
 
     // A. Hàng cây dày dặn dọc các tuyến đường nội bộ và đường vào từ cổng
@@ -215,14 +222,31 @@ export default function Trees() {
 
     // D. Điền cây lớn vào các khoảng sân cỏ trống
     let attempts = 0;
-    while (result.length < 480 && attempts < 1200) {
+    while (all.length < 480 && attempts < 1200) {
       attempts++;
       const candX = (rng() - 0.5) * 550;
       const candZ = (rng() - 0.5) * 550;
       addTree([candX, candZ]);
     }
 
-    return result;
+    const generic: TreeData[] = [];
+    const salix: SalixAlbaInstance[] = [];
+    for (const t of all) {
+      if (isNearBlock11Precinct(t.x, t.z)) {
+        salix.push({
+          x: t.x,
+          y: 0,
+          z: t.z,
+          rotY: t.rotY,
+          scaleXZ: t.scaleXZ * 0.82,
+          scaleY: t.scaleY * 0.84,
+        });
+      } else {
+        generic.push(t);
+      }
+    }
+
+    return { genericTrees: generic, b11SalixTrees: salix };
   }, [layout, buildings]);
 
   // Cây to hơn: thân cao 4.5m, đường kính 0.9–1.2m
@@ -260,7 +284,7 @@ export default function Trees() {
     const dummy = new Object3D();
     const col = new Color();
 
-    trees.forEach((t, i) => {
+    genericTrees.forEach((t, i) => {
       dummy.position.set(t.x, 0, t.z);
       dummy.rotation.set(0, t.rotY, 0);
       dummy.scale.set(t.scaleXZ, t.scaleY, t.scaleXZ);
@@ -278,24 +302,32 @@ export default function Trees() {
     if (canopyMesh.instanceColor) {
       canopyMesh.instanceColor.needsUpdate = true;
     }
-  }, [trees]);
+  }, [genericTrees]);
 
   return (
     <group>
       {/* 1 draw call cho thân */}
-      <instancedMesh
-        ref={trunkRef}
-        args={[trunkGeo, trunkMat, trees.length]}
-        castShadow
-        receiveShadow
-      />
+      {genericTrees.length > 0 && (
+        <instancedMesh
+          ref={trunkRef}
+          key={`generic-trunks-${genericTrees.length}`}
+          args={[trunkGeo, trunkMat, genericTrees.length]}
+          castShadow
+          receiveShadow
+        />
+      )}
       {/* 1 draw call cho tán */}
-      <instancedMesh
-        ref={canopyRef}
-        args={[canopyGeo, canopyMat, trees.length]}
-        castShadow
-        receiveShadow
-      />
+      {genericTrees.length > 0 && (
+        <instancedMesh
+          ref={canopyRef}
+          key={`generic-canopies-${genericTrees.length}`}
+          args={[canopyGeo, canopyMat, genericTrees.length]}
+          castShadow
+          receiveShadow
+        />
+      )}
+      {/* Cây 3D Salix alba quanh khuôn viên Block 11 */}
+      <SalixAlbaTrees instances={b11SalixTrees} />
     </group>
   );
 }

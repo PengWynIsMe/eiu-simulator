@@ -20,6 +20,7 @@ import {
 } from '../interior/layouts/b11';
 import { FLOOR_HEIGHT } from '../../data';
 import { safeMerge } from '../kit/geometryHelpers';
+import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 
 const UP_VEC = new Vector3(0, 1, 0);
 
@@ -118,13 +119,13 @@ export default function Block11Details() {
     };
   }, [bannerTexture]);
 
-  const geometries = useMemo(() => {
+  const { geometries, courtyardSalixTrees } = useMemo(() => {
     const B = B11_BOUNDS;
     const stoneParts: BufferGeometry[] = [];
     const soilParts: BufferGeometry[] = [];
-    const trunkParts: BufferGeometry[] = [];
     const crownParts: BufferGeometry[] = [];
     const lilyWhiteParts: BufferGeometry[] = [];
+    const courtyardSalix: SalixAlbaInstance[] = [];
     const steelParts: BufferGeometry[] = [];
     const creamParts: BufferGeometry[] = [];
     const blueTrimParts: BufferGeometry[] = [];
@@ -164,26 +165,17 @@ export default function Block11Details() {
         const tu = cu + du;
         const tv = cv;
         const [wx, wz] = b11ToWorld(tu, tv);
+        const idx = courtyardSalix.length;
 
-        // Thân cây cao vươn từ bồn tầng trệt lên tán ở tầng 4 (~14.75 m)
-        const rawTrunk = new CylinderGeometry(0.11, 0.16, 11.8, 7);
-        const trunk = rawTrunk.index ? rawTrunk.toNonIndexed() : rawTrunk;
-        if (rawTrunk !== trunk) rawTrunk.dispose();
-        trunk.translate(wx, 0.45 + 5.9, wz);
-        trunkParts.push(trunk);
-
-        // Tán lá 2 tầng xanh mát ngang tầm tầng 4
-        const rawCrown1 = new CylinderGeometry(0.65, 1.45, 2.0, 8);
-        const c1 = rawCrown1.index ? rawCrown1.toNonIndexed() : rawCrown1;
-        if (rawCrown1 !== c1) rawCrown1.dispose();
-        c1.translate(wx, 12.6, wz);
-        crownParts.push(c1);
-
-        const rawCrown2 = new CylinderGeometry(0.2, 1.0, 1.5, 8);
-        const c2 = rawCrown2.index ? rawCrown2.toNonIndexed() : rawCrown2;
-        if (rawCrown2 !== c2) rawCrown2.dispose();
-        c2.translate(wx, 14.0, wz);
-        crownParts.push(c2);
+        // Cây 3D Salix alba trồng trong bồn tầng trệt (cao ~14.5 m vươn tới tầm tầng 4)
+        courtyardSalix.push({
+          x: wx,
+          y: 0.45,
+          z: wz,
+          rotY: (idx * 1.37) % (Math.PI * 2),
+          scaleXZ: 0.9,
+          scaleY: 0.96 + (idx % 3) * 0.04,
+        });
 
         // Giàn cọc chống thép 4 chân chụm vào thân cây (đặc trưng sân trong B11)
         const baseSpread = 0.85;
@@ -318,20 +310,22 @@ export default function Block11Details() {
     }
 
     return {
-      stoneGeo: safeMerge(stoneParts),
-      soilGeo: safeMerge(soilParts),
-      trunkGeo: safeMerge(trunkParts),
-      crownGeo: safeMerge(crownParts),
-      lilyGeo: safeMerge(lilyWhiteParts),
-      steelGeo: safeMerge(steelParts),
-      creamGeo: safeMerge(creamParts),
-      blueTrimGeo: safeMerge(blueTrimParts),
-      whiteLouverGeo: safeMerge(whiteLouverParts),
-      roofCapGeo: safeMerge(roofCapParts),
-      glassCanopyGeo: safeMerge(glassCanopyParts),
-      acUnitGeo: safeMerge(acUnitParts),
-      signOrangeGeo: safeMerge(signOrangeParts),
-      darkStoneGeo: safeMerge(darkStoneParts),
+      geometries: {
+        stoneGeo: safeMerge(stoneParts),
+        soilGeo: safeMerge(soilParts),
+        crownGeo: safeMerge(crownParts),
+        lilyGeo: safeMerge(lilyWhiteParts),
+        steelGeo: safeMerge(steelParts),
+        creamGeo: safeMerge(creamParts),
+        blueTrimGeo: safeMerge(blueTrimParts),
+        whiteLouverGeo: safeMerge(whiteLouverParts),
+        roofCapGeo: safeMerge(roofCapParts),
+        glassCanopyGeo: safeMerge(glassCanopyParts),
+        acUnitGeo: safeMerge(acUnitParts),
+        signOrangeGeo: safeMerge(signOrangeParts),
+        darkStoneGeo: safeMerge(darkStoneParts),
+      },
+      courtyardSalixTrees: courtyardSalix,
     };
   }, []);
 
@@ -360,11 +354,7 @@ export default function Block11Details() {
           <meshStandardMaterial color="#4a3728" roughness={0.95} />
         </mesh>
       )}
-      {geometries.trunkGeo && (
-        <mesh geometry={geometries.trunkGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#6d4c3d" roughness={0.9} />
-        </mesh>
-      )}
+      <SalixAlbaTrees instances={courtyardSalixTrees} />
       {geometries.crownGeo && (
         <mesh geometry={geometries.crownGeo} castShadow receiveShadow>
           <meshStandardMaterial color="#2f7d44" flatShading roughness={0.85} />

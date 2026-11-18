@@ -165,6 +165,7 @@ export default function WalkMode() {
 
   // Trạng thái interior trước đó để phát hiện chuyển cảnh
   const prevInterior = useRef<{ buildingId: string; floor: number } | null>(currentInterior ? { ...currentInterior } : null);
+  const pendingStairTransition = useRef<{ targetFloor: number; deltaY: number } | null>(null);
   const lastInteractiveId = useRef<string | null | undefined>(undefined);
   const lastRoomCode = useRef<string | null | undefined>(undefined);
   const currentInteractive = useRef<InteractivePoint | null>(null);
@@ -215,6 +216,7 @@ export default function WalkMode() {
 
       if (!prev && cur) {
         // Vừa bước vào bên trong tòa nhà
+        pendingStairTransition.current = null;
         const layout = getInteriorLayout(cur.buildingId);
         const lastPt = lastUsedInteractive.current;
         const spawnPos = lastPt?.spawnPosWorld ?? layout?.defaultInsideEntrance ?? START;
@@ -231,6 +233,7 @@ export default function WalkMode() {
         updateCachedWalls(cur.buildingId, cur.floor);
       } else if (prev && !cur) {
         // Vừa bước ra ngoài khuôn viên
+        pendingStairTransition.current = null;
         const prevLayout = getInteriorLayout(prev.buildingId);
         const lastPt = lastUsedInteractive.current;
         const spawnPos = lastPt?.spawnPosWorld ?? prevLayout?.defaultOutsideEntrance ?? START;
@@ -246,11 +249,19 @@ export default function WalkMode() {
         globalFacingYaw = spawnYaw;
         currentFloorWallLines.current = [];
       } else if (prev && cur && prev.floor !== cur.floor) {
-        if (stairWalkTransition.current) {
+        const stairTx = pendingStairTransition.current;
+        if (stairTx && stairTx.targetFloor === cur.floor) {
+          // Đi bộ qua cầu thang giữa các tầng (B11/B3) -> giữ nguyên vị trí X/Z & góc nhìn, chỉ dời cao độ theo tầng mới
+          pendingStairTransition.current = null;
+          player.current[1] += stairTx.deltaY;
+          updateCachedWalls(cur.buildingId, cur.floor);
+          stairArrival.current = null;
+        } else if (stairWalkTransition.current) {
           stairWalkTransition.current = false;
           updateCachedWalls(cur.buildingId, cur.floor);
           stairArrival.current = null;
         } else {
+          pendingStairTransition.current = null;
           const layout = getInteriorLayout(cur.buildingId);
           const stair = stairArrival.current;
           const rooms = layout?.getFloorRooms(cur.floor) ?? [];
@@ -476,7 +487,7 @@ export default function WalkMode() {
       const targetZ = player.current[2] + dz * speed * dt;
 
       if (isInterior) {
-        // Va chạm nội thất theo từng tòa và từng tầng
+        // Va chạm nội thất theo từng tòa, từng tầng và cao độ cầu thang
         const layout = getInteriorLayout(interiorState.buildingId);
         if (layout) {
           const resolved = layout.resolvePosition(
@@ -485,7 +496,8 @@ export default function WalkMode() {
             player.current[0],
             player.current[2],
             interiorState.floor,
-            PLAYER_RADIUS
+            PLAYER_RADIUS,
+            player.current[1]
           );
           player.current[0] = resolved[0];
           player.current[2] = resolved[1];
@@ -505,10 +517,31 @@ export default function WalkMode() {
       facingYaw.current += yawDifference * (1 - Math.exp(-10 * dt));
     }
 
-    // Trong nhà: tòa có cầu thang đi bộ thật (B8) cập nhật độ cao + tự đổi tầng; tòa khác bám mặt sàn y = 0.
+    // Trong nhà: đi theo cầu thang bộ nhiều tầng (stepStairHeight cho B11/B3, getStairHeight cho B8) hoặc bám sàn y = 0.
     if (isInterior) {
       const layout = getInteriorLayout(interiorState.buildingId);
-      if (layout?.getStairHeight) {
+      if (layout?.stepStairHeight) {
+        const stairRes = layout.stepStairHeight(
+          player.current[0],
+          player.current[2],
+          player.current[1],
+          interiorState.floor
+        );
+        player.current[1] = stairRes.y;
+        if (
+          stairRes.transitionToFloor !== undefined &&
+          stairRes.transitionToFloor !== interiorState.floor &&
+          pendingStairTransition.current === null
+        ) {
+          const deltaY = (interiorState.floor - stairRes.transitionToFloor) * FLOOR_HEIGHT;
+          pendingStairTransition.current = {
+            targetFloor: stairRes.transitionToFloor,
+            deltaY,
+          };
+          window.dispatchEvent(new CustomEvent('campussim:stair-walk-floor'));
+          useWalkStore.getState().setInteriorFloor(stairRes.transitionToFloor);
+        }
+      } else if (layout?.getStairHeight) {
         const [u, v] = layout.toLocal(player.current[0], player.current[2]);
         const h = layout.getStairHeight(u, v);
         if (h === null) {
@@ -708,6 +741,9 @@ export default function WalkMode() {
       const layout = getInteriorLayout(interiorState.buildingId);
       if (layout) {
         interactive = layout.getNearInteractive(player.current[0], player.current[2], interiorState.floor);
+        if (interactive?.type === 'interior-door' && Math.abs(player.current[1]) > 0.8) {
+          interactive = null;
+        }
         activeRoom = layout.getActiveRoom(player.current[0], player.current[2], interiorState.floor);
       }
     } else {

@@ -331,42 +331,48 @@ function B3Furniture({ floor }: { floor: number }) {
         </instancedMesh>
       )}
 
-      <ColorfulStairs />
+      <ColorfulStairs floor={floor} />
       <B3ElevatorBooth floor={floor} />
       {floor === 2 && <AuditoriumStage />}
     </group>
   );
 }
 
-function ColorfulStairs() {
+function ColorfulStairs({ floor }: { floor: number }) {
   const toWorld = b3Layout.toWorld;
   const steps = useMemo(() => {
-    const items = [];
+    const items: { matrix: Matrix4; color: string }[] = [];
     const colors = ['#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
     const count = 12;
-    for (let i = 0; i < count; i++) {
-      const u = 25.0 + (i / count) * 4.0;
-      const v = 20.0;
-      const y = (i / count) * FLOOR_HEIGHT;
-      const matrix = createInstanceMatrix(toWorld, u, v, y + 0.12, 0, 0.45, 0.24, 2.2);
-      items.push({ matrix, color: colors[i % colors.length] });
+    const offsets: number[] = [];
+    if (floor < 3) offsets.push(0);
+    if (floor > 1) offsets.push(-FLOOR_HEIGHT);
+
+    for (const dy of offsets) {
+      for (let i = 0; i < count; i++) {
+        const t = (i + 0.5) / count;
+        const u = 25.0 + t * 4.0;
+        const v = 20.0;
+        const y = dy + ((i + 1) / count) * FLOOR_HEIGHT - 0.16;
+        const matrix = createInstanceMatrix(toWorld, u, v, y, 0, 0.42, 0.34, 2.2);
+        items.push({ matrix, color: colors[i % colors.length] ?? '#3b82f6' });
+      }
     }
     return items;
-  }, [toWorld]);
+  }, [floor, toWorld]);
 
   const boxGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
 
   return (
-    <group>
+    <group key={`b3-stairs-${floor}`}>
       {steps.map((st, i) => (
         <mesh
           key={i}
           geometry={boxGeo}
+          matrixAutoUpdate={false}
+          matrix={st.matrix}
           castShadow
           receiveShadow
-          onUpdate={(self) => {
-            self.applyMatrix4(st.matrix);
-          }}
         >
           <meshStandardMaterial color={st.color} roughness={0.4} />
         </mesh>
