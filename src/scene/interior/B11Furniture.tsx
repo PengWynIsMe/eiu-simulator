@@ -659,6 +659,7 @@ export default function B11Furniture({
       for (let u = 12; u <= 112; u += 8.6) {
         if (Math.abs(u - 58.4) < 3.4) continue;
         if (u >= B11_PINGPONG_BOUNDS.minU && u <= B11_PINGPONG_BOUNDS.maxU) continue;
+        if (u >= 87.24 && u <= 96.61) continue; // ô 406.B11 do scene/lesson/Classroom406 dựng (không chồng nội thất mặc định)
         desksWood.push(createInstanceMatrix(b11ToWorld, u, -143.2, 0.38, 0, 3.8, 0.76, 0.85));
         blackMetal.push(createInstanceMatrix(b11ToWorld, u - 0.9, -143.2, 0.95, 0, 0.6, 0.42, 0.08));
         blackMetal.push(createInstanceMatrix(b11ToWorld, u + 0.9, -143.2, 0.95, 0, 0.6, 0.42, 0.08));
