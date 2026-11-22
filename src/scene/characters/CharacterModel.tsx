@@ -2,6 +2,7 @@ import { forwardRef, useImperativeHandle, useLayoutEffect, useMemo } from 'react
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import {
+  AnimationClip,
   AnimationMixer,
   LoopOnce,
   LoopRepeat,
@@ -9,7 +10,6 @@ import {
   MeshStandardMaterial,
   NearestFilter,
   type AnimationAction,
-  type AnimationClip,
 } from 'three';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { characterConfig } from '../../data';
@@ -25,7 +25,31 @@ export interface CharacterHandle {
   playOnce: (clip: CharacterClip, then?: CharacterClip) => void;
   /** Tạm dừng mixer (LOD xa). */
   setPaused: (paused: boolean) => void;
+  /**
+   * Phát clip chỉ cho tay + đầu (lọc track arm-left/arm-right/head), chồng lên clip chính (vd `sit`):
+   * chân, thân, root vẫn do clip chính điều khiển. Mặc định LoopOnce rồi mờ dần; `loop: true` lặp tới khi `stopUpper`.
+   */
+  playUpper: (clip: CharacterClip, opts?: UpperOptions) => void;
+  /** Dừng clip nửa người trên (mờ dần), tay/đầu về lại theo clip chính. */
+  stopUpper: () => void;
 }
+
+export interface UpperOptions {
+  timeScale?: number;
+  loop?: boolean;
+}
+
+/** Chỉ giữ track của các xương này; track root/torso/leg của clip phụ bỏ hẳn. */
+const UPPER_BONES = new Set(['arm-left', 'arm-right', 'head']);
+/**
+ * three.js trộn các action trên cùng một track theo tỉ lệ weight/Σweight, nên 2 action weight 1 chỉ cho 50/50.
+ * Weight lớn để clip phụ gần như thay hẳn tay/đầu của clip chính (xương không có trong clip phụ không bị ảnh hưởng).
+ */
+/** Clip nửa người trên dựng 1 lần cho mỗi clip gốc (useGLTF dùng chung `animations` giữa các bản clone). */
+const upperCache = new WeakMap<AnimationClip, AnimationClip>();
+const UPPER_WEIGHT = 64;
+const UPPER_FADE_IN = 0.12;
+const UPPER_FADE_OUT = 0.2;
 
 interface CharacterModelProps {
   url: string;
@@ -39,6 +63,7 @@ interface PlayState {
   action: AnimationAction | null;
   clip: CharacterClip | null;
   once: AnimationAction | null;
+  upper: AnimationAction | null;
   after: CharacterClip;
   paused: boolean;
 }
@@ -75,7 +100,7 @@ const CharacterModel = forwardRef<CharacterHandle, CharacterModelProps>(function
     return map;
   }, [animations]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- state gắn với vòng đời mixer
-  const state = useMemo<PlayState>(() => ({ action: null, clip: null, once: null, after: 'idle', paused: false }), [mixer]);
+  const state = useMemo<PlayState>(() => ({ action: null, clip: null, once: null, upper: null, after: 'idle', paused: false }), [mixer]);
 
   const handle = useMemo(() => {
     const start = (name: CharacterClip, ts: number, once: boolean, fade: number) => {
@@ -99,7 +124,41 @@ const CharacterModel = forwardRef<CharacterHandle, CharacterModelProps>(function
       state.clip = name;
       state.once = once ? action : null;
     };
+    const upperClip = (name: CharacterClip): AnimationClip | null => {
+      const key = characterConfig.clips[name];
+      const source = clipsByName.get(key);
+      if (!source) return null;
+      const cached = upperCache.get(source);
+      if (cached) return cached;
+      const tracks = source.tracks.filter((t) => UPPER_BONES.has(t.name.split('.')[0] ?? '')).map((t) => t.clone());
+      if (tracks.length === 0) return null;
+      const made = new AnimationClip(`${key}#upper`, source.duration, tracks);
+      upperCache.set(source, made);
+      return made;
+    };
+    const stopUpper = () => {
+      const up = state.upper;
+      if (!up) return;
+      state.upper = null;
+      up.fadeOut(UPPER_FADE_OUT);
+    };
     return {
+      playUpper: (name: CharacterClip, opts?: UpperOptions) => {
+        const clipUp = upperClip(name);
+        if (!clipUp) return;
+        const action = mixer.clipAction(clipUp);
+        if (state.upper && state.upper !== action) state.upper.fadeOut(UPPER_FADE_OUT);
+        const loop = opts?.loop === true;
+        action.reset();
+        action.setLoop(loop ? LoopRepeat : LoopOnce, loop ? Infinity : 1);
+        action.clampWhenFinished = true;
+        action.timeScale = opts?.timeScale ?? 1;
+        action.weight = UPPER_WEIGHT;
+        action.fadeIn(UPPER_FADE_IN);
+        action.play();
+        state.upper = action;
+      },
+      stopUpper,
       play: (name: CharacterClip, ts = 1) => start(name, ts, false, state.action ? FADE : 0),
       playOnce: (name: CharacterClip, then: CharacterClip = 'idle') => {
         state.after = then;
@@ -116,6 +175,11 @@ const CharacterModel = forwardRef<CharacterHandle, CharacterModelProps>(function
   // Vòng đời mixer: dọn khi đổi model / tháo.
   useLayoutEffect(() => {
     const onFinished = (e: { action: AnimationAction }) => {
+      if (e.action === state.upper) {
+        state.upper = null;
+        e.action.fadeOut(UPPER_FADE_OUT);
+        return;
+      }
       if (e.action === state.once) {
         state.once = null;
         handle.play(state.after);
@@ -129,6 +193,7 @@ const CharacterModel = forwardRef<CharacterHandle, CharacterModelProps>(function
       state.action = null;
       state.clip = null;
       state.once = null;
+      state.upper = null;
     };
   }, [mixer, model, state, handle]);
 

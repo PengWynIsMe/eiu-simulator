@@ -14,20 +14,13 @@ const WALK_SPEED = 1.2; // m/s, ứng timeScale 1 của clip walk (cùng ước 
 const SUMMARY_STAND_DELAY = 2; // s từ lúc vào summary tới khi cả lớp đứng dậy
 const EXIT_GAP = 0.8; // s giữa 2 bạn rời lớp
 const EXIT_FIRST_WALK = 0.6; // s đứng yên sau khi đứng dậy trước khi bạn đầu tiên đi
-const CHEER_TIME = 1.0; // s (clip emote-yes dài 0.67 s)
 
-/**
- * Các clip cử chỉ của Kenney (interact/yes/raiseHand) là tư thế ĐỨNG, không có bản ngồi. Với `interact` (gõ phím mỗi 6–14 s)
- * 18 bạn sẽ liên tục đứng bật lên ngồi xuống nên mặc định TẮT; bật lại nếu sau này có clip nửa người trên.
- */
-const TYPING_GESTURE = false;
 const TYPING_MIN = 6;
 const TYPING_MAX = 14;
-const TYPING_TIME = 0.9;
+const CHEER_TIME = 0.7; // clip emote-yes dài 0.67 s
+const RAISE_SPEED = 0.5; // clip pick-up chỉ 0.33 s, làm chậm lại cho giống giơ tay
 
 const SEATED = 0;
-const GESTURE = 1;
-const RAISED = 2;
 const EXIT_STAND = 3;
 const WALK = 4;
 const GONE = 5;
@@ -50,9 +43,9 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
       y: SIT_Y_OFFSET,
       yaw: spec.yaw,
       s: 0,
-      until: 0,
       nextTyping: 0,
       sumStart: -1,
+      raising: false,
       seenResult: null as LessonResult | null,
     }),
     [spec],
@@ -84,36 +77,43 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
 
     if (summary) {
       const t = now - sim.sumStart;
-      if (sim.mode < EXIT_STAND && t >= SUMMARY_STAND_DELAY) sim.mode = EXIT_STAND;
+      if (sim.mode < EXIT_STAND && t >= SUMMARY_STAND_DELAY) {
+        sim.mode = EXIT_STAND;
+        sim.raising = false;
+        handle.current?.stopUpper();
+      }
       if (sim.mode === EXIT_STAND && t >= SUMMARY_STAND_DELAY + EXIT_FIRST_WALK + spec.exitRank * EXIT_GAP) {
         sim.mode = WALK;
         sim.s = 0;
       }
     } else {
-      // Hoan hô khi vừa làm đúng bài tập.
-      if (lesson.lastResult !== sim.seenResult) {
-        sim.seenResult = lesson.lastResult;
-        if (spec.cheerer && lesson.phase === 'exercise' && lesson.lastResult?.correct && sim.mode === SEATED) {
-          sim.mode = GESTURE;
-          sim.until = now + CHEER_TIME;
-          play('yes');
+      // Cử chỉ nửa người trên khi đang ngồi (chân/thân vẫn theo clip `sit`).
+      const h = handle.current;
+      if (sim.mode === SEATED && h) {
+        if (lesson.lastResult !== sim.seenResult) {
+          sim.seenResult = lesson.lastResult;
+          if (spec.cheerer && lesson.phase === 'exercise' && lesson.lastResult?.correct) {
+            h.playUpper('yes');
+            sim.nextTyping = now + CHEER_TIME + 1;
+          }
+        }
+        const raise = spec.raiser && lesson.phase === 'question' && lesson.lastResult === null;
+        if (raise) {
+          if (!sim.raising) {
+            sim.raising = true;
+            h.playUpper('raiseHand', { loop: true, timeScale: RAISE_SPEED });
+          }
+        } else {
+          if (sim.raising) {
+            sim.raising = false;
+            h.stopUpper();
+          }
+          if (now >= sim.nextTyping) {
+            sim.nextTyping = now + TYPING_MIN + Math.random() * (TYPING_MAX - TYPING_MIN);
+            h.playUpper('interact');
+          }
         }
       }
-      // Giơ tay khi có câu hỏi chưa trả lời.
-      const raise = spec.raiser && lesson.phase === 'question' && lesson.lastResult === null;
-      if (raise && sim.mode === SEATED) {
-        sim.mode = RAISED;
-        play('raiseHand');
-      } else if (!raise && sim.mode === RAISED) {
-        sim.mode = SEATED;
-      }
-      if (TYPING_GESTURE && sim.mode === SEATED && now >= sim.nextTyping) {
-        sim.mode = GESTURE;
-        sim.until = now + TYPING_TIME;
-        sim.nextTyping = now + TYPING_MIN + Math.random() * (TYPING_MAX - TYPING_MIN);
-        play('interact');
-      }
-      if (sim.mode === GESTURE && now >= sim.until) sim.mode = SEATED;
     }
 
     // Đích của tư thế theo mode.
@@ -124,10 +124,6 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
     let direct = false;
     if (sim.mode === SEATED) {
       play('sit');
-    } else if (sim.mode === GESTURE || sim.mode === RAISED) {
-      tx = spec.backX;
-      tz = spec.backZ;
-      ty = 0;
     } else if (sim.mode === EXIT_STAND) {
       play('idle');
       tx = spec.backX;

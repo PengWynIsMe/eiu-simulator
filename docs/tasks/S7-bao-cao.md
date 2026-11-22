@@ -35,3 +35,23 @@ Cảnh nội thất vẽ sàn tầng đang đứng ở y = 0 (các tầng khác 
 2. `raiseHand` = `pick-up`, dài 0.33 s lặp → nhìn như vẫy/cúi nhấp nhô, chưa xem bằng mắt.
 3. Chưa mở trình duyệt (không GPU): chưa xác nhận bằng mắt mông chạm ghế, chân không xuyên bàn, đường ra cửa không cắt ghế (khe sau lưng ghế rộng ~0.6 m, thân NPC ~0.4 m). `WALK_SPEED` 1.2 m/s là ước lượng như CampusNpcs.
 4. Chân hạ y về 0 khi đứng lên là sàn tầng cục bộ; nếu luồng A thêm thảm/bệ nâng sàn phòng 406 thì cần cộng thêm.
+
+---
+
+# S7b — Cử chỉ nửa người trên khi đang ngồi
+
+## Đã làm
+- `src/scene/characters/CharacterModel.tsx`: thêm vào handle `playUpper(clip, { timeScale?, loop? })` và `stopUpper()`. Clip phụ lọc theo tên track (`arm-left`, `arm-right`, `head`), tạo `AnimationClip` mới, cache bằng `WeakMap` theo clip gốc (mỗi file GLB một lần vì `useGLTF` dùng chung `animations` giữa các bản clone). Mặc định LoopOnce, `clampWhenFinished`, fade-in 0.12 s, hết clip thì fade-out 0.2 s; `loop: true` lặp tới khi `stopUpper`. Track root/torso bị bỏ hẳn nên chân/thân/root vẫn do clip chính (`sit`). `play`/`playOnce` không đổi (chỉ thêm trường `upper` vào state).
+- `ClassroomNpcs`: bỏ hẳn mode đứng-làm-cử-chỉ. Ngồi suốt; gõ phím `playUpper('interact')` mỗi 6–14 s (lệch pha); pha question 2 bạn `playUpper('raiseHand', { loop: true, timeScale: 0.5 })` tới khi có `lastResult`; làm đúng bài tập 3 bạn gần người chơi `playUpper('yes')`. Tan học: dừng cử chỉ rồi đứng dậy đi ra cửa như cũ.
+
+## Tên track kiểm bằng script Node (character-male-b.glb, đặt ngoài src/)
+- `sit`: root.translation, arm-left.rotation, arm-right.rotation, leg-right.rotation, leg-left.rotation
+- `interact-right`: torso.rotation, head.rotation, arm-left.rotation, arm-right.rotation
+- `pick-up` (raiseHand): torso.rotation, arm-right.rotation, arm-left.rotation, head.rotation
+- `emote-yes`: head.rotation, torso.rotation, arm-left.rotation, arm-right.rotation
+Trong three, track có tên `arm-left.quaternion` (GLTFLoader đổi rotation → quaternion); code lọc theo phần trước dấu chấm nên không phụ thuộc. Clip phụ giữ 3 track (arm-left, arm-right, head), bỏ torso.
+
+## Lưu ý / chưa chắc
+1. Clip `sit` cũng có track tay (tay đặt tư thế ngồi). three.js trộn nhiều action trên cùng track theo weight/Σweight nên weight 1 + 1 chỉ cho 50/50. Do đó clip phụ dùng `UPPER_WEIGHT = 64` (lệch "trọng số 1" trong brief, có chú thích trong code) để gần như thay hẳn tay/đầu; fade-in/out nhân với weight này. Tay/đầu khớp tư thế ngồi lại khi clip phụ mờ đi.
+2. Clip phụ bỏ torso nên thân không nghiêng như clip gốc; tay dùng góc quay tuyệt đối của clip đứng nên có thể hơi lệch so với thân đang ngồi. Chưa xem bằng mắt (không GPU).
+3. Lệnh: typecheck, lint, build sạch.
