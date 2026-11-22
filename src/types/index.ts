@@ -139,3 +139,5 @@ export interface ReviewNote {
   source?: 'local' | 'github';
   issueUrl?: string;
 }
+
+export type * from './lesson';

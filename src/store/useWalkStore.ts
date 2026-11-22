@@ -22,6 +22,15 @@ interface WalkState {
   setInteriorFloor: (floor: number) => void;
   /** Ra khỏi tòa nhà, về khuôn viên (vẫn đang đi bộ). */
   exitInterior: () => void;
+  /**
+   * Vị trí người chơi (thế giới, mét). WalkMode ghi **tối đa 5 lần/giây**, không mỗi khung hình.
+   * floor = tầng khi ở trong nhà, null khi ngoài trời. NPC đọc bằng getState() trong useFrame; UI (la bàn) subscribe.
+   */
+  playerPos: { x: number; z: number; y: number; floor: number | null };
+  setPlayerPos: (p: { x: number; z: number; y: number; floor: number | null }) => void;
+  /** Kiểu nhân vật người chơi (characters.json: player / playerAlt). */
+  playerSkin: 'player' | 'playerAlt';
+  setPlayerSkin: (skin: 'player' | 'playerAlt') => void;
 }
 
 export const useWalkStore = create<WalkState>()((set) => ({
@@ -34,4 +43,8 @@ export const useWalkStore = create<WalkState>()((set) => ({
   enterInterior: (buildingId) => set({ interior: { buildingId, floor: 1 }, moveInput: { x: 0, y: 0 } }),
   setInteriorFloor: (floor) => set((s) => (s.interior ? { interior: { ...s.interior, floor } } : {})),
   exitInterior: () => set({ interior: null, moveInput: { x: 0, y: 0 } }),
+  playerPos: { x: 0, z: 0, y: 0, floor: null },
+  setPlayerPos: (p) => set({ playerPos: p }),
+  playerSkin: 'player',
+  setPlayerSkin: (skin) => set({ playerSkin: skin }),
 }));

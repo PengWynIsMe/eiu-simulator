@@ -215,3 +215,6 @@ export function getBuildingsInZone(zone: number): Building[] {
 export function getBuildingDetail(id: string): BuildingDetail | undefined {
   return buildingDetails[id];
 }
+
+// ---- Giai đoạn 2: nhân vật, phòng học, buổi học, tuyến NPC (kiểm tra ở ./phase2) ----
+export { characterConfig, getClassroom, getLesson, getLessons, npcRoutes } from './phase2';

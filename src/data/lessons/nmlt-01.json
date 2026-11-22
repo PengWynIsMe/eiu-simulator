@@ -1,0 +1,83 @@
+{
+  "id": "nmlt-01",
+  "course": "Nhập môn lập trình",
+  "title": "Buổi 1 — Chương trình Java đầu tiên",
+  "time": "08:00",
+  "roomCode": "406.B11",
+  "teacherName": "Thầy Nam",
+  "durationMinutes": 5,
+  "passportStamp": "Hộ chiếu ngành CNTT",
+  "steps": [
+    {
+      "type": "dialogue",
+      "id": "greet",
+      "speaker": "teacher",
+      "text": "Chào cả lớp! Hôm nay ta viết chương trình Java đầu tiên. Mọi người đăng nhập máy nhé.",
+      "options": [
+        { "id": "hi", "text": "Dạ chào thầy!", "reply": "Chào em, ngồi thoải mái nhé." },
+        { "id": "ready", "text": "Em sẵn sàng rồi ạ!", "reply": "Tốt lắm, bắt đầu thôi!" }
+      ]
+    },
+    {
+      "type": "lecture",
+      "id": "slides",
+      "slides": [
+        {
+          "title": "In chữ ra màn hình",
+          "code": "System.out.println(\"Hello EIU\");",
+          "body": "println in một dòng chữ rồi xuống dòng. Chữ phải nằm trong dấu ngoặc kép, câu lệnh kết thúc bằng dấu chấm phẩy."
+        },
+        {
+          "title": "Vòng lặp for",
+          "code": "for (int i = 0; i < 3; i++) {\n    System.out.println(\"EIU\");\n}",
+          "body": "for lặp lại một việc nhiều lần. i bắt đầu từ 0, tăng 1 sau mỗi lần, dừng khi i < 3 không còn đúng → chạy 3 lần."
+        }
+      ]
+    },
+    {
+      "type": "question",
+      "id": "q-for",
+      "speaker": "teacher",
+      "prompt": "Đoạn code này in ra gì?",
+      "code": "for (int i = 0; i < 3; i++) {\n    System.out.print(i);\n}",
+      "options": [
+        { "id": "a", "text": "012" },
+        { "id": "b", "text": "123" },
+        { "id": "c", "text": "0123" }
+      ],
+      "answerId": "a",
+      "explainCorrect": "Chính xác! i chạy 0, 1, 2 và print không xuống dòng nên ra 012.",
+      "explainWrong": "Chưa đúng. i bắt đầu từ 0 và dừng trước khi bằng 3, nên chỉ in 0, 1, 2."
+    },
+    {
+      "type": "exercise",
+      "id": "ex-println",
+      "title": "Bài 1 — Chào EIU",
+      "instruction": "Điền tên lệnh còn thiếu để in dòng chữ Hello EIU.",
+      "template": "public class Main {\n    public static void main(String[] args) {\n        System.out.___(\"Hello EIU\");\n    }\n}",
+      "answers": ["println", "print"],
+      "outputCorrect": "Hello EIU",
+      "outputWrong": "Main.java:3: error: cannot find symbol\n        System.out.???(\"Hello EIU\");\n                  ^",
+      "hint": "Lệnh in một dòng chữ rồi xuống dòng tên là print + ln.",
+      "explainWrong": "Java không biết lệnh này. Xem lại slide 1 nhé."
+    },
+    {
+      "type": "exercise",
+      "id": "ex-for",
+      "title": "Bài 2 — In 5 lần",
+      "instruction": "Điền số để chương trình in chữ EIU đúng 5 lần.",
+      "template": "public class Main {\n    public static void main(String[] args) {\n        for (int i = 0; i < ___; i++) {\n            System.out.println(\"EIU\");\n        }\n    }\n}",
+      "answers": ["5"],
+      "outputCorrect": "EIU\nEIU\nEIU\nEIU\nEIU",
+      "outputWrong": "Số dòng in ra chưa phải 5. Thử lại nhé!",
+      "hint": "i bắt đầu từ 0. Muốn chạy 5 lần (0, 1, 2, 3, 4) thì i phải nhỏ hơn số mấy?",
+      "explainWrong": "Đếm thử: i = 0, 1, 2, … dừng khi điều kiện sai."
+    },
+    {
+      "type": "summary",
+      "id": "end",
+      "speaker": "teacher",
+      "text": "Làm tốt lắm! Buổi sau ta học biến và câu lệnh if. Cả lớp nghỉ nhé."
+    }
+  ]
+}

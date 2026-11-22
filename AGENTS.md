@@ -137,6 +137,7 @@ JSON sai cấu trúc → app báo lỗi rõ ràng ngay khi mở (`Dữ liệu sa
 | **Claude** (Claude Code) | Tech lead / điều phối: viết brief task, dựng nền, giữ hợp đồng, review, chạy kiểm tra, commit | `AGENTS.md`, `CLAUDE.md`, `docs/**`, config gốc (`package.json`, `vite.config.ts`, `tsconfig*.json`, `tailwind`/`eslint` config), `src/types/**`, `src/store/**`, `src/data/**`, `src/main.tsx`, `scripts/**` |
 | **Gemini** (Antigravity) | **Thợ code chính** cho 3D và giao diện | `src/scene/**`, `src/ui/**`, `src/App.tsx`, `public/models/**`, `src/index.css` |
 | Codex (tùy chọn) | Reviewer độc lập khi cần ý kiến thứ hai | Không sửa code, chỉ báo cáo |
+| **Claude Sonnet** (agent nền, từ 2026-11-23) | Thợ code song song với Gemini trong Giai đoạn 2, mỗi agent một worktree | **Chỉ** các thư mục ghi trong brief luồng (`docs/PLAN-GIAI-DOAN-2.md` mục 6), không giao với Gemini |
 
 - Cần đổi file không thuộc quyền mình (vd Gemini cần thêm action vào store) → **dừng, ghi đề xuất trong báo cáo**, Claude sẽ sửa hợp đồng rồi giao lại.
 - Mỗi lúc tối đa **1 agent code trên cùng một nhóm file**.
