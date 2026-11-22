@@ -5,7 +5,7 @@
       "id": "r2-0",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 207.8,
       "points": [
         [
@@ -94,7 +94,7 @@
       "id": "r3-1",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 86.1,
       "points": [
         [
@@ -139,7 +139,7 @@
       "id": "r4-2",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 138.9,
       "points": [
         [
@@ -200,7 +200,7 @@
       "id": "r6-3",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 47.2,
       "points": [
         [
@@ -233,7 +233,7 @@
       "id": "r7-4",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 162.2,
       "points": [
         [
@@ -302,7 +302,7 @@
       "id": "r8-5",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 184.4,
       "points": [
         [
@@ -379,7 +379,7 @@
       "id": "r10-6",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 169.2,
       "points": [
         [
@@ -452,7 +452,7 @@
       "id": "r11-7",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 86.2,
       "points": [
         [
@@ -497,7 +497,7 @@
       "id": "r12-8",
       "kind": "internal",
       "loop": true,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 1755.3,
       "points": [
         [
@@ -1126,7 +1126,7 @@
       "id": "r13-9",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 204.2,
       "points": [
         [
@@ -1215,7 +1215,7 @@
       "id": "r14-10",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 64.9,
       "points": [
         [
@@ -1252,7 +1252,7 @@
       "id": "r18-11",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 46.6,
       "points": [
         [
@@ -1281,7 +1281,7 @@
       "id": "r27-12",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 62.8,
       "points": [
         [
@@ -1318,7 +1318,7 @@
       "id": "r28-13",
       "kind": "internal",
       "loop": false,
-      "sideOffset": 2.6,
+      "sideOffset": 5,
       "length": 62.8,
       "points": [
         [

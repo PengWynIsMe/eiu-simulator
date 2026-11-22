@@ -2,6 +2,10 @@
 import Environment from './Environment';
 import Ground from './Ground';
 import Trees from './Trees';
+import WindClock from './nature/WindClock';
+import Grass from './nature/Grass';
+import FallingLeaves from './nature/FallingLeaves';
+import StreetProps from './street/StreetProps';
 import Building from './Building';
 import Zone1 from './zone1/Zone1';
 import Zone2Walkways from './zone2/Zone2Walkways';
@@ -10,6 +14,7 @@ import CameraRig from './CameraRig';
 import ReviewPins from './ReviewPins';
 import WalkMode from './walk/WalkMode';
 import InteriorScene from './interior/InteriorScene';
+import CampusNpcs from './npc/CampusNpcs';
 import { campus } from '../data';
 import { useWalkStore } from '../store/useWalkStore';
 
@@ -33,6 +38,10 @@ export default function Campus() {
       <Environment />
       <Ground />
       <Trees />
+      <WindClock />
+      <Grass />
+      <FallingLeaves />
+      <StreetProps />
       {buildings.map((b) => (
         <Building key={b.id} building={b} />
       ))}
@@ -40,6 +49,7 @@ export default function Campus() {
       <Zone2Walkways />
       <Block8Details />
       <ReviewPins />
+      <CampusNpcs />
       {walkMode ? <WalkMode /> : <CameraRig />}
     </>
   );

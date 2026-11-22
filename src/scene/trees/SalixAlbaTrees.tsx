@@ -15,6 +15,7 @@ import {
   type InstancedMesh,
 } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { applyWind } from '../nature/wind';
 
 export interface SalixAlbaInstance {
   readonly x: number;
@@ -434,6 +435,9 @@ export function createSalixAlbaAssets(): SalixAlbaAssets {
     roughness: 0.82,
     metalness: 0.02,
   });
+
+  // Liễu rủ: ngọn lệch ≤ 0.25 m theo gió, gốc đứng yên (cây cao ~14.5 m).
+  applyWind(foliageMat, { strength: 0.25, heightFalloff: 14.5 });
 
   return {
     barkGeo,

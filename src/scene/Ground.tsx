@@ -1,123 +1,24 @@
-import { useMemo } from 'react';
-import { Shape, BufferGeometry, Float32BufferAttribute } from 'three';
+import { useEffect, useMemo } from 'react';
+import { Shape, type BufferGeometry, type CanvasTexture } from 'three';
 import { useThree, type ThreeEvent } from '@react-three/fiber';
 import { campus } from '../data';
-import type { Road, Vec2 } from '../types';
+import type { Vec2 } from '../types';
 import { useReviewStore } from '../store/useReviewStore';
 import { useCampusStore } from '../store/useCampusStore';
 import { getCameraPose } from './cameraUtils';
-import { FOOTWAY, FOOTWAY_WIDTH, GRASS, INTERNAL, PARKING, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUNDABOUT_ROAD, ROUNDABOUT_ROAD_WIDTH, STREET, STREET_LANE_WIDTH, GROUND } from './groundLevels';
+import { FOOTWAY, FOOTWAY_WIDTH, GRASS, INTERNAL, PARKING, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUNDABOUT_ROAD, ROUNDABOUT_ROAD_WIDTH, STREET, STREET_LANE_WIDTH, GROUND, BRIDGE_WIDTH } from './groundLevels';
+import {
+  ASPHALT_TILE_LENGTH,
+  BRICK_TILE_LENGTH,
+  BRICK_TILE_WIDTH,
+  createAsphaltTexture,
+  createBrickTexture,
+} from './street/roadTextures';
+import { buildKerbGeometry, buildRingRibbon, buildRoadRibbon, type RoadStyle } from './street/roadGeometry';
 
 /** Chuyển [x, z] sang [x, -z] trên mặt phẳng XY để khi xoay -90° quanh X sẽ khớp với hệ tọa độ thế giới. */
 function toShapePoints(pts: Vec2[]): [number, number][] {
   return pts.map(([x, z]) => [x, -z]);
-}
-
-/** Cắt đoạn thẳng [p1, p2] trong phạm vi bán kính maxR từ gốc [0, 0] để không dựng đường quá xa. */
-function clipSegmentToRadius(p1: Vec2, p2: Vec2, maxR: number): [Vec2, Vec2] | null {
-  const [x1, z1] = p1;
-  const [x2, z2] = p2;
-  const dx = x2 - x1;
-  const dz = z2 - z1;
-  const d1 = Math.hypot(x1, z1);
-  const d2 = Math.hypot(x2, z2);
-
-  // Cả hai điểm đều nằm trong phạm vi
-  if (d1 <= maxR && d2 <= maxR) {
-    return [p1, p2];
-  }
-
-  const a = dx * dx + dz * dz;
-  if (a < 1e-6) {
-    return d1 <= maxR ? [p1, p2] : null;
-  }
-
-  const b = 2 * (x1 * dx + z1 * dz);
-  const c = x1 * x1 + z1 * z1 - maxR * maxR;
-  const discr = b * b - 4 * a * c;
-  if (discr < 0) return null;
-
-  const sqrtD = Math.sqrt(discr);
-  const tA = (-b - sqrtD) / (2 * a);
-  const tB = (-b + sqrtD) / (2 * a);
-  const tStart = Math.max(0, Math.min(tA, tB));
-  const tEnd = Math.min(1, Math.max(tA, tB));
-
-  if (tStart >= tEnd || tStart > 1 || tEnd < 0) return null;
-
-  return [
-    [x1 + tStart * dx, z1 + tStart * dz],
-    [x1 + tEnd * dx, z1 + tEnd * dz],
-  ];
-}
-
-/** Tạo BufferGeometry dạng dải ruy băng cho danh sách đường, không sinh tam giác trùng ở các khớp nối. */
-function buildRoadGeometry(roads: Road[], elevation: number, maxRadius = 600): BufferGeometry | null {
-  const positions: number[] = [];
-  const normals: number[] = [];
-
-  const addTriangle = (p1: [number, number, number], p2: [number, number, number], p3: [number, number, number]) => {
-    positions.push(...p1, ...p2, ...p3);
-    normals.push(0, 1, 0, 0, 1, 0, 0, 1, 0);
-  };
-
-  roads.forEach((road) => {
-    if (road.kind === 'bridge' || road.points.length < 2) return;
-
-    let width = ROAD_WIDTH;
-    if (road.kind === 'street') {
-      width = (road.lanes ?? 2) * STREET_LANE_WIDTH;
-    } else if (road.kind === 'footway') {
-      width = FOOTWAY_WIDTH;
-    }
-    const hw = width / 2;
-
-    for (let i = 0; i < road.points.length - 1; i++) {
-      const p1 = road.points[i];
-      const p2 = road.points[i + 1];
-      if (!p1 || !p2) continue;
-
-      const clipped = clipSegmentToRadius(p1, p2, maxRadius);
-      if (!clipped) continue;
-
-      const [A, B] = clipped;
-      const dx = B[0] - A[0];
-      const dz = B[1] - A[1];
-      const len = Math.hypot(dx, dz);
-      if (len < 0.05) continue;
-
-      const nx = -dz / len;
-      const nz = dx / len;
-
-      const v0: [number, number, number] = [A[0] + nx * hw, elevation, A[1] + nz * hw];
-      const v1: [number, number, number] = [A[0] - nx * hw, elevation, A[1] - nz * hw];
-      const v2: [number, number, number] = [B[0] + nx * hw, elevation, B[1] + nz * hw];
-      const v3: [number, number, number] = [B[0] - nx * hw, elevation, B[1] - nz * hw];
-
-      // 2 tam giác của đoạn đường
-      addTriangle(v0, v2, v1);
-      addTriangle(v2, v3, v1);
-
-      // Chỉ thêm bo tròn tại các điểm gấp khúc bên trong (không thêm trùng lặp ở cả hai đầu)
-      if (i < road.points.length - 2) {
-        const jointSteps = 8;
-        for (let k = 0; k < jointSteps; k++) {
-          const a1 = (k / jointSteps) * Math.PI * 2;
-          const a2 = ((k + 1) / jointSteps) * Math.PI * 2;
-          const jb1: [number, number, number] = [B[0] + Math.cos(a1) * hw, elevation, B[1] + Math.sin(a1) * hw];
-          const jb2: [number, number, number] = [B[0] + Math.cos(a2) * hw, elevation, B[1] + Math.sin(a2) * hw];
-          addTriangle([B[0], elevation, B[1]], jb2, jb1);
-        }
-      }
-    }
-  });
-
-  if (positions.length === 0) return null;
-
-  const geo = new BufferGeometry();
-  geo.setAttribute('position', new Float32BufferAttribute(positions, 3));
-  geo.setAttribute('normal', new Float32BufferAttribute(normals, 3));
-  return geo;
 }
 
 export default function Ground() {
@@ -144,27 +45,96 @@ export default function Ground() {
     [layout.parking],
   );
 
-  // Đường phố bao ngoài (street): rộng theo số làn, cắt bớt ngoài 600m.
-  const streetGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'street'), STREET, 600),
-    [layout.roads],
-  );
-
-  // Đường nội bộ (internal): rộng 7m.
-  const internalGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'internal'), INTERNAL, 600),
-    [layout.roads],
-  );
-
-  // Lối đi bộ (footway): rộng 2.5m.
-  const footwayGeometry = useMemo(
-    () => buildRoadGeometry(layout.roads.filter((r) => r.kind === 'footway'), FOOTWAY, 600),
-    [layout.roads],
-  );
-
   const rbRadius = layout.roundabout.radius;
   const rbInner = rbRadius - ROUNDABOUT_ROAD_WIDTH / 2;
   const rbOuter = rbRadius + ROUNDABOUT_ROAD_WIDTH / 2;
+
+  const gl = useThree((st) => st.gl);
+
+  // Mặt đường: texture canvas tạo 1 lần. Đường phố chia nhóm theo số làn vì mỗi bề rộng cần vạch kẻ vừa khít.
+  const surfaces = useMemo(() => {
+    const aniso = gl.capabilities.getMaxAnisotropy();
+    const textures: CanvasTexture[] = [];
+    const geometries: BufferGeometry[] = [];
+    const track = <T extends CanvasTexture | BufferGeometry>(item: T): T => {
+      if ('isTexture' in item) textures.push(item as CanvasTexture);
+      else geometries.push(item as BufferGeometry);
+      return item;
+    };
+
+    const laneCounts = [...new Set(layout.roads.filter((r) => r.kind === 'street').map((r) => r.lanes ?? 2))].sort();
+    const streets = laneCounts.map((lanes) => {
+      const width = lanes * STREET_LANE_WIDTH;
+      const style: RoadStyle = { width, elevation: STREET, texLength: ASPHALT_TILE_LENGTH, texWidth: width };
+      const geo = buildRoadRibbon(layout.roads.filter((r) => r.kind === 'street' && (r.lanes ?? 2) === lanes), () => style, 600);
+      const map = track(
+        createAsphaltTexture(
+          { widthM: width, base: '#5d6168', grain: 34, lanes, centerColor: 'yellow', dashM: 3, edgeLines: true },
+          aniso,
+        ),
+      );
+      return { lanes, geo: geo ? track(geo) : null, map };
+    });
+
+    const internalStyle: RoadStyle = { width: ROAD_WIDTH, elevation: INTERNAL, texLength: ASPHALT_TILE_LENGTH, texWidth: ROAD_WIDTH };
+    const internalGeo = buildRoadRibbon(layout.roads.filter((r) => r.kind === 'internal'), () => internalStyle, 600);
+    const internalMap = track(
+      createAsphaltTexture(
+        { widthM: ROAD_WIDTH, base: '#7d8188', grain: 20, lanes: 2, centerColor: 'white', dashM: 2, edgeLines: false },
+        aniso,
+      ),
+    );
+
+    const footStyle: RoadStyle = { width: FOOTWAY_WIDTH, elevation: FOOTWAY, texLength: BRICK_TILE_LENGTH, texWidth: BRICK_TILE_WIDTH };
+    const footGeo = buildRoadRibbon(layout.roads.filter((r) => r.kind === 'footway'), () => footStyle, 600);
+    const footMap = track(createBrickTexture('#cfc3b4', aniso));
+
+    const ringGeo = track(buildRingRibbon(rbInner, rbOuter, 0, ASPHALT_TILE_LENGTH));
+    const ringMap = track(
+      createAsphaltTexture(
+        { widthM: ROUNDABOUT_ROAD_WIDTH, base: '#62666d', grain: 30, lanes: 2, centerColor: 'yellow', dashM: 3, edgeLines: true },
+        aniso,
+      ),
+    );
+
+    // Bó vỉa dọc 2 mép đường nội bộ (nằm trong bề rộng 7 m, không đổi bề rộng đường).
+    const kerbGeo = buildKerbGeometry({
+      roads: layout.roads.filter((r) => r.kind === 'internal'),
+      allRoads: layout.roads,
+      halfWidth: ROAD_WIDTH / 2,
+      baseY: INTERNAL,
+      height: 0.15,
+      thickness: 0.2,
+      maxRadius: 600,
+      onRoundabout: (x, z) => {
+        const d = Math.hypot(x, z);
+        return d > rbInner - 0.4 && d < rbOuter + 0.4;
+      },
+      widthOf: (r) => {
+        if (r.kind === 'street') return (r.lanes ?? 2) * STREET_LANE_WIDTH;
+        if (r.kind === 'footway') return FOOTWAY_WIDTH;
+        if (r.kind === 'bridge') return BRIDGE_WIDTH;
+        return ROAD_WIDTH;
+      },
+    });
+
+    return {
+      streets,
+      internalGeo: internalGeo ? track(internalGeo) : null,
+      internalMap,
+      footGeo: footGeo ? track(footGeo) : null,
+      footMap,
+      ringGeo,
+      ringMap,
+      kerbGeo: kerbGeo ? track(kerbGeo) : null,
+      dispose: () => {
+        textures.forEach((t) => t.dispose());
+        geometries.forEach((g) => g.dispose());
+      },
+    };
+  }, [gl, layout.roads, rbInner, rbOuter]);
+
+  useEffect(() => surfaces.dispose, [surfaces]);
 
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
     // Bỏ qua nếu là thao tác kéo xoay camera
@@ -230,37 +200,39 @@ export default function Ground() {
         />
       </mesh>
 
-      {/* 5. Vòng xoay: vành đường rộng 9m xám sáng — y = 0.45 */}
-      <mesh rotation-x={-Math.PI / 2} position-y={ROUNDABOUT_ROAD} receiveShadow>
-        <ringGeometry args={[rbInner, rbOuter, 96]} />
+      {/* 5. Vòng xoay: vành đường rộng 9m nhựa có vạch — y = 0.45 */}
+      <mesh geometry={surfaces.ringGeo} position-y={ROUNDABOUT_ROAD} receiveShadow>
         <meshStandardMaterial
-          color="#7b7f86"
-          roughness={0.8}
+          map={surfaces.ringMap}
+          roughness={0.85}
           polygonOffset
           polygonOffsetFactor={-3}
           polygonOffsetUnits={-1}
         />
       </mesh>
 
-      {/* 6. Dải đường phố bao quanh xám nhựa sáng — y = 0.45 */}
-      {streetGeometry && (
-        <mesh geometry={streetGeometry} receiveShadow>
-          <meshStandardMaterial
-            color="#767a82"
-            roughness={0.8}
-            polygonOffset
-            polygonOffsetFactor={-3}
-            polygonOffsetUnits={-1}
-          />
-        </mesh>
+      {/* 6. Dải đường phố bao quanh: nhựa + vạch vàng đứt + vạch mép trắng — y = 0.45 */}
+      {surfaces.streets.map(
+        ({ lanes, geo, map }) =>
+          geo && (
+            <mesh key={`street-${lanes}`} geometry={geo} receiveShadow>
+              <meshStandardMaterial
+                map={map}
+                roughness={0.85}
+                polygonOffset
+                polygonOffsetFactor={-3}
+                polygonOffsetUnits={-1}
+              />
+            </mesh>
+          ),
       )}
 
-      {/* 7. Dải đường nội bộ xám nhựa sáng — y = 0.60 */}
-      {internalGeometry && (
-        <mesh geometry={internalGeometry} receiveShadow>
+      {/* 7. Dải đường nội bộ nhựa xám nhạt, vạch trắng đứt — y = 0.60 */}
+      {surfaces.internalGeo && (
+        <mesh geometry={surfaces.internalGeo} receiveShadow>
           <meshStandardMaterial
-            color="#7b7f86"
-            roughness={0.8}
+            map={surfaces.internalMap}
+            roughness={0.85}
             polygonOffset
             polygonOffsetFactor={-4}
             polygonOffsetUnits={-1}
@@ -268,12 +240,19 @@ export default function Ground() {
         </mesh>
       )}
 
-      {/* 8. Lối đi bộ lát gạch nhạt — y = 0.75 */}
-      {footwayGeometry && (
-        <mesh geometry={footwayGeometry} receiveShadow>
+      {/* 7b. Bó vỉa 0.2 m × 0.15 m dọc 2 mép đường nội bộ */}
+      {surfaces.kerbGeo && (
+        <mesh geometry={surfaces.kerbGeo} receiveShadow>
+          <meshStandardMaterial color="#b9bcc0" roughness={0.9} />
+        </mesh>
+      )}
+
+      {/* 8. Lối đi bộ lát gạch so le — y = 0.75 */}
+      {surfaces.footGeo && (
+        <mesh geometry={surfaces.footGeo} receiveShadow>
           <meshStandardMaterial
-            color="#cfc3b4"
-            roughness={0.8}
+            map={surfaces.footMap}
+            roughness={0.85}
             polygonOffset
             polygonOffsetFactor={-5}
             polygonOffsetUnits={-1}

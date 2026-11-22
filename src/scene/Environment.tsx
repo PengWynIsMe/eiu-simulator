@@ -6,7 +6,7 @@ export default function Environment() {
   return (
     <>
       <color attach="background" args={['#d6e6f7']} />
-      <fog attach="fog" args={['#d6e6f7', 750, 2400]} />
+      <fog attach="fog" args={['#d6e6f7', 250, 900]} />
       <Sky
         distance={3000}
         sunPosition={[220, 200, 140]}

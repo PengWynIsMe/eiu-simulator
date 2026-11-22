@@ -1,4 +1,4 @@
-import { FLOOR_HEIGHT } from '../../../data';
+import { FLOOR_HEIGHT, getClassroom } from '../../../data';
 import type { Vec2 } from '../../../types';
 import {
   buildSwitchbackWalkableSpec,
@@ -780,6 +780,41 @@ const FLOOR_4_DATA = buildWingRoomsAndWalls(
     ),
   ]
 );
+
+// ---- Vật cản bàn phòng 406.B11 (tầng 4) — dựng nội thất ở scene/lesson/Classroom406 ----
+// Mỗi khối bàn (Bắc / Nam, chừa lối đi `aisle`) = 1 WallSegment dọc v ở u = deskU, dày = bề sâu bàn
+// (va chạm dạng viên thuốc nên 2 đầu hơi bo). `isRailing: true` để InteriorScene KHÔNG dựng thành tường
+// thật và camera không coi là vật che; va chạm đi bộ (resolveInteriorPosition) vẫn áp dụng.
+// Chọn đặt ở đây (không lập lớp vật cản riêng trong WalkMode) vì resolveInteriorPosition đã lặp qua getFloorWalls.
+(function addClassroom406Obstacles(): void {
+  const room = getClassroom('406.B11');
+  if (!room) return;
+  const { depth, width } = room.desk;
+  const rowDeskUs = [...new Set(room.seats.map((s) => s.deskU))];
+  for (const deskU of rowDeskUs) {
+    const rowSeats = room.seats.filter((s) => s.deskU === deskU);
+    const blocks = [
+      rowSeats.filter((s) => s.v < room.aisle.minV),
+      rowSeats.filter((s) => s.v > room.aisle.maxV),
+    ];
+    for (const block of blocks) {
+      if (block.length === 0) continue;
+      const vs = block.map((s) => s.v);
+      const v1 = Math.min(...vs) - width / 2 + depth / 2; // trừ bán kính bo hai đầu
+      const v2 = Math.max(...vs) + width / 2 - depth / 2;
+      FLOOR_4_DATA.walls.push({ u1: deskU, v1, u2: deskU, v2, thickness: depth, isRailing: true });
+    }
+  }
+  const t = room.teacherDesk;
+  FLOOR_4_DATA.walls.push({
+    u1: t.u,
+    v1: t.v - t.width / 2 + t.depth / 2,
+    u2: t.u,
+    v2: t.v + t.width / 2 - t.depth / 2,
+    thickness: t.depth,
+    isRailing: true,
+  });
+})();
 
 export function getFloorWalls(floor: number): readonly WallSegment[] {
   if (floor === 2) return FLOOR_2_DATA.walls;

@@ -1,5 +1,26 @@
 # HANDOFF — bàn giao cho đồng nghiệp
 
+## ⚡ ĐANG CHẠY (2026-11-23) — Giai đoạn 2 "Một buổi học ở EIU"
+
+Kế hoạch: **`docs/PLAN-GIAI-DOAN-2.md`**. Đã trong `main` (chưa push): W0, S1/S2 nhân vật + NPC, S3/S4 cỏ/gió/đường, S5/S6/S9 máy ảo + UI buổi học + âm thanh, S7/S7b bạn học ngồi, S8 phố xá, T07 chia bundle.
+
+| Việc | Ai | Trạng thái |
+| --- | --- | --- |
+| T19 thang + cây B8 | Antigravity — Orca worktree `~/orca/workspaces/eiu-simulator/t19-thang-cay` (nhánh `t19-thang-cay`) | đang làm |
+| L3 + L6 phòng 406 + thầy + màn chiếu | Claude Sonnet | ✅ trong main (`docs/tasks/L36-bao-cao.md`) |
+| L4 ngồi + camera + đưa tới lớp (`WalkMode`) | **Antigravity, sau T19** (Claude đã dừng theo lệnh người dùng 2026-11-23 ~04:00) | brief `L346-…` Việc 2. Lưu ý từ L36: ghế người chơi nằm trong vùng va chạm bàn → khi ngồi/đứng phải đặt vị trí trực tiếp |
+
+### Nếu Claude dừng (hết quota tuần) — Antigravity làm nốt một mình
+
+Người dùng chốt: hết quota thì **không dùng model Claude nào nữa**. Antigravity tự làm theo thứ tự:
+1. Xong T19 trong worktree `t19-thang-cay`, viết `docs/tasks/T19-bao-cao.md`.
+2. Trong cùng worktree: `git merge main` (lấy toàn bộ Giai đoạn 2), sửa xung đột (giữ gió của `Trees.tsx`/`SalixAlbaTrees.tsx` từ main), chạy typecheck/lint/build.
+3. L3 + L6 đã xong trên `main` — không làm lại.
+4. Làm L4 (Việc 2 cùng brief). Hợp đồng sự kiện ghế `campussim:seat-prompt` + `SIT_Y_OFFSET` ghi trong brief.
+5. Chơi thử theo checklist `docs/PLAN-GIAI-DOAN-2.md` mục 8, báo cáo `docs/tasks/L346-bao-cao.md`. **Không push**; người dùng xem rồi tự commit/merge.
+
+---
+
 Cập nhật: 2026-11-14 ~01:10 (Claude). Chủ dự án (PengWynIsMe) đi ngủ, **đồng nghiệp tiếp quản**.
 Mới vào? Đọc `docs/ONBOARDING.md` trước, rồi file này, rồi `AGENTS.md`.
 

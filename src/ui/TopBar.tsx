@@ -1,6 +1,8 @@
 import { TEXT } from './text';
 import { useReviewStore } from '../store/useReviewStore';
 import { useWalkStore } from '../store/useWalkStore';
+import { useLessonStore } from '../store/useLessonStore';
+import { useLessonUi } from './lesson/lessonUi';
 
 export default function TopBar() {
   const reviewMode = useReviewStore((s) => s.reviewMode);
@@ -11,6 +13,10 @@ export default function TopBar() {
 
   const walkMode = useWalkStore((s) => s.walkMode);
   const toggleWalkMode = useWalkStore((s) => s.toggleWalkMode);
+
+  const lessonIdle = useLessonStore((s) => s.phase === 'idle');
+  const scheduleOpen = useLessonUi((s) => s.scheduleOpen);
+  const toggleSchedule = useLessonUi((s) => s.toggleSchedule);
 
   return (
     <>
@@ -47,6 +53,22 @@ export default function TopBar() {
             </svg>
             <span>{walkMode ? TEXT.walkBtnActive : TEXT.walkBtn}</span>
           </button>
+
+          {/* Nút Buổi học */}
+          {lessonIdle && !reviewMode && (
+            <button
+              type="button"
+              onClick={toggleSchedule}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors shadow ${
+                scheduleOpen
+                  ? 'bg-[#0b3d91] text-white ring-2 ring-sky-300'
+                  : 'bg-white/85 text-slate-700 hover:bg-white hover:text-slate-900 backdrop-blur-sm'
+              }`}
+              title={TEXT.lessonOpenBtn}
+            >
+              <span>{TEXT.lessonOpenBtn}</span>
+            </button>
+          )}
 
           {/* Nút Chế độ góp ý */}
           <button

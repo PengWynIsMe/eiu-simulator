@@ -1,11 +1,9 @@
-import { useEffect, useMemo, useRef, type MutableRefObject } from 'react';
+import { useRef, type MutableRefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useAnimations, useGLTF } from '@react-three/drei';
-import { Box3, Group } from 'three';
-import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js';
-
-const MODEL_URL = `${import.meta.env.BASE_URL}models/RobotExpressive.glb`;
-const TARGET_HEIGHT = 1.7;
+import { useGLTF } from '@react-three/drei';
+import CharacterModel, { type CharacterHandle } from '../characters/CharacterModel';
+import { characterConfig } from '../../data';
+import { useWalkStore } from '../../store/useWalkStore';
 
 type PlayerCharacterProps = {
   moving: MutableRefObject<boolean>;
@@ -15,7 +13,7 @@ type PlayerCharacterProps = {
 
 export function CapsuleFallback() {
   return (
-    <group scale={[1, 0.947, 1]}>
+    <group scale={0.79}>
       <mesh position={[0, 0.69, 0]} castShadow>
         <capsuleGeometry args={[0.32, 0.75, 4, 8]} />
         <meshStandardMaterial color="#1d4f91" roughness={0.8} />
@@ -33,49 +31,19 @@ export function CapsuleFallback() {
 }
 
 export default function PlayerCharacter({ moving, running, visible }: PlayerCharacterProps) {
-  const { scene, animations } = useGLTF(MODEL_URL);
-  const model = useMemo(() => clone(scene), [scene]);
-  const root = useRef<Group>(null);
-  const { actions } = useAnimations(animations, root);
-  const activeAction = useRef<string>('');
-
-  useEffect(() => {
-    const idle = actions.Idle;
-    if (!idle) return;
-    idle.reset().fadeIn(0.2).play();
-    model.updateMatrixWorld(true);
-    const bounds = new Box3().setFromObject(model);
-    const height = bounds.max.y - bounds.min.y;
-    if (root.current && height > 0) {
-      const scale = TARGET_HEIGHT / height;
-      root.current.scale.setScalar(scale);
-      root.current.position.y = -bounds.min.y * scale;
-    }
-    activeAction.current = 'Idle';
-    return () => { idle.stop(); };
-  }, [actions, model]);
+  const skin = useWalkStore((s) => s.playerSkin);
+  const url = skin === 'playerAlt' ? characterConfig.roles.playerAlt : characterConfig.roles.player;
+  const handle = useRef<CharacterHandle>(null);
 
   useFrame(() => {
-    const nextName = moving.current ? (running.current ? 'Running' : 'Walking') : 'Idle';
-    if (nextName === activeAction.current) return;
-    const nextAction = actions[nextName];
-    const previousAction = actions[activeAction.current];
-    if (!nextAction) return;
-    nextAction.reset().play();
-    if (previousAction) previousAction.crossFadeTo(nextAction, 0.2, true);
-    activeAction.current = nextName;
+    handle.current?.play(moving.current ? (running.current ? 'run' : 'walk') : 'idle');
   });
 
-  useEffect(() => {
-    if (actions.Walking) actions.Walking.timeScale = 0.9;
-    if (actions.Running) actions.Running.timeScale = 1.15;
-  }, [actions]);
-
   return (
-    <group ref={root} visible={visible}>
-      <primitive object={model} />
+    <group visible={visible}>
+      <CharacterModel key={url} ref={handle} url={url} clip="idle" castShadow />
     </group>
   );
 }
 
-useGLTF.preload(MODEL_URL);
+useGLTF.preload(characterConfig.roles.player);

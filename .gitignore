@@ -7,3 +7,4 @@ dist/
 references/**/*
 !references/**/
 !references/**/*.md
+.claude/worktrees/
