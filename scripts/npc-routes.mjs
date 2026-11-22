@@ -69,8 +69,8 @@ layout.roads.forEach((road, i) => {
       id: `r${i}-${routes.length}`,
       kind: road.kind,
       loop: closed,
-      // Đường nội bộ: đi lệch sang lề phải 2.6 m (như vỉa hè); lối bộ / cầu: đi giữa.
-      sideOffset: road.kind === 'internal' ? 2.6 : 0,
+      // Đường nội bộ (rộng 7 m): đi lệch phải 5 m — ngoài bó vỉa (3.5 m) và cột đèn (4.2 m); lối bộ / cầu: đi giữa.
+      sideOffset: road.kind === 'internal' ? 5.0 : 0,
       length: r1(len(pts)),
       points: pts,
     });

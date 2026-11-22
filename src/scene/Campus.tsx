@@ -5,6 +5,7 @@ import Trees from './Trees';
 import WindClock from './nature/WindClock';
 import Grass from './nature/Grass';
 import FallingLeaves from './nature/FallingLeaves';
+import StreetProps from './street/StreetProps';
 import Building from './Building';
 import Zone1 from './zone1/Zone1';
 import Zone2Walkways from './zone2/Zone2Walkways';
@@ -40,6 +41,7 @@ export default function Campus() {
       <WindClock />
       <Grass />
       <FallingLeaves />
+      <StreetProps />
       {buildings.map((b) => (
         <Building key={b.id} building={b} />
       ))}
