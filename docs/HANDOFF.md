@@ -2,17 +2,22 @@
 
 ## ⚡ ĐANG CHẠY (2026-11-23) — Giai đoạn 2 "Một buổi học ở EIU"
 
-Kế hoạch đầy đủ: **`docs/PLAN-GIAI-DOAN-2.md`**. W0 (hợp đồng + data + model Kenney) đã commit `d884867`.
+Kế hoạch: **`docs/PLAN-GIAI-DOAN-2.md`**. Đã trong `main` (chưa push): W0, S1/S2 nhân vật + NPC, S3/S4 cỏ/gió/đường, S5/S6/S9 máy ảo + UI buổi học + âm thanh, S7/S7b bạn học ngồi, S8 phố xá, T07 chia bundle.
 
-| Luồng | Agent | Task | Brief | Nơi chạy |
-| --- | --- | --- | --- | --- |
-| A | Antigravity (dtaminh0310) | T19 → (Wave 2) L3/L4/L6 | `T19-…`, `L346-phong-406-ngoi-thay.md` | Orca worktree `t19-thang-cay` (cổng 5177) |
-| B | Claude Sonnet nền | S1+S2 nhân vật + NPC ngoài trời → S7 | `S12-nhan-vat-npc.md`, `S789-wave2.md` | worktree riêng (cổng 5174) |
-| C | Claude Sonnet nền | S3+S4 cỏ/gió/lá + mặt đường → S8 | `S34-thien-nhien-mat-duong.md`, `S789-wave2.md` | worktree riêng (cổng 5175) |
-| D | Claude Sonnet nền | S5+S6 máy ảo + UI buổi học → S9 | `S56-may-ao-ui-buoi-hoc.md`, `S789-wave2.md` | worktree riêng (cổng 5176) |
+| Việc | Ai | Trạng thái |
+| --- | --- | --- |
+| T19 thang + cây B8 | Antigravity — Orca worktree `~/orca/workspaces/eiu-simulator/t19-thang-cay` (nhánh `t19-thang-cay`) | đang làm |
+| L3 + L6 phòng 406 + thầy + màn chiếu | Claude Sonnet nền (worktree `.claude/worktrees/agent-…`) | đang làm |
+| L4 ngồi + camera + đưa tới lớp (`WalkMode`) | chưa giao — chờ T19 gộp | brief `L346-…` Việc 2 |
 
-Việc tiếp theo: Claude gộp Wave 1 theo thứ tự B → C → D → A, gắn component vào `Campus.tsx`/`App.tsx`, chơi thử, rồi giao Wave 2.
-Đã làm thêm: T07 phần chia bundle (`vite.config.ts` manualChunks: app 292 kB / r3f 528 kB / three 688 kB).
+### Nếu Claude dừng (hết quota tuần) — Antigravity làm nốt một mình
+
+Người dùng chốt: hết quota thì **không dùng model Claude nào nữa**. Antigravity tự làm theo thứ tự:
+1. Xong T19 trong worktree `t19-thang-cay`, viết `docs/tasks/T19-bao-cao.md`.
+2. Trong cùng worktree: `git merge main` (lấy toàn bộ Giai đoạn 2), sửa xung đột (giữ gió của `Trees.tsx`/`SalixAlbaTrees.tsx` từ main), chạy typecheck/lint/build.
+3. Nếu `docs/tasks/L36-bao-cao.md` chưa có trên `main` → tự làm L3 + L6 theo brief `docs/tasks/L346-phong-406-ngoi-thay.md` (Việc 1 + 3).
+4. Làm L4 (Việc 2 cùng brief). Hợp đồng sự kiện ghế `campussim:seat-prompt` + `SIT_Y_OFFSET` ghi trong brief.
+5. Chơi thử theo checklist `docs/PLAN-GIAI-DOAN-2.md` mục 8, báo cáo `docs/tasks/L346-bao-cao.md`. **Không push**; người dùng xem rồi tự commit/merge.
 
 ---
 
