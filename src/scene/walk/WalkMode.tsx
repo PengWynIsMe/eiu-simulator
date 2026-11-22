@@ -173,7 +173,6 @@ export default function WalkMode() {
   const lastUsedInteractive = useRef<InteractivePoint | null>(null);
   const isTopDownView = useRef(false);
   const stairArrival = useRef<{ stairCode: string; floor: number } | null>(null);
-  const stairWalkTransition = useRef(false);
 
   // Lắng nghe sự kiện chuyển góc nhìn từ trên xuống để so sánh sơ đồ
   useEffect(() => {
@@ -251,13 +250,9 @@ export default function WalkMode() {
       } else if (prev && cur && prev.floor !== cur.floor) {
         const stairTx = pendingStairTransition.current;
         if (stairTx && stairTx.targetFloor === cur.floor) {
-          // Đi bộ qua cầu thang giữa các tầng (B11/B3) -> giữ nguyên vị trí X/Z & góc nhìn, chỉ dời cao độ theo tầng mới
+          // Đi bộ qua cầu thang giữa các tầng (B11/B8/B3) -> giữ nguyên vị trí X/Z & góc nhìn, chỉ dời cao độ theo tầng mới
           pendingStairTransition.current = null;
           player.current[1] += stairTx.deltaY;
-          updateCachedWalls(cur.buildingId, cur.floor);
-          stairArrival.current = null;
-        } else if (stairWalkTransition.current) {
-          stairWalkTransition.current = false;
           updateCachedWalls(cur.buildingId, cur.floor);
           stairArrival.current = null;
         } else {
@@ -475,9 +470,6 @@ export default function WalkMode() {
     const inputLength = Math.hypot(xInput, yInput);
     moving.current = inputLength > 0.05;
 
-    const prevPlayerX = player.current[0];
-    const prevPlayerZ = player.current[2];
-
     if (moving.current) {
       const norm = Math.max(1, inputLength);
       const dx = (strafeX * xInput + forwardX * yInput) / norm;
@@ -517,7 +509,7 @@ export default function WalkMode() {
       facingYaw.current += yawDifference * (1 - Math.exp(-10 * dt));
     }
 
-    // Trong nhà: đi theo cầu thang bộ nhiều tầng (stepStairHeight cho B11/B3, getStairHeight cho B8) hoặc bám sàn y = 0.
+    // Trong nhà: đi theo cầu thang bộ nhiều tầng (stepStairHeight) hoặc bám sàn y = 0.
     if (isInterior) {
       const layout = getInteriorLayout(interiorState.buildingId);
       if (layout?.stepStairHeight) {
@@ -540,47 +532,6 @@ export default function WalkMode() {
           };
           window.dispatchEvent(new CustomEvent('campussim:stair-walk-floor'));
           useWalkStore.getState().setInteriorFloor(stairRes.transitionToFloor);
-        }
-      } else if (layout?.getStairHeight) {
-        const [u, v] = layout.toLocal(player.current[0], player.current[2]);
-        const h = layout.getStairHeight(u, v);
-        if (h === null) {
-          if (Math.abs(player.current[1]) > 1.2) {
-            player.current[0] = prevPlayerX;
-            player.current[2] = prevPlayerZ;
-          } else {
-            player.current[1] += (0 - player.current[1]) * (1 - Math.exp(-20 * dt));
-          }
-        } else {
-          const floorNow = interiorState.floor;
-          const candidates: number[] = [];
-          if (floorNow <= 3) candidates.push(h);
-          if (floorNow >= 2) candidates.push(h - FLOOR_HEIGHT);
-
-          let targetY = player.current[1];
-          if (candidates.length > 0) {
-            targetY = candidates.reduce((best, cand) =>
-              Math.abs(cand - player.current[1]) < Math.abs(best - player.current[1]) ? cand : best
-            );
-          }
-
-          if (Math.abs(targetY - player.current[1]) > 1.2) {
-            player.current[0] = prevPlayerX;
-            player.current[2] = prevPlayerZ;
-          } else {
-            player.current[1] += (targetY - player.current[1]) * (1 - Math.exp(-20 * dt));
-            if (player.current[1] > 2.0 && floorNow < layout.floors) {
-              player.current[1] -= FLOOR_HEIGHT;
-              stairWalkTransition.current = true;
-              window.dispatchEvent(new CustomEvent('campussim:stair-walk-floor'));
-              useWalkStore.getState().setInteriorFloor(floorNow + 1);
-            } else if (player.current[1] < -2.0 && floorNow > 1) {
-              player.current[1] += FLOOR_HEIGHT;
-              stairWalkTransition.current = true;
-              window.dispatchEvent(new CustomEvent('campussim:stair-walk-floor'));
-              useWalkStore.getState().setInteriorFloor(floorNow - 1);
-            }
-          }
         }
       } else {
         player.current[1] = 0.0;

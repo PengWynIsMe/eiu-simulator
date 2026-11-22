@@ -3,7 +3,6 @@ import {
   BoxGeometry,
   CylinderGeometry,
   ExtrudeGeometry,
-  IcosahedronGeometry,
   Matrix4,
   Quaternion,
   Shape,
@@ -13,6 +12,7 @@ import {
 import { FLOOR_HEIGHT } from '../../data';
 import type { Vec2 } from '../../types';
 import { safeMerge } from '../kit/geometryHelpers';
+import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 import {
   B8_EAST_HOLE_UV,
   B8_EX,
@@ -97,18 +97,29 @@ function createSeededRng(seed: number): () => number {
 /**
  * Chi tiết sân vườn & mặt đứng sân trong Block 8 nhìn từ bản đồ ngoài trời:
  * - Nền đá sân trong (#a8abad), 8 bồn đá tối + thảm lan ý + hoa trắng
- * - 8 cây cao 13 m tán 3 khối icosahedron + giàn chống thép 4 chân
+ * - 8 cây Salix alba + giàn chống thép 4 chân
  * - Lam chắn nắng trắng & dải sàn xanh dương mép sân tầng 2–4
  */
 export default function Block8Details() {
+  const b8SalixTrees = useMemo<SalixAlbaInstance[]>(() => {
+    return B8_TREE_UV.map(([tu, tv], idx) => {
+      const [wx, wz] = toWorld(tu, tv);
+      return {
+        x: wx,
+        y: 0.45,
+        z: wz,
+        rotY: (idx * 1.37) % (Math.PI * 2),
+        scaleXZ: 0.9,
+        scaleY: 0.96 + (idx % 3) * 0.04,
+      };
+    });
+  }, []);
+
   const geometries = useMemo(() => {
     const stoneParts: BufferGeometry[] = [];
     const rimParts: BufferGeometry[] = [];
     const foliageParts: BufferGeometry[] = [];
     const flowerParts: BufferGeometry[] = [];
-    const trunkParts: BufferGeometry[] = [];
-    const canopyDarkParts: BufferGeometry[] = [];
-    const canopyLightParts: BufferGeometry[] = [];
     const steelParts: BufferGeometry[] = [];
     const whiteLouverParts: BufferGeometry[] = [];
     const blueTrimParts: BufferGeometry[] = [];
@@ -143,35 +154,9 @@ export default function Block8Details() {
       }
     }
 
-    // 3. Cây cao 13.0 m, tán 3 khối icosahedron, giàn chống 4 chân
+    // 3. Giàn chống thép 4 chân cho 8 cây Salix alba
     for (const [tu, tv] of B8_TREE_UV) {
       const [wx, wz] = toWorld(tu, tv);
-
-      const trunk = toNonIndexed(new CylinderGeometry(0.175, 0.175, 13.0, 8));
-      trunk.translate(wx, GROUND_TOP + 6.5, wz);
-      trunkParts.push(trunk);
-
-      const addCanopy = (
-        target: BufferGeometry[],
-        du: number,
-        dv: number,
-        dy: number,
-        sx: number,
-        sy: number,
-        sz: number,
-        rot: number
-      ) => {
-        const geo = toNonIndexed(new IcosahedronGeometry(0.5, 1));
-        const [cx, cz] = toWorld(tu + du, tv + dv);
-        geo.scale(sx, sy, sz);
-        geo.rotateY(B8_WORLD_YAW + rot);
-        geo.translate(cx, GROUND_TOP + dy, cz);
-        target.push(geo);
-      };
-
-      addCanopy(canopyDarkParts, -0.3, 0.2, 9.5, 5.6, 4.2, 5.4, 0);
-      addCanopy(canopyLightParts, 0.4, -0.2, 11.5, 5.0, 4.0, 4.8, 0.7);
-      addCanopy(canopyDarkParts, -0.1, -0.1, 13.0, 4.2, 3.6, 4.2, 1.3);
 
       for (const [du, dv] of [
         [1.2, 0],
@@ -237,9 +222,6 @@ export default function Block8Details() {
       rimGeo: safeMerge(rimParts),
       foliageGeo: safeMerge(foliageParts),
       flowerGeo: safeMerge(flowerParts),
-      trunkGeo: safeMerge(trunkParts),
-      canopyDarkGeo: safeMerge(canopyDarkParts),
-      canopyLightGeo: safeMerge(canopyLightParts),
       steelGeo: safeMerge(steelParts),
       whiteLouverGeo: safeMerge(whiteLouverParts),
       blueTrimGeo: safeMerge(blueTrimParts),
@@ -274,21 +256,7 @@ export default function Block8Details() {
           <meshStandardMaterial color="#f8fafc" roughness={0.5} />
         </mesh>
       )}
-      {geometries.trunkGeo && (
-        <mesh geometry={geometries.trunkGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#4a3a2e" roughness={0.9} />
-        </mesh>
-      )}
-      {geometries.canopyDarkGeo && (
-        <mesh geometry={geometries.canopyDarkGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#3f7d3a" flatShading roughness={0.85} />
-        </mesh>
-      )}
-      {geometries.canopyLightGeo && (
-        <mesh geometry={geometries.canopyLightGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#4f8f45" flatShading roughness={0.85} />
-        </mesh>
-      )}
+      <SalixAlbaTrees instances={b8SalixTrees} />
       {geometries.steelGeo && (
         <mesh geometry={geometries.steelGeo} castShadow>
           <meshStandardMaterial color="#9ca3af" metalness={0.7} roughness={0.3} />

@@ -134,7 +134,7 @@ export default function InteriorHud() {
     setElevatorOpen(false);
   };
 
-  const hasPhysicalStairs = Boolean(layout?.getStairHeight);
+  const hasPhysicalStairs = Boolean(layout?.stepStairHeight);
   const stairCode = !hasPhysicalStairs && proximity.activeRoom?.code.startsWith('Thang bộ')
     ? proximity.activeRoom.code
     : null;

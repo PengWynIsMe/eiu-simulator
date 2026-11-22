@@ -4,7 +4,6 @@ import {
   BoxGeometry,
   CylinderGeometry,
   Euler,
-  IcosahedronGeometry,
   Matrix4,
   Quaternion,
   Vector3,
@@ -19,10 +18,7 @@ import {
   B8_EXIT_SIGNS,
   B8_PCCC_POINTS,
   B8_PLANTERS,
-  B8_STAIR_GAP,
-  B8_STAIR_LANDING_DEPTH,
-  B8_STAIR_RUN,
-  B8_STAIRS,
+  B8_SWITCHBACK_STAIRS,
   B8_TREE_UV,
   B8_WEST_HOLE_UV,
   b8Layout,
@@ -30,6 +26,8 @@ import {
   getFloorWalls,
   toWorld,
 } from './layouts/b8';
+import { addSwitchbackFlight, makeRampSlabMatrix } from './stairMesh';
+import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 
 const UP_VEC = new Vector3(0, 1, 0);
 const LOCAL_X_VEC = new Vector3(1, 0, 0);
@@ -52,118 +50,6 @@ function makeTiltedBoxMatrix(
   const mid = new Vector3().addVectors(a, b).multiplyScalar(0.5);
   const quat = new Quaternion().setFromUnitVectors(UP_VEC, dir.normalize());
   return new Matrix4().compose(mid, quat, new Vector3(radius * 2, len, radius * 2));
-}
-
-// Chép từ B11Furniture.tsx (đồng nghiệp) — kiểu thang chữ U
-function makeRampSlabMatrix(
-  toWorld: (u: number, v: number) => Vec2,
-  u1: number,
-  v1: number,
-  y1: number,
-  u2: number,
-  v2: number,
-  y2: number,
-  crossWidth: number,
-  thickness: number
-): Matrix4 {
-  const [x1, z1] = toWorld(u1, v1);
-  const [x2, z2] = toWorld(u2, v2);
-  const a = new Vector3(x1, y1, z1);
-  const b = new Vector3(x2, y2, z2);
-  const dir = new Vector3().subVectors(b, a);
-  const len = dir.length();
-  if (len < 0.01) return new Matrix4().makeScale(0, 0, 0);
-  dir.divideScalar(len);
-  const cross = new Vector3().crossVectors(UP_VEC, dir).normalize();
-  const normal = new Vector3().crossVectors(dir, cross).normalize();
-  const mid = new Vector3().addVectors(a, b).multiplyScalar(0.5);
-  return new Matrix4()
-    .makeBasis(
-      cross.multiplyScalar(crossWidth),
-      normal.multiplyScalar(thickness),
-      dir.multiplyScalar(len)
-    )
-    .setPosition(mid);
-}
-
-// Chép từ B11Furniture.tsx (đồng nghiệp) — kiểu thang chữ U
-function addSwitchbackFlight(
-  toWorld: (u: number, v: number) => Vec2,
-  treads: Matrix4[],
-  soffits: Matrix4[],
-  rails: Matrix4[],
-  u1: number,
-  v1: number,
-  y1: number,
-  u2: number,
-  v2: number,
-  y2: number,
-  width: number,
-  stepCount: number
-): void {
-  const du = u2 - u1;
-  const dv = v2 - v1;
-  const hLen = Math.hypot(du, dv);
-  if (hLen < 0.2) return;
-  const yaw = -Math.atan2(dv, du);
-  const runPerStep = hLen / stepCount;
-  const rise = y2 - y1;
-  const risePerStep = rise / stepCount;
-  const treadThickness = risePerStep + 0.015;
-
-  for (let s = 0; s < stepCount; s++) {
-    const u = u1 + du * ((s + 0.5) / stepCount);
-    const v = v1 + dv * ((s + 0.5) / stepCount);
-    const topY = y1 + rise * ((s + 1) / stepCount);
-    treads.push(
-      createInstanceMatrix(
-        toWorld,
-        u,
-        v,
-        topY - treadThickness * 0.5,
-        yaw,
-        runPerStep + 0.05,
-        treadThickness,
-        width
-      )
-    );
-  }
-
-  // Bản thang bê tông mặt dưới phẳng nghiêng
-  const yMod = ((y1 % FLOOR_HEIGHT) + FLOOR_HEIGHT) % FLOOR_HEIGHT;
-  const trimStart = yMod < 0.05 ? 0.35 / hLen : 0;
-  soffits.push(
-    makeRampSlabMatrix(
-      toWorld,
-      u1 + du * trimStart,
-      v1 + dv * trimStart,
-      y1 + rise * trimStart - 0.12,
-      u2,
-      v2,
-      y2 - 0.12,
-      width + 0.04,
-      0.24
-    )
-  );
-
-  // Tay vịn inox 3 thanh dọc hai bên vế thang + trụ đứng (cách mép ngoài tối thiểu 0.05 m để không chạm tường)
-  const perpU = -dv / hLen;
-  const perpV = du / hLen;
-  const railOffset = Math.min(width * 0.47, width * 0.5 - 0.05);
-  for (const side of [-1, 1]) {
-    const ox = perpU * railOffset * side;
-    const oz = perpV * railOffset * side;
-    for (const ry of [0.44, 0.74, 1.04]) {
-      const thick = ry > 1.0 ? 0.05 : 0.028;
-      rails.push(makeRampSlabMatrix(toWorld, u1 + ox, v1 + oz, y1 + ry, u2 + ox, v2 + oz, y2 + ry, thick, thick));
-    }
-    for (const t of [0.02, 0.34, 0.67, 0.98]) {
-      const pu = u1 + du * t + ox;
-      const pv = v1 + dv * t + oz;
-      const py = y1 + rise * t;
-      rails.push(createInstanceMatrix(toWorld, pu, pv, py + 0.52, 0, 0.04, 1.04, 0.04));
-    }
-  }
 }
 
 /** Tạo ma trận hộp có góc nghiêng quanh trục cục bộ u (dùng cho lá lam che nắng nghiêng 35°). */
@@ -384,15 +270,13 @@ export default function B8Furniture({
   const sharedGeos = useMemo(() => {
     const box = new BoxGeometry(1, 1, 1);
     const cyl = new CylinderGeometry(0.5, 0.5, 1, 12);
-    const canopy = new IcosahedronGeometry(0.5, 1);
-    return { box, cyl, canopy };
+    return { box, cyl };
   }, []);
 
   useEffect(() => {
     return () => {
       sharedGeos.box.dispose();
       sharedGeos.cyl.dispose();
-      sharedGeos.canopy.dispose();
     };
   }, [sharedGeos]);
 
@@ -598,15 +482,13 @@ export default function B8Furniture({
       }
     }
 
-    // 3. Sân vườn tầng trệt (giữ vị trí bồn & cây của T15a, đổi cách dựng theo bảng)
+    // 3. Sân vườn tầng trệt (giữ vị trí bồn & cây của T15a, đổi sang cây Salix alba)
     const groundY = -(floor - 1) * FLOOR_HEIGHT;
     const courtyardPaving: Matrix4[] = [];
     const planterRims: Matrix4[] = [];
     const lilyFoliage: Matrix4[] = [];
     const lilyFlowers: Matrix4[] = [];
-    const treeTrunks: Matrix4[] = [];
-    const canopyDark: Matrix4[] = [];
-    const canopyLight: Matrix4[] = [];
+    const salixTrees: SalixAlbaInstance[] = [];
     const treeStakes: Matrix4[] = [];
 
     // Nền lát đá phủ cả sân (#a8abad, dày 0.04 → mặt trên groundY + 0.04)
@@ -643,17 +525,21 @@ export default function B8Furniture({
     }
 
     for (const [tu, tv] of B8_TREE_UV) {
-      // Thân cây Ø0.35, cao 13.0 m
-      treeTrunks.push(createInstanceMatrix(toWorld, tu, tv, pavingTop + 6.5, 0, 0.35, 13.0, 0.35));
+      const [wx, wz] = toWorld(tu, tv);
+      const idx = salixTrees.length;
 
-      // 3 khối icosahedron chồng lệch nhau (Ø4–6, tâm y 9.5 / 11.5 / 13.0)
-      canopyDark.push(createInstanceMatrix(toWorld, tu - 0.3, tv + 0.2, pavingTop + 9.5, 0, 5.6, 4.2, 5.4));
-      canopyLight.push(createInstanceMatrix(toWorld, tu + 0.4, tv - 0.2, pavingTop + 11.5, 0.7, 5.0, 4.0, 4.8));
-      canopyDark.push(createInstanceMatrix(toWorld, tu - 0.1, tv - 0.1, pavingTop + 13.0, 1.3, 4.2, 3.6, 4.2));
+      // Cây 3D Salix alba cắm vào bồn sân trong tầng trệt (groundY + 0.45 m), tán vươn tới tầm tầng 4
+      salixTrees.push({
+        x: wx,
+        y: groundY + 0.45,
+        z: wz,
+        rotY: (idx * 1.37) % (Math.PI * 2),
+        scaleXZ: 0.9,
+        scaleY: 0.96 + (idx % 3) * 0.04,
+      });
 
       // Giàn chống thép 4 chân Ø0.08 từ cách gốc 1.2 m chụm vào thân ở cao 3.0 m
-      const [topX, topZ] = toWorld(tu, tv);
-      const topPt = [topX, pavingTop + 3.0, topZ] as const;
+      const topPt = [wx, pavingTop + 3.0, wz] as const;
       for (const [du, dv] of [
         [1.2, 0],
         [-1.2, 0],
@@ -665,65 +551,87 @@ export default function B8Furniture({
       }
     }
 
-    // 4. Cầu thang bộ chữ U kiểu B11 (giữ đúng số đo RISE/RUN/chiếu nghỉ 1.9 m của B8; bậc cuối lệch chiếu nghỉ >= 0.02 m)
+    // 4. Cầu thang bộ chữ U kiểu B11 (dùng chung thông số chuẩn B8_SWITCHBACK_STAIRS)
     const stairSteps: Matrix4[] = [];
     const stairSoffits: Matrix4[] = [];
     const stairRails: Matrix4[] = [];
-
-    const GAP = B8_STAIR_GAP;
-    const RUN = B8_STAIR_RUN;
 
     for (let f = 1; f <= 3; f++) {
       if (!showUpperFloors && f > floor) continue;
       const dy = (f - floor) * FLOOR_HEIGHT;
 
-      for (const st of B8_STAIRS) {
-        const flightW = st.flightW;
-        const landingDepth = Math.max(B8_STAIR_LANDING_DEPTH, flightW);
-        const landingW = 2 * flightW + GAP;
-        const isV = st.axis === 'v';
-        const toUV = (along: number, cross: number): readonly [number, number] => {
-          const main = st.corridorEdge + st.dir * along;
-          const crossC = st.centerCross + cross;
-          return isV ? [crossC, main] : [main, crossC];
-        };
+      for (const st of B8_SWITCHBACK_STAIRS) {
+        const midY = dy + st.landRatio * FLOOR_HEIGHT;
 
-        const crossOffsetF1 = +(GAP / 2 + flightW / 2);
-        const crossOffsetF2 = -(GAP / 2 + flightW / 2);
-        const [f1u1, f1v1] = toUV(0, crossOffsetF1);
-        const [f1u2, f1v2] = toUV(RUN, crossOffsetF1);
-        addSwitchbackFlight(toWorld, stairSteps, stairSoffits, stairRails, f1u1, f1v1, dy, f1u2, f1v2, dy + 1.88, flightW, 12);
+        addSwitchbackFlight(
+          toWorld,
+          stairSteps,
+          stairSoffits,
+          stairRails,
+          st.f1[0],
+          st.f1[1],
+          dy,
+          st.f1[2],
+          st.f1[3],
+          midY,
+          st.width,
+          st.steps1
+        );
+        addSwitchbackFlight(
+          toWorld,
+          stairSteps,
+          stairSoffits,
+          stairRails,
+          st.f2[0],
+          st.f2[1],
+          midY,
+          st.f2[2],
+          st.f2[3],
+          dy + FLOOR_HEIGHT,
+          st.width,
+          st.steps2
+        );
 
-        const [f2u1, f2v1] = toUV(RUN, crossOffsetF2);
-        const [f2u2, f2v2] = toUV(0, crossOffsetF2);
-        addSwitchbackFlight(toWorld, stairSteps, stairSoffits, stairRails, f2u1, f2v1, dy + 1.92, f2u2, f2v2, dy + FLOOR_HEIGHT - 0.02, flightW, 12);
+        // Chiếu nghỉ: bản bê tông dưới + mặt đá đen trên cùng y = midY
+        stairSoffits.push(
+          createInstanceMatrix(toWorld, st.land[0], st.land[1], midY - 0.1, 0, st.land[2], 0.16, st.land[3])
+        );
+        stairSteps.push(
+          createInstanceMatrix(toWorld, st.land[0], st.land[1], midY - 0.02, 0, st.land[2], 0.04, st.land[3])
+        );
 
-        // Chiếu nghỉ: bản bê tông dưới + mặt đá đen trên cùng y = dy + 1.9
-        const [landingU, landingV] = toUV(RUN + landingDepth * 0.5, 0);
-        const landSx = isV ? landingW : landingDepth;
-        const landSz = isV ? landingDepth : landingW;
-        stairSoffits.push(createInstanceMatrix(toWorld, landingU, landingV, dy + 1.9 - 0.1, 0, landSx, 0.16, landSz));
-        stairSteps.push(createInstanceMatrix(toWorld, landingU, landingV, dy + 1.9 - 0.02, 0, landSx, 0.04, landSz));
-
-        // Lan can chiếu nghỉ (lưng & 2 hông) cùng kiểu 3 thanh + trụ đứng, cách mép tường >= 0.05 m
-        const railHalfW = landingW * 0.5 - 0.05;
-        const [backLu, backLv] = toUV(RUN + landingDepth - 0.05, -railHalfW);
-        const [backRu, backRv] = toUV(RUN + landingDepth - 0.05, +railHalfW);
+        // Lan can chiếu nghỉ (lưng & 2 hông) cùng kiểu 3 thanh + trụ đứng
+        const [backLu, backLv] = [st.backRail[0], st.backRail[1]];
+        const [backRu, backRv] = [st.backRail[2], st.backRail[3]];
         for (const ry of [0.44, 0.74, 1.04]) {
           const thick = ry > 1.0 ? 0.05 : 0.028;
-          stairRails.push(makeRampSlabMatrix(toWorld, backLu, backLv, dy + 1.9 + ry, backRu, backRv, dy + 1.9 + ry, thick, thick));
+          stairRails.push(
+            makeRampSlabMatrix(toWorld, backLu, backLv, midY + ry, backRu, backRv, midY + ry, thick, thick)
+          );
         }
-        for (const crossPos of [-railHalfW, -railHalfW * 0.35, railHalfW * 0.35, railHalfW]) {
-          const [pu, pv] = toUV(RUN + landingDepth - 0.05, crossPos);
-          stairRails.push(createInstanceMatrix(toWorld, pu, pv, dy + 1.9 + 0.52, 0, 0.04, 1.04, 0.04));
+        for (const t of [0, 0.325, 0.675, 1]) {
+          const pu = backLu + (backRu - backLu) * t;
+          const pv = backLv + (backRv - backLv) * t;
+          stairRails.push(createInstanceMatrix(toWorld, pu, pv, midY + 0.52, 0, 0.04, 1.04, 0.04));
         }
-        for (const sideSign of [-1, 1] as const) {
-          const sideCross = sideSign * railHalfW;
-          const [su1, sv1] = toUV(RUN, sideCross);
-          const [su2, sv2] = toUV(RUN + landingDepth - 0.05, sideCross);
+
+        // 2 lan can hông chiếu nghỉ
+        const isAlongV = st.f1[2] === st.f1[0];
+        const sideRails: [number, number, number, number][] = isAlongV
+          ? [
+              [backLu, st.f1[3], backLu, backLv],
+              [backRu, st.f1[3], backRu, backRv],
+            ]
+          : [
+              [st.f1[2], backLv, backLu, backLv],
+              [st.f1[2], backRv, backRu, backRv],
+            ];
+        for (const [su1, sv1, su2, sv2] of sideRails) {
           for (const ry of [0.44, 0.74, 1.04]) {
             const thick = ry > 1.0 ? 0.05 : 0.028;
-            stairRails.push(makeRampSlabMatrix(toWorld, su1, sv1, dy + 1.9 + ry, su2, sv2, dy + 1.9 + ry, thick, thick));
+            stairRails.push(
+              makeRampSlabMatrix(toWorld, su1, sv1, midY + ry, su2, sv2, midY + ry, thick, thick)
+            );
           }
         }
       }
@@ -751,9 +659,7 @@ export default function B8Furniture({
       planterRims,
       lilyFoliage,
       lilyFlowers,
-      treeTrunks,
-      canopyDark,
-      canopyLight,
+      salixTrees,
       treeStakes,
       stairSteps,
       stairSoffits,
@@ -832,9 +738,7 @@ export default function B8Furniture({
       <InstancedBatch batchKey="b8-rim" matrices={data.planterRims} geometry={sharedGeos.box} color="#3f3f46" roughness={0.8} />
       <InstancedBatch batchKey="b8-lily" matrices={data.lilyFoliage} geometry={sharedGeos.box} color="#2f5d34" roughness={0.85} />
       <InstancedBatch batchKey="b8-flower" matrices={data.lilyFlowers} geometry={sharedGeos.box} color="#f8fafc" roughness={0.5} castShadow={false} />
-      <InstancedBatch batchKey="b8-trunk" matrices={data.treeTrunks} geometry={sharedGeos.cyl} color="#4a3a2e" roughness={0.9} />
-      <InstancedBatch batchKey="b8-canopyD" matrices={data.canopyDark} geometry={sharedGeos.canopy} color="#3f7d3a" roughness={0.85} />
-      <InstancedBatch batchKey="b8-canopyL" matrices={data.canopyLight} geometry={sharedGeos.canopy} color="#4f8f45" roughness={0.85} />
+      <SalixAlbaTrees instances={data.salixTrees} />
       <InstancedBatch batchKey="b8-stakes" matrices={data.treeStakes} geometry={sharedGeos.cyl} color="#9ca3af" metalness={0.7} roughness={0.3} />
 
       <InstancedBatch batchKey="b8-step" matrices={data.stairSteps} geometry={sharedGeos.box} color="#1e293b" metalness={0.4} roughness={0.45} />

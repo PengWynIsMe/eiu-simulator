@@ -5,7 +5,15 @@ import type {
   InteractivePoint,
   InteriorLayout,
   ExteriorEntrance,
+  StairStepResult,
 } from '../types';
+import {
+  buildSwitchbackWalkableSpec,
+  evaluateStairHeight,
+  isInsideAnyStairFootprint,
+  type SwitchbackStairGeometrySpec,
+  type WalkableStairSpec,
+} from '../stairs';
 
 /**
  * Hệ tọa độ địa phương B8 đo từ sơ đồ thoát hiểm thực tế (docs/tasks/T13b-b8-toa-do.json):
@@ -569,55 +577,104 @@ export const B8_TREE_UV: readonly Vec2[] = [
   [104.0, -188.05],
 ];
 
-/** Thông số cầu thang bộ gấp 2 vế Block 8 */
-export const B8_STAIR_RISE = 3.8 / 24;
-export const B8_STAIR_TREAD = 0.28;
-export const B8_STAIR_FLIGHT_W = 1.3;
-export const B8_STAIR_GAP = 0.2;
-export const B8_STAIR_LANDING_DEPTH = 1.3;
-export const B8_STAIR_RUN = 12 * B8_STAIR_TREAD; // 3.36 m
-
-export interface B8StairConfig {
-  readonly axis: 'v' | 'u';
-  readonly corridorEdge: number;
-  readonly dir: 1 | -1;
-  readonly centerCross: number;
-  readonly flightW: number;
-}
-
-export const B8_STAIRS: readonly B8StairConfig[] = [
-  // Tây Bắc: tường Tây dày 0.3 m (mặt trong 9.15) → flightW = 1.75 để mép ngoài vế cách mặt tường 0.05 m
-  { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 11.05, flightW: 1.75 },
-  { axis: 'v', corridorEdge: -200.0, dir: -1, centerCross: 51.9, flightW: 2.0 },     // Giữa Bắc
-  { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 11.6, flightW: 1.7 },      // Tây Nam
-  { axis: 'v', corridorEdge: -177.7, dir: 1, centerCross: 51.85, flightW: 1.65 },    // Giữa Nam
-  { axis: 'u', corridorEdge: 114.5, dir: -1, centerCross: -187.55, flightW: 2.55 },  // Lõi Đông
+export const B8_SWITCHBACK_STAIRS: readonly SwitchbackStairGeometrySpec[] = [
+  {
+    id: 'nw',
+    label: 'Thang bộ Tây Bắc',
+    f1: [12.025, -200.0, 12.025, -203.36],
+    f2: [10.075, -203.36, 10.075, -200.0],
+    width: 1.75,
+    steps1: 12,
+    steps2: 12,
+    landRatio: 0.5,
+    land: [11.05, -204.235, 3.7, 1.75],
+    backRail: [9.25, -205.06, 12.85, -205.06],
+    shaftBounds: [9.2, 12.9, -205.11, -200.0],
+  },
+  {
+    id: 'mn',
+    label: 'Thang bộ giữa (Bắc)',
+    f1: [53.0, -200.0, 53.0, -203.36],
+    f2: [50.8, -203.36, 50.8, -200.0],
+    width: 2.0,
+    steps1: 12,
+    steps2: 12,
+    landRatio: 0.5,
+    land: [51.9, -204.36, 4.2, 2.0],
+    backRail: [49.85, -205.31, 53.95, -205.31],
+    shaftBounds: [49.8, 54.0, -205.36, -200.0],
+  },
+  {
+    id: 'sw',
+    label: 'Thang bộ Tây Nam',
+    f1: [12.55, -177.7, 12.55, -174.34],
+    f2: [10.65, -174.34, 10.65, -177.7],
+    width: 1.7,
+    steps1: 12,
+    steps2: 12,
+    landRatio: 0.5,
+    land: [11.6, -173.49, 3.6, 1.7],
+    backRail: [9.85, -172.69, 13.35, -172.69],
+    shaftBounds: [9.8, 13.4, -177.7, -172.64],
+  },
+  {
+    id: 'ms',
+    label: 'Thang bộ giữa (Nam)',
+    f1: [52.775, -177.7, 52.775, -174.34],
+    f2: [50.925, -174.34, 50.925, -177.7],
+    width: 1.65,
+    steps1: 12,
+    steps2: 12,
+    landRatio: 0.5,
+    land: [51.85, -173.515, 3.5, 1.65],
+    backRail: [50.15, -172.74, 53.55, -172.74],
+    shaftBounds: [50.1, 53.6, -177.7, -172.69],
+  },
+  {
+    id: 'east',
+    label: 'Lõi Đông',
+    f1: [114.5, -186.175, 111.14, -186.175],
+    f2: [111.14, -188.925, 114.5, -188.925],
+    width: 2.55,
+    steps1: 12,
+    steps2: 12,
+    landRatio: 0.5,
+    land: [109.865, -187.55, 2.55, 5.3],
+    backRail: [108.64, -190.15, 108.64, -184.95],
+    shaftBounds: [108.59, 114.5, -190.2, -184.9],
+  },
 ];
 
-/**
- * Trả về độ cao mặt dốc cầu thang (m) so với sàn tầng bắt đầu vế 1, hoặc `null` nếu ngoài ô thang.
- * Vế 1 (cross >= 0) đi từ 0 → 1.9 m; chiếu nghỉ = 1.9 m; Vế 2 (cross < 0) đi từ 1.9 → 3.8 m.
- */
-export function getB8StairHeight(u: number, v: number): number | null {
-  for (const st of B8_STAIRS) {
-    const isV = st.axis === 'v';
-    const main = isV ? v : u;
-    const crossC = isV ? u : v;
-    const along = (main - st.corridorEdge) * st.dir;
-    const cross = crossC - st.centerCross;
-    const landingDepth = Math.max(B8_STAIR_LANDING_DEPTH, st.flightW);
-    if (
-      along < 0 ||
-      along > B8_STAIR_RUN + landingDepth ||
-      Math.abs(cross) > st.flightW + B8_STAIR_GAP / 2
-    ) {
-      continue;
+export const B8_WALKABLE_STAIRS: readonly WalkableStairSpec[] = B8_SWITCHBACK_STAIRS.map(
+  buildSwitchbackWalkableSpec
+);
+
+function canStandOnFloorZeroB8(u: number, v: number): boolean {
+  for (const st of B8_SWITCHBACK_STAIRS) {
+    const [minU, maxU, minV, maxV] = st.shaftBounds;
+    if (u >= minU && u <= maxU && v >= minV && v <= maxV) {
+      return false;
     }
-    if (along >= B8_STAIR_RUN) return 1.9;
-    if (cross >= 0) return (along / B8_STAIR_RUN) * 1.9;
-    return 1.9 + ((B8_STAIR_RUN - along) / B8_STAIR_RUN) * 1.9;
   }
-  return null;
+  return true;
+}
+
+export function stepStairHeight(
+  worldX: number,
+  worldZ: number,
+  prevY: number,
+  floor: number
+): StairStepResult {
+  return evaluateStairHeight(
+    B8_WALKABLE_STAIRS,
+    toLocal,
+    worldX,
+    worldZ,
+    prevY,
+    floor,
+    4,
+    canStandOnFloorZeroB8
+  );
 }
 
 // 2 Lỗ giếng trời sân trong cho các tầng 2, 3, 4 (KHÔNG CÓ KÍNH)
@@ -645,11 +702,16 @@ function distanceToSegment(u: number, v: number, u1: number, v1: number, u2: num
   return Math.hypot(u - projU, v - projV);
 }
 
-function isInsideB8FloorBoundary(u: number, v: number, floor: number): boolean {
+function isInsideB8FloorBoundary(u: number, v: number, floor: number, currentY = 0): boolean {
   // 1. Phải nằm trong khung chữ nhật thân chính hoặc khối WC Tây Nam
   const inMain = u >= 9.0 && u <= 120.4 && v >= -210.2 && v <= -166.0;
   const inSW = u >= 0.3 && u < 9.0 && v >= -181.0 && v <= -166.0;
   if (!inMain && !inSW) return false;
+
+  // Khi đang leo/xuống lưng chừng trên cầu thang (|y| > 0.35 m), chỉ cho phép đi trong lòng vế thang & chiếu nghỉ hợp lệ
+  if (Math.abs(currentY) > 0.35) {
+    return isInsideAnyStairFootprint(B8_WALKABLE_STAIRS, u, v, floor, 4, currentY);
+  }
 
   // 2. Ở tầng 2–4: không được rơi vào 2 giếng trời sân trong
   if (floor >= 2) {
@@ -674,7 +736,8 @@ export function resolveInteriorPosition(
   prevX: number,
   prevZ: number,
   floor: number,
-  radius = 0.4
+  radius = 0.4,
+  currentY = 0
 ): Vec2 {
   const [nextU, nextV] = toLocal(nextX, nextZ);
   const [prevU, prevV] = toLocal(prevX, prevZ);
@@ -689,7 +752,7 @@ export function resolveInteriorPosition(
       (currentU >= 118.0 && currentV >= -191.0 && currentV <= -186.0) ||
       (currentU <= 10.0 && currentV >= -191.0 && currentV <= -186.0));
 
-  if (!isInsideB8FloorBoundary(currentU, currentV, floor) && !isNearExitT1) {
+  if (!isInsideB8FloorBoundary(currentU, currentV, floor, currentY) && !isNearExitT1) {
     currentU = prevU;
     currentV = prevV;
   }
@@ -697,6 +760,8 @@ export function resolveInteriorPosition(
   // Va chạm với từng đoạn tường
   const walls = getFloorWalls(floor);
   for (const wall of walls) {
+    if (wall.minY !== undefined && currentY < wall.minY) continue;
+    if (wall.maxY !== undefined && currentY > wall.maxY) continue;
     const minDistance = radius + wall.thickness / 2;
     const dist = distanceToSegment(currentU, currentV, wall.u1, wall.v1, wall.u2, wall.v2);
     if (dist < minDistance) {
@@ -724,7 +789,7 @@ export function resolveInteriorPosition(
     }
   }
 
-  if (!isInsideB8FloorBoundary(currentU, currentV, floor) && !isNearExitT1) {
+  if (!isInsideB8FloorBoundary(currentU, currentV, floor, currentY) && !isNearExitT1) {
     currentU = prevU;
     currentV = prevV;
   }
@@ -822,7 +887,7 @@ export const b8Layout: InteriorLayout = {
   getFloorRooms,
   getFloorBoundaryPts,
   getFloorHoles,
-  getStairHeight: getB8StairHeight,
+  stepStairHeight,
   resolvePosition: resolveInteriorPosition,
   getActiveRoom,
   getNearInteractive,
