@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { getLesson } from '../../data';
+import { sfx } from '../audio/sfx';
 import { useLessonStore } from '../../store/useLessonStore';
 import type { ExerciseStep } from '../../types';
 import { TEXT } from '../text';
@@ -107,7 +108,10 @@ export default function CodeLab({ step }: { step: ExerciseStep }) {
                 autoCapitalize="off"
                 autoCorrect="off"
                 spellCheck={false}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={(e) => {
+                  setValue(e.target.value);
+                  sfx.key();
+                }}
                 onFocus={() => window.setTimeout(() => inputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 250)}
                 onKeyDown={(e) => {
                   e.stopPropagation();

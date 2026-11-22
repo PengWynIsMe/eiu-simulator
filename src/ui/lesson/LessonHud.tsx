@@ -1,60 +1,76 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getClassroom, getLesson, getLessons } from '../../data';
 import { useLessonStore } from '../../store/useLessonStore';
 import { useWalkStore } from '../../store/useWalkStore';
 import { TEXT } from '../text';
+import { useLessonUi } from './lessonUi';
+import MuteButton from './MuteButton';
 
-/** Nút nổi + thẻ lịch học (pha idle). */
+/** Thẻ lịch học (pha idle), mở từ nút "Buổi học" ở TopBar. */
 export function LessonStarter() {
-  const [open, setOpen] = useState(false);
+  const open = useLessonUi((s) => s.scheduleOpen);
+  const skin = useWalkStore((s) => s.playerSkin);
   const lesson = getLessons()[0];
-  if (!lesson) return null;
+  if (!lesson || !open) return null;
   const room = getClassroom(lesson.roomCode);
+  const close = () => useLessonUi.getState().closeSchedule();
+
+  const skinBtn = (value: 'player' | 'playerAlt', label: string) => (
+    <button
+      type="button"
+      onClick={() => useWalkStore.getState().setPlayerSkin(value)}
+      aria-pressed={skin === value}
+      className={`min-h-[40px] flex-1 rounded-lg border-2 text-sm font-medium ${
+        skin === value ? 'border-[#0b3d91] bg-[#0b3d91]/10 text-[#0b3d91]' : 'border-slate-200 text-slate-600 hover:border-slate-400'
+      }`}
+    >
+      {label}
+    </button>
+  );
 
   return (
-    <div className="fixed bottom-40 left-3 z-30 flex flex-col items-start gap-2 md:bottom-20 md:left-5">
-      {open && (
-        <div className="w-72 space-y-2 rounded-2xl bg-white p-4 shadow-2xl">
-          <div className="text-xs font-semibold uppercase tracking-wide text-[#0b3d91]">{lesson.title}</div>
-          <h3 className="text-lg font-bold text-slate-900">{lesson.course}</h3>
-          <dl className="space-y-0.5 text-sm text-slate-600">
-            <div>
-              {TEXT.lessonTimePrefix}: <b className="text-slate-800">{lesson.time}</b>
-            </div>
-            <div>
-              {TEXT.lessonRoomPrefix}: <b className="text-slate-800">{room ? `${room.code} · ${room.name}` : lesson.roomCode}</b>
-            </div>
-            <div>
-              {TEXT.lessonTeacherPrefix}: <b className="text-slate-800">{lesson.teacherName}</b>
-            </div>
-            <div>
-              ⏱ {lesson.durationMinutes} {TEXT.lessonDurationUnit}
-            </div>
-          </dl>
-          <div className="flex gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                useLessonStore.getState().startLesson(lesson.id);
-              }}
-              className="min-h-[44px] flex-1 rounded-xl bg-[#0b3d91] text-sm font-bold text-white hover:brightness-110"
-            >
-              {TEXT.lessonStart}
-            </button>
-            <button type="button" onClick={() => setOpen(false)} className="min-h-[44px] rounded-xl bg-slate-100 px-3 text-sm text-slate-700 hover:bg-slate-200">
-              {TEXT.lessonCancel}
-            </button>
-          </div>
+    <div className="fixed left-3 right-3 top-16 z-30 max-h-[calc(100vh-5rem)] space-y-2 overflow-y-auto rounded-2xl bg-white p-4 shadow-2xl sm:left-auto sm:right-4 sm:w-72">
+      <div className="flex items-start justify-between gap-2">
+        <div className="text-xs font-semibold uppercase tracking-wide text-[#0b3d91]">{lesson.title}</div>
+        <MuteButton className="!bg-slate-100" />
+      </div>
+      <h3 className="text-lg font-bold text-slate-900">{lesson.course}</h3>
+      <dl className="space-y-0.5 text-sm text-slate-600">
+        <div>
+          {TEXT.lessonTimePrefix}: <b className="text-slate-800">{lesson.time}</b>
         </div>
-      )}
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="min-h-[44px] rounded-xl bg-[#0b3d91] px-4 text-sm font-semibold text-white shadow-lg hover:brightness-110"
-      >
-        {TEXT.lessonOpenBtn}: {lesson.course}
-      </button>
+        <div>
+          {TEXT.lessonRoomPrefix}: <b className="text-slate-800">{room ? `${room.code} · ${room.name}` : lesson.roomCode}</b>
+        </div>
+        <div>
+          {TEXT.lessonTeacherPrefix}: <b className="text-slate-800">{lesson.teacherName}</b>
+        </div>
+        <div>
+          ⏱ {lesson.durationMinutes} {TEXT.lessonDurationUnit}
+        </div>
+      </dl>
+      <div>
+        <div className="mb-1 text-xs font-semibold text-slate-500">Nhân vật của bạn</div>
+        <div className="flex gap-2">
+          {skinBtn('player', '🧑 Nam')}
+          {skinBtn('playerAlt', '👩 Nữ')}
+        </div>
+      </div>
+      <div className="flex gap-2 pt-1">
+        <button
+          type="button"
+          onClick={() => {
+            close();
+            useLessonStore.getState().startLesson(lesson.id);
+          }}
+          className="min-h-[44px] flex-1 rounded-xl bg-[#0b3d91] text-sm font-bold text-white hover:brightness-110"
+        >
+          {TEXT.lessonStart}
+        </button>
+        <button type="button" onClick={close} className="min-h-[44px] rounded-xl bg-slate-100 px-3 text-sm text-slate-700 hover:bg-slate-200">
+          {TEXT.lessonCancel}
+        </button>
+      </div>
     </div>
   );
 }
@@ -80,8 +96,20 @@ export default function LessonHud() {
   const lessonId = useLessonStore((s) => s.lessonId);
   const phase = useLessonStore((s) => s.phase);
   const pos = useWalkStore((s) => s.playerPos);
+  const [seatPrompt, setSeatPrompt] = useState(false);
   const lesson = lessonId ? getLesson(lessonId) : undefined;
   const room = lesson ? getClassroom(lesson.roomCode) : undefined;
+
+  // Hợp đồng với luồng A: window event 'campussim:seat-prompt' { detail: { visible: boolean } }.
+  useEffect(() => {
+    const on = (e: Event) => setSeatPrompt((e as CustomEvent<{ visible: boolean }>).detail?.visible === true);
+    window.addEventListener('campussim:seat-prompt', on);
+    return () => window.removeEventListener('campussim:seat-prompt', on);
+  }, []);
+  useEffect(() => {
+    if (phase !== 'findSeat') setSeatPrompt(false);
+  }, [phase]);
+
   if (!lesson || !room) return null;
 
   const [tx, tz] = room.doorWorld;
@@ -91,6 +119,16 @@ export default function LessonHud() {
   const wrongFloor = pos.floor !== null && pos.floor !== room.floor;
 
   return (
+    <>
+      {phase === 'findSeat' && seatPrompt && (
+        <button
+          type="button"
+          className="fixed bottom-24 right-6 z-50 min-h-[48px] rounded-xl bg-[#f5b700] px-5 py-3 font-bold text-slate-900 shadow-lg [@media(pointer:fine)]:hidden"
+          onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e' }))}
+        >
+          Ngồi (E)
+        </button>
+      )}
     <div className="w-64 space-y-2 rounded-2xl bg-white/95 p-3 shadow-xl backdrop-blur-sm">
       <div className="text-sm font-semibold text-slate-800">
         {lesson.time} · {lesson.course} · {room.code}
@@ -131,5 +169,6 @@ export default function LessonHud() {
         </>
       )}
     </div>
+    </>
   );
 }

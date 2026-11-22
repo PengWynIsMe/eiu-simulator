@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { useLessonStore } from '../../store/useLessonStore';
+import { getCurrentStep, useLessonStore } from '../../store/useLessonStore';
+import { sfx } from '../audio/sfx';
+import MuteButton from './MuteButton';
 import { useReviewStore } from '../../store/useReviewStore';
 import EiuDesktop from '../desktop/EiuDesktop';
 import { TEXT } from '../text';
@@ -29,12 +31,29 @@ export default function LessonLayer() {
     return () => window.removeEventListener('keydown', onKeyDown, true);
   }, []);
 
+  // Âm thanh: chuông khi bắt đầu / tan học; ting / bụp theo kết quả câu hỏi và bài tập.
+  useEffect(() => {
+    if (phase === 'goToClass' || phase === 'summary') sfx.bell();
+  }, [phase]);
+  useEffect(
+    () =>
+      useLessonStore.subscribe((s, prev) => {
+        if (s.lastResult === prev.lastResult || !s.lastResult) return;
+        const type = getCurrentStep(s)?.type;
+        if (type !== 'question' && type !== 'exercise') return;
+        if (s.lastResult.correct) sfx.correct();
+        else sfx.wrong();
+      }),
+    [],
+  );
+
   if (phase === 'idle') return reviewMode ? null : <LessonStarter />;
 
   const exercise = phase === 'exercise';
   return (
     <>
       <div className="fixed left-3 top-14 z-[45] flex flex-col items-start gap-2 sm:left-4 sm:top-16">
+        <MuteButton />
         {(phase === 'goToClass' || phase === 'findSeat') && <LessonHud />}
         {!(exercise && desktopOpen) && <ExitButton />}
         {exercise && !desktopOpen && (

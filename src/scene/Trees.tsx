@@ -12,6 +12,7 @@ import type { Vec2 } from '../types';
 import { b11ToLocal } from './interior/layouts/b11';
 import SalixAlbaTrees, { type SalixAlbaInstance } from './trees/SalixAlbaTrees';
 import { isPointInPond } from './zone1/pondLayout';
+import { applyWind } from './nature/wind';
 
 /** Bộ sinh số giả ngẫu nhiên có hạt giống cố định (Mulberry32) để vị trí không đổi mỗi lần render. */
 function createPrng(seed: number) {
@@ -268,10 +269,12 @@ export default function Trees() {
     [],
   );
 
-  const canopyMat = useMemo(
-    () => new MeshStandardMaterial({ color: '#447532', flatShading: true, roughness: 0.8 }),
-    [],
-  );
+  // Tán lá đung đưa theo gió trong vertex shader (ngọn lệch ≤ 0.15 m); thân giữ nguyên.
+  const canopyMat = useMemo(() => {
+    const m = new MeshStandardMaterial({ color: '#447532', flatShading: true, roughness: 0.8 });
+    applyWind(m, { strength: 0.15, heightFalloff: 9.6 });
+    return m;
+  }, []);
 
   const trunkRef = useRef<InstancedMesh>(null);
   const canopyRef = useRef<InstancedMesh>(null);
