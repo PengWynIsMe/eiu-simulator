@@ -175,9 +175,9 @@ function Student({ spec, url, getSignal, sitYOffset }: StudentProps) {
 }
 
 export interface ClassroomNpcsProps {
-  room?: Classroom;
-  getSignal?: () => ClassSignal;
-  subscribe?: (listener: () => void) => () => void;
+  room: Classroom;
+  getSignal: () => ClassSignal;
+  subscribe: (listener: () => void) => () => void;
   crowd?: number;
   sitYOffset?: number;
 }
@@ -187,15 +187,16 @@ export interface ClassroomNpcsProps {
  * Nhận room, getSignal, subscribe, crowd, sitYOffset (mặc định 0.40).
  * Không import useLessonStore. Điều kiện mount do nơi gọi quản lý.
  */
-export default function ClassroomNpcs(props: ClassroomNpcsProps) {
-  const { room, getSignal, crowd, sitYOffset = SIT_Y_OFFSET } = props;
-  const roomSitY = (room as unknown as Record<string, unknown> | undefined)?.sitYOffset as number | undefined;
-  const effectiveSitY = roomSitY ?? sitYOffset;
-  const effectiveCrowd = crowd ?? room?.npcSeats.length ?? 0;
-  const students = useMemo(() => (room ? buildClassroomPlan(room, effectiveCrowd) : []), [room, effectiveCrowd]);
+export default function ClassroomNpcs({
+  room,
+  getSignal,
+  crowd,
+  sitYOffset = SIT_Y_OFFSET,
+}: ClassroomNpcsProps) {
+  const effectiveSitY = room.sitYOffset ?? sitYOffset;
+  const effectiveCrowd = crowd ?? room.npcSeats.length;
+  const students = useMemo(() => buildClassroomPlan(room, effectiveCrowd), [room, effectiveCrowd]);
   const models = characterConfig.roles.students;
-
-  if (!room || !getSignal) return null;
 
   return (
     <>

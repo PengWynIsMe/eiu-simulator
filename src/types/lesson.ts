@@ -82,6 +82,7 @@ export interface Classroom {
   playerSeat: string;
   companionSeat?: string;
   standPoint?: LocalPoint;
+  sitYOffset?: number;
   npcSeats: string[];
 }
 
