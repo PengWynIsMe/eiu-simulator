@@ -22,3 +22,15 @@ Bổ sung test tại commit của đợt này. Không push. Không làm BE-03.
 | Đẩy CSE 104 lên kỳ 2.1 báo CSE 104 và CSE 103 | `plan.test.mjs` validates plan invariants without hardcoding 180 | Đạt |
 | parsePlan không ép tổng 180 | kiểm nhận plan bị đổi credits nhưng vẫn hợp lệ theo tổng môn; sai lệch từng kỳ bị phát hiện | Đạt |
 | typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
+
+## BE-04 — Xếp tuần
+
+| Tiêu chí / ví dụ | Test | Kết quả |
+|---|---|---|
+| Phân ca A và B khớp toàn bộ ngày/ca/thời lượng đã cho | `timetable.test.mjs` — A and B exact schedules | Đạt |
+| Sáu lab: 18 buổi, không trùng, lab trọn khối, ngày theo thứ tự thử; kết quả tất định | `timetable.test.mjs` — C six labs allocation and repeat determinism | Đạt |
+| CSW 400 là project 0.0×2; bảy lab báo hết ca | `timetable.test.mjs` — D project, E seven labs and course conversion | Đạt |
+| Chuyển SilverCourse sang timetable course theo lt/th | cùng test D/E | Đạt |
+| typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
+
+Ghi chú: spec nêu rõ 7 môn lab phải lỗi dù lịch 6 ngày × 2 khối có thể chứa hơn 6 lab; hiện thực áp giới hạn 6 lab để tuân theo ví dụ E.
