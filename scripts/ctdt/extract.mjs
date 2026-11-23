@@ -115,24 +115,34 @@ async function parseKhung(major, configRow) {
 }
 
 async function parseBm08(major, configRow) {
-  const required = []; const groups = []; const slots = [1,2,3,4].map(year => ({ year, courses: [], electiveSlots: [] }));
+  const groups = [];
+  const specializations = configRow.specializations.map(spec => ({ id: spec.id, name: { vi: spec.vi, en: spec.en }, requiredCourses: [], electiveGroupIds: [] }));
+  const slots = [1,2,3,4].map(year => ({ year, courses: [], electiveSlots: [] }));
   const seen = new Set();
+  // A semester table commonly flows onto the next PDF page without repeating the HK label.
+  let semester = 0; let year = 1; let requiredMode = false; let activeGroup; let activeSpec;
   for (const pageNo of configRow.planPages) {
     const { lines } = (await pageList(major, pageNo, pageNo))[0];
-    let semester = 0; let year = 1; let requiredMode = false; let activeGroup;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const hk = line.match(/^([1-4])\.([1-4])(?:\s|$)/);
-      if (hk) { year = Number(hk[1]); semester = Number(hk[2]); requiredMode = !/tự chọn/i.test(line.slice(hk[0].length)); activeGroup = undefined; continue; }
+      if (hk) { year = Number(hk[1]); semester = Number(hk[2]); requiredMode = !/tự chọn/i.test(line.slice(hk[0].length)); activeGroup = undefined; activeSpec = undefined; continue; }
+      const specializationTitle = line.match(/^Chuyên ngành\s+(.+)/i)?.[1];
+      if (specializationTitle) {
+        const normalized = slug(specializationTitle);
+        activeSpec = specializations.find(spec => normalized.includes(slug(spec.name.vi)) || slug(spec.name.vi).includes(normalized));
+        activeGroup = undefined; requiredMode = false; continue;
+      }
       if (/^Bắt buộc/i.test(line)) { requiredMode = true; activeGroup = undefined; continue; }
       const elective = line.match(/^Tự chọn.*?(?:Tối thiểu\s*)?(\d+)\s*(tín chỉ|môn)/i);
       if (elective) {
         requiredMode = false;
         const titleVi = tidy(lines.slice(i + 1, i + 4).find(value => diacritics.test(value)) ?? 'Tự chọn');
         const titleEn = tidy(lines.slice(i + 1, i + 5).find(value => !diacritics.test(value) && /[A-Za-z]/.test(value)) ?? titleVi);
-        const id = slug(titleVi);
+        const id = `${slug(titleVi)}-${year}-${semester}`;
         activeGroup = groups.find(item => item.id === id);
         if (!activeGroup) { activeGroup = { id, title: { vi: titleVi, en: titleEn }, ...(elective[2] === 'môn' ? { minCourses: Number(elective[1]) } : { minCredits: Number(elective[1]) }), courses: [] }; groups.push(activeGroup); }
+        if (activeSpec && !activeSpec.electiveGroupIds.includes(id)) activeSpec.electiveGroupIds.push(id);
         const slot = { groupId: id, credits: activeGroup.minCredits ?? 0, semester };
         if (!slots[year - 1].electiveSlots.some(item => item.groupId === id && item.semester === semester)) slots[year - 1].electiveSlots.push(slot);
         continue;
@@ -154,18 +164,21 @@ async function parseBm08(major, configRow) {
       while (end < lines.length && !creditPattern.test(collected.join(' ')) && !/^([1-4])\.[1-4]$/.test(lines[end]) && !/^(?:Bắt buộc|Tự chọn)/i.test(lines[end]) && !/^(?:\d+\s+)?[A-Z]{2,5}(?:\s+\d{3}[A-Z]?|-[A-Z]?\d{3})\b/.test(lines[end])) collected.push(lines[end++]);
       i = end - 1;
       if (seen.has(code)) continue;
-      const item = courseRecord(code, collected, 'nganh', year, semester, 'ke-hoach');
+      const block = activeSpec ? 'chuyen-nganh' : /đồ án tốt nghiệp|capstone project/i.test(collected.join(' ')) ? 'tot-nghiep' : 'nganh';
+      const forcedSpec = specializations.find(spec => spec.id === configRow.specCourseCodes?.[code]);
+      const item = courseRecord(code, collected, forcedSpec ? 'chuyen-nganh' : block, year, semester, 'ke-hoach');
       if (!item) continue;
       seen.add(code);
-      if (requiredMode) slots[year - 1].courses.push(item);
+      if (forcedSpec) forcedSpec.requiredCourses.push(item);
+      else if (requiredMode) slots[year - 1].courses.push(item);
       else if (activeGroup) activeGroup.courses.push(item);
     }
   }
-  return { years: slots, groups, required };
+  return { years: slots, groups, specializations };
 }
 
-function applyManualOverrides(majorId, parsed) {
-  const patch = overrides[majorId] ?? {};
+function applyManualOverrides(major, parsed) {
+  const patch = overrides[major.id] ?? {};
   const dropped = new Set(patch.drop ?? []);
   const patchCourse = course => {
     const correction = { ...(patch.courses?.[course.code] ?? {}) };
@@ -175,6 +188,17 @@ function applyManualOverrides(majorId, parsed) {
   parsed.courses = (parsed.courses ?? []).filter(course => !dropped.has(course.code)).map(patchCourse);
   parsed.years = (parsed.years ?? []).map(plan => ({ ...plan, courses: plan.courses.filter(course => !dropped.has(course.code)).map(patchCourse) }));
   parsed.groups = (parsed.groups ?? []).map(group => ({ ...group, courses: (group.courses ?? []).filter(course => !dropped.has(course.code)).map(patchCourse) }));
+  for (const group of patch.groups ?? []) {
+    if (!parsed.groups.some(existing => existing.id === group.id)) parsed.groups.push({ ...group, courses: group.courses ?? [] });
+  }
+  parsed.specializations ??= major.specializations.map(spec => ({ id: spec.id, name: { vi: spec.vi, en: spec.en }, requiredCourses: [], electiveGroupIds: [] }));
+  for (const spec of parsed.specializations) {
+    const manualCourses = patch.specializations?.[spec.id];
+    if (manualCourses) spec.requiredCourses = manualCourses.map(course => ({ ...course, yearSource: major.kind === 'bm08' ? 'ke-hoach' : 'ma-mon' }));
+    for (const group of parsed.groups.filter(item => item.specializationId === spec.id)) {
+      if (!spec.electiveGroupIds.includes(group.id)) spec.electiveGroupIds.push(group.id);
+    }
+  }
   for (const course of patch.add ?? []) {
     const item = { block: 'nganh', yearSource: 'ma-mon', ...course };
     const group = parsed.groups.find(candidate => candidate.id === course.groupId);
@@ -186,7 +210,7 @@ function applyManualOverrides(majorId, parsed) {
 }
 
 for (const major of config) {
-  const parsed = applyManualOverrides(major.id, major.kind === 'bm08' ? await parseBm08(major, major) : await parseKhung(major, major));
+  const parsed = applyManualOverrides(major, major.kind === 'bm08' ? await parseBm08(major, major) : await parseKhung(major, major));
   const years = major.kind === 'bm08' ? parsed.years : [1,2,3,4].map(year => ({ year, courses: parsed.courses.filter(course => course.year === year), electiveSlots: [] }));
   let electiveGroups = parsed.groups;
   for (const spec of major.specializations) {
@@ -204,7 +228,7 @@ for (const major of config) {
     yearsInferred: major.kind === 'khung',
     years,
     electiveGroups,
-    specializations: major.specializations.map(spec => ({ id: spec.id, name: { vi: spec.vi, en: spec.en }, requiredCourses: [], electiveGroupIds: electiveGroups.filter(group => group.specializationId === spec.id).map(group => group.id) })),
+    specializations: parsed.specializations ?? major.specializations.map(spec => ({ id: spec.id, name: { vi: spec.vi, en: spec.en }, requiredCourses: [], electiveGroupIds: electiveGroups.filter(group => group.specializationId === spec.id).map(group => group.id) })),
     source: { file: major.file, kind: major.kind, year: major.year, pages: major.pages },
     generatedAt,
   };

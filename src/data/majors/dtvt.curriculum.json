@@ -59,8 +59,8 @@
         {
           "code": "ETE 349",
           "name": {
-            "vi": "Thiết kế hệ thống nhúng (Embedded System Design) Lập trình điều khiển nhúng",
-            "en": "Embedded Controller Programming"
+            "vi": "Thiết kế hệ thống nhúng",
+            "en": "Embedded System Design"
           },
           "credits": 4,
           "block": "chuyen-nganh",

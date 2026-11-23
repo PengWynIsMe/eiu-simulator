@@ -174,6 +174,20 @@
           "year": 1,
           "semester": 4,
           "yearSource": "ke-hoach"
+        },
+        {
+          "block": "dai-cuong",
+          "yearSource": "ke-hoach",
+          "code": "PHYS 101",
+          "name": {
+            "vi": "Vật lý I",
+            "en": "Physics I"
+          },
+          "credits": 4,
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 1
         }
       ],
       "electiveSlots": []
@@ -247,6 +261,34 @@
           "block": "nganh",
           "lt": 3,
           "th": 0,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 202",
+          "name": {
+            "vi": "Mạch điện 2",
+            "en": "Electric Circuits 2"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 211",
+          "name": {
+            "vi": "Mạch điện tử 1",
+            "en": "Electronics 1"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
           "year": 2,
           "semester": 2,
           "yearSource": "ke-hoach"
@@ -466,39 +508,11 @@
           "year": 3,
           "semester": 3,
           "yearSource": "ke-hoach"
-        },
-        {
-          "code": "EE 401",
-          "name": {
-            "vi": "Hệ thống điện",
-            "en": "Power Systems"
-          },
-          "credits": 4,
-          "block": "nganh",
-          "lt": 4,
-          "th": 0,
-          "year": 3,
-          "semester": 3,
-          "yearSource": "ke-hoach"
-        },
-        {
-          "code": "EE 411",
-          "name": {
-            "vi": "Hệ thống năng lượng tái tạo",
-            "en": "Renewable Energy Systems"
-          },
-          "credits": 4,
-          "block": "nganh",
-          "lt": 3,
-          "th": 1,
-          "year": 3,
-          "semester": 3,
-          "yearSource": "ke-hoach"
         }
       ],
       "electiveSlots": [
         {
-          "groupId": "giao-tiep-ngon-ngu-va",
+          "groupId": "giao-tiep-ngon-ngu-va-3-3",
           "credits": 4,
           "semester": 3
         }
@@ -522,41 +536,13 @@
           "yearSource": "ke-hoach"
         },
         {
-          "code": "EE 402",
-          "name": {
-            "vi": "Lưới điện thông minh",
-            "en": "Smart Grids"
-          },
-          "credits": 4,
-          "block": "nganh",
-          "lt": 4,
-          "th": 0,
-          "year": 4,
-          "semester": 1,
-          "yearSource": "ke-hoach"
-        },
-        {
-          "code": "EE 413",
-          "name": {
-            "vi": "Điện tử công suất nâng",
-            "en": "cao Advanced Power Electronics"
-          },
-          "credits": 4,
-          "block": "nganh",
-          "lt": 4,
-          "th": 0,
-          "year": 4,
-          "semester": 1,
-          "yearSource": "ke-hoach"
-        },
-        {
           "code": "EE 493",
           "name": {
             "vi": "Đồ án tốt nghiệp Kỹ thuật Điện 3",
             "en": "Electrical Engineering Capstone Project 3"
           },
           "credits": 4,
-          "block": "nganh",
+          "block": "tot-nghiep",
           "lt": 0,
           "th": 4,
           "year": 4,
@@ -566,18 +552,18 @@
       ],
       "electiveSlots": [
         {
-          "groupId": "tu-chon",
+          "groupId": "tu-chon-4-1",
           "credits": 4,
           "semester": 1
         },
         {
-          "groupId": "tu-chon-chuyen-nganh",
+          "groupId": "tu-chon-chuyen-nganh-4-2",
           "credits": 10,
           "semester": 2
         },
         {
-          "groupId": "tu-chon-chuyen-nganh",
-          "credits": 10,
+          "groupId": "tu-chon-chuyen-nganh-4-3",
+          "credits": 8,
           "semester": 3
         }
       ]
@@ -585,7 +571,7 @@
   ],
   "electiveGroups": [
     {
-      "id": "giao-tiep-ngon-ngu-va",
+      "id": "giao-tiep-ngon-ngu-va-3-3",
       "title": {
         "vi": "Giao tiếp, ngôn ngữ và",
         "en": "Communications,"
@@ -594,7 +580,7 @@
       "courses": []
     },
     {
-      "id": "tu-chon",
+      "id": "tu-chon-4-1",
       "title": {
         "vi": "Tự chọn",
         "en": "Tự chọn"
@@ -603,12 +589,21 @@
       "courses": []
     },
     {
-      "id": "tu-chon-chuyen-nganh",
+      "id": "tu-chon-chuyen-nganh-4-2",
       "title": {
         "vi": "Tự chọn chuyên ngành",
         "en": "Specialization Elective"
       },
       "minCredits": 10,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-chuyen-nganh-4-3",
+      "title": {
+        "vi": "Tự chọn chuyên ngành",
+        "en": "Specialization Elective"
+      },
+      "minCredits": 8,
       "courses": []
     }
   ],
@@ -619,7 +614,36 @@
         "vi": "Hệ thống điện và lưới điện thông minh",
         "en": "Power Systems and Smart Grids"
       },
-      "requiredCourses": [],
+      "requiredCourses": [
+        {
+          "code": "EE 401",
+          "name": {
+            "vi": "Hệ thống điện",
+            "en": "Power Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 402",
+          "name": {
+            "vi": "Lưới điện thông minh",
+            "en": "Smart Grids"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        }
+      ],
       "electiveGroupIds": []
     },
     {
@@ -628,8 +652,40 @@
         "vi": "Năng lượng tái tạo và điện tử công suất",
         "en": "Renewable Energy and Power Electronics"
       },
-      "requiredCourses": [],
-      "electiveGroupIds": []
+      "requiredCourses": [
+        {
+          "code": "EE 411",
+          "name": {
+            "vi": "Hệ thống năng lượng tái tạo",
+            "en": "Renewable Energy Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 413",
+          "name": {
+            "vi": "Điện tử công suất nâng",
+            "en": "cao Advanced Power Electronics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": [
+        "giao-tiep-ngon-ngu-va-3-3",
+        "tu-chon-4-1"
+      ]
     }
   ],
   "source": {

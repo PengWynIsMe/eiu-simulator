@@ -92,6 +92,34 @@
           "yearSource": "ke-hoach"
         },
         {
+          "code": "MATH 112",
+          "name": {
+            "vi": "Giải tích II",
+            "en": "Calculus II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "PHYS 102",
+          "name": {
+            "vi": "Vật lý II",
+            "en": "Physics II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "POLS 135",
           "name": {
             "vi": "Chủ nghĩa xã hội khoa học",
@@ -162,13 +190,7 @@
           "yearSource": "ke-hoach"
         }
       ],
-      "electiveSlots": [
-        {
-          "groupId": "khoa-hoc-xa-hoi-va-hanh-vi",
-          "credits": 8,
-          "semester": 0
-        }
-      ]
+      "electiveSlots": []
     },
     {
       "year": 2,
@@ -404,6 +426,48 @@
           "yearSource": "ke-hoach"
         },
         {
+          "code": "ACE 306",
+          "name": {
+            "vi": "Hệ thống điều khiển hồi tiếp",
+            "en": "Feedback Control Systems"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 303",
+          "name": {
+            "vi": "Bộ điều khiển PLC",
+            "en": "Programmable Logic Controllers"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 391",
+          "name": {
+            "vi": "Đồ án Kỹ thuật điều khiển và tự động hóa 1",
+            "en": "Automation And Control Enginering Project 1"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "STAT 101",
           "name": {
             "vi": "Xác suất thống kê I",
@@ -502,6 +566,20 @@
           "yearSource": "ke-hoach"
         },
         {
+          "code": "ACE 392",
+          "name": {
+            "vi": "Đồ án Kỹ thuật điều khiển và tự động hóa 2",
+            "en": "Automation And Control Enginering Project 2"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "ACE 393",
           "name": {
             "vi": "Thực tập tốt nghiệp Kỹ thuật điều khiển và tự động hóa",
@@ -542,22 +620,8 @@
             "en": "Automation and Control Engineering Capstone Project 1"
           },
           "credits": 1,
-          "block": "nganh",
+          "block": "tot-nghiep",
           "lt": 0,
-          "th": 1,
-          "year": 4,
-          "semester": 1,
-          "yearSource": "ke-hoach"
-        },
-        {
-          "code": "ACE 404",
-          "name": {
-            "vi": "Hệ thống DCS & SCADA",
-            "en": "DCS & SCADA"
-          },
-          "credits": 4,
-          "block": "nganh",
-          "lt": 3,
           "th": 1,
           "year": 4,
           "semester": 1,
@@ -570,7 +634,7 @@
             "en": "Automation and Control Engineering Capstone Project 2"
           },
           "credits": 2,
-          "block": "nganh",
+          "block": "tot-nghiep",
           "lt": 0,
           "th": 2,
           "year": 4,
@@ -584,7 +648,7 @@
             "en": "Automation and Control Engineering Capstone Project 3"
           },
           "credits": 4,
-          "block": "nganh",
+          "block": "tot-nghiep",
           "lt": 0,
           "th": 4,
           "year": 4,
@@ -594,7 +658,12 @@
       ],
       "electiveSlots": [
         {
-          "groupId": "giao-tiep-ngon-ngu-nghe",
+          "groupId": "khoa-hoc-xa-hoi-va-hanh-vi-4-1",
+          "credits": 8,
+          "semester": 1
+        },
+        {
+          "groupId": "giao-tiep-ngon-ngu-nghe-4-2",
           "credits": 12,
           "semester": 2
         }
@@ -603,7 +672,7 @@
   ],
   "electiveGroups": [
     {
-      "id": "khoa-hoc-xa-hoi-va-hanh-vi",
+      "id": "khoa-hoc-xa-hoi-va-hanh-vi-4-1",
       "title": {
         "vi": "Khoa học xã hội và hành vi",
         "en": "Social & Behavioral"
@@ -612,7 +681,7 @@
       "courses": []
     },
     {
-      "id": "giao-tiep-ngon-ngu-nghe",
+      "id": "giao-tiep-ngon-ngu-nghe-4-2",
       "title": {
         "vi": "Giao tiếp, ngôn ngữ & nghệ",
         "en": "Communications,"
@@ -628,7 +697,36 @@
         "vi": "Tự động hóa công nghiệp",
         "en": "Industrial Automation"
       },
-      "requiredCourses": [],
+      "requiredCourses": [
+        {
+          "code": "ACE 406",
+          "name": {
+            "vi": "Hệ thống tự động hóa sản xuất",
+            "en": "Manufacturing Automation Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 404",
+          "name": {
+            "vi": "Hệ thống DCS & SCADA",
+            "en": "DCS & SCADA"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        }
+      ],
       "electiveGroupIds": []
     },
     {
@@ -637,8 +735,39 @@
         "vi": "Hệ thống điều khiển",
         "en": "Control Systems"
       },
-      "requiredCourses": [],
-      "electiveGroupIds": []
+      "requiredCourses": [
+        {
+          "code": "ACE 408",
+          "name": {
+            "vi": "Hệ thống điều khiển số",
+            "en": "Digital Control Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 409",
+          "name": {
+            "vi": "Điều khiển thông minh",
+            "en": "Intelligent Control"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": [
+        "khoa-hoc-xa-hoi-va-hanh-vi-4-1"
+      ]
     }
   ],
   "source": {

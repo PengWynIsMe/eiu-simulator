@@ -132,20 +132,51 @@
           "year": 1,
           "semester": 3,
           "yearSource": "ke-hoach"
-        }
-      ],
-      "electiveSlots": [
-        {
-          "groupId": "giao-tiep-ngon-ngu-va",
-          "credits": 4,
-          "semester": 0
         },
         {
-          "groupId": "khoa-hoc-xa-hoi-va",
+          "code": "POLS 135",
+          "name": {
+            "vi": "Chủ nghĩa xã hội khoa học",
+            "en": "Scientific socialism"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "PHYS 103",
+          "name": {
+            "vi": "Vật lý III",
+            "en": "General Physics III"
+          },
           "credits": 4,
-          "semester": 0
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 120",
+          "name": {
+            "vi": "Hình họa vẽ kỹ thuật",
+            "en": "Engineering Graphics"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
         }
-      ]
+      ],
+      "electiveSlots": []
     },
     {
       "year": 2,
@@ -437,6 +468,90 @@
           "yearSource": "ke-hoach"
         },
         {
+          "code": "MEC 340",
+          "name": {
+            "vi": "Thiết kế máy",
+            "en": "Machine Design"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 327",
+          "name": {
+            "vi": "Thiết bị điều khiển thủy khí",
+            "en": "Device of Pneumatics and Hydraulics"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "lt": 0,
+          "th": 2,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 307",
+          "name": {
+            "vi": "Hệ thống điều khiển",
+            "en": "Control Systems"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 362",
+          "name": {
+            "vi": "Vi điều khiển",
+            "en": "IELTS 6.0 MEC Microcontroller"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 301",
+          "name": {
+            "vi": "Máy điện và khí cụ điện",
+            "en": "Electrical Machines & Apparatus"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 341",
+          "name": {
+            "vi": "Đồ án Cơ điện tử 2",
+            "en": "MEC Project 2"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "MEC 470",
           "name": {
             "vi": "Đồ án thực tập tốt nghiệp Cơ điện tử",
@@ -449,9 +564,48 @@
           "year": 3,
           "semester": 4,
           "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 471",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Cơ điện tử 1",
+            "en": "Capstone Project 1"
+          },
+          "credits": 1,
+          "block": "tot-nghiep",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "semester": 4,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 332",
+          "name": {
+            "vi": "Thiết kế hệ thống Cơ điện tử",
+            "en": "IELTS 6.0 MEC Mechatronics System Design"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 4,
+          "yearSource": "ke-hoach"
         }
       ],
-      "electiveSlots": []
+      "electiveSlots": [
+        {
+          "groupId": "giao-tiep-ngon-ngu-va-3-2",
+          "credits": 4,
+          "semester": 2
+        },
+        {
+          "groupId": "khoa-hoc-xa-hoi-va-3-4",
+          "credits": 4,
+          "semester": 4
+        }
+      ]
     },
     {
       "year": 4,
@@ -463,37 +617,9 @@
             "en": "Capstone Project 2"
           },
           "credits": 2,
-          "block": "nganh",
+          "block": "tot-nghiep",
           "lt": 0,
           "th": 2,
-          "year": 4,
-          "semester": 2,
-          "yearSource": "ke-hoach"
-        },
-        {
-          "code": "MEC 402",
-          "name": {
-            "vi": "Thiết kế và Ứng dụng Hệ thống Robot",
-            "en": "Robotic Systems Design and Application"
-          },
-          "credits": 4,
-          "block": "nganh",
-          "lt": 3,
-          "th": 1,
-          "year": 4,
-          "semester": 2,
-          "yearSource": "ke-hoach"
-        },
-        {
-          "code": "MEC 489",
-          "name": {
-            "vi": "Chuyển đổi số trong sản xuất",
-            "en": "Digital Transformation in Manufacturing"
-          },
-          "credits": 4,
-          "block": "nganh",
-          "lt": 3,
-          "th": 1,
           "year": 4,
           "semester": 2,
           "yearSource": "ke-hoach"
@@ -505,7 +631,7 @@
             "en": "Capstone Project 3"
           },
           "credits": 4,
-          "block": "nganh",
+          "block": "tot-nghiep",
           "lt": 0,
           "th": 4,
           "year": 4,
@@ -515,12 +641,12 @@
       ],
       "electiveSlots": [
         {
-          "groupId": "tu-chon",
+          "groupId": "tu-chon-4-2",
           "credits": 4,
           "semester": 2
         },
         {
-          "groupId": "mon-tu-chon",
+          "groupId": "mon-tu-chon-4-3",
           "credits": 8,
           "semester": 3
         }
@@ -529,7 +655,7 @@
   ],
   "electiveGroups": [
     {
-      "id": "giao-tiep-ngon-ngu-va",
+      "id": "giao-tiep-ngon-ngu-va-3-2",
       "title": {
         "vi": "Giao tiếp, ngôn ngữ và",
         "en": "Communications,"
@@ -538,7 +664,7 @@
       "courses": []
     },
     {
-      "id": "khoa-hoc-xa-hoi-va",
+      "id": "khoa-hoc-xa-hoi-va-3-4",
       "title": {
         "vi": "Khoa học xã hội và",
         "en": "Social & Behavioral"
@@ -547,7 +673,7 @@
       "courses": []
     },
     {
-      "id": "tu-chon",
+      "id": "tu-chon-4-2",
       "title": {
         "vi": "Tự chọn",
         "en": "Tự chọn"
@@ -556,13 +682,546 @@
       "courses": []
     },
     {
-      "id": "mon-tu-chon",
+      "id": "mon-tu-chon-4-3",
       "title": {
         "vi": "Môn tự chọn",
         "en": "Specialization Elective"
       },
       "minCredits": 8,
-      "courses": []
+      "courses": [
+        {
+          "code": "MEC 483",
+          "name": {
+            "vi": "Nhập môn Trí tuệ nhân tạo",
+            "en": "Introduction to AI"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 475",
+          "name": {
+            "vi": "Nhập môn học máy",
+            "en": "Introduction to Machine Learning"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 410",
+          "name": {
+            "vi": "Hệ thống điều khiển nhúng",
+            "en": "Embedded Control Systems"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 485",
+          "name": {
+            "vi": "Xử lý ảnh số",
+            "en": "Digital Image Processing"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 404",
+          "name": {
+            "vi": "Lập trình CNC",
+            "en": "CNC programming"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ME 412",
+          "name": {
+            "vi": "Phân tích kỹ thuật trên máy tính",
+            "en": "Computer-Aided Engineering"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 406",
+          "name": {
+            "vi": "Quản lý chất lượng",
+            "en": "Quality Management"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ME 403",
+          "name": {
+            "vi": "Các phương pháp gia công hiện đại",
+            "en": "Advanced Manufacturing"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 477",
+          "name": {
+            "vi": "Cảm biến",
+            "en": "Sensor"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 479",
+          "name": {
+            "vi": "Lập trình Robot với",
+            "en": "ROS2 Robot Programming with ROS2"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 404",
+          "name": {
+            "vi": "Hệ thống DCS &",
+            "en": "SCADA DCS and SCADA Systems"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 490",
+          "name": {
+            "vi": "Nhập môn Digital Twin",
+            "en": "Introduction to Digital Twin"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 492",
+          "name": {
+            "vi": "Internet vạn vật trong công nghiệp",
+            "en": "Industrial Internet of Things"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 493",
+          "name": {
+            "vi": "Đồ án Internet vạn vật trong công nghiệp",
+            "en": "Industrial Internet of Things Project"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 406",
+          "name": {
+            "vi": "Hệ thống tự động hóa sản xuất",
+            "en": "Manufacturing automation systems"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 304",
+          "name": {
+            "vi": "Đo lường và thiết bị đo",
+            "en": "Measurement & Instrumentation"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EBS 101",
+          "name": {
+            "vi": "Quản lý dự án",
+            "en": "Project Management"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ME 425",
+          "name": {
+            "vi": "Phương pháp gia công bồi đắp",
+            "en": "Additive Manufacturing"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CIVI 101",
+          "name": {
+            "vi": "Lịch sử văn minh thế giới",
+            "en": "The Story of Civilization"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "PSYC 154",
+          "name": {
+            "vi": "Tâm lý học",
+            "en": "Psychology"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "SOC 144",
+          "name": {
+            "vi": "Xã hội học",
+            "en": "Sociology"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "BUS 101",
+          "name": {
+            "vi": "Quản trị kinh doanh căn bản",
+            "en": "Fundamentals of Business Administration"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EBS 110",
+          "name": {
+            "vi": "Kinh tế kỹ thuật",
+            "en": "Engineering Economy"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECO 110",
+          "name": {
+            "vi": "Nguyên lý kinh tế học",
+            "en": "Principles of Economics"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "FIN 239",
+          "name": {
+            "vi": "Tài chính cá nhân",
+            "en": "Personal Finance"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "IEPS 100",
+          "name": {
+            "vi": "Tư duy kinh doanh",
+            "en": "Entrepreneurial Thinking"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "IREL 101",
+          "name": {
+            "vi": "Nhập môn quan hệ quốc tế",
+            "en": "Foundations of International Relations"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "WRT 122",
+          "name": {
+            "vi": "Viết luận tiếng anh",
+            "en": "English Composition"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "WRT 187",
+          "name": {
+            "vi": "Kỹ năng đọc và viết học thuật",
+            "en": "Academic Reading and Writing"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "COMS 101",
+          "name": {
+            "vi": "Kỹ năng giao tiếp",
+            "en": "Communication Skills"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "PHL 255",
+          "name": {
+            "vi": "Tư duy phản biện và sáng tạo",
+            "en": "Critical and Creative Thinking"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MUSI 110",
+          "name": {
+            "vi": "Lý thuyết Âm nhạc",
+            "en": "Music Theory"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MUSI 203",
+          "name": {
+            "vi": "Âm nhạc 1",
+            "en": "Music 1"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MUSI 204",
+          "name": {
+            "vi": "Âm nhạc 2",
+            "en": "Music 2"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MUSI 205",
+          "name": {
+            "vi": "Âm nhạc 3",
+            "en": "Music 3"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MGMT 291",
+          "name": {
+            "vi": "Chuyên đề thời sự đương đại",
+            "en": "Seminar in Current Affairs"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "UNIV 111",
+          "name": {
+            "vi": "Phát triển bền vững",
+            "en": "Focused Inquiry: Sustainability"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "UNIV 112",
+          "name": {
+            "vi": "Toàn cầu hóa",
+            "en": "Focused Inquiry: Globalization"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ]
     }
   ],
   "specializations": [
@@ -572,7 +1231,22 @@
         "vi": "Robot",
         "en": "Robotics"
       },
-      "requiredCourses": [],
+      "requiredCourses": [
+        {
+          "code": "MEC 402",
+          "name": {
+            "vi": "Thiết kế và Ứng dụng Hệ thống Robot",
+            "en": "Robotic Systems Design and Application"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        }
+      ],
       "electiveGroupIds": []
     },
     {
@@ -581,7 +1255,22 @@
         "vi": "Hệ thống tích hợp",
         "en": "Integrated Systems"
       },
-      "requiredCourses": [],
+      "requiredCourses": [
+        {
+          "code": "MEC 489",
+          "name": {
+            "vi": "Chuyển đổi số trong sản xuất",
+            "en": "Digital Transformation in Manufacturing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        }
+      ],
       "electiveGroupIds": []
     }
   ],

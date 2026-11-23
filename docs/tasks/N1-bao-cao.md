@@ -1,60 +1,71 @@
-# Báo cáo N1 — parser theo trang, còn sai lệch dữ liệu
+# Báo cáo N1 — công thức kiểm tra đã sửa, dữ liệu còn lệch
 
-## File đã tạo / sửa
+## File thay đổi trong lượt này
 
-- `scripts/ctdt/dump-text.mjs`, `scripts/ctdt/pdfkit-pages.swift`: dump từng trang thành `references/ctdt/text/<id>/pNN.txt`.
-- `scripts/ctdt/extract.mjs`: parser layout BM08 theo HK và layout khung ngắn; ngày sinh dữ liệu dùng `--date`.
-- `scripts/ctdt/check.mjs`: kiểm tra cấu trúc, nhóm tự chọn và so tổng tín chỉ trích với PDF.
-- `scripts/ctdt/majors.config.json`, `overrides.json`, `README.md`; tám file curriculum được sinh ở `src/data/majors/`.
-- `scripts/ctdt/package.json`, `package-lock.json`: pdfjs-dist riêng; không sửa package gốc.
+- `scripts/ctdt/check.mjs`: phân rã common required, elective minimum, specialization required, specialization elective minimum và graduation. `ElectiveSlot` trên năm chỉ là tham chiếu, không cộng lần hai.
+- `scripts/ctdt/extract.mjs`: giữ trạng thái học kỳ qua ranh giới trang BM08; nhận override cho môn chuyên ngành; hỗ trợ môn thêm thủ công.
+- `scripts/ctdt/majors.config.json`: ánh xạ môn bắt buộc chuyên ngành BM08.
+- `scripts/ctdt/overrides.json`: môn bắt buộc 8 chuyên ngành QTKD, nhóm tự chọn chuyên ngành, hai môn tốt nghiệp QTKD, PHYS 101 BEE và sửa tên đã xác minh.
+- Tám `src/data/majors/*.curriculum.json` được sinh lại từ các file text trang.
 
-## Cách chạy + công cụ PDF đã dùng
+## Công thức check
 
-1. `node scripts/ctdt/dump-text.mjs`
-2. `node scripts/ctdt/extract.mjs --date 2026-11-23`
-3. `node scripts/ctdt/check.mjs`
+Theo từng chuyên ngành: **môn bắt buộc chung trong years + tối thiểu nhóm tự chọn chung + môn bắt buộc chuyên ngành + tối thiểu nhóm tự chọn của chuyên ngành + môn tốt nghiệp**. Tín chỉ elective slot không cộng lại khi đã có nhóm tương ứng. BSE chấp nhận tổng ghi ở mục IV là 180 hoặc bảng VI là 183; DTVT không có tổng công bố nên không bị chặn vì tổng.
 
-Đã xem trực tiếp `qtkd/p01.txt`, `qtkd/p02.txt`, `qtkd/p07.txt`, `ktpm/p49.txt`, `ktpm/p53.txt`, cùng trang VI tương ứng của các bản BM08. PDFKit cho thứ tự đọc sạch hơn dump thử nghiệm tọa độ pdfjs-dist, nhất là QTKD; dòng bị dồn nhiều cột vẫn cần override. Dump/trích lại cùng ngày cho kết quả xác định.
+## Kết quả phân rã
 
-## Bảng tóm tắt check.mjs (8 ngành)
+| Ngành | Môn bắt buộc chung | Tự chọn chung tối thiểu | Tốt nghiệp | Bắt buộc chuyên ngành | Tự chọn chuyên ngành | Tính ra / PDF |
+|---|---:|---:|---:|---:|---:|---:|
+| ktpm | 134 | 40 | 10 | 0 | 0 | 184 / 180 hoặc 183 |
+| mmt | 126 | 32 | 10 | 8 | 0 hoặc 4 | 172 / 180 (từng chuyên ngành: 172, 180, 172) |
+| tdh | 147 | 20 | 7 | 8 | 0 hoặc 8 | 182 / 186 (182, 190) |
+| dien | 128 | 26 | 4 | 8 | 0 hoặc 8 | 166 / 187 (166, 174) |
+| cdt | 144 | 20 | 7 | 4 | 0 | 175 / 188 (175, 175) |
+| dtvt | 32 | 24 | 0 | 0 | 0 | 56 / không ghi |
+| cokhi | 154 | 12 | 0 | 0 | 0 | 166 / 186 |
+| qtkd | 139 | 4 | 12 | 20–28 | 16–24 | 199–203 / 195 |
 
-| Ngành | TC trích / PDF | Môn năm 1/2/3/4 | Nhóm tự chọn | Chuyên ngành |
-|---|---:|---:|---:|---:|
-| ktpm | 178 / 180 | 8/9/8/3 | 6 | 0 |
-| mmt | 193 / 180 | 6/9/9/11 | 7 | 3 |
-| tdh | 180 / 186 | 11/14/10/5 | 2 | 2 |
-| dien | 182 / 187 | 12/9/13/4 | 3 | 2 |
-| cdt | 164 / 188 | 9/15/6/4 | 4 | 2 |
-| dtvt | 56 / không ghi | 0/0/7/1 | 3 | 5 |
-| cokhi | 166 / 186 | 20/6/11/8 | 3 | 3 |
-| qtkd | 143 / 195 | 28/8/0/0 | 1 | 8 |
+Các tổng common hiện tại vẫn có course bị phân loại sai: khung QTKD còn đưa môn trong danh sách lựa chọn vào `years`; một số nhóm tự chọn common chưa được nhận diện. Vì vậy các số phân rã cho thấy **khối cần sửa**, không khẳng định dữ liệu hiện tại đã đúng. Lỗi không còn là do cộng elective slot trùng: các curriculum còn thiếu hoặc phân loại sai môn/nhóm, specialty elective BM08 chưa nối đủ, và một số bản khung chưa có specialization courses.
 
-`check.mjs` **chưa đạt**: lệch lần lượt ktpm −2, mmt +13, tdh −6, dien −5, cdt −24, cokhi −20, qtkd −52 TC. DTVT không ghi tổng trên bản PDF. BSE mục IV ghi 180 còn bảng VI cộng 183; con số so ở đây là 180 theo quy tắc brief. Tên một số nhóm tự chọn/khối kiến thức và danh sách môn tự chọn BM08 chưa được tái dựng đủ chính xác.
+### Ngành còn lệch và khối cụ thể
 
-## Đối chiếu tay 10 môn/ngành
+- **QTKD**: các nhóm chuyên ngành đã được thêm tay từ mục 2.3.1–2.3.8 và nhóm 2.3.9 gán mức 16/20/24 TC theo chuyên ngành; hai môn BUS 450/496 (12 TC) vào khối tốt nghiệp. Kết quả vẫn thừa 4–8 TC theo nhánh, do parser chưa tách sạch môn common bắt buộc khỏi danh sách tự chọn và còn thiếu các nhóm common ở mục 1.3–1.6 / môn cơ sở ở trang 3–5. Y3 vẫn chưa đủ môn cơ sở ngành, Y4 hiện mới có hai môn tốt nghiệp.
+- **BSE**: trạng thái HK liên trang đã khôi phục CSE 100, CSE 106, CSE 104, CSE 204 và CSW 303/304/306/405/480; các môn đã thấy được xếp đúng năm. Còn lệch +4 so với 180 và +1 so với tổng bảng VI 183; cần rà lại elective minimum/một dòng tín chỉ. CSN 302 trong PDF p.52 là **CSN 302**, nên không áp dụng đề xuất N2 đổi thành CSE 302.
+- **MMT**: môn chuyên ngành đã tách khỏi `years`; ba nhánh hiện lần lượt thiếu 8, 0, 8 TC so với 180. Cần bổ sung các nhóm tự chọn chuyên ngành còn thiếu và rà 2 môn năm 1.
+- **TDH**: ACE 303/306, MATH 112, PHYS 102 đã được đưa vào kế hoạch; specialist courses đã tách một phần. Nhánh tự động hóa còn thừa 4 TC, nhánh điều khiển thiếu 4 TC; cần gán lại nhóm tự chọn theo nhánh.
+- **Điện**: thêm PHYS 101 ở HK1.1 và tách EE 401/402, EE 411/413; hai nhánh còn thiếu lần lượt 21 và 13 TC, phần tự chọn/chuyên ngành chưa đủ.
+- **Cơ điện tử**: thêm MEC 402 và MEC 489 vào hai specialization; vẫn thiếu 13 TC ở mỗi nhánh, còn môn ranh giới trang và danh sách elective.
+- **Cơ khí**: tổng phân rã thiếu 20 TC; cả ba `requiredCourses` chuyên ngành đang rỗng và có lỗi dính tên ME 440. Cần override tay các môn trang 3–4.
+- **DTVT**: tổng PDF không ghi; JSON mới có 8 course plan rows, mất gần hết năm 1–2 và môn bắt buộc 5 chuyên ngành. ETE 349 đã tách đúng tên “Thiết kế hệ thống nhúng / Embedded System Design”; dòng “Lập trình điều khiển nhúng” trong PDF không thấy mã nên chưa tự gán mã.
 
-Chưa thể xác nhận 10 môn ở mỗi ngành: hiện một số dòng bị ghép nhầm nội dung do PDFKit đọc ô nhiều cột theo thứ tự khác nhau. Đã phát hiện và thêm override sửa riêng ECE 300 của DTVT (trang 5); những mã/ngành còn lại cần rà trực tiếp trước khi dùng.
+## Đối chiếu tay 10 dòng/ngành
 
-## Override đã dùng
+Đã so các hàng mẫu trực tiếp giữa curriculum và `references/ctdt/text/<id>/pNN.txt`, ưu tiên code, tên VI/EN, tín chỉ và năm/kỳ:
 
-`overrides.json` ghi lý do cho mã bị ngắt dòng ở QTKD/DTVT và sửa ECE 300 theo hàng nguồn. Cơ chế áp dụng `courses`, `drop`, `add` đã được nối vào extractor; chưa đủ override để bù các hàng bảng bị dồn.
+| Ngành | Kết quả mẫu / phát hiện |
+|---|---|
+| qtkd | 10 hàng đầu: code, VI/EN, TC khớp; 4 môn toán trong mẫu là lựa chọn nhưng đang bị đặt ở `years`. |
+| ktpm | 10 hàng HK1–2: code, tên, TC, HK khớp sau khi giữ state liên trang; lỗi `CSW 482` và tên Anh `POLS 132` đã override. |
+| mmt | 10 hàng kế hoạch: code, VI/EN, TC khớp; riêng `STAT 101` ở HK1.3 (không phải HK2.1 như N2 ghi), theo PDF p.48. |
+| tdh | 10 hàng mẫu: code, tên, TC và học kỳ khớp; lỗi còn lại là specialty/elective assignment. |
+| dien | Mẫu xác nhận thiếu PHYS 101 (đã thêm override); các hàng còn lại trong mẫu khớp code/tên/TC. |
+| cdt | Mẫu xác nhận các môn; appendix IV viết `LAW 122`, bảng VI dùng `LAWS 122`; giữ mã theo bảng VI là nguồn brief yêu cầu. |
+| dtvt | 10 hàng bảng chuyên ngành ở p.8 đã xem; parser chỉ giữ được 8 hàng, ETE 349 đã sửa, dòng kế tiếp chưa có mã rõ để nhập. |
+| cokhi | 10 hàng đầu khớp code/tên/TC; phân năm vẫn là suy theo mã như quy tắc bản khung. |
 
-## Mã môn ngoài chuẩn / dòng bị bỏ
+Đây là spot-check thủ công, không thay cho việc rà hết các hàng. Các chỗ chưa khớp/phân loại sai được nêu ở bảng kết quả và chưa dùng làm dữ liệu hoàn tất.
 
-Chưa thống kê đầy đủ. PDF có môn không mã / chỉ có chứng nhận GDTC, quốc phòng; extractor hiện không chuẩn hóa và phân loại hết các trường hợp này.
+## Override và điểm chưa chắc
 
-## Kết quả typecheck / lint / build
+Override tay gồm 8 danh sách môn bắt buộc chuyên ngành QTKD, mức tự chọn 2.3.9 theo PDF, BUS 450/496, PHYS 101 BEE, ECE 300/ETE 349 DTVT, và hiệu chỉnh tên `CSW 482`/`POLS 132`. Không tự đổi `CSN 302`: nguồn PDF hiển thị CSN, trái với một dòng trong báo cáo N2. MEE giữ `LAWS 122` theo bảng VI; appendix IV in `LAW 122`.
 
-- `npm run typecheck`: đạt.
-- `npm run lint`: đạt.
-- `npm run build`: đạt.
-- Dump từng trang, tái sinh curriculum cùng `--date`: đầu ra lặp lại giống hệt (`diff -r` rỗng).
-- `node scripts/ctdt/check.mjs`: **chưa đạt** do sai lệch tín chỉ nêu trên.
+## Kiểm tra
 
-## Chưa chắc / rủi ro
+- `node scripts/ctdt/dump-text.mjs`: đạt; sinh text từng trang vào `references/ctdt/text/` (bị ignore, PDF/text không được git add).
+- Tái sinh cùng `--date 2026-11-23`: xác định, `diff -r` rỗng.
+- `node scripts/ctdt/check.mjs`: **chưa đạt**; các lệch được liệt kê phía trên.
+- Kết quả `typecheck`, `lint`, `build`: sẽ ghi sau lượt kiểm tra cuối.
 
-QTKD và COKHI có bảng khung bị dồn nhiều dòng; BM08 bắt được một phần môn theo HK nhưng chưa hoàn chỉnh môn bắt buộc/tự chọn và mapping `block`. Curriculum hiện tại là kết quả chẩn đoán parser, chưa an toàn để N2 dùng làm nguồn nội dung.
+## Kết luận / đề xuất
 
-## Đề xuất
-
-Tiếp tục thêm override theo hàng PDF cho QTKD trước, sau đó BSE và các bảng BM08; chỉ đánh dấu hoàn tất khi 10 môn/ngành khớp mã, VI/EN, tín chỉ, năm và `check.mjs` không còn lệch ngoài ngoại lệ BSE 180/183 đã nêu.
+Đã sửa phép tính của checker và dùng checklist N2 để xử lý ranh giới trang cùng một số specialty rows. Vẫn còn ngành lệch ở các khối đã nêu; theo yêu cầu, dừng ở đây để chủ dự án quyết định có chuyển sang đọc PDF trực tiếp cho phần còn lại không.
