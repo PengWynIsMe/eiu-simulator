@@ -67,6 +67,9 @@ Khắc phục 3 vấn đề ngoại cảnh còn tồn đọng sau bản test g�
   - **Lỗi 1 (Dải trắng xám cắt ngang đất ở tầm thấp)**: Commit `0565834` — *fix(camera): ha near plane xuong 0.3m triet tieu dai trang cat ngang mat dat o tam nhin thap (Muc 1)*
   - **Lỗi 2 (Mái hành lang tam giác đen đặc)**: Commit `e9b9c72` — *feat(scene): lam mai hanh lang phang mong khung thep sang thoang, bo khoi tam giac den (Muc 2)*
   - **Lỗi 3 (Dây leo thưa/đen, làm lại rèm xanh tươi phủ dày)**: Commit `7cd44d7` — *feat(scene): lam lai rem day leo xanh tuoi ruc ro, tang mat do va phu day hai ben hanh lang (Muc 3)*
+- **Đợt 3 (Sửa 2 việc nhỏ theo nhận xét sau kiểm tra hành lang)**:
+  - **Mục 1 (Loại bỏ cỏ mọc xuyên sàn hành lang & các mặt lát)**: Commit `5f3df30` — *fix(scene): loai bo co khoi san be tong hanh lang va cac be mat lat (Muc 1)* (đưa `ZONE2_WALKWAYS` vào mask rải cỏ, mở rộng vùng cấm kè hồ, sàn gỗ cafe, pizza, vườn).
+  - **Mục 2 (Chống z-fighting bằng logarithmicDepthBuffer)**: Commit `8b5b792` — *fix(scene): bat logarithmicDepthBuffer triet tieu z-fighting o moi cu ly camera (Muc 2)* (bật `logarithmicDepthBuffer: true` trên Canvas).
 
 ### 2. Kết quả đo lường hiệu năng WebGL
 - **Draw calls toàn cảnh tổng quan**: `179` draw calls (toàn bộ ~1,100 cây trên khuôn viên trường chỉ tiêu tốn đúng 5 draw calls).
