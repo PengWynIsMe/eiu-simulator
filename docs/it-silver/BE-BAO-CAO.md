@@ -97,3 +97,13 @@ Không tạo dữ liệu nội dung thật; test sử dụng fixture tổng hợ
 | Corrupt data backed up `.bak`, warning corrupt; null kv/get exception blocked; backup set exception handled | `save.test.mjs` — read handles corrupt backup, null storage and thrown get/set | Đạt |
 | write catches errors/kv null; clear removes main key but preserves backup | `save.test.mjs` — write catches storage failures; clear preserves backup | Đạt |
 | typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
+
+## BE-10 — Sổ kỷ niệm
+
+| Tiêu chí / ví dụ | Test | Kết quả |
+|---|---|---|
+| Ảnh gợi ý chọn phần tử đầu tiên không điều kiện/khớp; choices lọc điều kiện và giữ thứ tự | `notebook.test.mjs` — photo suggestions follow conditions and preserve order | Đạt |
+| Khôi phục ảnh/dòng theo id đã lưu dù when không khớp; id mất dùng phần tử cuối; savedAt/hasOld | `notebook.test.mjs` — saved ids persist even after conditions change; vanished ids use fallback | Đạt |
+| Upsert cùng chapter thay đúng vị trí; trang mới thêm cuối; mảng đầu vào bất biến | `notebook.test.mjs` — upsert replaces in place, appends new chapter and never mutates input | Đạt |
+| Tên môn không tồn tại bị bỏ qua | `notebook.test.mjs` — saved ids persist even after conditions change; vanished ids use fallback | Đạt |
+| typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
