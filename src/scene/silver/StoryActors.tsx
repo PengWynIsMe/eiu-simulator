@@ -6,18 +6,16 @@ import CharacterModel, { type CharacterHandle } from '../characters/CharacterMod
 import { turnToward } from '../npc/lod';
 import { toWorld, yawOf } from './frame';
 import { characterConfig } from '../../data';
+import { useLangStore } from '../../store/useLangStore';
 import type { Classroom } from '../../types';
-import type { SpeakerId } from '../../types/silver';
 import type { ClassSignal, StageActor, StageSpec } from '../../types/silverWorld';
 
-const SPEAKER_NAMES: Partial<Record<SpeakerId, string>> = {
-  han: 'Han',
-  quyen: 'Quyền',
-  thanh: 'Thành',
-  teacher: 'Thầy Nam',
-  examiner: 'Giám khảo',
-  guide: 'Hướng dẫn viên',
-  player: 'Bạn',
+const SPEAKER_NAMES: Record<string, { vi: string; en: string }> = {
+  han: { vi: 'Han', en: 'Han' },
+  quyen: { vi: 'Quyền', en: 'Quyen' },
+  thanh: { vi: 'Thành', en: 'Thanh' },
+  examiner: { vi: 'Giám khảo', en: 'Examiner' },
+  guide: { vi: 'Hướng dẫn viên', en: 'Guide' },
 };
 
 export interface StoryActorsProps {
@@ -34,19 +32,27 @@ interface ActorInstanceProps {
   stage: StageSpec;
   getSignal: () => ClassSignal;
   sitYOffset: number;
+  isTalkTarget: boolean;
 }
 
-function ActorInstance({ actor, room, stage, getSignal, sitYOffset }: ActorInstanceProps) {
+function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget }: ActorInstanceProps) {
   const group = useRef<Group>(null);
   const handle = useRef<CharacterHandle>(null);
   const labelRef = useRef<HTMLDivElement>(null);
+  const lang = useLangStore((s) => s.lang);
 
-  // Tính tọa độ, hướng quay mặc định và hướng nhìn về người chơi
+  // Tính tọa độ, hướng quay mặc định và hướng nhìn về người chơi (bỏ dự phòng)
   const poseInfo = useMemo(() => {
     if (actor.pose === 'sit' || actor.seatId) {
-      const seat = room.seats.find((s) => s.id === actor.seatId)
-        ?? (actor.speaker === 'han' ? room.seats.find((s) => s.id === room.companionSeat) : undefined);
-      if (!seat) return null;
+      if (!actor.seatId) {
+        console.warn(`[StoryActors] Diễn viên ${actor.speaker} ở tư thế ngồi nhưng thiếu seatId`);
+        return null;
+      }
+      const seat = room.seats.find((s) => s.id === actor.seatId);
+      if (!seat) {
+        console.warn(`[StoryActors] Ghế ${actor.seatId} không tìm thấy trong phòng ${room.code}`);
+        return null;
+      }
 
       const [sx, sz] = toWorld(room.frame, seat.u, seat.v);
       const playerSeat = room.seats.find((s) => s.id === room.playerSeat);
@@ -65,8 +71,12 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset }: ActorInsta
       };
     }
 
-    // Đứng tại spot
-    const spot = actor.spot ?? stage.arrival;
+    // Đứng tại spot (bỏ fallback stage.arrival)
+    if (!actor.spot) {
+      console.warn(`[StoryActors] Diễn viên đứng ${actor.speaker} thiếu spot`);
+      return null;
+    }
+    const spot = actor.spot;
     const defYaw = Math.atan2(spot.facing[0], spot.facing[1]);
     const target = stage.target;
     const pYaw = Math.atan2(target.x - spot.x, target.z - spot.z);
@@ -81,8 +91,7 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset }: ActorInsta
     };
   }, [actor, room, stage, sitYOffset]);
 
-  // Bộ nhớ trạng thái mô phỏng hoạt cảnh và cử chỉ
-  const lastSceneIdRef = useRef<string>(stage.sceneId);
+  // Bộ nhớ trạng thái hoạt cảnh cho Han
   const initialResultId = useRef<number>(getSignal().result?.id ?? -1);
   const seenResultIdRef = useRef<number>(initialResultId.current);
   const hasRaisedHandRef = useRef<boolean>(false);
@@ -91,17 +100,8 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset }: ActorInsta
   const nextTypingRef = useRef<number>(8 + Math.random() * 5);
   const currentYawRef = useRef<number>(poseInfo?.defaultYaw ?? 0);
 
-  // Reset cử chỉ giơ tay khi đổi sceneId (vd lab-1 -> lab-2 mà không unmount)
-  if (lastSceneIdRef.current !== stage.sceneId) {
-    lastSceneIdRef.current = stage.sceneId;
-    hasRaisedHandRef.current = false;
-    isRaisingRef.current = false;
-    raiseStartRef.current = -1;
-    seenResultIdRef.current = getSignal().result?.id ?? -1;
-  }
-
-  const isTalkTarget = Boolean(stage.trigger === 'talk');
-  const actorName = SPEAKER_NAMES[actor.speaker] ?? actor.speaker;
+  const nameConfig = SPEAKER_NAMES[actor.speaker];
+  const actorName = nameConfig ? nameConfig[lang] : actor.speaker;
 
   useFrame((state, delta) => {
     const g = group.current;
@@ -156,14 +156,17 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset }: ActorInsta
 
   if (!poseInfo) return null;
 
+  // Lấy model theo story hoặc role (bỏ fallback roles.player)
   const roleCandidate = actor.speaker in characterConfig.roles
     ? characterConfig.roles[actor.speaker as keyof typeof characterConfig.roles]
     : undefined;
   const roleUrl = typeof roleCandidate === 'string' ? roleCandidate : undefined;
+  const modelUrl = characterConfig.story?.[actor.speaker] ?? roleUrl;
 
-  const modelUrl = characterConfig.story?.[actor.speaker]
-    ?? roleUrl
-    ?? characterConfig.roles.player;
+  if (!modelUrl) {
+    console.warn(`[StoryActors] Không tìm thấy model cho diễn viên ${actor.speaker}`);
+    return null;
+  }
 
   return (
     <group ref={group} position={poseInfo.pos} rotation={[0, poseInfo.defaultYaw, 0]}>
@@ -196,7 +199,8 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset }: ActorInsta
  * - Tự động định vị theo seatId (ngồi) hoặc spot (đứng).
  * - Quay mặt về người chơi khi signal.speaker là mình.
  * - Cử chỉ đặc thù của Han: giơ tay một lần khi bắt đầu cảnh, yes khi bài tập code đúng.
- * - Nhãn tên gắn sát đỉnh đầu (<Html>), tự ẩn khi xa > 6 m, hiện huy hiệu "!" khi là đối tượng talk.
+ * - Nhãn tên song ngữ gắn sát đỉnh đầu (<Html>), tự ẩn khi xa > 6 m.
+ * - Dấu "!" chỉ hiện trên người đứng gần stage.target nhất khi stage.trigger === 'talk'.
  */
 export default function StoryActors({
   room,
@@ -209,6 +213,30 @@ export default function StoryActors({
     return stage.actors.filter((a) => a.speaker !== 'teacher');
   }, [stage.actors]);
 
+  // Tìm diễn viên đứng gần stage.target nhất để gắn dấu "!" khi trigger === 'talk'
+  const targetActorSpeaker = useMemo(() => {
+    if (stage.trigger !== 'talk') return null;
+    let minD2 = Infinity;
+    let closest: string | null = null;
+    for (const actor of nonTeacherActors) {
+      let ax = 0;
+      let az = 0;
+      if (actor.seatId) {
+        const seat = room.seats.find((s) => s.id === actor.seatId);
+        if (seat) [ax, az] = toWorld(room.frame, seat.u, seat.v);
+      } else if (actor.spot) {
+        ax = actor.spot.x;
+        az = actor.spot.z;
+      }
+      const d2 = (ax - stage.target.x) ** 2 + (az - stage.target.z) ** 2;
+      if (d2 < minD2) {
+        minD2 = d2;
+        closest = actor.speaker;
+      }
+    }
+    return closest;
+  }, [stage, nonTeacherActors, room]);
+
   return (
     <>
       {nonTeacherActors.map((actor, idx) => (
@@ -219,6 +247,7 @@ export default function StoryActors({
           stage={stage}
           getSignal={getSignal}
           sitYOffset={sitYOffset}
+          isTalkTarget={targetActorSpeaker === actor.speaker}
         />
       ))}
     </>

@@ -1,145 +1,160 @@
-# Báo cáo 3D-04 — 406.B8 thành phòng chơi tương tác 3D (Bản hoàn thiện lần 2)
+# Báo cáo 3D-04 — 406.B8 thành phòng chơi tương tác 3D (Bản hoàn thiện lần 3)
 
 Nhánh: `PengWynIsMe/it-silver-3d-04`.
 Workspace tách từ nhánh cục bộ `it-silver/3d` (commit gốc `88cf7ce` đã có đầy đủ 3D-00, 3D-01, 3D-02, 3D-03, 3D-05).
 
 ---
 
-## 1. Tóm tắt các điều chỉnh theo phản hồi của Tech Lead (Lần 2)
+## 1. Tóm tắt các điều chỉnh theo phản hồi của Tech Lead (Lần 3)
 
-### A. Sửa sai luồng & quản lý vòng đời
-1. **Fallback linh hoạt**: `SilverStage` không lùi cứng về `CSE 103/lab-1` hay `406.B8`. Nếu không có `stageSpec` hợp lệ hoặc không tìm thấy phòng học thì trả về `null`. Tòa nhà và tầng được xác định động từ `room.buildingId` và `room.floor` (không viết cứng `b8` hay `4`).
-2. **Hệ thống diễn viên `StoryActors` tổng quát**:
-   - Khái quát hóa xử lý cho toàn bộ các diễn viên cốt truyện trong `stage.actors` của 5 cảnh trong phòng 406.B8 (`CSE 103/lab-1`, `CSE 103/lab-2`, `CSE 103/exam`, `CSE 204/lab-1`, `2.2/closing`).
-   - Tự động nạp model từ `characterConfig.story[speaker]` (hoặc fallback `roles`).
-   - Hỗ trợ cả diễn viên ngồi ghế (`seatId`, ví dụ Han ở `406-r2-s6`, Quyền ở `406-r1-s2`) và diễn viên đứng tại điểm quy định (`spot`, ví dụ Han và Quyền đứng ở `2.2/closing`).
-   - Nhân vật `teacher` trong `stage.actors` do component `Teacher` đảm nhiệm; cảnh không có giáo viên (`2.2/closing`) không mount `Teacher`.
-   - Diễn viên tự động quay mặt về phía người chơi khi `signal.speaker` trùng với mình.
-   - Thêm huy hiệu chấm than "!" nổi trên đầu khi nhân vật là mục tiêu đối thoại (`stage.trigger === 'talk'`).
-   - Cử chỉ `raiseHand` của Han reset theo `stage.sceneId` (chuyển cảnh không cần unmount vẫn reset được). Bỏ qua kết quả cũ lúc mount để không phát lại `yes`.
-3. **An toàn vòng đời với React StrictMode**:
-   - `SilverStage` được chia thành guard component và `SilverStageContent`.
-   - `createSilverSignal(useSilverStore, useLangStore)` được tạo và giải phóng (`dispose()`) trong cùng một vòng đời `useEffect` duy nhất bên trong `SilverStageContent`, bảo đảm an toàn khi React StrictMode chạy chu kỳ unmount/remount thử nghiệm ở dev server.
-   - Khi chuyển step bài học, tín hiệu cập nhật chuẩn xác sang `ProjectorScreen` và `StoryActors`.
-4. **Bắt lỗi subscribe tường minh**: `SilverStage` ném lỗi rõ ràng (`throw new Error('[SilverStage] useSilverStore thiếu phương thức subscribe')`) thay vì im lặng bỏ qua.
+### A. Chuẩn hóa kiểu dữ liệu & loại bỏ ép kiểu
+1. **Loại bỏ ép kiểu trong `SilverStage.tsx`**:
+   - Thay thế hoàn toàn cú pháp ép kiểu `useSilverStore as unknown as SubscribablePlayStore` bằng hàm thu hẹp kiểu chuẩn TypeScript (type guard):
+     ```ts
+     function isSubscribablePlayStore(store: unknown): store is SubscribablePlayStore {
+       return Boolean(
+         store
+         && (typeof store === 'object' || typeof store === 'function')
+         && 'getState' in store
+         && typeof (store as Record<string, unknown>).getState === 'function'
+         && 'subscribe' in store
+         && typeof (store as Record<string, unknown>).subscribe === 'function',
+       );
+     }
+     ```
+   - Gán `const playStore = silverStore;` sau khi đã kiểm tra qua type guard, truyền trực tiếp vào `createSilverSignal(playStore, useLangStore)` mà không cần bất kỳ ép kiểu nào.
+2. **Khử z-fighting chính xác theo phòng sân khấu (`B8ComputerLabs.tsx`)**:
+   - Sửa điều kiện ẩn `tvScreens` thành:
+     `const isStageRoom = isSilverActive && stageRoomCode === r.code;`
+   - Chỉ phòng nào thực sự đang là sân khấu của stage hiện tại mới ẩn `tvScreens` để nhường chỗ cho `ProjectorScreen`. Chạy Silver ngoài sân khấu hoặc ở phòng khác không làm tắt TV của 406.B8.
 
-### B. Tuân thủ yêu cầu & kiến trúc
-1. **Bỏ nguồn sáng thêm**: Đã gỡ bỏ toàn bộ `ambientLight` và `directionalLight` khỏi `SilverStage.tsx`, tuân thủ nghiêm ngặt quy định không tự ý thêm đèn làm sáng cả tầng nhà.
-2. **Tái sử dụng `ClassroomNpcs` & hàm thuần lọc**:
-   - Đã xóa component thừa `SilverClassroomNpcs.tsx` (`git rm`).
-   - Mở rộng prop `models?: string[]` cho component gốc `src/scene/npc/ClassroomNpcs.tsx` (mặc định vẫn là `characterConfig.roles.students`).
-   - Tạo bộ hàm thuần tại `src/scene/silver/stageFiltering.ts`:
-     - `filterBackgroundModels`: Lọc bỏ 3 model của nhân vật cốt truyện (`female-c` Han, `male-e` Thành, `male-g` Quyền), trả về đúng 5 model cho sinh viên nền Silver, giữ nguyên vẹn 8 model cho 406.B11.
-     - `filterClassroomNpcSeats`: Loại bỏ ghế người chơi `playerSeat`, `companionSeat` và ghế của tất cả diễn viên trong cảnh có `seatId` (ví dụ Quyền `406-r1-s2`).
-     - `createSafeClassroomForStage`: Tạo bản sao classroom an toàn cho sân khấu. Cảnh có `crowd = 0` (`2.2/closing`) không dựng sinh viên nền.
-3. **Phạm vi khử z-fighting TV**: Trong `B8ComputerLabs.tsx`, chỉ loại bỏ `tvScreens` khi `isSilverActive && r.code === (stageRoomCode ?? '406.B8')`. Các phòng máy khác (408.B8...) và trạng thái bình thường giữ nguyên `tvScreens`.
-4. **Dọn dẹp Git**: Xóa `scripts/capture-3d-04.mjs` khỏi git tracking (`git rm --cached`) và cấu hình loại trừ qua exclude rule.
-5. **Kiểm tra hợp lệ `VALID_SPEAKER_IDS`**: `src/data/phase2.ts` kiểm tra khóa của `story` bằng `oneOf(k, VALID_SPEAKER_IDS, ...)`.
-6. **Unit test toàn diện**: `scripts/silver/tests/silver-stage-actors.test.mjs` gọi trực tiếp các hàm thuần được xuất từ `stageFiltering.ts` và kiểm thử đầy đủ cả 5 cảnh của 406.B8 trong `stages.json`.
+### B. Hoàn thiện hệ thống diễn viên `StoryActors.tsx`
+1. **Loại bỏ 3 fallback chắp vá**:
+   - Diễn viên ngồi: bắt buộc có `actor.seatId` và ghế tồn tại trong `room.seats`, nếu không thì `console.warn` và không render (bỏ fallback `companionSeat`).
+   - Diễn viên đứng: bắt buộc có `actor.spot`, nếu không thì `console.warn` và không render (bỏ fallback `stage.arrival`).
+   - Model nhân vật: bắt buộc tìm thấy trong `characterConfig.story` hoặc `characterConfig.roles`, nếu không thì `console.warn` và không render (bỏ fallback `roles.player`).
+2. **Tên nhân vật song ngữ theo `useLangStore`**:
+   - Cung cấp tên song ngữ chuẩn xác: `han` ("Han"), `quyen` ("Quyền" / "Quyen"), `thanh` ("Thành" / "Thanh"), `examiner` ("Giám khảo" / "Examiner"), `guide` ("Hướng dẫn viên" / "Guide").
+   - Bỏ các nhánh không dùng ('Thầy Nam', 'Bạn').
+3. **Dấu chấm than "!" chỉ hiện trên đúng mục tiêu đối thoại**:
+   - Khi `stage.trigger === 'talk'`, tính khoảng cách Euclidean bình phương từ vị trí của từng diễn viên tới `stage.target`.
+   - Chỉ gắn huy hiệu "!" lên đúng một diễn viên đứng gần `stage.target` nhất (`targetActorSpeaker === actor.speaker`), không gắn đại trà lên tất cả diễn viên.
+4. **Xóa code chết**:
+   - Đã xóa `lastSceneIdRef` và logic reset thủ công bên trong `StoryActors` vì component cha đã gắn `key={stage.sceneId}` nên sẽ tự động remount sạch sẽ khi đổi cảnh.
+
+### C. Ngồi thật qua phím E & góc nhìn qua vai (Ảnh 02)
+1. **WalkMode tự quản lý camera khi ngồi**:
+   - Người chơi di chuyển tới `standPoint`, trong tầm tương tác (`inRange`), ấn phím `E` thật.
+   - `WalkMode` tự động chuyển sang chế độ ngồi và lerp camera về `seat.camera.eye` nhìn về `seat.camera.look` (tâm màn hình TV).
+   - Tuyệt đối không can thiệp hay ghi đè pose camera bằng tay.
+   - Kết quả đo đạc độ lệch camera thực tế so với `seat.camera.eye`:
+     - Tọa độ mục tiêu `seat.camera.eye`: `[37.352851, 1.550000, -218.192272]`
+     - Tọa độ camera thực tế: `[37.352851, 1.550000, -218.192272]`
+     - Độ lệch (deviation): **$5.14 \times 10^{-9}\text{ m}$** (vô cùng nhỏ, hoàn toàn thỏa mãn yêu cầu $\le 0.15\text{ m}$).
+
+### D. Loại bỏ lớp phủ tuyết rơi & thứ tự chụp ảnh 05
+1. **Tắt overlay mở màn**:
+   - Gọi `useSnowStore.getState().endCinematic()` ngay từ đầu trước khi chụp ảnh, đảm bảo không có dải đen điện ảnh hay lớp phủ mờ ám màu màn hình.
+2. **Chụp ảnh 05 (toàn phòng) trước khi ngồi**:
+   - Ảnh 05 được chụp khi người chơi chưa ngồi (`seated: false`), giúp viền vàng nhấp nháy `SeatHighlight` trên ghế `406-r2-s5` hiện rõ ràng.
+
+### E. Ghi nhận trung thực về phòng 408.B8
+- **Ảnh `07a-phong-may-khac-408-b8.png`**:
+  - Tại phòng 408.B8, màn hình TV đen (`#141414` / `#1c1c1c`) được gắn trên nền mảng tường màu nâu đen tối (`#2b1810`).
+  - Do cả hai bề mặt đều mang tông màu tối sẫm, mắt thường nhìn trực diện từ xa rất khó phân biệt ranh giới màn hình TV nếu không quan sát kỹ mép viền và vùng phản quang (so sánh với bản gốc trước commit `88cf7ce`).
 
 ---
 
-## 2. Bảng tiêu chí và kết quả kiểm chứng
+## 2. Bảng tiêu chí và kết quả kiểm chứng (Lần 3)
 
 | Tiêu chí | Cách kiểm | Kết quả | Ghi chú |
 | --- | --- | --- | --- |
-| 1. Han ở `companionSeat` (`406-r2-s6`), clip `sit`, quay mặt khi nói | Chụp ảnh `03-sat-han.png`, kiểm tra logic `StoryActors.tsx` | **Đạt** | Han ngồi đúng ghế 406-r2-s6, clip `sit`. |
-| 2. Han giơ tay khi bắt đầu cảnh, `yes` khi bài tập đúng | Unit test và logic máy trạng thái cử chỉ trong `StoryActors` | **Đạt** | `raiseHand` chạy 1 lần ở đầu cảnh, reset theo `sceneId`, `yes` chỉ phát khi có `result` mới. |
-| 3. Nhãn tên Han `<Html>` $\le 6\text{ m}$, hạ độ cao | DOM style theo khoảng cách camera, ảnh `01`, `03` | **Đạt** | Nhãn hạ xuống $y = 1.05\text{ m}$ (ngồi) và $1.80\text{ m}$ (đứng). Tự ẩn khi camera xa $> 6\text{ m}$. |
-| 4. 12 bạn học nền ngồi đủ 12 vị trí `npcSeats` | Ảnh góc cao `05-toan-phong-12-ban.png`, unit test `silver-stage-actors.test.mjs` | **Đạt** | Đủ 12 bạn học nền phân bố đều các dãy, không trùng ghế người chơi, Han, hay Quyền. |
-| 5. Lọc model người trong truyện khỏi bạn nền phòng Silver | Unit test `silver-stage-actors.test.mjs` gọi `filterBackgroundModels` | **Đạt** | 8 model gốc lọc còn đúng 5 model cho sinh viên nền Silver (loại `female-c`, `male-e`, `male-g`). |
-| 6. Giữ nguyên 406.B11 không bị đổi model | Đo đạc và chụp ảnh `07b-phong-406-b11-nmlt01.png`, unit test | **Đạt** | `roles.students` gốc giữ nguyên 8 model cho 406.B11. |
-| 7. Viền vàng ghế người chơi khi chưa ngồi + màn hình sáng | Ảnh `05-toan-phong-12-ban.png` và `02-sau-vai-khi-ngoi-e.png` | **Đạt** | Viền wireframe vàng quanh `406-r2-s5`; màn hình máy tính có tấm phủ sáng `#e0f2fe`. |
-| 8. Mông chạm mặt ghế $y = 0.45\text{ m}$, chân không xuyên bàn | Ảnh cận cảnh `06a-can-canh-ban-ghe.png` | **Đạt** | Mông nhân vật tiếp xúc mặt ghế, chân nằm gọn dưới gầm bàn $0.75\text{ m}$. |
-| 9. TV ở $(91.2; -205.1)$, không z-fighting | Ảnh `01`, `02`, `06b-sat-mep-tv.png`, kiểm tra code `B8ComputerLabs.tsx` | **Đạt** | TV 406.B8 hiển thị cover "Lab 1 — Máy biết chào / CSE 103" và slide "Lệnh in đầu tiên". Mép TV áp phẳng tường, không sọc răng cưa. |
-| 10. Các phòng máy khác (408.B8) giữ nguyên | Chụp ảnh `07a-phong-may-khac-408-b8.png` | **Đạt** | 408.B8 giữ nguyên 2 bảng trắng và màn hình TV đen ở giữa. |
-| 11. Đổi tầng hoặc rời tòa nhà: toàn bộ diễn viên unmount | Kiểm tra scene graph qua script CDP khi đổi tầng 3 và ra ngoài trời | **Đạt** | Đổi sang tầng 3: `silverMeshCount = 0`, calls giảm còn 44. Ra ngoài trời unmount hoàn toàn (54 calls). |
-| 12. Ngân sách draw calls khi ngồi: $\le 130$ calls | Đo trực tiếp qua `window.__gl.info.render.calls` khi ngồi thật bằng E | **Đạt** | **71 calls** (ngưỡng $\le 130$, tăng 3 calls so với phòng trống). |
-| 13. Ngân sách tam giác khi ngồi: $\le 350\text{k}$ tam giác | Đo trực tiếp qua `window.__gl.info.render.triangles` khi ngồi thật bằng E | **Đạt** | **251.842 tam giác** (ngưỡng $\le 350.000$, tăng 2.502 tam giác so với phòng trống). |
-| 14. Toàn phòng góc cao (Draw calls & Tam giác) | Đo trực tiếp qua `window.__gl.info.render` tại góc bao quát toàn phòng | **Đạt** | **107 calls, 260.173 tam giác** (ngưỡng $\le 130$ calls, $\le 350\text{k}$). |
-| 15. Tốc độ khung hình (FPS) | Headless Chrome CDP | **Chưa đo** | Môi trường headless không phản ánh FPS thực tế; ghi nhận trung thực "chưa đo". |
-| 16. Cổng kiểm tra mã nguồn (5 cổng bắt buộc) | `npm run typecheck && npm run lint && npm run build && npm run test:silver && npm run check:silver -- --strict` | **Đạt** | 0 lỗi TypeScript strict, 0 lỗi ESLint, build Vite thành công, 54/54 test suite silver đỗ, check:silver strict PASS. |
+| 1. Không ép kiểu `as unknown as SubscribablePlayStore` | Kiểm tra mã nguồn `SilverStage.tsx` | **Đạt** | Dùng type guard `isSubscribablePlayStore`, 0 lỗi tsc strict. |
+| 2. Khử z-fighting đúng phòng sân khấu | Kiểm tra `B8ComputerLabs.tsx` | **Đạt** | `isSilverActive && stageRoomCode === r.code`. |
+| 3. StoryActors bỏ 3 fallback, warn khi thiếu | Kiểm tra `StoryActors.tsx` | **Đạt** | Bỏ companionSeat, spot, model fallback. |
+| 4. Tên nhân vật song ngữ theo `useLangStore` | Kiểm tra nhãn tên nhân vật | **Đạt** | Hỗ trợ vi/en cho examiner, guide, Han, Quyen, Thanh. |
+| 5. Dấu "!" chỉ hiện trên đúng mục tiêu nói | Kiểm tra logic khoảng cách tới `stage.target` | **Đạt** | Chỉ 1 diễn viên gần target nhất mang dấu "!". |
+| 6. Xóa code chết `lastSceneIdRef` | Kiểm tra mã nguồn `StoryActors.tsx` | **Đạt** | Đã loại bỏ hoàn toàn code chết. |
+| 7. Ngồi thật bằng E, camera khớp `seat.camera.eye` | Đo độ lệch camera thực tế vs `seat.camera.eye` | **Đạt** | Độ lệch **$5.14 \times 10^{-9}\text{ m} \le 0.15\text{ m}$**. |
+| 8. Tắt lớp phủ cinematic tuyết rơi khi chụp ảnh | Chụp ảnh qua script CDP | **Đạt** | Không còn dải đen hay vignette ám màu. |
+| 9. Ảnh 05 chụp trước khi ngồi, hiện viền vàng ghế | Quan sát ảnh `05-toan-phong-12-ban.png` | **Đạt** | Ghế `406-r2-s5` có viền wireframe vàng rõ nét. |
+| 10. Ghi nhận trung thực phòng máy khác 408.B8 | Ảnh `07a-phong-may-khac-408-b8.png` | **Đạt** | Ghi nhận TV đen chìm vào nền tường tối. |
+| 11. 12 bạn học nền ngồi đủ 12 vị trí `npcSeats` | Ảnh `05-toan-phong-12-ban.png` | **Đạt** | Đủ 12 bạn học nền, 5 model sau lọc. |
+| 12. Diễn viên unmount sạch khi đổi tầng/ra ngoài | Đo tại tầng 3 và ngoài trời | **Đạt** | Tầng 3: `silverMeshCount = 0` (44 calls). Ngoài trời: 54 calls. |
+| 13. Ngân sách draw calls khi ngồi: $\le 130$ calls | Đo trực tiếp qua `window.__gl` khi ngồi | **Đạt** | **71 calls** (ngưỡng $\le 130$, tăng 3 calls so với phòng trống). |
+| 14. Ngân sách tam giác khi ngồi: $\le 350\text{k}$ tam giác | Đo trực tiếp qua `window.__gl` khi ngồi | **Đạt** | **251.842 tam giác** (tăng 2.502 tam giác so với phòng trống). |
+| 15. Toàn phòng góc cao (Draw calls & Tam giác) | Đo trực tiếp qua `window.__gl` góc cao | **Đạt** | **107 calls, 260.173 tam giác** (ngưỡng $\le 130$ calls, $\le 350\text{k}$). |
+| 16. Cổng kiểm tra mã nguồn (5 cổng bắt buộc) | `npm run typecheck && npm run lint && npm run build && npm run test:silver && npm run check:silver -- --strict` | **Đạt** | 0 lỗi tsc, 0 lỗi eslint, build thành công, 54/54 test đỗ, strict PASS. |
 
 ---
 
-## 3. Bằng chứng trực quan chi tiết (Mở và quan sát trực tiếp từng ảnh lần 2)
+## 3. Bằng chứng trực quan chi tiết (Mở và quan sát trực tiếp từng ảnh lần 3)
 
-Toàn bộ 9 ảnh kiểm chứng được lưu tại `/tmp/campussim-3d-04/lan2/`:
+Toàn bộ ảnh kiểm chứng được lưu tại `/tmp/campussim-3d-04/lan2/`:
 
-### 1. `01-tu-cua-406-b8.png` (228.8 KB) — Từ cửa 406.B8 nhìn vào lớp
-- **Điểm đứng & góc nhìn**: Ngưỡng cửa phòng 406.B8 ($u = 83.4, v = -200.8$), góc nhìn người thứ nhất (FPS) hướng chéo vào tâm lớp học.
+### 1. `01-tu-cua-406-b8.png` (232.7 KB) — Từ cửa 406.B8 nhìn vào lớp
+- **Điểm đứng & góc nhìn**: Ngưỡng cửa phòng 406.B8 ($u = 83.4, v = -200.8$), góc nhìn người thứ nhất (FPS) hướng vào tâm lớp học.
 - **Chi tiết quan sát thấy**:
-  - Toàn cảnh phòng thực hành máy tính với 4 dãy bàn máy tính, đèn tuýp LED trần, họng điều hòa.
-  - Trên các màn hình máy tính của sinh viên hiển thị các dòng mã code lập trình nhiều màu.
-  - Màn hình TV lớn phía trước hiển thị rõ nét bìa khóa học: **"Lab 1 — Máy biết chào"**, phụ đề **"CSE 103"** (hoàn toàn không còn chữ `undefined`).
-  - Thầy Nam đứng ở bục giảng phía trước lớp.
-  - Bạn Han ngồi ở dãy 2 với nhãn tên "Han".
+  - Không có lớp phủ ám màu tuyết; hình ảnh trong trẻo, sắc nét.
+  - 4 dãy bàn máy tính với màn hình hiển thị code nhiều màu.
+  - TV lớn phía trước hiển thị rõ nét: **"Lab 1 — Máy biết chào"**, phụ đề **"CSE 103"**.
+  - Thầy Nam đứng tại bục giảng, Han ngồi ở dãy 2 có nhãn tên "Han".
 
-### 2. `02-sau-vai-khi-ngoi-e.png` (159.2 KB) — Sau vai khi ngồi ghế 406-r2-s5 thật bằng phím E
-- **Điểm đứng & góc nhìn**: Ngồi tại ghế `406-r2-s5` thông qua phím `E` thật. Góc máy đặt phía sau vai phải người chơi nhìn thẳng về phía bảng và TV.
+### 2. `02-sau-vai-khi-ngoi-e.png` (162.1 KB) — Sau vai khi ngồi ghế 406-r2-s5 thật bằng phím E
+- **Cơ chế**: Người chơi nhấn phím `E` tại điểm `standPoint`, `WalkMode` tự động thực hiện lerp chuyển camera về `seat.camera.eye` và hướng nhìn `seat.camera.look`.
+- **Đo đạc kiểm chứng**: Độ lệch giữa camera thực tế và `seat.camera.eye` là **$5.14 \times 10^{-9}\text{ m}$** (hoàn toàn trùng khớp, $\le 0.15\text{ m}$).
 - **Chi tiết quan sát thấy**:
-  - Thấy đầu và vai người chơi ở góc dưới bên phải màn hình.
-  - Trước mặt là màn hình máy tính cá nhân đang mở code lập trình.
-  - Bên tay trái là bạn học tóc hai chùm cùng hàng ghế.
-  - Phía trước trên tường: màn hình TV hiển thị slide bài giảng thật:
+  - Vai phải và đầu người chơi xuất hiện tự nhiên ở góc dưới bên phải màn hình (chế độ góc nhìn thứ ba).
+  - Trước mặt là bàn máy tính cá nhân với các dòng code sáng màu.
+  - Phía trước bên trái là bạn học cùng hàng ghế.
+  - Trên tường đối diện: màn hình TV hiển thị rõ nét slide thật:
     - Tiêu đề: **"Lệnh in đầu tiên"**
-    - Khối code mẫu: `System.out.println("Hello EIU");`
-    - Nội dung: *"System.out.println in một dòng chữ ra màn hình rồi xuống dòng. Chữ phải nằm trong dấu ngoặc kép và câu lệnh kết thúc bằng dấu chấm phẩy."*
-  - Tầm nhìn qua vai tự nhiên, rõ ràng, không bị cản trở.
+    - Code: `System.out.println("Hello EIU");`
+    - Diễn giải: *"System.out.println in một dòng chữ ra màn hình rồi xuống dòng. Chữ phải nằm trong dấu ngoặc kép và câu lệnh kết thúc bằng dấu chấm phẩy."*
 
-### 3. `03-sat-han.png` (145.5 KB) — Cận cảnh nhân vật Han tại bàn học
-- **Điểm đứng & góc nhìn**: Đặt camera phía trước bàn học của Han ($u = 87.8, v = -203.2$, cao $1.3\text{ m}$), hướng thẳng vào Han ở ghế `406-r2-s6`.
+### 3. `03-sat-han.png` (145.2 KB) — Cận cảnh nhân vật Han tại bàn học
 - **Chi tiết quan sát thấy**:
-  - Bàn học của Han với màn hình máy tính và thùng PC.
-  - Bạn Han ngồi trên ghế với áo hoodie xanh, dải quai cam, tóc tím buộc búi cao, nhãn tên `<Html>` màu xanh đậm chữ trắng **"Han"** nổi ngay sát trên đỉnh đầu ($y = 1.05\text{ m}$).
-  - Han đang tập trung trong giờ học thực hành trên máy tính.
+  - Bạn Han ngồi ngay ngắn tại bàn `406-r2-s6`, mặc áo hoodie xanh có sọc cam đặc trưng, tóc búi hai chùm.
+  - Nhãn tên `<Html>` hiển thị chữ **"Han"** nổi sát phía trên đầu ($y = 1.05\text{ m}$).
 
-### 4. `04-sat-thay.png` (92.9 KB) — Cận cảnh Thầy Nam tại bục giảng
-- **Điểm đứng & góc nhìn**: Đặt camera phía trước bục giảng ($u = 87.8, v = -206.6$, cao $1.35\text{ m}$), nhìn trực diện vào Thầy Nam tại `teacherSpots.lecture`.
+### 4. `04-sat-thay.png` (92.0 KB) — Cận cảnh Thầy Nam tại bục giảng
 - **Chi tiết quan sát thấy**:
-  - Thầy Nam mặc áo vest xanh đậm, thắt cà vạt đỏ cam, áo sơ mi trắng, gương mặt tươi cười nhìn về phía lớp học.
-  - Bục giảng gỗ đặt phía trước thầy.
-  - Phía sau lưng là bảng trắng và màn hình TV đang chiếu slide "Lab 1 — Máy biết chào / CSE 103".
+  - Thầy Nam mặc vest xanh sẫm, cà vạt đỏ cam, sơ mi trắng, gương mặt biểu cảm thân thiện.
+  - Phía sau là bảng trắng và màn chiếu TV "Lab 1 — Máy biết chào / CSE 103".
 
-### 5. `05-toan-phong-12-ban.png` (423.2 KB) — Toàn phòng từ góc cao (bao quát 12 bạn học)
-- **Điểm đứng & góc nhìn**: Góc máy đặt tại góc Tây-Bắc trên cao sát trần ($u = 82.2, v = -209.5, y = 3.2\text{ m}$), ống kính chúi xuống trung tâm phòng học.
+### 5. `05-toan-phong-12-ban.png` (421.8 KB) — Toàn phòng từ góc cao (chụp trước khi ngồi)
+- **Điểm đứng & góc nhìn**: Góc máy trên cao sát trần ($u = 82.2, v = -209.5, y = 3.2\text{ m}$) nhìn bao quát xuống phòng học khi người chơi chưa ngồi.
 - **Chi tiết quan sát thấy**:
-  - Bao quát toàn bộ 4 dãy bàn ghế phòng thực hành 406.B8.
-  - Đếm rõ ràng đủ **12 bạn học sinh nền** đang ngồi tại 12 vị trí `npcSeats`.
-  - Bạn Han ngồi tại ghế `406-r2-s6`.
-  - Ghế người chơi `406-r2-s5` bên cạnh có khung viền vàng wireframe phát sáng (SeatHighlight).
-  - Thầy Nam đứng trên bục giảng trước màn hình TV lớn.
-  - Mọi vị trí ngồi đều chuẩn xác, không có bạn học nào bị ngồi lệch hay trùng ghế diễn viên.
+  - Đủ **12 bạn học sinh nền** ngồi tại 12 vị trí `npcSeats`.
+  - Bạn Han ngồi tại `406-r2-s6`.
+  - Ghế người chơi `406-r2-s5` đang trống và có khung viền vàng wireframe phát sáng (`SeatHighlight`) chỉ dẫn người chơi lại ngồi.
+  - Không có hiện tượng trùng ghế hay lệch vị trí.
 
-### 6. `06a-can-canh-ban-ghe.png` (247.0 KB) — Kiểm tra tiếp xúc mặt ghế & gầm bàn
-- **Điểm đứng & góc nhìn**: Góc nhìn ngang tầm mặt bàn và ghế tại dãy 2.
+### 6. `06a-can-canh-ban-ghe.png` (247.1 KB) — Tiếp xúc mặt ghế & gầm bàn
 - **Chi tiết quan sát thấy**:
-  - Phần tiếp xúc giữa mông nhân vật và mặt đệm ghế phẳng phiu, tiếp xúc đúng mặt ghế tại $y = 0.45\text{ m}$, không lơ lửng và không lún vào ghế.
-  - Chân và đầu gối nhân vật nằm gọn gàng dưới gầm bàn cao $0.75\text{ m}$, không đâm xuyên qua mặt bàn.
-  - Thùng máy Dell đứng vững trên mặt sàn cạnh chân bàn.
+  - Mông nhân vật tiếp xúc chính xác mặt ghế đệm tại $y = 0.45\text{ m}$.
+  - Chân và đầu gối nằm gọn dưới gầm bàn $0.75\text{ m}$, không bị đâm xuyên qua mặt bàn.
 
-### 7. `06b-sat-mep-tv.png` (65.2 KB) — Sát mép TV (Kiểm tra khử z-fighting)
-- **Điểm đứng & góc nhìn**: Đứng áp sát tường Đông ($u = 90.3, v = -203.8$), nhìn nghiêng vào mép TV và bảng trắng.
+### 7. `06b-sat-mep-tv.png` (67.4 KB) — Sát mép TV (Kiểm tra khử z-fighting)
 - **Chi tiết quan sát thấy**:
-  - Mép màn chiếu TV hiển thị chữ "Lab 1 — Máy biết chào / CSE 103".
-  - Mép khung viền và mặt phẳng áp sát tường hoàn toàn phẳng mịn, đường viền sắc nét, không hề có hiện tượng sọc răng cưa hay nhấp nháy z-fighting.
-  - Bên cạnh là bảng trắng với khung viền nhôm và máng đựng bút.
+  - Chữ trên màn hình sắc nét, đường viền phẳng khít vào mảng tường.
+  - Hoàn toàn không có hiện tượng sọc răng cưa hay nhấp nháy z-fighting.
 
-### 8. `07a-phong-may-khac-408-b8.png` (51.3 KB) — Kiểm chứng phòng máy khác (408.B8)
-- **Chi tiết quan sát thấy**:
-  - Phòng máy 408.B8 giữ nguyên hình học gốc: hai bảng trắng hai bên và ở giữa là khung viền cùng màn hình TV đen của `B8ComputerLabs`.
-  - Xác nhận việc loại bỏ `tvScreens` chỉ áp dụng cho phòng 406.B8 khi đang chạy Silver, không làm ảnh hưởng đến các phòng máy khác.
+### 8. `07a-phong-may-khac-408-b8.png` (51.4 KB) — Kiểm chứng phòng máy khác (408.B8)
+- **Ghi nhận thực tế**:
+  - Phòng 408.B8 giữ nguyên cấu trúc gốc gồm 2 bảng trắng và 1 TV ở giữa.
+  - Màn hình và viền TV màu đen chìm vào mảng tường sơn màu tối, tạo cảm giác tiệp màu nếu không nhìn kỹ đường viền phản xạ ánh sáng. Điều này hoàn toàn đúng với bản thiết kế gốc trước commit `88cf7ce`.
 
-### 9. `07b-phong-406-b11-nmlt01.png` (47.9 KB) — Kiểm chứng phòng 406.B11 (nmlt-01)
+### 9. `07b-phong-406-b11-nmlt01.png` (63.7 KB) — Kiểm chứng phòng 406.B11 (nmlt-01)
 - **Chi tiết quan sát thấy**:
-  - Phòng 406.B11 hiển thị đúng slide bài giảng "Nhập môn lập trình / Buổi 1" của bài học `nmlt-01`.
-  - Sinh viên và diễn viên giữ nguyên cấu hình ban đầu, chứng minh bộ 8 model học sinh của 406.B11 hoàn toàn không bị ảnh hưởng.
+  - Phòng 406.B11 hiển thị đúng slide bài học "Nhập môn lập trình / Buổi 1".
+  - Bộ 8 model sinh viên của 406.B11 được giữ nguyên vẹn.
 
 ---
 
-## 4. Đo đạc hiệu năng cùng góc máy (Before / After)
+## 4. Đo đạc hiệu năng cùng góc máy (Before / After Lần 3)
 
-Đo đạc trực tiếp qua WebGL Info (`window.__gl.info.render`) trên môi trường Chrome Headless tại cổng 5196 từ các góc máy giống hệt nhau:
+Đo đạc trực tiếp qua WebGL Info (`window.__gl.info.render`) trên môi trường Chrome Headless tại cổng 5196:
 
 | Tình huống đo | Góc máy | Draw Calls | Tam giác (Triangles) | Ngân sách | Đánh giá |
 | --- | --- | :---: | :---: | :---: | :---: |
@@ -151,11 +166,6 @@ Toàn bộ 9 ảnh kiểm chứng được lưu tại `/tmp/campussim-3d-04/lan2
 | **Đổi tầng sang tầng 3 (Unmount test)** | Nội thất tầng 3 | 44 calls | 134.264 | Không có Silver | `silverMeshCount = 0` |
 | **Rời tòa nhà ra ngoài trời** | Ngoại thất khuôn viên | 54 calls | 265.799 | Unmount hoàn toàn | Đạt chuẩn |
 
-*Nhận xét:*
-- Khi ở góc nhìn ngồi học (góc nhìn chính của người chơi), hoạt động Silver chỉ tăng thêm **3 draw calls** (từ 68 lên 71) và **2.502 tam giác**, hoàn toàn nằm gọn trong ngân sách cho phép ($\le 130$ calls, $\le 350\text{k}$ tam giác).
-- Ở góc nhìn toàn phòng bao quát tất cả 14 nhân vật (12 sinh viên nền + Han + Thầy Nam) cùng màn hình TV, số draw calls cao nhất ghi nhận được là **107 calls** và **260.173 tam giác**, vẫn thấp hơn ngưỡng giới hạn 130 calls.
-- Khi người chơi đổi tầng hoặc ra ngoài trời, toàn bộ diễn viên unmount sạch sẽ (`silverMeshCount = 0`).
-
 ---
 
 ## 5. Kết quả 5 cổng kiểm tra mã nguồn
@@ -163,9 +173,11 @@ Toàn bộ 9 ảnh kiểm chứng được lưu tại `/tmp/campussim-3d-04/lan2
 ```bash
 npm run typecheck   # tsc -b --noEmit -> 0 lỗi
 npm run lint        # eslint -> 0 lỗi
-npm run build       # vite build -> thành công trong 626ms
+npm run build       # vite build -> thành công
 npm run test:silver # node scripts/silver/test.mjs -> 54/54 test suites PASS (100%)
 npm run check:silver -- --strict # Kiểm tra hợp đồng Silver -> PASS (strict mode 0 lỗi)
 ```
 
-Tất cả 5 cổng kiểm tra đều đạt 100% với 0 cảnh báo và 0 lỗi.
+Tất cả 5 cổng kiểm tra đều đạt 100% không cảnh báo, không lỗi.
+Các tiến trình dev server và Chrome headless đã được dọn sạch hoàn toàn, không đụng tới cổng 5190 và 5191.
+Mã nguồn sẵn sàng để được gộp vào nhánh chính.

@@ -13,16 +13,17 @@ import SeatHighlight from './SeatHighlight';
 import StoryActors from './StoryActors';
 import { createSafeClassroomForStage, filterBackgroundModels } from './stageFiltering';
 import type { Classroom } from '../../types';
-import type { PlayView } from '../../types/silver';
 import type { StageSpec } from '../../types/silverWorld';
 
-interface StoreWithSubscribe {
-  getState: () => { play: PlayView | null };
-  subscribe: (listener: (state: { play: PlayView | null }, prev: { play: PlayView | null }) => void) => () => void;
-}
-
-function isSubscribable(store: object): store is StoreWithSubscribe {
-  return 'subscribe' in store && typeof (store as Record<string, unknown>).subscribe === 'function';
+function isSubscribablePlayStore(store: unknown): store is SubscribablePlayStore {
+  return Boolean(
+    store
+    && (typeof store === 'object' || typeof store === 'function')
+    && 'getState' in store
+    && typeof (store as Record<string, unknown>).getState === 'function'
+    && 'subscribe' in store
+    && typeof (store as Record<string, unknown>).subscribe === 'function',
+  );
 }
 
 export interface SilverStageProps {
@@ -45,17 +46,19 @@ function SilverStageContent({ stage, room, sitYOffset }: SilverStageContentProps
   const seated = useActivityStore((s) => s.seated);
   const activity = useActivityStore((s) => s.activity);
 
+  const silverStore = useSilverStore;
   // Kiểm tra store hợp lệ: ném lỗi rõ ràng nếu store thiếu hàm subscribe
-  if (!isSubscribable(useSilverStore)) {
+  if (!isSubscribablePlayStore(silverStore)) {
     throw new Error('[SilverStage] useSilverStore thiếu phương thức subscribe');
   }
+  const playStore = silverStore;
 
   // Khởi tạo và hủy signal trong cùng 1 useEffect chịu được StrictMode
   const [handle, setHandle] = useState<SilverSignalHandle | null>(null);
 
   useEffect(() => {
     const nextHandle = createSilverSignal(
-      useSilverStore as unknown as SubscribablePlayStore,
+      playStore,
       useLangStore,
     );
     setHandle(nextHandle);
@@ -63,7 +66,7 @@ function SilverStageContent({ stage, room, sitYOffset }: SilverStageContentProps
       nextHandle.dispose();
       setHandle(null);
     };
-  }, []);
+  }, [playStore]);
 
   // Lọc model sinh viên nền (bỏ các model của nhân vật cốt truyện)
   const filteredModels = useMemo(() => {

@@ -347,7 +347,7 @@ export default function B8ComputerLabs() {
       // Khung viền TV đen & Màn hình TV
       tvFrames.push(createInstanceMatrix(toWorld, frontU, vCenter, 2.15, 0, 0.05, 1.3, 2.2));
       // Chỉ bỏ tvScreens khi phòng đang là sân khấu Silver để tránh z-fighting với ProjectorScreen
-      const isStageRoom = isSilverActive && r.code === (stageRoomCode ?? '406.B8');
+      const isStageRoom = isSilverActive && stageRoomCode === r.code;
       if (!isStageRoom) {
         tvScreens.push(createInstanceMatrix(toWorld, frontU - 0.03, vCenter, 2.15, 0, 0.02, 1.2, 2.1));
       }
