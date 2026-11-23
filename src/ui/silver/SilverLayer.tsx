@@ -11,6 +11,7 @@ import WarningBar from './parts/WarningBar';
 import EmptyView from './parts/EmptyView';
 import Home from './screens/Home';
 import Recap from './screens/Recap';
+import Registration from './screens/Registration';
 import Play from './screens/Play';
 
 function SilverOverlay() {
@@ -142,8 +143,12 @@ function SilverOverlay() {
             <>
               {screen === 'home' && <Home />}
               {screen === 'recap' && <Recap />}
+              {screen === 'registration' && <Registration exitHandlerRef={exitHandlerRef} />}
               {screen === 'play' && <Play exitHandlerRef={exitHandlerRef} />}
-              {screen !== 'home' && screen !== 'recap' && screen !== 'play' && <EmptyView />}
+              {screen !== 'home' &&
+                screen !== 'recap' &&
+                screen !== 'registration' &&
+                screen !== 'play' && <EmptyView />}
             </>
           )}
         </div>

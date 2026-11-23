@@ -100,8 +100,61 @@ export const ST = {
   blank: { vi: 'Chỗ cần điền', en: 'Blank to fill in' },
   simCode: { vi: 'Mô phỏng, không chạy code thật', en: 'Simulated, no real code runs' },
 
-  // Tiêu đề các màn chưa dựng xong (sẽ cập nhật đúng bảng ST ở UI-02..07)
-  screenRegistration: { vi: 'Đăng ký môn', en: 'Course registration' },
+  // UI-04 — Đăng ký môn & WeekGrid
+  regTitle: { vi: 'Đăng ký môn', en: 'Course registration' },
+  regHelp: {
+    vi: 'Chọn {min}–{max} môn. Bộ gợi ý đã được chọn sẵn.',
+    en: 'Choose {min}–{max} courses. The suggested set is already selected.',
+  },
+  credits: { vi: '{n} TC', en: '{n} credits' },
+  hasLab: { vi: 'Có lab', en: 'Has lab' },
+  core: { vi: 'Trọng tâm', en: 'Focus' },
+  summaryTier: { vi: 'Tóm gọn', en: 'Short' },
+  quick: { vi: 'Bản nhanh', en: 'Quick' },
+  quickTip: {
+    vi: 'Môn thứ 5 và 6 chơi bản nhanh, một buổi.',
+    en: 'The 5th and 6th courses use a quick, one-session version.',
+  },
+  suggested: { vi: 'Trong lịch gợi ý', en: 'In the suggested plan' },
+  others: { vi: 'Môn khác', en: 'Other courses' },
+  unavailable: { vi: 'Chưa chọn được', en: 'Not available' },
+  lockedCore: {
+    vi: 'Môn trọng tâm của kỳ, không bỏ được',
+    en: 'Focus course of this term, cannot be removed',
+  },
+  needPrereq: { vi: 'Cần học trước tiên quyết: {codes}', en: 'Prerequisite needed: {codes}' },
+  needConfirm: { vi: 'Điều kiện chưa xác nhận', en: 'Requirement not confirmed yet' },
+  noContent: { vi: 'Chưa có nội dung', en: 'No content yet' },
+  alreadyDone: { vi: 'Đã học', en: 'Already taken' },
+  tooFew: { vi: 'Chọn ít nhất {min} môn.', en: 'Choose at least {min} courses.' },
+  tooMany: { vi: 'Nhiều nhất {max} môn.', en: 'At most {max} courses.' },
+  longTerm: {
+    vi: 'Kỳ này dài hơn 35 phút. Bạn vẫn chốt được và thoát giữa chừng.',
+    en: 'This term takes over 35 minutes. You can still confirm and leave midway.',
+  },
+  totals: { vi: '{n} môn · {c} TC · ~{m} phút', en: '{n} courses · {c} credits · ~{m} min' },
+  useSuggested: { vi: 'Dùng lại bộ gợi ý', en: 'Use suggested set' },
+  confirmReg: { vi: 'Chốt đăng ký', en: 'Confirm' },
+  week: { vi: 'Tuần dự kiến', en: 'Planned week' },
+  slotNote: {
+    vi: 'Ca học minh họa, mỗi ca 2 giờ.',
+    en: 'Illustrative time slots, 2 hours each.',
+  },
+  days: { vi: 'T2 T3 T4 T5 T6 T7', en: 'Mon Tue Wed Thu Fri Sat' },
+  slots: {
+    vi: 'Sáng 1 · Sáng 2 · Chiều 1 · Chiều 2',
+    en: 'Morning 1 · Morning 2 · Afternoon 1 · Afternoon 2',
+  },
+  theory: { vi: 'Lý thuyết', en: 'Theory' },
+  lab: { vi: 'Lab', en: 'Lab' },
+  project: { vi: 'Dự án', en: 'Project' },
+
+  // Trạng thái buổi học (dùng chung trong WeekGrid & UI-05 Week)
+  sDone: { vi: 'Đã học', en: 'Done' },
+  sNow: { vi: 'Buổi kế', en: 'Next' },
+  sLater: { vi: 'Chưa tới', en: 'Later' },
+
+  // Tiêu đề các màn chưa dựng xong (sẽ cập nhật đúng bảng ST ở UI-05..07)
   screenWeek: { vi: 'Tuần học', en: 'Your week' },
   screenPlay: { vi: 'Cảnh truyện', en: 'Story scene' },
   screenTranscript: { vi: 'Bảng điểm', en: 'Transcript' },
@@ -125,7 +178,7 @@ export const ST = {
 export const SCREEN_TITLES: Record<Exclude<SilverScreen, 'closed'>, LocalizedText> = {
   home: ST.title,
   recap: ST.recapTitle,
-  registration: ST.screenRegistration,
+  registration: ST.regTitle,
   week: ST.screenWeek,
   play: ST.screenPlay,
   transcript: ST.screenTranscript,
