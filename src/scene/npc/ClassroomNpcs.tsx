@@ -3,9 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import CharacterModel, { type CharacterHandle } from '../characters/CharacterModel';
 import { characterConfig } from '../../data';
-import { useLessonStore, type LessonResult } from '../../store/useLessonStore';
-import { useWalkStore } from '../../store/useWalkStore';
-import type { CharacterClip } from '../../types';
+import type { Classroom, CharacterClip } from '../../types';
+import type { ClassSignal } from '../../types/silverWorld';
 import { buildClassroomPlan, samplePath, type PathSample, type StudentSpec } from './classroomPlan';
 import { turnToward } from './lod';
 import { SIT_Y_OFFSET } from './sitPose';
@@ -30,7 +29,14 @@ function rand01(seed: number): number {
   return x - Math.floor(x);
 }
 
-function Student({ spec, url }: { spec: StudentSpec; url: string }) {
+interface StudentProps {
+  spec: StudentSpec;
+  url: string;
+  getSignal: () => ClassSignal;
+  sitYOffset: number;
+}
+
+function Student({ spec, url, getSignal, sitYOffset }: StudentProps) {
   const group = useRef<Group>(null);
   const handle = useRef<CharacterHandle>(null);
   const sample = useMemo<PathSample>(() => ({ x: 0, z: 0, yaw: 0 }), []);
@@ -40,15 +46,15 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
       clip: 'sit' as CharacterClip,
       x: spec.seatX,
       z: spec.seatZ,
-      y: SIT_Y_OFFSET,
+      y: sitYOffset,
       yaw: spec.yaw,
       s: 0,
       nextTyping: 0,
       sumStart: -1,
       raising: false,
-      seenResult: null as LessonResult | null,
+      seenResultId: -1,
     }),
-    [spec],
+    [spec, sitYOffset],
   );
 
   useFrame((state, delta) => {
@@ -56,8 +62,8 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
     if (!g) return;
     const dt = Math.min(delta, 0.1);
     const now = state.clock.elapsedTime;
-    const lesson = useLessonStore.getState();
-    const summary = lesson.phase === 'summary';
+    const signal = getSignal();
+    const summary = signal.mode === 'end';
 
     const play = (c: CharacterClip) => {
       if (sim.clip === c) return;
@@ -65,7 +71,7 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
       handle.current?.play(c);
     };
 
-    // Vào / rời pha tổng kết.
+    // Vào / rời pha tổng kết
     if (summary) {
       if (sim.sumStart < 0) sim.sumStart = now;
     } else if (sim.sumStart >= 0) {
@@ -87,17 +93,17 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
         sim.s = 0;
       }
     } else {
-      // Cử chỉ nửa người trên khi đang ngồi (chân/thân vẫn theo clip `sit`).
+      // Cử chỉ nửa người trên khi đang ngồi (chân/thân vẫn theo clip `sit`)
       const h = handle.current;
       if (sim.mode === SEATED && h) {
-        if (lesson.lastResult !== sim.seenResult) {
-          sim.seenResult = lesson.lastResult;
-          if (spec.cheerer && lesson.phase === 'exercise' && lesson.lastResult?.correct) {
+        if (signal.result && signal.result.id !== sim.seenResultId) {
+          sim.seenResultId = signal.result.id;
+          if (spec.cheerer && signal.mode === 'exercise' && signal.result.correct) {
             h.playUpper('yes');
             sim.nextTyping = now + CHEER_TIME + 1;
           }
         }
-        const raise = spec.raiser && lesson.phase === 'question' && lesson.lastResult === null;
+        const raise = spec.raiser && signal.mode === 'question' && signal.result === null;
         if (raise) {
           if (!sim.raising) {
             sim.raising = true;
@@ -116,10 +122,10 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
       }
     }
 
-    // Đích của tư thế theo mode.
+    // Đích của tư thế theo mode
     let tx = spec.seatX;
     let tz = spec.seatZ;
-    let ty = SIT_Y_OFFSET;
+    let ty = sitYOffset;
     let tyaw = spec.yaw;
     let direct = false;
     if (sim.mode === SEATED) {
@@ -162,32 +168,48 @@ function Student({ spec, url }: { spec: StudentSpec; url: string }) {
   });
 
   return (
-    <group ref={group} position={[spec.seatX, SIT_Y_OFFSET, spec.seatZ]} rotation={[0, spec.yaw, 0]}>
+    <group ref={group} position={[spec.seatX, sitYOffset, spec.seatZ]} rotation={[0, spec.yaw, 0]}>
       <CharacterModel ref={handle} url={url} clip="sit" />
     </group>
   );
 }
 
-function ClassroomStudents() {
-  const students = useMemo(() => buildClassroomPlan(), []);
+export interface ClassroomNpcsProps {
+  room: Classroom;
+  getSignal: () => ClassSignal;
+  subscribe: (listener: () => void) => () => void;
+  crowd?: number;
+  sitYOffset?: number;
+}
+
+/**
+ * Bạn học ngồi trong phòng học (406.B11, 406.B8...).
+ * Nhận room, getSignal, subscribe, crowd, sitYOffset (mặc định 0.40).
+ * Không import useLessonStore. Điều kiện mount do nơi gọi quản lý.
+ */
+export default function ClassroomNpcs({
+  room,
+  getSignal,
+  crowd,
+  sitYOffset = SIT_Y_OFFSET,
+}: ClassroomNpcsProps) {
+  const effectiveSitY = room.sitYOffset ?? sitYOffset;
+  const effectiveCrowd = crowd ?? room.npcSeats.length;
+  const students = useMemo(() => buildClassroomPlan(room, effectiveCrowd), [room, effectiveCrowd]);
   const models = characterConfig.roles.students;
+
   return (
     <>
       {students.map((spec) => (
         <Suspense key={spec.seatId} fallback={null}>
-          <Student spec={spec} url={models[spec.index % models.length] ?? characterConfig.roles.player} />
+          <Student
+            spec={spec}
+            url={models[spec.index % models.length] ?? characterConfig.roles.player}
+            getSignal={getSignal}
+            sitYOffset={effectiveSitY}
+          />
         </Suspense>
       ))}
     </>
   );
-}
-
-/**
- * 18 bạn học ngồi trong phòng 406.B11. Chỉ mount (và chạy mixer) khi người chơi ở B11 tầng 4.
- * Trong cảnh nội thất, sàn tầng đang đứng có y = 0 nên toạ độ y của nhân vật tính thẳng từ 0.
- */
-export default function ClassroomNpcs() {
-  const active = useWalkStore((s) => s.interior?.buildingId.toLowerCase() === 'b11' && s.interior.floor === 4);
-  if (!active) return null;
-  return <ClassroomStudents />;
 }

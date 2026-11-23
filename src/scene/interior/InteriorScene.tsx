@@ -17,7 +17,6 @@ import { B11_BOUNDS } from './layouts/b11';
 import { getFloorDoors } from './layouts/b8';
 import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
 import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
-import ClassroomNpcs from '../npc/ClassroomNpcs';
 import Lesson406 from '../lesson/Lesson406';
 import CanteenFurniture from './CanteenFurniture';
 
@@ -764,7 +763,6 @@ export default function InteriorScene() {
       {/* 4. Nội thất instancing */}
       <InteriorFurniture buildingId={buildingId} floor={floor} showUpperFloors={!isTopDown} />
       {isCanteen && <CanteenFurniture showRoof={!isTopDown} />}
-      <ClassroomNpcs />
       <Lesson406 />
 
       {/* 5. Biển số phòng nhỏ gắn tường */}

@@ -1,34 +1,24 @@
 import { useEffect, useMemo } from 'react';
-import { CanvasTexture, PlaneGeometry, Quaternion, SRGBColorSpace, Vector3, ConeGeometry } from 'three';
-import { getClassroom } from '../../data';
-import { getCurrentStep, useLessonStore } from '../../store/useLessonStore';
-import type { Slide } from '../../types';
-import { B11_ROTATION_Y } from '../interior/layouts/b11';
+import { CanvasTexture, PlaneGeometry, SRGBColorSpace } from 'three';
+import type { Classroom } from '../../types';
+import type { ClassSignal } from '../../types/silverWorld';
+import { rotationYOf } from '../silver/frame';
 import { drawSlide, SLIDE_H, SLIDE_W } from './slideCanvas';
 
-/** Slide cần hiện: slide hiện tại ở pha lecture, ngoài ra null (bìa). */
-function currentSlide(): Slide | null {
-  const s = useLessonStore.getState();
-  if (s.phase !== 'lecture') return null;
-  const step = getCurrentStep(s);
-  return step?.type === 'lecture' ? (step.slides[s.slideIndex] ?? null) : null;
-}
-
-/** Khoá đổi khi slide đổi → mới vẽ lại texture. */
-function slideKey(): string {
-  const s = useLessonStore.getState();
-  return s.phase === 'lecture' ? `${s.lessonId}:${s.stepIndex}:${s.slideIndex}` : 'cover';
+export interface ProjectorScreenProps {
+  room: Classroom;
+  getSignal: () => ClassSignal;
+  subscribe: (listener: () => void) => () => void;
+  crowd?: number;
 }
 
 /**
- * Màn chiếu 406.B11: mặt phẳng 2.0 × 1.5 áp tường Tây (mặt +u), texture canvas 1024 × 768,
- * cộng vệt sáng mờ (cone cộng sáng) từ máy chiếu. needsUpdate chỉ khi slide đổi (subscribe store, không useFrame).
+ * Màn TV / màn chiếu lớp học: mặt phẳng áp tường, texture canvas 1024 × 768.
+ * Kích thước và hướng quay lấy theo room.projectorScreen.
+ * Nhận tín hiệu ClassSignal từ getSignal/subscribe (không import useLessonStore).
  */
-export default function ProjectorScreen() {
-  const room = getClassroom('406.B11');
-
+export default function ProjectorScreen({ room, getSignal, subscribe }: ProjectorScreenProps) {
   const built = useMemo(() => {
-    if (!room) return null;
     const canvas = document.createElement('canvas');
     canvas.width = SLIDE_W;
     canvas.height = SLIDE_H;
@@ -39,27 +29,26 @@ export default function ProjectorScreen() {
 
     const sc = room.projectorScreen;
     const plane = new PlaneGeometry(sc.width, sc.height);
-    plane.rotateY(-Math.PI / 2); // mặt +z → -x (= -u) hướng về phía sinh viên
 
-    // Cone: đỉnh ở máy chiếu, đáy phủ màn.
-    const pj = room.projector;
-    const apex = new Vector3(pj.u, pj.y, pj.v);
-    const target = new Vector3(sc.u - 0.03, sc.bottom + sc.height / 2, sc.v);
-    const dir = target.clone().sub(apex);
-    const len = dir.length();
-    dir.divideScalar(len);
-    const cone = new ConeGeometry(1.1, len, 24, 1, true);
-    const quat = new Quaternion().setFromUnitVectors(new Vector3(0, -1, 0), dir);
-    const conePos = apex.clone().addScaledVector(dir, len / 2);
+    // Xoay mặt phẳng theo facing của projectorScreen
+    // Mặc định mặt phẳng PlaneGeometry có normal +Z trong local space.
+    // Góc xoay quanh Y để normal trỏ theo [sc.facing[0], sc.facing[1]] (với facing[0] ↔ u ↔ X, facing[1] ↔ v ↔ Z):
+    const facingAngle = Math.atan2(sc.facing[0], sc.facing[1]);
+    plane.rotateY(facingAngle);
+
+    const frameRotationY = rotationYOf(room.frame);
+    const screenPos: [number, number, number] = [
+      sc.u + sc.facing[0] * 0.015,
+      sc.bottom + sc.height / 2,
+      sc.v + sc.facing[1] * 0.015,
+    ];
 
     return {
       ctx,
       texture,
       plane,
-      cone,
-      quat: quat.toArray() as [number, number, number, number],
-      conePos: conePos.toArray() as [number, number, number],
-      screenPos: [sc.u - 0.015, sc.bottom + sc.height / 2, sc.v] as [number, number, number],
+      frameRotationY,
+      screenPos,
     };
   }, [room]);
 
@@ -68,25 +57,27 @@ export default function ProjectorScreen() {
     const { ctx, texture } = built;
     let lastKey = '';
     const refresh = () => {
-      const key = slideKey();
+      const sig = getSignal();
+      const slide = sig.slide;
+      const cover = sig.cover;
+      const key = `${sig.stepKey}:${cover.title}:${cover.subtitle}:${slide?.title ?? ''}:${slide?.body ?? ''}:${slide?.code ?? ''}`;
       if (key === lastKey) return;
       lastKey = key;
-      drawSlide(ctx, currentSlide());
+      drawSlide(ctx, { slide, cover });
       texture.needsUpdate = true;
     };
     refresh();
-    const unsub = useLessonStore.subscribe(refresh);
+    const unsub = subscribe(refresh);
     return () => {
       unsub();
       texture.dispose();
       built.plane.dispose();
-      built.cone.dispose();
     };
-  }, [built]);
+  }, [built, getSignal, subscribe]);
 
   if (!built) return null;
   return (
-    <group rotation-y={B11_ROTATION_Y}>
+    <group rotation-y={built.frameRotationY}>
       <mesh geometry={built.plane} position={built.screenPos}>
         <meshBasicMaterial map={built.texture} toneMapped={false} />
       </mesh>
