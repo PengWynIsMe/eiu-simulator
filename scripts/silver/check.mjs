@@ -54,6 +54,36 @@ export function wordLimitViolation(value, limit) {
   return wordCount(value) > limit;
 }
 
+export function sessionWordCount(scene) {
+  const collect = value => {
+    if (!value || typeof value !== 'object') return [];
+    if (Array.isArray(value)) return value.flatMap(collect);
+    if (typeof value.vi === 'string' && typeof value.en === 'string') return [value.vi];
+    return Object.values(value).flatMap(collect);
+  };
+  return collect(scene.steps).reduce((total, value) => total + wordCount(value), 0);
+}
+
+export function sessionWordLimitError(tier, slot, scene) {
+  if (tier !== 'summary') return undefined;
+  const limit = slot === 'lab' ? 200 : slot.startsWith('theory') ? 130 : undefined;
+  if (limit === undefined || sessionWordCount(scene) <= limit) return undefined;
+  return `vượt ${limit} từ trong buổi`;
+}
+
+export function identicalLocalizedTexts(value, path = '') {
+  if (!value || typeof value !== 'object') return [];
+  if (Array.isArray(value)) return value.flatMap((item, index) => identicalLocalizedTexts(item, `${path}[${index}]`));
+  return Object.entries(value).flatMap(([key, child]) => {
+    if (key === 'passage') return [];
+    if (key === 'vi' && typeof child === 'string' && typeof value.en === 'string') {
+      return child === value.en && child.length > 20 ? [`${path}: vi trùng en`] : [];
+    }
+    if (key === 'en' && typeof value.vi === 'string') return [];
+    return identicalLocalizedTexts(child, path ? `${path}.${key}` : key);
+  });
+}
+
 if (process.argv[1]?.endsWith('/check.mjs')) {
 const strict = process.argv.includes('--strict');
 const root = process.cwd();
@@ -112,6 +142,9 @@ try {
   }
 
   for (const issue of checkConds(parsedFiles)) add('error', issue);
+  for (const file of parsedFiles) {
+    for (const issue of identicalLocalizedTexts(file)) add('warning', issue);
+  }
   const totalCredits = plan.terms.reduce((sum, term) => sum + term.credits, 0);
   if (totalCredits !== 180) add('warning', `kế hoạch ${totalCredits} TC; kỳ vọng 180`);
   add('ok', `plan tổng ${totalCredits} TC`);
@@ -136,19 +169,13 @@ try {
   await server.close();
 }
 
-function validateText(content, course, addRow) {
+function validateText(content, _course, addRow) {
   for (const session of content.sessions) {
-    const limit = session.slot === 'lab' && content.tier === 'summary' ? 200 : session.slot.startsWith('theory') ? 130 : null;
-    if (limit !== null) {
-      for (const step of session.scene.steps) {
-        const localized = step.type === 'say' ? step.text : step.type === 'slide' ? step.body : undefined;
-        if (localized && wordLimitViolation(localized.vi, limit)) addRow('error', `${content.code}/${session.slot}: vượt ${limit} từ`);
-      }
-    }
+    const error = sessionWordLimitError(content.tier, session.slot, session.scene);
+    if (error) addRow('error', `${content.code}/${session.slot}: ${error}`);
   }
   for (const [field, localized] of [['summary', content.summary], ['closing', content.closing]]) {
     for (const language of ['vi', 'en']) if (wordLimitViolation(localized[language], 25)) addRow('error', `${content.code}/${field}.${language}: vượt 25 từ`);
-    if (localized.vi === localized.en && localized.vi.length > 20) addRow('warning', `${content.code}/${field}: vi trùng en`);
   }
 }
 }

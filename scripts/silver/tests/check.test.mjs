@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { wordCount, checkConds, checkContentFileName, compareCurriculumCourse, wordLimitViolation } from '../check.mjs';
+import { wordCount, checkConds, checkContentFileName, compareCurriculumCourse, wordLimitViolation, sessionWordCount, sessionWordLimitError, identicalLocalizedTexts } from '../check.mjs';
 
 export default {
   'word count splits on whitespace': async ({ assert }) => {
@@ -24,6 +24,22 @@ export default {
     assert.equal(wordLimitViolation('a '.repeat(200), 200), false);
     assert.equal(wordLimitViolation('a '.repeat(201), 200), true);
     assert.equal(wordLimitViolation('a '.repeat(26), 25), true);
+  },
+  'session totals span all localized step text and exempt core/project': async ({ assert }) => {
+    const scene = { steps: Array.from({ length: 14 }, () => ({ text: { vi: 'một hai ba bốn năm mười', en: 'short' } })) };
+    assert.equal(sessionWordCount(scene), 84);
+    const longScene = { steps: Array.from({ length: 22 }, () => ({ options: [{ text: { vi: 'one two three four five six', en: 'x' } }] })) };
+    assert.equal(sessionWordCount(longScene), 132);
+    assert.match(sessionWordLimitError('summary', 'theoryA', longScene), /130/);
+    assert.equal(sessionWordLimitError('core', 'theoryA', longScene), undefined);
+    assert.equal(sessionWordLimitError('core', 'project', longScene), undefined);
+    const labScene = { steps: [{ text: { vi: 'a '.repeat(201), en: 'English' } }] };
+    assert.match(sessionWordLimitError('summary', 'lab', labScene), /200/);
+  },
+  'identical localized warning covers options but skips passages': async ({ assert }) => {
+    const warnings = identicalLocalizedTexts({ steps: [{ passage: { vi: 'English reading passage longer than twenty chars', en: 'English reading passage longer than twenty chars' }, options: [{ text: { vi: 'Same option text for more than twenty chars', en: 'Same option text for more than twenty chars' } }] }] });
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /options/);
   },
   'normal mode warns for absent demo content and strict mode fails': async ({ assert }) => {
     const normal = spawnSync('node', ['scripts/silver/check.mjs'], { encoding: 'utf8' });

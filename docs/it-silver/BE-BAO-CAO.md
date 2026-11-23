@@ -160,3 +160,13 @@ Các file BE-11 gồm `src/store/useSilverStore.ts`, `scripts/silver/tests/store
 | typecheck, lint, build, test:silver | Tất cả lệnh exit 0 | Đạt |
 
 Khi workspace không có nội dung, checker báo 4 cảnh báo thiếu nội dung kỳ 2.2 và exit 0; `--strict` đổi các cảnh báo này thành lỗi và exit 1.
+
+## BE-12 correction — đếm từ theo buổi
+
+| Tiêu chí | Test / xác minh | Kết quả |
+|---|---|---|
+| Tổng từ qua mọi LocalizedText `vi` trong buổi; summary theory >130/lab >200 lỗi; core và project miễn | `check.test.mjs` session totals span all localized step text and exempt core/project | Đạt |
+| Cảnh báo VI=EN >20 ký tự toàn chapter/content, gồm option; passage đọc/nghe miễn | `check.test.mjs` identical localized warning covers options but skips passages | Đạt |
+| Nội dung thật từ pompano + loach chạy `check:silver --strict` | Exit 0; 3 chapter, 6 course; 6 cảnh báo VI=EN trong chapter (option/order); không có lỗi giới hạn từ; passage đọc/nghe bỏ qua có chủ ý vì giữ nguyên tiếng Anh | Đạt |
+| Dọn dữ liệu chép tạm | Thư mục chapter/content tạm đã xóa; `git status` chỉ còn file nguồn của thay đổi này | Đạt |
+| typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
