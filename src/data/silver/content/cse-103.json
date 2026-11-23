@@ -1,0 +1,578 @@
+{
+  "version": 1,
+  "code": "CSE 103",
+  "tier": "core",
+  "status": "nhap",
+  "basis": {
+    "pdfPages": "30",
+    "note": {
+      "vi": "Mô phỏng ngắn, dựa trên mô tả môn ở trang 30 của chương trình đào tạo (lập trình có cấu trúc, cú pháp, cấu trúc điều khiển). Đây không phải đề cương, giáo trình hay đề thi thật của trường.",
+      "en": "A short simulation based on the course description on page 30 of the programme document (structured programming, syntax, control structures). It is not the real syllabus, textbook or exam."
+    }
+  },
+  "summary": {
+    "vi": "Học cách bảo máy tính làm việc: in chữ, nhớ giá trị bằng biến, rẽ nhánh với if và lặp lại với for.",
+    "en": "Learn to tell a computer what to do: print text, remember values with variables, branch with if and repeat with for."
+  },
+  "sessions": [
+    {
+      "slot": "lab",
+      "scene": {
+        "id": "CSE 103/lab-1",
+        "title": {
+          "vi": "Lab 1 — Máy biết chào",
+          "en": "Lab 1 — The computer says hello"
+        },
+        "place": "406.B8",
+        "minutes": 3,
+        "steps": [
+          {
+            "id": "open",
+            "type": "say",
+            "speaker": "narrator",
+            "text": {
+              "vi": "Phòng lab máy tính, tầng 4 B8. Dãy máy đã bật sẵn. Han kéo ghế ngồi cạnh bạn rồi vẫy tay.",
+              "en": "The computer lab on the fourth floor of B8. The machines are already on. Han pulls the chair next to yours and waves."
+            }
+          },
+          {
+            "id": "intro",
+            "type": "say",
+            "speaker": "teacher",
+            "text": {
+              "vi": "Chào cả lớp. Hôm nay ta làm quen với lập trình: viết một chương trình nhỏ biết chào sinh viên, rồi dạy nó đếm số lần tham gia hoạt động. Ngôn ngữ dùng là Java.",
+              "en": "Hello, everyone. Today we start programming: we write a small program that greets students, then teach it to count how many activities someone has joined. We will use Java."
+            }
+          },
+          {
+            "id": "print",
+            "type": "slide",
+            "title": {
+              "vi": "Lệnh in đầu tiên",
+              "en": "The first print command"
+            },
+            "body": {
+              "vi": "System.out.println in một dòng chữ ra màn hình rồi xuống dòng. Chữ phải nằm trong dấu ngoặc kép và câu lệnh kết thúc bằng dấu chấm phẩy.",
+              "en": "System.out.println prints a line of text on the screen and moves to the next line. The text goes inside double quotes and the statement ends with a semicolon."
+            },
+            "code": "System.out.println(\"Hello EIU\");"
+          },
+          {
+            "id": "hello",
+            "type": "code",
+            "title": {
+              "vi": "Bài 1 — Máy chào EIU",
+              "en": "Task 1 — The computer greets EIU"
+            },
+            "instruction": {
+              "vi": "Điền tên lệnh còn thiếu để máy in dòng chữ Hello EIU.",
+              "en": "Fill in the missing command so the computer prints the text Hello EIU."
+            },
+            "template": "public class Main {\n    public static void main(String[] args) {\n        System.out.___(\"Hello EIU\");\n    }\n}",
+            "answers": [
+              "println",
+              "print"
+            ],
+            "outputCorrect": "Hello EIU",
+            "outputWrong": "Main.java:3: error: cannot find symbol\n        System.out.???(\"Hello EIU\");\n                  ^",
+            "hint": {
+              "vi": "Lệnh in một dòng rồi xuống dòng gồm chữ print và hai chữ cái ln ở cuối.",
+              "en": "The command that prints a line and moves on is print followed by ln."
+            },
+            "explainWrong": {
+              "vi": "Java không biết lệnh này. Nhìn lại slide: tên lệnh viết liền, toàn chữ thường.",
+              "en": "Java doesn't know this command. Look at the slide again: the name is one word, all lowercase."
+            }
+          },
+          {
+            "id": "han",
+            "type": "say",
+            "speaker": "han",
+            "text": {
+              "vi": "Chào bạn, mình là Han. Máy của bạn biết chào rồi kìa!",
+              "en": "Hi, I'm Han. Look, your computer just said hello!"
+            },
+            "variants": [
+              {
+                "when": {
+                  "seen": "1.1/greet-han"
+                },
+                "text": {
+                  "vi": "Hồi đó tập chào nhau, giờ tới lượt máy chào tụi mình.",
+                  "en": "Back then we practised greeting each other. Now it's the computer's turn to greet us."
+                }
+              }
+            ]
+          },
+          {
+            "id": "end",
+            "type": "say",
+            "speaker": "teacher",
+            "text": {
+              "vi": "Chương trình đầu tiên chạy rồi. Tiếp theo, hãy bắt máy nhớ một con số.",
+              "en": "The first program runs. Next, let's make the computer remember a number."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "slot": "lab",
+      "scene": {
+        "id": "CSE 103/lab-2",
+        "title": {
+          "vi": "Lab 2 — Máy biết nhớ",
+          "en": "Lab 2 — The computer remembers"
+        },
+        "place": "406.B8",
+        "minutes": 3,
+        "steps": [
+          {
+            "id": "open",
+            "type": "say",
+            "speaker": "teacher",
+            "text": {
+              "vi": "Giờ cho máy nhớ số lần bạn đã tham gia hoạt động của trường. Chỗ để nhớ một giá trị gọi là biến.",
+              "en": "Now let the computer remember how many school activities you have joined. A place that holds a value is called a variable."
+            }
+          },
+          {
+            "id": "var",
+            "type": "slide",
+            "title": {
+              "vi": "Biến là chiếc hộp có tên",
+              "en": "A variable is a named box"
+            },
+            "body": {
+              "vi": "Biến lưu một giá trị để dùng lại. Khai báo gồm kiểu, tên và giá trị. Kiểu int dành cho số nguyên.",
+              "en": "A variable stores a value so you can use it again. A declaration has a type, a name and a value. The type int is for whole numbers."
+            },
+            "code": "int visits = 3;\nSystem.out.println(visits);"
+          },
+          {
+            "id": "decl",
+            "type": "code",
+            "title": {
+              "vi": "Bài 2 — Khai báo biến",
+              "en": "Task 2 — Declaring a variable"
+            },
+            "instruction": {
+              "vi": "Điền kiểu dữ liệu để biến visits lưu số nguyên 3.",
+              "en": "Fill in the data type so the variable visits holds the whole number 3."
+            },
+            "template": "public class Main {\n    public static void main(String[] args) {\n        ___ visits = 3;\n        System.out.println(visits);\n    }\n}",
+            "answers": [
+              "int",
+              "long",
+              "short",
+              "Integer"
+            ],
+            "outputCorrect": "3",
+            "outputWrong": "Main.java:3: error: cannot find symbol\n        ??? visits = 3;\n        ^",
+            "hint": {
+              "vi": "Kiểu của số nguyên, viết ba chữ cái thường.",
+              "en": "The type for whole numbers, written with three lowercase letters."
+            },
+            "explainWrong": {
+              "vi": "Số nguyên trong Java thường dùng kiểu int, viết thường. Xem lại slide.",
+              "en": "Whole numbers in Java usually use the type int, in lowercase. Look at the slide again."
+            }
+          },
+          {
+            "id": "han",
+            "type": "say",
+            "speaker": "han",
+            "text": {
+              "vi": "Mình hay quên đã đi mấy buổi rồi. Có biến này là khỏi phải nhớ nữa.",
+              "en": "I always forget how many sessions I've been to. With a variable, I don't have to remember any more."
+            }
+          },
+          {
+            "id": "q",
+            "type": "question",
+            "prompt": {
+              "vi": "Đoạn code này in ra gì?",
+              "en": "What does this code print?"
+            },
+            "code": "int visits = 3;\nvisits = visits + 1;\nSystem.out.println(visits);",
+            "options": [
+              {
+                "id": "a",
+                "text": {
+                  "vi": "3",
+                  "en": "3"
+                }
+              },
+              {
+                "id": "b",
+                "text": {
+                  "vi": "4",
+                  "en": "4"
+                }
+              },
+              {
+                "id": "c",
+                "text": {
+                  "vi": "visits + 1",
+                  "en": "visits + 1"
+                }
+              }
+            ],
+            "answerId": "b",
+            "explainCorrect": {
+              "vi": "Đúng rồi. Máy tính visits + 1 = 4 rồi gán ngược vào visits, nên in ra 4.",
+              "en": "That's right. The computer works out visits + 1 = 4 and stores it back in visits, so it prints 4."
+            },
+            "explainWrong": {
+              "vi": "Chưa đúng. Vế phải visits + 1 được tính trước (3 + 1 = 4), rồi mới gán lại cho visits.",
+              "en": "Not quite. The right side visits + 1 is worked out first (3 + 1 = 4), then stored back in visits."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "slot": "theoryA",
+      "scene": {
+        "id": "CSE 103/a",
+        "title": {
+          "vi": "Lý thuyết A — Rẽ nhánh",
+          "en": "Theory A — Branching"
+        },
+        "place": "b8",
+        "minutes": 3,
+        "steps": [
+          {
+            "id": "open",
+            "type": "say",
+            "speaker": "teacher",
+            "text": {
+              "vi": "Quy ước mới: tham gia từ 3 hoạt động trở lên thì được đóng dấu. Muốn vậy máy phải biết rẽ nhánh theo điều kiện.",
+              "en": "New rule: join 3 or more activities and you get a stamp. For that, the computer must branch on a condition."
+            }
+          },
+          {
+            "id": "if",
+            "type": "slide",
+            "title": {
+              "vi": "if / else: rẽ nhánh",
+              "en": "if / else: branching"
+            },
+            "body": {
+              "vi": "Điều kiện đúng thì chạy khối đầu, sai thì chạy khối else. Dấu >= đọc là lớn hơn hoặc bằng. Nhớ: một dấu = là gán giá trị, hai dấu == mới là so sánh bằng.",
+              "en": "If the condition is true the first block runs; if not, the else block runs. The sign >= reads as greater than or equal to. Remember: one = assigns a value, while two == compares for equality."
+            },
+            "code": "if (visits >= 3) {\n    System.out.println(\"Stamp\");\n} else {\n    System.out.println(\"Not yet\");\n}"
+          },
+          {
+            "id": "q",
+            "type": "question",
+            "prompt": {
+              "vi": "Với visits = 3, máy in ra gì?",
+              "en": "With visits = 3, what does the computer print?"
+            },
+            "code": "int visits = 3;\nif (visits >= 3) {\n    System.out.println(\"Stamp\");\n} else {\n    System.out.println(\"Not yet\");\n}",
+            "options": [
+              {
+                "id": "a",
+                "text": {
+                  "vi": "Stamp",
+                  "en": "Stamp"
+                }
+              },
+              {
+                "id": "b",
+                "text": {
+                  "vi": "Not yet",
+                  "en": "Not yet"
+                }
+              },
+              {
+                "id": "c",
+                "text": {
+                  "vi": "Cả hai dòng",
+                  "en": "Both lines"
+                }
+              }
+            ],
+            "answerId": "a",
+            "explainCorrect": {
+              "vi": "Đúng rồi. 3 >= 3 là đúng (bằng cũng tính), nên khối đầu chạy.",
+              "en": "That's right. 3 >= 3 is true (equal counts too), so the first block runs."
+            },
+            "explainWrong": {
+              "vi": "Chưa đúng. >= nghĩa là lớn hơn hoặc bằng nên 3 >= 3 đúng; else chỉ chạy khi điều kiện sai.",
+              "en": "Not quite. >= means greater than or equal, so 3 >= 3 is true; else only runs when the condition is false."
+            }
+          },
+          {
+            "id": "op",
+            "type": "code",
+            "title": {
+              "vi": "Bài 3 — Điều kiện nhận dấu",
+              "en": "Task 3 — The stamp condition"
+            },
+            "instruction": {
+              "vi": "Điền toán tử để máy in Stamp khi số lần tham gia từ 3 trở lên.",
+              "en": "Fill in the operator so the computer prints Stamp when the number of activities is 3 or more."
+            },
+            "template": "public class Main {\n    public static void main(String[] args) {\n        int visits = 3;\n        if (visits ___ 3) {\n            System.out.println(\"Stamp\");\n        } else {\n            System.out.println(\"Not yet\");\n        }\n    }\n}",
+            "answers": [
+              ">="
+            ],
+            "outputCorrect": "Stamp",
+            "outputWrong": "Not yet",
+            "hint": {
+              "vi": "Cần một toán tử đọc là lớn hơn hoặc bằng. Nó gồm hai ký tự.",
+              "en": "You need an operator that reads as greater than or equal to. It has two characters."
+            },
+            "explainWrong": {
+              "vi": "Với 3 lần thì phải nhận dấu, nên điều kiện phải gồm cả trường hợp bằng 3: dùng >=.",
+              "en": "With 3 activities you should get the stamp, so the condition must include exactly 3: use >=."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "slot": "theoryB",
+      "scene": {
+        "id": "CSE 103/b",
+        "title": {
+          "vi": "Lý thuyết B — Vòng lặp",
+          "en": "Theory B — Loops"
+        },
+        "place": "b8",
+        "minutes": 3,
+        "steps": [
+          {
+            "id": "open",
+            "type": "say",
+            "speaker": "teacher",
+            "text": {
+              "vi": "Điểm danh bốn buổi mà viết println bốn lần thì mỏi tay. Vòng lặp sinh ra để lo việc đó.",
+              "en": "Taking attendance for four sessions with four printlns would be tiring. Loops exist to do that for us."
+            }
+          },
+          {
+            "id": "for",
+            "type": "slide",
+            "title": {
+              "vi": "Vòng lặp for",
+              "en": "The for loop"
+            },
+            "body": {
+              "vi": "for lặp lại một khối lệnh. Ba phần trong ngoặc là: bắt đầu (int i = 0), điều kiện để còn lặp (i < 3) và bước nhảy (i++). Ở đây i chạy 0, 1, 2 nên khối lệnh chạy 3 lần.",
+              "en": "for repeats a block of code. The three parts in the brackets are: the start (int i = 0), the condition to keep going (i < 3) and the step (i++). Here i is 0, 1, 2, so the block runs 3 times."
+            },
+            "code": "for (int i = 0; i < 3; i++) {\n    System.out.println(\"Hello EIU\");\n}"
+          },
+          {
+            "id": "q",
+            "type": "question",
+            "prompt": {
+              "vi": "Đoạn code này in ra gì?",
+              "en": "What does this code print?"
+            },
+            "code": "for (int i = 1; i <= 3; i++) {\n    System.out.print(i);\n}",
+            "options": [
+              {
+                "id": "a",
+                "text": {
+                  "vi": "12",
+                  "en": "12"
+                }
+              },
+              {
+                "id": "b",
+                "text": {
+                  "vi": "123",
+                  "en": "123"
+                }
+              },
+              {
+                "id": "c",
+                "text": {
+                  "vi": "0123",
+                  "en": "0123"
+                }
+              }
+            ],
+            "answerId": "b",
+            "explainCorrect": {
+              "vi": "Đúng rồi. i chạy 1, 2, 3 (dấu <= tính cả 3) và print không xuống dòng nên ra 123.",
+              "en": "That's right. i runs 1, 2, 3 (the <= includes 3) and print doesn't move to a new line, so it prints 123."
+            },
+            "explainWrong": {
+              "vi": "Chưa đúng. i bắt đầu từ 1 và dừng sau khi i = 3 vì điều kiện i <= 3 còn đúng ở 3.",
+              "en": "Not quite. i starts at 1 and stops after i = 3, because the condition i <= 3 is still true at 3."
+            }
+          },
+          {
+            "id": "loop",
+            "type": "code",
+            "title": {
+              "vi": "Bài 4 — Điểm danh bốn buổi",
+              "en": "Task 4 — Four-session attendance"
+            },
+            "instruction": {
+              "vi": "Điền số để chương trình in đủ 4 dòng điểm danh.",
+              "en": "Fill in the number so the program prints all 4 attendance lines."
+            },
+            "template": "public class Main {\n    public static void main(String[] args) {\n        for (int i = 0; i < ___; i++) {\n            System.out.println(\"Session \" + (i + 1));\n        }\n    }\n}",
+            "answers": [
+              "4"
+            ],
+            "outputCorrect": "Session 1\nSession 2\nSession 3\nSession 4",
+            "outputWrong": "Số dòng in ra chưa phải 4. Thử lại nhé!",
+            "hint": {
+              "vi": "i chạy từ 0. Muốn khối lệnh chạy 4 lần (i = 0, 1, 2, 3) thì i phải nhỏ hơn số mấy?",
+              "en": "i starts at 0. To run the block 4 times (i = 0, 1, 2, 3), i must be smaller than which number?"
+            },
+            "explainWrong": {
+              "vi": "Đếm thử: i = 0, 1, 2, … và vòng lặp dừng ngay khi điều kiện i < ? trở thành sai.",
+              "en": "Count it out: i = 0, 1, 2, … and the loop stops as soon as the condition i < ? becomes false."
+            }
+          },
+          {
+            "id": "han",
+            "type": "say",
+            "speaker": "han",
+            "text": {
+              "vi": "Bốn dòng, một vòng lặp. Lười mà khéo nhé.",
+              "en": "Four lines, one loop. Lazy, but clever."
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "exam": {
+    "id": "CSE 103/exam",
+    "title": {
+      "vi": "Thi cuối môn (mô phỏng)",
+      "en": "Final check (simulation)"
+    },
+    "place": "b8",
+    "minutes": 2.5,
+    "steps": [
+      {
+        "id": "e1",
+        "type": "question",
+        "prompt": {
+          "vi": "Câu 1 — Đọc code, máy in ra gì?",
+          "en": "Question 1 — Read the code. What does it print?"
+        },
+        "code": "int visits = 2;\nvisits = visits + 3;\nif (visits >= 5) {\n    System.out.println(\"Stamp\");\n} else {\n    System.out.println(\"Not yet\");\n}",
+        "options": [
+          {
+            "id": "a",
+            "text": {
+              "vi": "Stamp",
+              "en": "Stamp"
+            }
+          },
+          {
+            "id": "b",
+            "text": {
+              "vi": "Not yet",
+              "en": "Not yet"
+            }
+          },
+          {
+            "id": "c",
+            "text": {
+              "vi": "5",
+              "en": "5"
+            }
+          }
+        ],
+        "answerId": "a",
+        "explainCorrect": {
+          "vi": "Đúng rồi. visits = 2 + 3 = 5, và 5 >= 5 đúng nên in Stamp.",
+          "en": "That's right. visits = 2 + 3 = 5, and 5 >= 5 is true, so it prints Stamp."
+        },
+        "explainWrong": {
+          "vi": "Chưa đúng. visits được cộng thành 5 trước khi kiểm tra điều kiện; 5 >= 5 đúng nên in Stamp.",
+          "en": "Not quite. visits becomes 5 before the condition is checked; 5 >= 5 is true, so it prints Stamp."
+        }
+      },
+      {
+        "id": "e2",
+        "type": "code",
+        "title": {
+          "vi": "Câu 2 — Điền một dòng",
+          "en": "Question 2 — Fill in one line"
+        },
+        "instruction": {
+          "vi": "Điền một câu lệnh (không có dấu chấm phẩy) để cộng dồn i vào total, sao cho chương trình in 6 (1 + 2 + 3).",
+          "en": "Fill in one statement (without the semicolon) that adds i to total so the program prints 6 (1 + 2 + 3)."
+        },
+        "template": "public class Main {\n    public static void main(String[] args) {\n        int total = 0;\n        for (int i = 1; i <= 3; i++) {\n            ___;\n        }\n        System.out.println(total);\n    }\n}",
+        "answers": [
+          "total = total + i",
+          "total=total+i",
+          "total += i",
+          "total+=i",
+          "total = i + total",
+          "total=i+total"
+        ],
+        "outputCorrect": "6",
+        "outputWrong": "Kết quả in ra chưa phải 6. Thử lại nhé!",
+        "hint": {
+          "vi": "Mỗi vòng, total cần cộng thêm giá trị hiện tại của i rồi lưu lại vào chính total.",
+          "en": "Each round, total must add the current value of i and store the result back in total."
+        },
+        "explainWrong": {
+          "vi": "Mỗi vòng lặp phải lấy total cũ cộng với i rồi gán lại cho total.",
+          "en": "Each round must take the old total, add i, and store it back in total."
+        }
+      },
+      {
+        "id": "e3",
+        "type": "question",
+        "prompt": {
+          "vi": "Câu 3 — Tìm lỗi: chương trình này không biên dịch được. Lỗi nằm ở đâu?",
+          "en": "Question 3 — Find the bug: this program won't compile. Where is the mistake?"
+        },
+        "code": "int visits = 3;\nif (visits = 3) {\n    System.out.println(\"Stamp\");\n}",
+        "options": [
+          {
+            "id": "a",
+            "text": {
+              "vi": "Dùng = (gán) ở chỗ cần == (so sánh)",
+              "en": "Using = (assign) where == (compare) is needed"
+            }
+          },
+          {
+            "id": "b",
+            "text": {
+              "vi": "Thiếu dấu chấm phẩy sau dấu }",
+              "en": "A missing semicolon after the }"
+            }
+          },
+          {
+            "id": "c",
+            "text": {
+              "vi": "Phải đổi int thành double",
+              "en": "int must be changed to double"
+            }
+          }
+        ],
+        "answerId": "a",
+        "explainCorrect": {
+          "vi": "Đúng rồi. Trong if cần một phép so sánh nên phải viết visits == 3.",
+          "en": "That's right. An if needs a comparison, so it should be visits == 3."
+        },
+        "explainWrong": {
+          "vi": "Chưa đúng. Nhìn dòng if: một dấu = là gán giá trị, nên Java không coi nó là điều kiện.",
+          "en": "Not quite. Look at the if line: a single = assigns a value, so Java doesn't treat it as a condition."
+        }
+      }
+    ]
+  },
+  "closing": {
+    "vi": "Máy đã biết chào, đếm và lặp. Mấy dòng Java đầu tiên của bạn chạy được rồi.",
+    "en": "The computer can greet, count and repeat. Your first lines of Java run."
+  }
+}
