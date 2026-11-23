@@ -1,0 +1,3057 @@
+{
+ "version": 1,
+ "majorId": "ktpm",
+ "source": "BSE.pdf",
+ "courses": [
+  {
+   "code": "POLS 133",
+   "name": {
+    "vi": "Triết học Mác – Lênin",
+    "en": "Philosophy of Marxism and Leninism"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "1.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 49,
+    "desc": 7
+   },
+   "opens": []
+  },
+  {
+   "code": "LAWS 122",
+   "name": {
+    "vi": "Lý luận nhà nước và pháp luật",
+    "en": "General Theory of Law and State"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "1.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 49,
+    "desc": 10
+   },
+   "opens": []
+  },
+  {
+   "code": "MATH 103",
+   "name": {
+    "vi": "Đại số tuyến tính",
+    "en": "Linear Algebra"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "1.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 49,
+    "desc": 14
+   },
+   "opens": [
+    "CSE 106",
+    "STAT 101"
+   ]
+  },
+  {
+   "code": "POLS 134",
+   "name": {
+    "vi": "Kinh tế chính trị Mác – Lênin",
+    "en": "Political Economics of Marxism and Leninism"
+   },
+   "credits": 3,
+   "lt": 3,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "1.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 49,
+    "desc": 8
+   },
+   "opens": []
+  },
+  {
+   "code": "MATH 111",
+   "name": {
+    "vi": "Giải tích I",
+    "en": "Calculus I"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "1.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 49,
+    "desc": 14
+   },
+   "opens": [
+    "MATH 112",
+    "STAT 101"
+   ]
+  },
+  {
+   "code": "CSE 100",
+   "name": {
+    "vi": "Nhập môn Công nghệ thông tin",
+    "en": "Introduction to Computing"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "1.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 50,
+    "desc": 29
+   },
+   "opens": [
+    "CSE 103",
+    "CSE 204",
+    "CSE 206"
+   ]
+  },
+  {
+   "code": "CSE 106",
+   "name": {
+    "vi": "Toán rời rạc I",
+    "en": "Discrete Mathematics I"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "1.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "MATH 103"
+    ],
+    "raw": "MATH 103"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 50,
+    "desc": 30
+   },
+   "opens": [
+    "CSW 315"
+   ]
+  },
+  {
+   "code": "POLS 135",
+   "name": {
+    "vi": "Chủ nghĩa xã hội khoa học",
+    "en": "Scientific Socialism"
+   },
+   "credits": 3,
+   "lt": 3,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "1.3",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 50,
+    "desc": 8
+   },
+   "opens": []
+  },
+  {
+   "code": "MATH 112",
+   "name": {
+    "vi": "Giải tích II",
+    "en": "Calculus II"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "1.3",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "MATH 111"
+    ],
+    "raw": "MATH 111"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 50,
+    "desc": 15
+   },
+   "opens": [
+    "MATH 113"
+   ]
+  },
+  {
+   "code": "CSE 103",
+   "name": {
+    "vi": "Lập trình và giải quyết vấn đề I",
+    "en": "Programming and Problem Solving I"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "1.3",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 100"
+    ],
+    "raw": "CSE 100"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 50,
+    "desc": 30
+   },
+   "opens": [
+    "CSE 104",
+    "CSW 333"
+   ]
+  },
+  {
+   "code": "POLS 132",
+   "name": {
+    "vi": "Tư tưởng Hồ Chí Minh",
+    "en": "Ho Chi Minh's Ideology"
+   },
+   "credits": 3,
+   "lt": 3,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "2.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 50,
+    "desc": 7
+   },
+   "opens": []
+  },
+  {
+   "code": "MATH 113",
+   "name": {
+    "vi": "Giải tích III",
+    "en": "Calculus III"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "2.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "MATH 112"
+    ],
+    "raw": "MATH 112"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 50,
+    "desc": 15
+   },
+   "opens": [
+    "MATH 122",
+    "MATH 114"
+   ]
+  },
+  {
+   "code": "CSE 104",
+   "name": {
+    "vi": "Lập trình và giải quyết vấn đề II",
+    "en": "Programming and Problem Solving II"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "2.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 103"
+    ],
+    "raw": "CSE 103"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 51,
+    "desc": 30
+   },
+   "opens": [
+    "CSE 203",
+    "CSE 201"
+   ]
+  },
+  {
+   "code": "CSE 204",
+   "name": {
+    "vi": "Mạng máy tính",
+    "en": "Computer Networks"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "2.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 100"
+    ],
+    "raw": "CSE 100"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/Level 5",
+   "pdf": {
+    "table": 51,
+    "desc": 32
+   },
+   "opens": [
+    "CSW 440",
+    "CSN 305"
+   ]
+  },
+  {
+   "code": "POLS 136",
+   "name": {
+    "vi": "Lịch Sử Đảng Cộng Sản Việt Nam",
+    "en": "History of Vietnamese Communist Party"
+   },
+   "credits": 3,
+   "lt": 3,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "2.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 51,
+    "desc": 9
+   },
+   "opens": []
+  },
+  {
+   "code": "MATH 122",
+   "name": {
+    "vi": "Phương trình vi phân",
+    "en": "Differential Equations"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "2.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "MATH 113"
+    ],
+    "raw": "MATH 113"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 51,
+    "desc": 15
+   },
+   "opens": []
+  },
+  {
+   "code": "CSE 203",
+   "name": {
+    "vi": "Lập trình hướng đối tượng",
+    "en": "Object-Oriented Development"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "2.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 104"
+    ],
+    "raw": "CSE 104"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/Level 5",
+   "pdf": {
+    "table": 51,
+    "desc": 31
+   },
+   "opens": [
+    "CSW 430"
+   ]
+  },
+  {
+   "code": "CSE 201",
+   "name": {
+    "vi": "Cấu trúc dữ liệu và giải thuật",
+    "en": "Data Structures and Algorithms"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "2.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 104"
+    ],
+    "raw": "CSE 104"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/Level 5",
+   "pdf": {
+    "table": 51,
+    "desc": 30
+   },
+   "opens": [
+    "CSE 301",
+    "CSW 303",
+    "CSW 304",
+    "CSE 202",
+    "CSW 315",
+    "CSW 430",
+    "CSW 439",
+    "CSW 330",
+    "CSW 331",
+    "CSW 332"
+   ]
+  },
+  {
+   "code": "STAT 101",
+   "name": {
+    "vi": "Xác suất thống kê",
+    "en": "Statistics and Probability"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "2.3",
+   "aliases": [],
+   "prereq": {
+    "mode": "unclear",
+    "codes": [
+     "MATH 111",
+     "MATH 103"
+    ],
+    "raw": "MATH 111/ MATH 103"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 51,
+    "desc": 17
+   },
+   "opens": [
+    "STAT 202"
+   ]
+  },
+  {
+   "code": "CSE 301",
+   "name": {
+    "vi": "Cơ sở dữ liệu",
+    "en": "Introduction to Databases"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "2.3",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201"
+    ],
+    "raw": "CSE 201"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/Level 5",
+   "pdf": {
+    "table": 51,
+    "desc": 32
+   },
+   "opens": [
+    "CSW 306",
+    "CSW 309"
+   ]
+  },
+  {
+   "code": "CSE 206",
+   "name": {
+    "vi": "Kiến trúc và cấu tạo máy tính",
+    "en": "Computer Architecture and Organization"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "2.3",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 100"
+    ],
+    "raw": "CSE 100"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/Level 5",
+   "pdf": {
+    "table": 51,
+    "desc": 32
+   },
+   "opens": [
+    "CSN 302"
+   ]
+  },
+  {
+   "code": "PHYS 101",
+   "name": {
+    "vi": "Vật lý I",
+    "en": "Physics I"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "3.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 52,
+    "desc": 16
+   },
+   "opens": [
+    "PHYS 102"
+   ]
+  },
+  {
+   "code": "CSW 303",
+   "name": {
+    "vi": "Kỹ thuật phần mềm",
+    "en": "Software Engineering"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "nganh",
+   "pdfTerm": "3.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201"
+    ],
+    "raw": "CSE 201"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 33
+   },
+   "opens": [
+    "CSW 309",
+    "CSW 307",
+    "CSW 406",
+    "CSW 405",
+    "CSW 438"
+   ]
+  },
+  {
+   "code": "CSW 304",
+   "name": {
+    "vi": "Lập trình Front-end",
+    "en": "Front-end Development"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "nganh",
+   "pdfTerm": "3.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201"
+    ],
+    "raw": "CSE 201"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 34
+   },
+   "opens": [
+    "CSW 433",
+    "CSW 437"
+   ]
+  },
+  {
+   "code": "CSW 306",
+   "name": {
+    "vi": "Lập trình Back-end",
+    "en": "Back-end Development"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "nganh",
+   "pdfTerm": "3.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 301"
+    ],
+    "raw": "CSE 301"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 34
+   },
+   "opens": [
+    "CSW 400",
+    "CSW 480",
+    "CSW 431"
+   ]
+  },
+  {
+   "code": "PHYS 102",
+   "name": {
+    "vi": "Vật lý II",
+    "en": "Physics II"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "dai-cuong",
+   "pdfTerm": "3.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "PHYS 101"
+    ],
+    "raw": "PHYS 101"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 52,
+    "desc": 16
+   },
+   "opens": [
+    "PHYS 103"
+   ]
+  },
+  {
+   "code": "CSW 309",
+   "name": {
+    "vi": "Phân tích và thiết kế hệ thống thông tin",
+    "en": "Information System Analysis and Design"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "nganh",
+   "pdfTerm": "3.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 301",
+     "CSW 303"
+    ],
+    "raw": "CSE 301, CSW 303"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 35
+   },
+   "opens": [
+    "CSW 400",
+    "CSW 480"
+   ]
+  },
+  {
+   "code": "CSE 202",
+   "name": {
+    "vi": "Toán rời rạc II",
+    "en": "Discrete Mathematics II"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "3.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201"
+    ],
+    "raw": "CSE 201"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 52,
+    "desc": 31
+   },
+   "opens": [
+    "CSW 310"
+   ]
+  },
+  {
+   "code": "CSW 307",
+   "name": {
+    "vi": "Kỹ thuật yêu cầu",
+    "en": "Requirement Engineering"
+   },
+   "credits": 3,
+   "lt": 3,
+   "th": 0,
+   "kind": "required",
+   "block": "nganh",
+   "pdfTerm": "3.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 303"
+    ],
+    "raw": "CSW 303"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 34
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 406",
+   "name": {
+    "vi": "Kiến trúc phần mềm",
+    "en": "Software Architecture"
+   },
+   "credits": 3,
+   "lt": 3,
+   "th": 0,
+   "kind": "required",
+   "block": "nganh",
+   "pdfTerm": "3.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 303"
+    ],
+    "raw": "CSW 303"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 36
+   },
+   "opens": []
+  },
+  {
+   "code": "CSN 302",
+   "name": {
+    "vi": "Hệ điều hành",
+    "en": "Operating System"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "3.3",
+   "aliases": [
+    "CSE 302"
+   ],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 206"
+    ],
+    "raw": "CSE 206"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 33
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 315",
+   "name": {
+    "vi": "Lý thuyết tính toán",
+    "en": "Theory of Computation"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "required",
+   "block": "co-so-nganh",
+   "pdfTerm": "3.3",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201",
+     "CSE 106"
+    ],
+    "raw": "CSE 201, CSE 106"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 33
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 400",
+   "name": {
+    "vi": "Thực tập tốt nghiệp Kỹ thuật phần mềm",
+    "en": "Computing Internship"
+   },
+   "credits": 4,
+   "lt": 0,
+   "th": 4,
+   "kind": "required",
+   "block": "nganh",
+   "pdfTerm": "3.4",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 306",
+     "CSW 309"
+    ],
+    "raw": "CSW 306, CSW 309"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 52,
+    "desc": 36
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 405",
+   "name": {
+    "vi": "Kiểm thử và đảm bảo chất lượng phần mềm",
+    "en": "Software Testing & Quality Assurance"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "required",
+   "block": "nganh",
+   "pdfTerm": "4.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 303"
+    ],
+    "raw": "CSW 303"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 53,
+    "desc": 35
+   },
+   "opens": [
+    "CSW 432"
+   ]
+  },
+  {
+   "code": "CSW 480",
+   "name": {
+    "vi": "Đồ án tốt nghiệp KTPM I",
+    "en": "Software Engineering Capstone Project I"
+   },
+   "credits": 2,
+   "lt": 0,
+   "th": 2,
+   "kind": "required",
+   "block": "tot-nghiep",
+   "pdfTerm": "4.1",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 306",
+     "CSW 309"
+    ],
+    "raw": "CSW 306, CSW 309"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 53,
+    "desc": 42
+   },
+   "opens": [
+    "CSW 481"
+   ]
+  },
+  {
+   "code": "CSW 481",
+   "name": {
+    "vi": "Đồ án tốt nghiệp KTPM II",
+    "en": "Software Engineering Capstone Project II"
+   },
+   "credits": 4,
+   "lt": 0,
+   "th": 4,
+   "kind": "required",
+   "block": "tot-nghiep",
+   "pdfTerm": "4.2",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 480"
+    ],
+    "raw": "CSW 480"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 53,
+    "desc": 42
+   },
+   "opens": [
+    "CSW 482"
+   ]
+  },
+  {
+   "code": "CSW 482",
+   "name": {
+    "vi": "Đồ án tốt nghiệp KTPM III",
+    "en": "Software Engineering Capstone Project III"
+   },
+   "credits": 4,
+   "lt": 0,
+   "th": 4,
+   "kind": "required",
+   "block": "tot-nghiep",
+   "pdfTerm": "4.3",
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 481"
+    ],
+    "raw": "CSW 481"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 53,
+    "desc": 43
+   },
+   "opens": []
+  },
+  {
+   "code": "ANT 110",
+   "name": {
+    "vi": "Nhân học văn hóa",
+    "en": "Cultural Anthropology"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 55,
+    "desc": 10
+   },
+   "opens": []
+  },
+  {
+   "code": "CIVI 101",
+   "name": {
+    "vi": "Lịch sử văn minh thế giới",
+    "en": "The Story of Civilization"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 55,
+    "desc": 10
+   },
+   "opens": []
+  },
+  {
+   "code": "PSYC 154",
+   "name": {
+    "vi": "Tâm lý học",
+    "en": "Psychology"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/IELP 5",
+   "pdf": {
+    "table": 55,
+    "desc": 11
+   },
+   "opens": []
+  },
+  {
+   "code": "SOC 144",
+   "name": {
+    "vi": "Xã hội học",
+    "en": "Sociology"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/IELP 5",
+   "pdf": {
+    "table": 55,
+    "desc": 11
+   },
+   "opens": []
+  },
+  {
+   "code": "BUS 101",
+   "name": {
+    "vi": "Quản trị kinh doanh căn bản",
+    "en": "Fundamentals of Business Administration"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 55,
+    "desc": 11
+   },
+   "opens": []
+  },
+  {
+   "code": "EBS 110",
+   "name": {
+    "vi": "Kinh tế kỹ thuật",
+    "en": "Engineering Economy"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 55,
+    "desc": 12
+   },
+   "opens": []
+  },
+  {
+   "code": "ECO 110",
+   "name": {
+    "vi": "Nguyên lý kinh tế học",
+    "en": "Principles of Economics"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 55,
+    "desc": 12
+   },
+   "opens": []
+  },
+  {
+   "code": "FIN 239",
+   "name": {
+    "vi": "Tài chính cá nhân",
+    "en": "Personal Finance"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 55,
+    "desc": 12
+   },
+   "opens": []
+  },
+  {
+   "code": "IEPS 100",
+   "name": {
+    "vi": "Tư duy kinh doanh",
+    "en": "Entrepreneurial Thinking"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 55,
+    "desc": 13
+   },
+   "opens": []
+  },
+  {
+   "code": "IREL 101",
+   "name": {
+    "vi": "Nhập môn quan hệ quốc tế",
+    "en": "Foundations of International Relations"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khxh",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 14
+   },
+   "opens": []
+  },
+  {
+   "code": "MATH 114",
+   "name": {
+    "vi": "Giải tích IV",
+    "en": "Calculus IV"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khtn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "MATH 113"
+    ],
+    "raw": "MATH 113"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 17
+   },
+   "opens": []
+  },
+  {
+   "code": "MTH 171",
+   "name": {
+    "vi": "Toán ứng dụng trong kinh doanh",
+    "en": "Mathematics Applications for Business"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khtn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 56,
+    "desc": 17
+   },
+   "opens": []
+  },
+  {
+   "code": "MATH 104",
+   "name": {
+    "vi": "Giải tích đa biến",
+    "en": "Multivariate calculus"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khtn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 17
+   },
+   "opens": []
+  },
+  {
+   "code": "PHYS 103",
+   "name": {
+    "vi": "Vật lý III",
+    "en": "Physics III"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khtn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "PHYS 102"
+    ],
+    "raw": "PHYS 102"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 18
+   },
+   "opens": []
+  },
+  {
+   "code": "CHEM 100",
+   "name": {
+    "vi": "Hóa đại cương",
+    "en": "General Chemistry"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khtn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 17
+   },
+   "opens": []
+  },
+  {
+   "code": "STAT 202",
+   "name": {
+    "vi": "Xác suất thống kê II",
+    "en": "Statistics and Probability II"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "khtn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "STAT 101"
+    ],
+    "raw": "STAT 101"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 18
+   },
+   "opens": [
+    "DSCI 261"
+   ]
+  },
+  {
+   "code": "INFO 101",
+   "name": {
+    "vi": "Truyền thông, thông tin và xã hội",
+    "en": "Communication, Information and Society"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cns",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 19
+   },
+   "opens": []
+  },
+  {
+   "code": "INFO 106",
+   "name": {
+    "vi": "Công nghệ số",
+    "en": "Focused Inquiry: Digital Literacy"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cns",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 19
+   },
+   "opens": []
+  },
+  {
+   "code": "INFO 201",
+   "name": {
+    "vi": "Tư duy tính toán",
+    "en": "Computational Thinking"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cns",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 19
+   },
+   "opens": []
+  },
+  {
+   "code": "DSCI 130",
+   "name": {
+    "vi": "Quyền riêng tư dữ liệu và công nghệ",
+    "en": "Data Privacy and Technology"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cns",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 56,
+    "desc": 20
+   },
+   "opens": []
+  },
+  {
+   "code": "DSCI 261",
+   "name": {
+    "vi": "Nhập môn Khoa học dữ liệu sử dụng Python",
+    "en": "Introduction to Data Science using Python"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cns",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "STAT 202"
+    ],
+    "raw": "STAT 202"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 57,
+    "desc": 20
+   },
+   "opens": []
+  },
+  {
+   "code": "WRT 122",
+   "name": {
+    "vi": "Viết luận tiếng Anh",
+    "en": "English Composition"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/Level 5",
+   "pdf": {
+    "table": 57,
+    "desc": 21
+   },
+   "opens": [
+    "WRT 187"
+   ]
+  },
+  {
+   "code": "WRT 187",
+   "name": {
+    "vi": "Kỹ năng đọc và viết học thuật",
+    "en": "Academic Reading and Writing"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "WRT 122"
+    ],
+    "raw": "WRT 122"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/Level 5",
+   "pdf": {
+    "table": 57,
+    "desc": 22
+   },
+   "opens": []
+  },
+  {
+   "code": "PHL 255",
+   "name": {
+    "vi": "Tư duy phản biện và sáng tạo",
+    "en": "Critical and Creative Thinking"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/Level 5",
+   "pdf": {
+    "table": 57,
+    "desc": 22
+   },
+   "opens": []
+  },
+  {
+   "code": "COMS 101",
+   "name": {
+    "vi": "Kỹ năng giao tiếp",
+    "en": "Communication Skills"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 57,
+    "desc": 21
+   },
+   "opens": []
+  },
+  {
+   "code": "LNGS-J101",
+   "name": {
+    "vi": "Tiếng Nhật 1",
+    "en": "Japanese 1"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 57,
+    "desc": 23
+   },
+   "opens": [
+    "LNGS-J102"
+   ]
+  },
+  {
+   "code": "LNGS-J102",
+   "name": {
+    "vi": "Tiếng Nhật 2",
+    "en": "Japanese 2"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "LNGS-J101"
+    ],
+    "raw": "LNGS-J101"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 57,
+    "desc": 23
+   },
+   "opens": [
+    "LNGS-J103"
+   ]
+  },
+  {
+   "code": "LNGS-J103",
+   "name": {
+    "vi": "Tiếng Nhật 3",
+    "en": "Japanese 3"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "LNGS-J102"
+    ],
+    "raw": "LNGS-J102"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 57,
+    "desc": 23
+   },
+   "opens": []
+  },
+  {
+   "code": "LNGS-K101",
+   "name": {
+    "vi": "Tiếng Hàn 1",
+    "en": "Korean 1"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 57,
+    "desc": 23
+   },
+   "opens": [
+    "LNGS-K102"
+   ]
+  },
+  {
+   "code": "LNGS-K102",
+   "name": {
+    "vi": "Tiếng Hàn 2",
+    "en": "Korean 2"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "LNGS-K101"
+    ],
+    "raw": "LNGS-K101"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 57,
+    "desc": 23
+   },
+   "opens": [
+    "LNGS-K103"
+   ]
+  },
+  {
+   "code": "LNGS-K103",
+   "name": {
+    "vi": "Tiếng Hàn 3",
+    "en": "Korean 3"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "LNGS-K102"
+    ],
+    "raw": "LNGS-K102"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 57,
+    "desc": 24
+   },
+   "opens": []
+  },
+  {
+   "code": "MUSI 110",
+   "name": {
+    "vi": "Lý thuyết Âm nhạc",
+    "en": "Music Theory"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 57,
+    "desc": 24
+   },
+   "opens": []
+  },
+  {
+   "code": "MUSI 203",
+   "name": {
+    "vi": "Âm nhạc 1",
+    "en": "Music 1"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 57,
+    "desc": 25
+   },
+   "opens": [
+    "MUSI 204"
+   ]
+  },
+  {
+   "code": "MUSI 204",
+   "name": {
+    "vi": "Âm nhạc 2",
+    "en": "Music 2"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "MUSI 203"
+    ],
+    "raw": "MUSI 203"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 57,
+    "desc": 25
+   },
+   "opens": [
+    "MUSI 205"
+   ]
+  },
+  {
+   "code": "MUSI 205",
+   "name": {
+    "vi": "Âm nhạc 3",
+    "en": "Music 3"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "gtnn",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "MUSI 204"
+    ],
+    "raw": "MUSI 204"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": null,
+   "pdf": {
+    "table": 57,
+    "desc": 25
+   },
+   "opens": []
+  },
+  {
+   "code": "UNIV 111",
+   "name": {
+    "vi": "Phát triển bền vững",
+    "en": "Focused Inquiry: Sustainability"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cdnc",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/IELP 5",
+   "pdf": {
+    "table": 58,
+    "desc": 25
+   },
+   "opens": []
+  },
+  {
+   "code": "UNIV 112",
+   "name": {
+    "vi": "Toàn cầu hóa",
+    "en": "Focused Inquiry: Globalization"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cdnc",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/IELP 5",
+   "pdf": {
+    "table": 58,
+    "desc": 26
+   },
+   "opens": []
+  },
+  {
+   "code": "UNIV 226",
+   "name": {
+    "vi": "Thành phố và cộng đồng thông minh",
+    "en": "Focused Inquiry: Smart Cities and Communities"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cdnc",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/IELP 5",
+   "pdf": {
+    "table": 58,
+    "desc": 26
+   },
+   "opens": []
+  },
+  {
+   "code": "MGMT 291",
+   "name": {
+    "vi": "Chuyên đề thời sự đương đại",
+    "en": "Seminar in Current Affairs"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cdnc",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 5.5/IELP 5",
+   "pdf": {
+    "table": 58,
+    "desc": 27
+   },
+   "opens": []
+  },
+  {
+   "code": "HLTH 130",
+   "name": {
+    "vi": "Nghiên cứu sáng tạo về Chăm sóc sức khỏe",
+    "en": "Healthcare and Creative Inquiry"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cdnc",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "unclear",
+    "codes": [],
+    "raw": "không có trong bảng tr.58"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "không rõ",
+   "pdf": {
+    "table": null,
+    "desc": 27
+   },
+   "opens": []
+  },
+  {
+   "code": "PSYC 110",
+   "name": {
+    "vi": "Hạnh phúc và Phúc lợi",
+    "en": "Happiness and Well-being"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cdnc",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "unclear",
+    "codes": [],
+    "raw": "không có trong bảng tr.58"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "không rõ",
+   "pdf": {
+    "table": null,
+    "desc": 28
+   },
+   "opens": []
+  },
+  {
+   "code": "UNIV 101",
+   "name": {
+    "vi": "Sự tự chủ và phát triển bản thân",
+    "en": "The Intentional Self"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "dai-cuong",
+   "group": "cdnc",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "unclear",
+    "codes": [],
+    "raw": "không có trong bảng tr.58"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "không rõ",
+   "pdf": {
+    "table": null,
+    "desc": 28
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 430",
+   "name": {
+    "vi": "Phát triển ứng dụng di động",
+    "en": "Mobile Application Development"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-1",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201",
+     "CSE 203"
+    ],
+    "raw": "CSE 201, CSE 203"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 53,
+    "desc": 36
+   },
+   "opens": [
+    "CSW 434"
+   ]
+  },
+  {
+   "code": "CSW 434",
+   "name": {
+    "vi": "Phát triển ứng dụng di động nâng cao",
+    "en": "Advanced Mobile Application Development"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-1",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 430"
+    ],
+    "raw": "CSW 430"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 38
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 433",
+   "name": {
+    "vi": "Lập trình Front-end nâng cao",
+    "en": "Advanced Front-end Development"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-2",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 304"
+    ],
+    "raw": "CSW 304"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 37
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 437",
+   "name": {
+    "vi": "Thiết kế trải nghiệm người dùng",
+    "en": "User Interface and Experience (UI/UX) Design"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-2",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 304"
+    ],
+    "raw": "CSW 304"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 39
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 436",
+   "name": {
+    "vi": "Cơ sở dữ liệu nâng cao",
+    "en": "Advanced Databases"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-3",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "unresolved",
+    "codes": [
+     "CSN 301"
+    ],
+    "raw": "CSN 301"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 38
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 431",
+   "name": {
+    "vi": "Phát triển Back-end nâng cao",
+    "en": "Advanced Back-end Development"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-3",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 306"
+    ],
+    "raw": "CSW 306"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 36
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 435",
+   "name": {
+    "vi": "Quản lý dự án",
+    "en": "Project Management"
+   },
+   "credits": 4,
+   "lt": 4,
+   "th": 0,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "none",
+    "codes": [],
+    "raw": ""
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 38
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 310",
+   "name": {
+    "vi": "Phân tích và thiết kế giải thuật",
+    "en": "Analysis and Design of Algorithms"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 202"
+    ],
+    "raw": "CSE 202"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 39
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 432",
+   "name": {
+    "vi": "Kiểm thử tự động",
+    "en": "Automation Testing"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 405"
+    ],
+    "raw": "CSW 405"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 37
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 438",
+   "name": {
+    "vi": "Phát triển phần mềm và vận hành hệ thống",
+    "en": "Software Development and IT Operations (DevOps)"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSW 303"
+    ],
+    "raw": "CSW 303"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 39
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 439",
+   "name": {
+    "vi": "Khai thác dữ liệu",
+    "en": "Data Mining"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201"
+    ],
+    "raw": "CSE 201"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 40
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 440",
+   "name": {
+    "vi": "Bảo mật phần mềm",
+    "en": "Software security"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 204"
+    ],
+    "raw": "CSE 204"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 40
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 330",
+   "name": {
+    "vi": "Trí tuệ nhân tạo",
+    "en": "Artificial Intelligence"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201"
+    ],
+    "raw": "CSE 201"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 54,
+    "desc": 40
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 331",
+   "name": {
+    "vi": "Xử lý ảnh",
+    "en": "Image Processing"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201"
+    ],
+    "raw": "CSE 201"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 55,
+    "desc": 41
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 332",
+   "name": {
+    "vi": "Máy học và ứng dụng",
+    "en": "Machine Learning and applications"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 201"
+    ],
+    "raw": "CSE 201"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 55,
+    "desc": 41
+   },
+   "opens": []
+  },
+  {
+   "code": "CSW 333",
+   "name": {
+    "vi": "Phương pháp nghiên cứu khoa học",
+    "en": "Research methodology"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 103"
+    ],
+    "raw": "CSE 103"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 55,
+    "desc": 41
+   },
+   "ltThUnclear": true,
+   "opens": []
+  },
+  {
+   "code": "CSN 305",
+   "name": {
+    "vi": "Điện toán đám mây",
+    "en": "Cloud Computing"
+   },
+   "credits": 4,
+   "lt": 3,
+   "th": 1,
+   "kind": "elective",
+   "block": "nganh",
+   "group": "cn-4",
+   "pdfTerm": null,
+   "aliases": [],
+   "prereq": {
+    "mode": "all",
+    "codes": [
+     "CSE 204"
+    ],
+    "raw": "CSE 204"
+   },
+   "prestudy": [],
+   "coreq": [],
+   "english": "IELTS 6.0",
+   "pdf": {
+    "table": 55,
+    "desc": 42
+   },
+   "opens": []
+  }
+ ],
+ "groups": [
+  {
+   "id": "khxh",
+   "title": {
+    "vi": "Khoa học xã hội và hành vi",
+    "en": "Social and behavioral sciences"
+   },
+   "minCredits": 4,
+   "pdfSlots": [
+    "2.3"
+   ],
+   "courses": [
+    "ANT 110",
+    "CIVI 101",
+    "PSYC 154",
+    "SOC 144",
+    "BUS 101",
+    "EBS 110",
+    "ECO 110",
+    "FIN 239",
+    "IEPS 100",
+    "IREL 101"
+   ]
+  },
+  {
+   "id": "khtn",
+   "title": {
+    "vi": "Khoa học tự nhiên và tư duy định lượng",
+    "en": "Natural sciences and quantitative reasoning"
+   },
+   "minCredits": 8,
+   "pdfSlots": [
+    "3.3"
+   ],
+   "courses": [
+    "MATH 114",
+    "MTH 171",
+    "MATH 104",
+    "PHYS 103",
+    "CHEM 100",
+    "STAT 202"
+   ]
+  },
+  {
+   "id": "cns",
+   "title": {
+    "vi": "Công nghệ số",
+    "en": "Digital literacy"
+   },
+   "minCredits": 4,
+   "pdfSlots": [
+    "1.1"
+   ],
+   "courses": [
+    "INFO 101",
+    "INFO 106",
+    "INFO 201",
+    "DSCI 130",
+    "DSCI 261"
+   ]
+  },
+  {
+   "id": "gtnn",
+   "title": {
+    "vi": "Giao tiếp, ngôn ngữ và nghệ thuật",
+    "en": "Communications, languages and arts"
+   },
+   "minCredits": 4,
+   "pdfSlots": [
+    "1.3"
+   ],
+   "courses": [
+    "WRT 122",
+    "WRT 187",
+    "PHL 255",
+    "COMS 101",
+    "LNGS-J101",
+    "LNGS-J102",
+    "LNGS-J103",
+    "LNGS-K101",
+    "LNGS-K102",
+    "LNGS-K103",
+    "MUSI 110",
+    "MUSI 203",
+    "MUSI 204",
+    "MUSI 205"
+   ]
+  },
+  {
+   "id": "cdnc",
+   "title": {
+    "vi": "Các chủ đề nghiên cứu mở rộng trong cơ sở giáo dục đại học",
+    "en": "University Studies"
+   },
+   "minCredits": 4,
+   "pdfSlots": [
+    "1.2"
+   ],
+   "courses": [
+    "UNIV 111",
+    "UNIV 112",
+    "UNIV 226",
+    "MGMT 291",
+    "HLTH 130",
+    "PSYC 110",
+    "UNIV 101"
+   ]
+  },
+  {
+   "id": "cn-1",
+   "title": {
+    "vi": "Nhóm 1. Phát triển ứng dụng di động",
+    "en": "Group 1. Mobile application development"
+   },
+   "minCredits": 0,
+   "pdfSlots": [
+    "4.1",
+    "4.2"
+   ],
+   "courses": [
+    "CSW 430",
+    "CSW 434"
+   ]
+  },
+  {
+   "id": "cn-2",
+   "title": {
+    "vi": "Nhóm 2. Phát triển Front-end",
+    "en": "Group 2. Front-end development"
+   },
+   "minCredits": 0,
+   "pdfSlots": [
+    "4.1",
+    "4.2"
+   ],
+   "courses": [
+    "CSW 433",
+    "CSW 437"
+   ]
+  },
+  {
+   "id": "cn-3",
+   "title": {
+    "vi": "Nhóm 3. Phát triển Back-end",
+    "en": "Group 3. Back-end development"
+   },
+   "minCredits": 0,
+   "pdfSlots": [
+    "4.1",
+    "4.2"
+   ],
+   "courses": [
+    "CSW 436",
+    "CSW 431"
+   ]
+  },
+  {
+   "id": "cn-4",
+   "title": {
+    "vi": "Nhóm 4. Tự chọn khác",
+    "en": "Group 4. Other electives"
+   },
+   "minCredits": 0,
+   "pdfSlots": [
+    "4.1",
+    "4.2"
+   ],
+   "courses": [
+    "CSW 435",
+    "CSW 310",
+    "CSW 432",
+    "CSW 438",
+    "CSW 439",
+    "CSW 440",
+    "CSW 330",
+    "CSW 331",
+    "CSW 332",
+    "CSW 333",
+    "CSN 305"
+   ]
+  }
+ ],
+ "specializationRule": {
+  "minCredits": 16,
+  "completeOneOf": [
+   "cn-1",
+   "cn-2",
+   "cn-3"
+  ]
+ }
+}
