@@ -49,9 +49,30 @@ Khắc phục 3 vấn đề ngoại cảnh còn tồn đọng sau bản test g�
 
 ## Tiêu chí xong
 
-- [ ] `npm run typecheck` 0 lỗi
-- [ ] `npm run lint` 0 lỗi
-- [ ] `npm run build` thành công
-- [ ] Mặt đường, bãi xe, vỉa hè sát đất, bó vỉa 12–15cm, không hở gầm
-- [ ] Dây leo mỏng nhẹ, tự nhiên, không khối hộp
-- [ ] Cây cối đồng bộ, phân bố đều quanh trường, không mọc trong nhà/đường
+- [x] `npm run typecheck` 0 lỗi
+- [x] `npm run lint` 0 lỗi
+- [x] `npm run build` thành công
+- [x] Mặt đường, bãi xe, vỉa hè sát đất, bó vỉa 12–15cm, không hở gầm
+- [x] Dây leo mỏng nhẹ, tự nhiên, không khối hộp
+- [x] Cây cối đồng bộ, phân bố đều quanh trường, không mọc trong nhà/đường
+
+## Báo cáo hoàn thành
+
+### 1. Danh sách commit thực hiện theo từng mục
+- **Mục 1 (Đường lơ lửng)**: Commit `fcf33db` — *fix(scene): ha sat mat dat cac lop duong va bo via theo style-3d (Mục 1 Task FIX-NC)*
+- **Mục 2 (Cây dây leo)**: Commit `c3269ea` — *feat(scene): thay the day leo khoi hop bang rem quad la alpha tu nhien (Mục 2 Task FIX-NC)*
+- **Mục 3 (Hệ cây thống nhất)**: Commit `524f774` — *feat(scene): thong nhat he cay 3 loai instancing toan truong (Muc 3 Task FIX-NC)*
+
+### 2. Kết quả đo lường hiệu năng WebGL
+- **Draw calls toàn cảnh tổng quan**: `179` draw calls (toàn bộ ~1,100 cây trên khuôn viên trường chỉ tiêu tốn đúng 5 draw calls).
+- **Số lượng tam giác toàn cảnh**: `382,832` triangles (giảm mạnh và ổn định so với phiên bản chứa các cây chi tiết lẻ tẻ).
+
+### 3. Danh sách ảnh kiểm chứng (`docs/tasks/FIX-NC-anh/`)
+1. `01-duong-sat-dat-bo-via.png`: Góc nhìn cận cảnh mặt đường nhựa, lối đi bộ và chân bó vỉa cắm chặt xuống nền cỏ, không có khe hở.
+2. `02-hanh-lang-day-leo.png`: Dải rèm lá buông rủ 2 lớp alpha mềm mại, tự nhiên tại hành lang mái che.
+3. `03-gian-leo-duong-noi-bo.png`: Giàn leo vòm qua đường nội bộ với mặt tán phía trên và các dải rèm rủ hai bên.
+4. `04-highlands-vines.png`: Mặt tiền Highlands Coffee với rèm dây leo mỏng nhẹ thay cho các khối hộp xanh cũ.
+5. `05-cau-ho-day-leo.png`: Giàn leo bên hồ và cầu nước với lá leo alpha buông rủ soi bóng nước.
+6. `06-he-cay-tong-quan.png`: Toàn cảnh phân bố cây 3 loại (tán tròn lớn, thân cao dọc đường, cây bụi) đồng đều khắp khuôn viên.
+7. `07-duong-khi-tuyet.png`: Kiểm tra mặt đường và bó vỉa khi chế độ tuyết được kích hoạt.
+
