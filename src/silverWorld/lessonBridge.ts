@@ -1,6 +1,7 @@
 import { getClassroom, getLesson } from '../data';
 import { useActivityStore } from '../store/useActivityStore';
 import { useLessonStore } from '../store/useLessonStore';
+import { useWalkStore } from '../store/useWalkStore';
 import type { Vec2 } from '../types';
 import type { Activity, WorldSpot } from '../types/silverWorld';
 
@@ -13,11 +14,9 @@ function direction(from: Vec2, to: Vec2): Vec2 {
   return length ? [dx / length, dz / length] : [0, 0];
 }
 
-function lessonActivity(id: string, toWorld: ToWorld): Activity | undefined {
-  const lesson = getLesson(id);
-  const room = lesson && getClassroom(lesson.roomCode);
-  const seat = room?.seats.find(({ id }) => id === room.playerSeat);
-  if (!room || !seat) return;
+function lessonActivity(id: string, room: NonNullable<ReturnType<typeof getClassroom>>, toWorld: ToWorld): Activity | undefined {
+  const seat = room.seats.find(({ id }) => id === room.playerSeat);
+  if (!seat) return;
 
   const spot = ([x, z]: Vec2, facing: Vec2): WorldSpot => (
     { buildingId: room.buildingId, floor: room.floor, x, z, facing }
@@ -58,15 +57,40 @@ function lessonActivity(id: string, toWorld: ToWorld): Activity | undefined {
 }
 
 export function startLessonBridge(toWorld: ToWorld): () => void {
+  let inClassroom: ((x: number, z: number) => boolean) | undefined;
   const beginLesson = (id: string) => {
-    const activity = lessonActivity(id, toWorld);
-    if (activity) useActivityStore.getState().begin(activity, { teleportTo: 'arrival', keepSeated: false });
+    const lesson = getLesson(id);
+    const room = lesson && getClassroom(lesson.roomCode);
+    const activity = room && lessonActivity(id, room, toWorld);
+    if (!room || !activity) return;
+
+    const { minU, maxU, minV, maxV } = room.bounds;
+    const [x0, z0] = toWorld(minU, minV);
+    const [xU, zU] = toWorld(maxU, minV);
+    const [xV, zV] = toWorld(minU, maxV);
+    const ux = xU - x0;
+    const uz = zU - z0;
+    const vx = xV - x0;
+    const vz = zV - z0;
+    const area = ux * vz - uz * vx;
+    inClassroom = (x, z) => {
+      const dx = x - x0;
+      const dz = z - z0;
+      const u = (dx * vz - dz * vx) / area;
+      const v = (ux * dz - uz * dx) / area;
+      return u >= 0 && u <= 1 && v >= 0 && v <= 1;
+    };
+    useActivityStore.getState().begin(activity, { teleportTo: 'arrival', keepSeated: false });
   };
 
   const stopLesson = useLessonStore.subscribe((lesson, prev) => {
     const state = useActivityStore.getState();
     if (lesson.phase === 'idle') {
-      if (state.activity?.source === 'lesson') state.end();
+      inClassroom = undefined;
+      if (state.activity?.source === 'lesson') {
+        if (state.seated && useWalkStore.getState().walkMode) state.standUp();
+        state.end();
+      }
       return;
     }
     if (lesson.phase === 'goToClass' && lesson.lessonId && (
@@ -78,16 +102,24 @@ export function startLessonBridge(toWorld: ToWorld): () => void {
     if (state.activity?.key !== `lesson:${lesson.lessonId}`) return;
 
     if (lesson.seatId !== prev.seatId) {
-      if (lesson.seatId && !state.seated) {
-        state.setInRange(true);
+      if (lesson.seatId && !state.seated && state.inRange) {
         state.interact();
       } else if (!lesson.seatId && state.seated) {
         state.standUp();
       }
-    } else if (lesson.phase === 'findSeat' && prev.phase !== 'findSeat') {
-      state.setInRange(true);
     }
     if (lesson.desktopOpen !== prev.desktopOpen) state.setScreenOpen(lesson.desktopOpen);
+  });
+
+  // Vào phòng đổi hướng dẫn; tầm ghế do WalkMode đo riêng.
+  const stopWalk = useWalkStore.subscribe(({ playerPos, interior }, prev) => {
+    if (playerPos === prev.playerPos || !interior || !inClassroom) return;
+    const lesson = useLessonStore.getState();
+    if (lesson.phase !== 'goToClass') return;
+    const activity = useActivityStore.getState().activity;
+    if (activity?.key !== `lesson:${lesson.lessonId}` || activity.target.buildingId !== interior.buildingId
+      || activity.target.floor !== interior.floor || playerPos.floor !== interior.floor) return;
+    if (inClassroom(playerPos.x, playerPos.z)) lesson.arriveAtClass();
   });
 
   const stopActivity = useActivityStore.subscribe((state, prev) => {
@@ -113,5 +145,6 @@ export function startLessonBridge(toWorld: ToWorld): () => void {
   return () => {
     stopLesson();
     stopActivity();
+    stopWalk();
   };
 }

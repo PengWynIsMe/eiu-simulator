@@ -39,6 +39,64 @@ async function loadLesson(load) {
 }
 
 export default {
+  'walk interaction uses the activity radius and requires the same building and floor': async ({ assert, load }) => {
+    const store = await loadActivity(load);
+    const { syncActivityRange, focusActivity } = await load('/src/scene/walk/activityControl.ts');
+    const interior = { buildingId: 'b8', floor: 4 };
+    const check = (where, x, z) => syncActivityRange(store.getState(), where, x, z);
+    try {
+      store.getState().begin(activity, walk);
+      assert.equal(check(interior, 10, 21.21), false);
+      assert.equal(check({ ...interior, floor: 3 }, 10, 20), false);
+      assert.equal(check({ ...interior, buildingId: 'b11' }, 10, 20), false);
+      assert.equal(check(interior, 10, 21.19), true);
+      assert.equal(check(interior, 10, 21.21), false);
+      assert.equal(store.getState().phase, 'travel');
+
+      const target = { ...spot(0, 0), buildingId: null, floor: null };
+      for (const trigger of ['talk', 'look']) {
+        const interaction = { ...activity, trigger, target, seat: null };
+        store.getState().begin(interaction, walk);
+        assert.equal(check(interior, 0, 0), false);
+        assert.equal(check(null, 1.81, 0), false);
+        assert.equal(check(null, 1.8, 0), true);
+        store.getState().interact();
+        assert.equal(focusActivity(store.getState()), interaction);
+        assert.equal(check(null, 1.8, 0), false);
+        assert.equal(store.getState().phase, 'engaged');
+      }
+    } finally {
+      store.getState().end();
+    }
+  },
+  'Escape closes the desktop before standing and leaves other Escape handlers available when walking': async ({ assert, load }) => {
+    const store = await loadActivity(load);
+    const { handleActivityEscape } = await load('/src/scene/walk/activityControl.ts');
+    const escape = (repeat = false) => {
+      let stopped = false;
+      handleActivityEscape({
+        key: 'Escape', repeat, preventDefault() {},
+        stopImmediatePropagation() { stopped = true; },
+      });
+      return stopped;
+    };
+    try {
+      store.getState().begin(activity, walk);
+      store.getState().setInRange(true);
+      store.getState().interact();
+      store.getState().setScreenOpen(true);
+      assert.equal(escape(), true);
+      assert.equal(store.getState().screenOpen, false);
+      assert.equal(escape(true), true);
+      assert.equal(store.getState().seated, true);
+      assert.equal(escape(), true);
+      assert.equal(store.getState().seated, false);
+      assert.equal(escape(true), true);
+      assert.equal(escape(), false);
+    } finally {
+      store.getState().end();
+    }
+  },
   'walk, approach, sit, close the desktop on standing and sit again without redundant updates': async ({ assert, load }) => {
     const store = await loadActivity(load);
     const actions = store.getState();
@@ -227,6 +285,12 @@ export default {
       checkPoint(lessonSeat.screenCamera.look, cameraPoint(92.45, -141, 1.05));
 
       lesson.arriveAtClass();
+      assert.equal(store.getState().phase, 'travel');
+      assert.equal(store.getState().inRange, false);
+      actions.interact();
+      assert.equal(useLessonStore.getState().seatId, null);
+      writes(2, 1);
+      actions.setInRange(true);
       assert.equal(store.getState().phase, 'near');
       writes(2, 2);
       lesson.sitDown(lessonSeat.id);
@@ -278,9 +342,40 @@ export default {
       actions.end();
     }
   },
+  'entering the lesson room updates the HUD without bringing a distant seat into range': async ({ assert, load }) => {
+    const store = await loadActivity(load);
+    const { useLessonStore } = await loadLesson(load);
+    const { useWalkStore } = await load('/src/store/useWalkStore.ts');
+    const { startLessonBridge } = await load('/src/silverWorld/lessonBridge.ts');
+    const { b11ToWorld } = await load('/src/scene/interior/layouts/b11.ts');
+    const { getClassroom } = await load('/src/data/index.ts');
+    const lesson = useLessonStore.getState();
+    const walk = useWalkStore.getState();
+    const stop = startLessonBridge(b11ToWorld);
+    const room = getClassroom('406.B11');
+    const [x, z] = b11ToWorld(room.bounds.minU + 0.5, room.bounds.maxV - 0.5);
+    try {
+      lesson.startLesson('nmlt-01');
+      walk.enterInterior(room.buildingId);
+      walk.setPlayerPos({ x, z, y: 0, floor: 1 });
+      assert.equal(useLessonStore.getState().phase, 'goToClass');
+      walk.setInteriorFloor(room.floor);
+      walk.setPlayerPos({ x, z, y: 0, floor: room.floor });
+      assert.equal(useLessonStore.getState().phase, 'findSeat');
+      assert.equal(store.getState().inRange, false);
+      store.getState().interact();
+      assert.equal(useLessonStore.getState().seatId, null);
+    } finally {
+      lesson.endLesson();
+      walk.exitInterior();
+      walk.setPlayerPos(walk.playerPos);
+      stop();
+    }
+  },
   'nmlt-01 plays through both slides, question, code, pause and summary with and without the bridge': async ({ assert, load }) => {
     const store = await loadActivity(load);
     const { useLessonStore, getCurrentStep } = await loadLesson(load);
+    const { useWalkStore } = await load('/src/store/useWalkStore.ts');
     const { startLessonBridge } = await load('/src/silverWorld/lessonBridge.ts');
     const { getClassroom } = await load('/src/data/index.ts');
     const lesson = useLessonStore.getState();
@@ -289,10 +384,12 @@ export default {
     for (const useBridge of [false, true]) {
       const stop = useBridge ? startLessonBridge((u, v) => [u, v]) : undefined;
       try {
+        useWalkStore.setState({ walkMode: true });
         lesson.startLesson('nmlt-01');
         assert.equal(phase(), 'goToClass');
         lesson.arriveAtClass();
         assert.equal(phase(), 'findSeat');
+        if (useBridge) store.getState().setInRange(true);
         lesson.sitDown(getClassroom('406.B11').playerSeat);
         assert.equal(phase(), 'dialogue');
         lesson.chooseOption(step().options[0].id);
@@ -326,15 +423,21 @@ export default {
         assert.equal(phase(), 'summary');
         assert.equal(useLessonStore.getState().desktopOpen, false);
         assert.equal(store.getState().screenOpen, false);
-        lesson.standUp();
-        assert.equal(phase(), 'summary');
+        const standingSpot = store.getState().activity?.seat.stand;
+        let exitSpot;
+        const stopTeleport = store.subscribe((state, previous) => {
+          if (state.teleport && state.teleport !== previous.teleport) exitSpot = state.teleport.spot;
+        });
         lesson.endLesson();
+        stopTeleport();
         assert.equal(phase(), 'idle');
+        assert.equal(exitSpot, standingSpot);
         assert.equal(store.getState().activity, null);
       } finally {
         stop?.();
         lesson.endLesson();
         store.getState().end();
+        useWalkStore.getState().exitWalkMode();
       }
     }
   },
