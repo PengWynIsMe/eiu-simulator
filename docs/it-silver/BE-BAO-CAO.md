@@ -49,3 +49,16 @@ Ghi chú: spec nêu rõ 7 môn lab phải lỗi dù lịch 6 ngày × 2 khối c
 | Năm bộ điểm seed demo và eiu-1 đúng theo thứ tự kỹ năng | `grades.test.mjs` — demo and eiu-1 grades by level | Đạt |
 | Tối đa hai D; 1000 seed × 5 level đều qua | `grades.test.mjs` — passing threshold and 1000 deterministic seeds | Đạt |
 | typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
+
+## BE-06 — Nạp và kiểm nội dung
+
+| Tiêu chí / ví dụ | Test | Kết quả |
+|---|---|---|
+| Chapter/CourseContent hợp lệ và SceneContent fixture được kiểm | `content.test.mjs` — minimal valid chapter, content and fixture scene | Đạt |
+| LocalizedText, phút > 0, cảnh/bước rỗng hoặc trùng id, điều kiện variants/photos/lines, quy tắc phần tử cuối | `content.test.mjs` — rejects malformed chapter, scenes, localization, ids and conditions | Đạt |
+| Choice/question/order/code: số lựa chọn, đáp án, passage, hoán vị, placeholder duy nhất, answers không rỗng | `content.test.mjs` — rejects invalid choice question order and code steps | Đạt |
+| Summary/core/project: slot, tổng phút, số buổi, exam và đối chiếu LT/TH khi có course | `content.test.mjs` — course tier slots counts exam and course lab rules | Đạt |
+| Ánh xạ CSE/LNGS và thư mục nội dung rỗng; loader trả undefined, codes rỗng | `content.test.mjs` — content filename mapping and empty lazy loaders | Đạt |
+| typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
+
+Không tạo dữ liệu nội dung thật; test sử dụng fixture tổng hợp và fixture UI có sẵn.
