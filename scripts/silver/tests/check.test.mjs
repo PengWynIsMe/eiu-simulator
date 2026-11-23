@@ -1,4 +1,8 @@
 import { spawnSync } from 'node:child_process';
+import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { basename, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { wordCount, checkConds, checkContentFileName, compareCurriculumCourse, wordLimitViolation, sessionWordCount, sessionWordLimitError, identicalLocalizedTexts } from '../check.mjs';
 
 export default {
@@ -42,11 +46,29 @@ export default {
     assert.match(warnings[0], /options/);
   },
   'normal mode warns for absent demo content and strict mode fails': async ({ assert }) => {
-    const normal = spawnSync('node', ['scripts/silver/check.mjs'], { encoding: 'utf8' });
-    const strict = spawnSync('node', ['scripts/silver/check.mjs', '--strict'], { encoding: 'utf8' });
-    assert.equal(normal.status, 0);
-    assert.match(normal.stdout, /2\.2 thiếu nội dung/);
-    assert.equal(strict.status, 1);
-    assert.match(strict.stdout, /2\.2 thiếu nội dung/);
+    const cwd = await mkdtemp(join(tmpdir(), 'silver-missing-content-'));
+    try {
+      const data = new URL('../../../src/data/', import.meta.url);
+      const fixtureData = join(cwd, 'src/data');
+      await mkdir(join(fixtureData, 'majors'), { recursive: true });
+      await Promise.all([
+        cp(new URL('validate.ts', data), join(fixtureData, 'validate.ts')),
+        cp(new URL('majors/ktpm.curriculum.json', data), join(fixtureData, 'majors/ktpm.curriculum.json')),
+        cp(new URL('silver/', data), join(fixtureData, 'silver'), {
+          recursive: true,
+          filter: (source) => !['chapters', 'content'].includes(basename(source)),
+        }),
+      ]);
+      const check = fileURLToPath(new URL('../check.mjs', import.meta.url));
+      const options = { cwd, encoding: 'utf8' };
+      const normal = spawnSync(process.execPath, [check], options);
+      const strict = spawnSync(process.execPath, [check, '--strict'], options);
+      assert.equal(normal.status, 0, normal.stderr);
+      assert.match(normal.stdout, /'warning'\s+│ '2\.2 thiếu nội dung/);
+      assert.equal(strict.status, 1, strict.stderr);
+      assert.match(strict.stdout, /'error'\s+│ '2\.2 thiếu nội dung/);
+    } finally {
+      await rm(cwd, { recursive: true, force: true });
+    }
   },
 };
