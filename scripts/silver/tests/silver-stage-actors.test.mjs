@@ -106,4 +106,159 @@ export default {
     assert.ok(screenX > seatX, 'Màn hình máy tính phải ở phía trước mặt ghế ngồi');
     assert.ok(Math.hypot(screenX - seatX, screenZ - seatZ) < 0.7, 'Màn hình cách ghế < 0.7 m');
   },
+
+  'StoryActors supports optional room, spot+sit pose in 208.B8, and outdoor actors': async ({ assert, load }) => {
+    const { getStage } = await load('/src/data/silver/stages.ts');
+    const { resolveSeatAnchor } = await load('/src/silverWorld/seatAnchor.ts');
+    const { toWorld } = await load('/src/scene/interior/layouts/b8.ts');
+
+    // 1. 208.B8: examiner has spot and pose === 'sit' without seatId
+    const speaking = getStage('entrance/speaking');
+    assert.ok(speaking, 'Phải tìm thấy stage entrance/speaking');
+    assert.equal(speaking.roomCode, '208.B8');
+    const examiner = speaking.actors.find((a) => a.speaker === 'examiner');
+    assert.ok(examiner, 'Phải có examiner trong 208.B8');
+    assert.equal(examiner.pose, 'sit');
+    assert.ok(examiner.spot, 'Examiner phải có spot');
+    assert.equal(examiner.seatId, undefined, 'Examiner 208 không dùng seatId');
+
+    // 2. 208.B8: player seat anchor from resolveSeatAnchor
+    const seatAnchor = resolveSeatAnchor('208.B8', () => undefined, (_frame, u, v) => toWorld(u, v));
+    assert.ok(seatAnchor, 'Phải tạo được seatAnchor cho 208.B8');
+    assert.equal(seatAnchor.id, '208-player');
+    const [expectedSeatX, expectedSeatZ] = toWorld(77.95, -205.1);
+    assert.ok(Math.abs(seatAnchor.spot.x - expectedSeatX) < 1e-4);
+    assert.ok(Math.abs(seatAnchor.spot.z - expectedSeatZ) < 1e-4);
+
+    // 3. Outdoor scenes: roomCode is null, actors have spots
+    const meetThanh = getStage('entrance/meet-thanh');
+    assert.ok(meetThanh);
+    assert.equal(meetThanh.roomCode, null);
+    const thanhActor = meetThanh.actors.find((a) => a.speaker === 'thanh');
+    assert.ok(thanhActor?.spot);
+    assert.equal(thanhActor.pose, 'idle');
+
+    const resultStage = getStage('entrance/result');
+    assert.ok(resultStage);
+    assert.equal(resultStage.roomCode, null);
+    assert.equal(resultStage.actors.length, 2);
+
+    const peStage = getStage('1.1/pe');
+    assert.ok(peStage);
+    assert.equal(peStage.roomCode, null);
+    assert.equal(peStage.crowd, 4);
+  },
+
+  'departureState pure functions and lifecycle manager': async ({ assert, load }) => {
+    const {
+      computeSessionKey,
+      shouldTriggerDeparture,
+      departureManager,
+    } = await load('/src/scene/silver/departureState.ts');
+
+    // 1. computeSessionKey
+    assert.equal(computeSessionKey({ screen: 'home', itemId: 'entrance/meet-thanh' }), null, 'Screen home trả về null');
+    assert.equal(computeSessionKey({ screen: 'play', itemId: null }), null, 'ItemId null trả về null');
+    assert.equal(
+      computeSessionKey({ screen: 'play', chapterId: 'entrance', itemId: 'entrance/meet-thanh', turnIndex: 1 }),
+      'entrance:entrance/meet-thanh:1'
+    );
+
+    // 2. shouldTriggerDeparture pure function
+    // 2.1 Cảnh kết thúc: luôn trigger
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'end',
+        actorSpeaker: 'thanh',
+        stepIndex: 3,
+        stepCount: 4,
+        stepElapsedSeconds: 0.1,
+      }),
+      true,
+      'signalMode end phải trigger rời đi'
+    );
+
+    // 2.2 Chưa đến bước cuối: không trigger
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'say',
+        actorSpeaker: 'thanh',
+        stepIndex: 1,
+        stepCount: 4,
+        stepElapsedSeconds: 5.0,
+      }),
+      false,
+      'Chưa đến bước cuối không được rời đi'
+    );
+
+    // 2.3 Bước cuối nhưng nhân vật đang là người nói: ở lại, không rời đi
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'say',
+        signalSpeaker: 'thanh',
+        actorSpeaker: 'thanh',
+        stepIndex: 3,
+        stepCount: 4,
+        currentStepSpeaker: 'thanh',
+        stepElapsedSeconds: 4.0,
+      }),
+      false,
+      'Nhân vật đang nói ở bước cuối không được rời đi'
+    );
+
+    // 2.4 Bước cuối người khác nói, nhưng chưa đủ 2.5s: không rời đi
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'say',
+        signalSpeaker: 'narrator',
+        actorSpeaker: 'thanh',
+        stepIndex: 3,
+        stepCount: 4,
+        currentStepSpeaker: 'narrator',
+        stepElapsedSeconds: 1.8,
+      }),
+      false,
+      'Bước cuối chưa đủ 2.5s không được rời đi'
+    );
+
+    // 2.5 Bước cuối người khác nói, đã hiện >= 2.5s: kích hoạt rời đi
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'say',
+        signalSpeaker: 'narrator',
+        actorSpeaker: 'thanh',
+        stepIndex: 3,
+        stepCount: 4,
+        currentStepSpeaker: 'narrator',
+        stepElapsedSeconds: 2.8,
+      }),
+      true,
+      'Bước cuối người khác nói sau 2.5s được kích hoạt rời đi'
+    );
+
+    // 3. departureManager lifecycle
+    departureManager.reset();
+
+    // 3.1 Bắt đầu lượt chơi cảnh entrance/meet-thanh
+    const sKey1 = departureManager.updateSession('play', 'entrance', 'entrance/meet-thanh');
+    assert.ok(sKey1, 'Phải có sessionKey cho lượt chơi');
+    assert.equal(departureManager.isCompleted(sKey1, 'entrance/meet-thanh:thanh'), false, 'Đầu cảnh chưa rời đi');
+
+    // Diễn viên hoàn tất rời đi
+    departureManager.markCompleted(sKey1, 'entrance/meet-thanh:thanh');
+    assert.equal(departureManager.isCompleted(sKey1, 'entrance/meet-thanh:thanh'), true, 'Đã ghi nhận hoàn tất rời đi');
+
+    // 3.2 Mount lại giữa cảnh (cùng sessionKey): vẫn ghi nhận đã rời đi, không chạy lại
+    assert.equal(departureManager.isCompleted(sKey1, 'entrance/meet-thanh:thanh'), true, 'Mount lại cùng cảnh không chạy lại');
+
+    // 3.3 Thoát ra Home: session bị xóa
+    const homeSession = departureManager.updateSession('home', 'entrance', null);
+    assert.equal(homeSession, null, 'Về home sessionKey là null');
+
+    // 3.4 Chơi lại chương từ Home: session mới được tạo
+    const sKey2 = departureManager.updateSession('play', 'entrance', 'entrance/meet-thanh');
+    assert.ok(sKey2, 'Phải có sessionKey mới');
+    assert.notEqual(sKey1, sKey2, 'Lượt chơi mới phải có sessionKey khác lượt cũ');
+    assert.equal(departureManager.isCompleted(sKey2, 'entrance/meet-thanh:thanh'), false, 'Chơi lại chương Thành phải có mặt');
+  },
 };

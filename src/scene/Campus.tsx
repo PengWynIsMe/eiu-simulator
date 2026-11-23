@@ -15,6 +15,7 @@ import ReviewPins from './ReviewPins';
 import WalkMode from './walk/WalkMode';
 import InteriorScene from './interior/InteriorScene';
 import CampusNpcs from './npc/CampusNpcs';
+import SilverStage from './silver/SilverStage';
 import SnowParticles from './snow/SnowParticles';
 import SnowCinematicCamera from './snow/SnowCinematicCamera';
 import { campus } from '../data';
@@ -52,6 +53,7 @@ export default function Campus() {
       <Block8Details />
       <ReviewPins />
       <CampusNpcs />
+      <SilverStage />
       {walkMode ? <WalkMode /> : <CameraRig />}
       <SnowParticles />
       <SnowCinematicCamera />

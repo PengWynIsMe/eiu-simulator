@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Vector3, type Group } from 'three';
@@ -7,8 +7,10 @@ import { turnToward } from '../npc/lod';
 import { toWorld, yawOf } from './frame';
 import { characterConfig } from '../../data';
 import { useLangStore } from '../../store/useLangStore';
+import { useSilverStore } from '../../store/useSilverStore';
 import type { Classroom } from '../../types';
 import type { ClassSignal, StageActor, StageSpec } from '../../types/silverWorld';
+import { departureManager, shouldTriggerDeparture } from './departureState';
 
 const SPEAKER_NAMES: Record<string, { vi: string; en: string }> = {
   han: { vi: 'Han', en: 'Han' },
@@ -19,7 +21,7 @@ const SPEAKER_NAMES: Record<string, { vi: string; en: string }> = {
 };
 
 export interface StoryActorsProps {
-  room: Classroom;
+  room?: Classroom | null;
   stage: StageSpec;
   getSignal: () => ClassSignal;
   subscribe: (listener: () => void) => () => void;
@@ -28,11 +30,40 @@ export interface StoryActorsProps {
 
 interface ActorInstanceProps {
   actor: StageActor;
-  room: Classroom;
+  room?: Classroom | null;
   stage: StageSpec;
   getSignal: () => ClassSignal;
   sitYOffset: number;
   isTalkTarget: boolean;
+}
+
+function getDepartureConfig(sceneId: string, speaker: string): {
+  key: string;
+  dir: [number, number];
+  maxDist: number;
+  speed: number;
+} | null {
+  if (sceneId === 'entrance/meet-thanh' && speaker === 'thanh') {
+    // Thành đi vào cửa Nam B8: từ (17.91, -164.85) tới cửa (14.49, -170.72)
+    // Hướng: dx = 14.49 - 17.91 = -3.42, dz = -170.72 - -164.85 = -5.87
+    const len = Math.hypot(-3.42, -5.87);
+    return {
+      key: `${sceneId}:${speaker}`,
+      dir: [-3.42 / len, -5.87 / len],
+      maxDist: 2.0,
+      speed: 1.4,
+    };
+  }
+  if (sceneId === '1.1/after' && speaker === 'quyen') {
+    // Quyền đi ngang 8m ở hành lang tầng 2 B8 (dọc trục hành lang hướng Tây / thang máy)
+    return {
+      key: `${sceneId}:${speaker}`,
+      dir: [-0.97398, 0.22663], // Vector chuẩn hóa dọc hành lang B8
+      maxDist: 8.0,
+      speed: 1.5,
+    };
+  }
+  return null;
 }
 
 function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget }: ActorInstanceProps) {
@@ -41,13 +72,23 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
   const labelRef = useRef<HTMLDivElement>(null);
   const lang = useLangStore((s) => s.lang);
 
-  // Tính tọa độ, hướng quay mặc định và hướng nhìn về người chơi (bỏ dự phòng)
+  const departConfig = useMemo(() => {
+    return getDepartureConfig(stage.sceneId, actor.speaker);
+  }, [stage.sceneId, actor.speaker]);
+
+  const screen = useSilverStore((s) => s.screen);
+  const play = useSilverStore((s) => s.play);
+  const sessionKey = useMemo(() => {
+    return departureManager.updateSession(screen, play?.chapterId ?? null, play?.item.id ?? null);
+  }, [screen, play?.chapterId, play?.item.id]);
+
+  // Nếu diễn viên này đã hoàn thành rời đi ở lượt chơi này, không render lại
+  const alreadyDeparted = departConfig ? departureManager.isCompleted(sessionKey, departConfig.key) : false;
+
+  // Tính tọa độ, hướng quay mặc định và hướng nhìn về người chơi
   const poseInfo = useMemo(() => {
-    if (actor.pose === 'sit' || actor.seatId) {
-      if (!actor.seatId) {
-        console.warn(`[StoryActors] Diễn viên ${actor.speaker} ở tư thế ngồi nhưng thiếu seatId`);
-        return null;
-      }
+    // 1. Ngồi trong phòng học có seatId
+    if (actor.seatId && room) {
       const seat = room.seats.find((s) => s.id === actor.seatId);
       if (!seat) {
         console.warn(`[StoryActors] Ghế ${actor.seatId} không tìm thấy trong phòng ${room.code}`);
@@ -67,28 +108,45 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
         defaultYaw: defYaw,
         playerYaw: pYaw,
         clip: 'sit' as const,
-        labelY: 1.05, // Sát đỉnh đầu khi ngồi (chiều cao đầu ngồi ~ 0.95 - 1.0 m)
+        labelY: 1.05,
       };
     }
 
-    // Đứng tại spot (bỏ fallback stage.arrival)
-    if (!actor.spot) {
-      console.warn(`[StoryActors] Diễn viên đứng ${actor.speaker} thiếu spot`);
-      return null;
-    }
-    const spot = actor.spot;
-    const defYaw = Math.atan2(spot.facing[0], spot.facing[1]);
-    const target = stage.target;
-    const pYaw = Math.atan2(target.x - spot.x, target.z - spot.z);
+    // 2. Ngồi tại spot (ví dụ giám khảo phòng 208.B8: spot + pose 'sit')
+    if (actor.spot && actor.pose === 'sit') {
+      const spot = actor.spot;
+      const defYaw = Math.atan2(spot.facing[0], spot.facing[1]);
+      const target = stage.target;
+      const pYaw = Math.atan2(target.x - spot.x, target.z - spot.z);
 
-    return {
-      pos: [spot.x, 0, spot.z] as const,
-      worldVec: new Vector3(spot.x, 0, spot.z),
-      defaultYaw: defYaw,
-      playerYaw: pYaw,
-      clip: 'idle' as const,
-      labelY: 1.80, // Sát đỉnh đầu khi đứng (chiều cao nhân vật ~ 1.7 m)
-    };
+      return {
+        pos: [spot.x, sitYOffset, spot.z] as const,
+        worldVec: new Vector3(spot.x, sitYOffset, spot.z),
+        defaultYaw: defYaw,
+        playerYaw: pYaw,
+        clip: 'sit' as const,
+        labelY: 1.05,
+      };
+    }
+
+    // 3. Đứng tại spot (mặc định idle)
+    if (actor.spot) {
+      const spot = actor.spot;
+      const defYaw = Math.atan2(spot.facing[0], spot.facing[1]);
+      const target = stage.target;
+      const pYaw = Math.atan2(target.x - spot.x, target.z - spot.z);
+
+      return {
+        pos: [spot.x, 0, spot.z] as const,
+        worldVec: new Vector3(spot.x, 0, spot.z),
+        defaultYaw: defYaw,
+        playerYaw: pYaw,
+        clip: 'idle' as const,
+        labelY: 1.80,
+      };
+    }
+
+    return null;
   }, [actor, room, stage, sitYOffset]);
 
   // Bộ nhớ trạng thái hoạt cảnh cho Han
@@ -100,20 +158,99 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
   const nextTypingRef = useRef<number>(8 + Math.random() * 5);
   const currentYawRef = useRef<number>(poseInfo?.defaultYaw ?? 0);
 
+  // Bộ nhớ trạng thái rời đi (departure)
+  const isDepartingRef = useRef<boolean>(false);
+  const departStartRef = useRef<number>(-1);
+  const isFinishedDepartRef = useRef<boolean>(alreadyDeparted);
+  const stepTimeRef = useRef<{ stepIndex: number; shownAt: number }>({ stepIndex: -1, shownAt: 0 });
+
+  // Reset vị trí và hiển thị ban đầu khi poseInfo hoặc session thay đổi
+  useEffect(() => {
+    const g = group.current;
+    if (g && poseInfo && !alreadyDeparted) {
+      g.position.set(poseInfo.pos[0], poseInfo.pos[1], poseInfo.pos[2]);
+      g.rotation.y = poseInfo.defaultYaw;
+      g.visible = true;
+      if (labelRef.current) {
+        labelRef.current.style.display = 'block';
+      }
+      isDepartingRef.current = false;
+      departStartRef.current = -1;
+      isFinishedDepartRef.current = false;
+    }
+    return () => {
+      // Khi unmount đưa vị trí về đúng chỗ
+      if (g && poseInfo) {
+        g.position.set(poseInfo.pos[0], poseInfo.pos[1], poseInfo.pos[2]);
+        g.rotation.y = poseInfo.defaultYaw;
+      }
+    };
+  }, [poseInfo, alreadyDeparted, sessionKey]);
+
   const nameConfig = SPEAKER_NAMES[actor.speaker];
   const actorName = nameConfig ? nameConfig[lang] : actor.speaker;
 
   useFrame((state, delta) => {
     const g = group.current;
-    if (!g || !poseInfo) return;
+    if (!g || !poseInfo || isFinishedDepartRef.current) return;
 
     const dt = Math.min(delta, 0.1);
     const now = state.clock.elapsedTime;
     const signal = getSignal();
 
-    // Cử chỉ riêng cho Han: giơ tay một lần khi cảnh bắt đầu, phản ứng yes khi đúng bài tập
+    const playState = useSilverStore.getState().play;
+    const currentStepIndex = playState?.stepIndex ?? -1;
+    if (stepTimeRef.current.stepIndex !== currentStepIndex) {
+      stepTimeRef.current = { stepIndex: currentStepIndex, shownAt: now };
+    }
+    const stepElapsed = now - stepTimeRef.current.shownAt;
+
+    // 1. Kiểm tra kích hoạt rời đi (Thành vào cửa Nam, Quyền đi ngang)
+    if (departConfig && !isDepartingRef.current) {
+      const trigger = shouldTriggerDeparture({
+        signalMode: signal.mode,
+        signalSpeaker: signal.speaker,
+        actorSpeaker: actor.speaker,
+        stepIndex: playState?.stepIndex ?? 0,
+        stepCount: playState?.stepCount ?? 0,
+        currentStepSpeaker: (playState?.step && 'speaker' in playState.step) ? (playState.step as { speaker?: string }).speaker ?? null : null,
+        stepElapsedSeconds: stepElapsed,
+      });
+
+      if (trigger) {
+        isDepartingRef.current = true;
+        departStartRef.current = now;
+        handle.current?.play('walk');
+        // Quay mặt theo hướng đi
+        const walkYaw = Math.atan2(departConfig.dir[0], departConfig.dir[1]);
+        currentYawRef.current = walkYaw;
+        g.rotation.y = walkYaw;
+        if (labelRef.current) {
+          labelRef.current.style.display = 'none';
+        }
+      }
+    }
+
+    // 2. Thực hiện di chuyển rời đi
+    if (departConfig && isDepartingRef.current) {
+      const elapsed = now - departStartRef.current;
+      const traveled = elapsed * departConfig.speed;
+
+      if (traveled >= departConfig.maxDist) {
+        // Hoàn thành rời đi: ẩn và lưu trạng thái vào session
+        isFinishedDepartRef.current = true;
+        departureManager.markCompleted(sessionKey, departConfig.key);
+        g.visible = false;
+        return;
+      }
+
+      g.position.x = poseInfo.pos[0] + departConfig.dir[0] * traveled;
+      g.position.z = poseInfo.pos[2] + departConfig.dir[1] * traveled;
+      return;
+    }
+
+    // 3. Cử chỉ riêng cho Han: giơ tay một lần khi cảnh bắt đầu, phản ứng yes khi đúng bài tập
     if (actor.speaker === 'han') {
-      // 1. Giơ tay 1 lần ở đầu cảnh
       if (!hasRaisedHandRef.current) {
         hasRaisedHandRef.current = true;
         isRaisingRef.current = true;
@@ -125,7 +262,6 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
         handle.current?.stopUpper();
       }
 
-      // 2. Phản ứng hoan hô (yes) khi bài tập code đúng (chỉ phản ứng với result mới phát sinh sau khi vào cảnh)
       if (signal.result && signal.result.id !== seenResultIdRef.current) {
         seenResultIdRef.current = signal.result.id;
         if (signal.result.correct && signal.mode === 'exercise') {
@@ -134,29 +270,27 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
         }
       }
 
-      // 3. Thi thoảng gõ phím khi đang ngồi trong lớp
       if (poseInfo.clip === 'sit' && !isRaisingRef.current && signal.mode !== 'end' && now >= nextTypingRef.current) {
         nextTypingRef.current = now + 8 + Math.random() * 8;
         handle.current?.playUpper('interact');
       }
     }
 
-    // Quay mặt về phía người chơi khi đang nói chuyện (signal.speaker trùng với mình)
+    // 4. Quay mặt về phía người chơi khi đang nói chuyện
     const isSpeaking = signal.speaker === actor.speaker;
     const targetYaw = isSpeaking ? poseInfo.playerYaw : poseInfo.defaultYaw;
     currentYawRef.current = turnToward(currentYawRef.current, targetYaw, Math.min(1, dt * 8));
     g.rotation.y = currentYawRef.current;
 
-    // Cập nhật ẩn/hiện nhãn tên theo khoảng cách camera <= 6.0 m
+    // 5. Cập nhật ẩn/hiện nhãn tên theo khoảng cách camera <= 6.0 m
     if (labelRef.current) {
       const dist = state.camera.position.distanceTo(poseInfo.worldVec);
       labelRef.current.style.display = dist <= 6.0 ? 'flex' : 'none';
     }
   });
 
-  if (!poseInfo) return null;
+  if (alreadyDeparted || !poseInfo) return null;
 
-  // Lấy model theo story hoặc role (bỏ fallback roles.player)
   const roleCandidate = actor.speaker in characterConfig.roles
     ? characterConfig.roles[actor.speaker as keyof typeof characterConfig.roles]
     : undefined;
@@ -195,12 +329,10 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
 
 /**
  * Diễn viên cốt truyện theo StageActor của StageSpec:
- * - Dựng tất cả diễn viên trong stage.actors (ngoại trừ teacher do component Teacher đảm nhiệm).
- * - Tự động định vị theo seatId (ngồi) hoặc spot (đứng).
- * - Quay mặt về người chơi khi signal.speaker là mình.
- * - Cử chỉ đặc thù của Han: giơ tay một lần khi bắt đầu cảnh, yes khi bài tập code đúng.
- * - Nhãn tên song ngữ gắn sát đỉnh đầu (<Html>), tự ẩn khi xa > 6 m.
- * - Dấu "!" chỉ hiện trên người đứng gần stage.target nhất khi stage.trigger === 'talk'.
+ * - Hỗ trợ cả phòng học (Classroom) và cảnh ngoài trời / sảnh / hành lang (room null).
+ * - Tư thế ngồi (sit) tại ghế (seatId) hoặc tại chỗ (spot) với cùng độ cao sitYOffset.
+ * - Tư thế đứng (idle) tại spot với hướng quay từ spot.facing.
+ * - Cơ chế rời đi (Thành vào cửa Nam, Quyền đi ngang) kích hoạt theo mốc kết thúc cảnh.
  */
 export default function StoryActors({
   room,
@@ -221,7 +353,7 @@ export default function StoryActors({
     for (const actor of nonTeacherActors) {
       let ax = 0;
       let az = 0;
-      if (actor.seatId) {
+      if (actor.seatId && room) {
         const seat = room.seats.find((s) => s.id === actor.seatId);
         if (seat) [ax, az] = toWorld(room.frame, seat.u, seat.v);
       } else if (actor.spot) {
