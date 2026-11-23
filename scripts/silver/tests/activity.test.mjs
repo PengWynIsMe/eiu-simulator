@@ -375,6 +375,7 @@ export default {
   'nmlt-01 plays through both slides, question, code, pause and summary with and without the bridge': async ({ assert, load }) => {
     const store = await loadActivity(load);
     const { useLessonStore, getCurrentStep } = await loadLesson(load);
+    const { useWalkStore } = await load('/src/store/useWalkStore.ts');
     const { startLessonBridge } = await load('/src/silverWorld/lessonBridge.ts');
     const { getClassroom } = await load('/src/data/index.ts');
     const lesson = useLessonStore.getState();
@@ -383,6 +384,7 @@ export default {
     for (const useBridge of [false, true]) {
       const stop = useBridge ? startLessonBridge((u, v) => [u, v]) : undefined;
       try {
+        useWalkStore.setState({ walkMode: true });
         lesson.startLesson('nmlt-01');
         assert.equal(phase(), 'goToClass');
         lesson.arriveAtClass();
@@ -421,15 +423,21 @@ export default {
         assert.equal(phase(), 'summary');
         assert.equal(useLessonStore.getState().desktopOpen, false);
         assert.equal(store.getState().screenOpen, false);
-        lesson.standUp();
-        assert.equal(phase(), 'summary');
+        const standingSpot = store.getState().activity?.seat.stand;
+        let exitSpot;
+        const stopTeleport = store.subscribe((state, previous) => {
+          if (state.teleport && state.teleport !== previous.teleport) exitSpot = state.teleport.spot;
+        });
         lesson.endLesson();
+        stopTeleport();
         assert.equal(phase(), 'idle');
+        assert.equal(exitSpot, standingSpot);
         assert.equal(store.getState().activity, null);
       } finally {
         stop?.();
         lesson.endLesson();
         store.getState().end();
+        useWalkStore.getState().exitWalkMode();
       }
     }
   },

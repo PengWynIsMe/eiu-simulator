@@ -87,7 +87,10 @@ export function startLessonBridge(toWorld: ToWorld): () => void {
     const state = useActivityStore.getState();
     if (lesson.phase === 'idle') {
       inClassroom = undefined;
-      if (state.activity?.source === 'lesson') state.end();
+      if (state.activity?.source === 'lesson') {
+        if (state.seated && useWalkStore.getState().walkMode) state.standUp();
+        state.end();
+      }
       return;
     }
     if (lesson.phase === 'goToClass' && lesson.lessonId && (
