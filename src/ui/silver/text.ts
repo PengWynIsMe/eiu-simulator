@@ -169,6 +169,18 @@ export const ST = {
   },
   toExam: { vi: 'Đến cuối kỳ', en: 'Go to end of term' },
 
+  // UI-06 — Bảng điểm
+  trTitle: { vi: 'Bảng điểm — Level {n}', en: 'Transcript — Level {n}' },
+  listening: { vi: 'Nghe', en: 'Listening' },
+  reading: { vi: 'Đọc', en: 'Reading' },
+  writing: { vi: 'Viết', en: 'Writing' },
+  speaking: { vi: 'Nói', en: 'Speaking' },
+  passed: { vi: 'Qua Level {n}', en: 'Level {n} passed' },
+  trNote: {
+    vi: 'Kết quả của nhân vật trong câu chuyện, không đánh giá năng lực thật của bạn. Có tối đa hai điểm D là qua.',
+    en: "This is the character's result in the story, not a measure of your own English. Up to two Ds is a pass.",
+  },
+
   // Tiêu đề các màn chưa dựng xong (sẽ cập nhật đúng bảng ST ở UI-06..07)
   screenPlay: { vi: 'Cảnh truyện', en: 'Story scene' },
   screenTranscript: { vi: 'Bảng điểm', en: 'Transcript' },

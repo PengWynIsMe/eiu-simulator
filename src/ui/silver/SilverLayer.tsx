@@ -14,6 +14,7 @@ import Recap from './screens/Recap';
 import Registration from './screens/Registration';
 import Week from './screens/Week';
 import Play from './screens/Play';
+import Transcript from './screens/Transcript';
 
 function SilverOverlay() {
   const tr = useT();
@@ -148,11 +149,13 @@ function SilverOverlay() {
               {screen === 'registration' && <Registration exitHandlerRef={exitHandlerRef} />}
               {screen === 'week' && <Week exitHandlerRef={exitHandlerRef} />}
               {screen === 'play' && <Play exitHandlerRef={exitHandlerRef} />}
+              {screen === 'transcript' && <Transcript exitHandlerRef={exitHandlerRef} />}
               {screen !== 'home' &&
                 screen !== 'recap' &&
                 screen !== 'registration' &&
                 screen !== 'week' &&
-                screen !== 'play' && <EmptyView />}
+                screen !== 'play' &&
+                screen !== 'transcript' && <EmptyView />}
             </>
           )}
         </div>
