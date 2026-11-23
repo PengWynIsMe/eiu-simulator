@@ -48,9 +48,10 @@ export default {
     assert.ok(Math.abs(plan.frontYaw - expectedFrontYaw) < 1e-9, `frontYaw lệch: ${plan.frontYaw} vs ${expectedFrontYaw}`);
   },
 
-  'teacher route in 406.B8 is computed cleanly': async ({ assert, load }) => {
+  'teacher route in 406.B8 does not cut teacher desk and frontYaw matches world vector': async ({ assert, load }) => {
     const { getClassroom } = await load('/src/data/index.ts');
-    const { computeTeacherPlan } = await load('/src/scene/lesson/Teacher.tsx');
+    const { computeTeacherPlan, segmentIntersectsBox } = await load('/src/scene/lesson/Teacher.tsx');
+    const { toWorld, yawOf } = await load('/src/scene/silver/frame.ts');
 
     const room = getClassroom('406.B8');
     assert.ok(room, 'Phòng 406.B8 phải tồn tại');
@@ -58,6 +59,26 @@ export default {
     const plan = computeTeacherPlan(room);
     assert.ok(plan.toLecture.length >= 1, 'toLecture phải có điểm');
     assert.ok(plan.toDesk.length >= 1, 'toDesk phải có điểm');
-    assert.ok(Number.isFinite(plan.frontYaw), 'frontYaw phải là số hữu hạn');
+
+    // 1. Kiểm tra góc nhìn yaw khớp với vector thế giới
+    const expectedFrontYaw = yawOf('b8', -room.studentFacing[0], -room.studentFacing[1]);
+    const [wx, wz] = toWorld('b8', -room.studentFacing[0], -room.studentFacing[1]);
+    const expectedAtan2 = Math.atan2(wx, wz);
+    assert.ok(Math.abs(plan.frontYaw - expectedFrontYaw) < 1e-9, 'frontYaw phải khớp yawOf');
+    assert.ok(Math.abs(plan.frontYaw - expectedAtan2) < 1e-9, 'frontYaw phải khớp atan2 của vector thế giới');
+
+    // 2. Kiểm tra đường đi không cắt hộp bàn giáo viên
+    const tDesk = room.teacherDesk;
+    const halfDepth = tDesk.depth / 2;
+    const halfWidth = tDesk.width / 2;
+    const minU = tDesk.u - halfDepth;
+    const maxU = tDesk.u + halfDepth;
+    const minV = tDesk.v - halfWidth;
+    const maxV = tDesk.v + halfWidth;
+
+    const deskSpot = room.teacherSpots.desk;
+    const lectureSpot = room.teacherSpots.lecture;
+    const cutsDesk = segmentIntersectsBox(deskSpot.u, deskSpot.v, lectureSpot.u, lectureSpot.v, minU, maxU, minV, maxV);
+    assert.equal(cutsDesk, false, 'Đoạn thẳng giữa 2 điểm đứng của thầy trong 406.B8 không cắt bàn GV');
   },
 };

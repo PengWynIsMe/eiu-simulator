@@ -157,7 +157,6 @@ function TeacherBody({ room, getSignal }: TeacherProps) {
       wp: 0,
       moving: false,
       stepKey: '',
-      mode: 'idle' as ClassSignal['mode'],
       resultId: -1,
       pending: null as CharacterClip | null,
     }),
@@ -189,13 +188,11 @@ function TeacherBody({ room, getSignal }: TeacherProps) {
     // Phản ứng theo mode / stepKey / result
     if (signal.stepKey !== sim.stepKey) {
       sim.stepKey = signal.stepKey;
-      sim.mode = signal.mode;
+      sim.resultId = signal.result ? signal.result.id : -1;
       if (signal.mode === 'talk' || signal.mode === 'end' || signal.mode === 'slide') {
         sim.pending = 'interact';
       }
-    }
-
-    if (signal.result && signal.result.id !== sim.resultId) {
+    } else if (signal.result && signal.result.id !== sim.resultId) {
       sim.resultId = signal.result.id;
       if (signal.mode === 'question' || signal.mode === 'exercise') {
         sim.pending = signal.result.correct ? 'yes' : 'no';
