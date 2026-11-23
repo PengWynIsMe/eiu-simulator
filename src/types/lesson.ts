@@ -1,6 +1,7 @@
 // Kiểu cho Giai đoạn 2: nhân vật, phòng học, buổi học, NPC ngoài trời.
 // Tọa độ phòng học là (u, v) hệ địa phương của tòa (frame), scene đổi sang thế giới.
 import type { Vec2 } from './index';
+import type { SpeakerId } from './silver';
 
 // ---- Nhân vật (characters.json) ----
 
@@ -27,6 +28,7 @@ export interface CharacterConfig {
     worker: string;
     students: string[];
   };
+  story?: Partial<Record<SpeakerId, string>>;
 }
 
 // ---- Phòng học (classrooms.json) ----

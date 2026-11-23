@@ -31,5 +31,12 @@
       "models/characters/character-male-g.glb",
       "models/characters/character-female-f.glb"
     ]
+  },
+  "story": {
+    "thanh": "models/characters/character-male-e.glb",
+    "quyen": "models/characters/character-male-g.glb",
+    "han": "models/characters/character-female-c.glb",
+    "examiner": "models/characters/character-female-d.glb",
+    "guide": "models/characters/character-female-d.glb"
   }
 }

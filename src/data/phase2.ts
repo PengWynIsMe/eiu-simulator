@@ -15,6 +15,7 @@ import type {
   Vec2,
   WallBoard,
 } from '../types';
+import type { SpeakerId } from '../types/silver';
 import { arr, fail, num, obj, oneOf, optStr, str, vec2 } from './validate';
 
 const CLIPS: readonly CharacterClip[] = ['idle', 'walk', 'run', 'sit', 'yes', 'no', 'interact', 'raiseHand'];
@@ -27,6 +28,16 @@ function characters(v: unknown): CharacterConfig {
   const role = (k: string) => asset(str(roles[k], `characters.roles.${k}`));
   const clips = {} as Record<CharacterClip, string>;
   for (const c of CLIPS) clips[c] = str(clipsObj[c], `characters.clips.${c}`);
+
+  let story: Partial<Record<SpeakerId, string>> | undefined;
+  if (o.story !== undefined) {
+    const storyObj = obj(o.story, 'characters.story');
+    story = {};
+    for (const [k, val] of Object.entries(storyObj)) {
+      story[k as SpeakerId] = asset(str(val, `characters.story.${k}`));
+    }
+  }
+
   return {
     scale: num(o.scale, 'characters.scale'),
     height: num(o.height, 'characters.height'),
@@ -42,6 +53,7 @@ function characters(v: unknown): CharacterConfig {
       worker: role('worker'),
       students: arr(roles.students, 'characters.roles.students').map((s, i) => asset(str(s, `characters.roles.students[${i}]`))),
     },
+    story,
   };
 }
 
