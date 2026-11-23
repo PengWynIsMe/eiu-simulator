@@ -63,24 +63,6 @@ export interface Campus {
   layout: Layout;
 }
 
-export interface Major {
-  id: string;
-  name: string;
-  shortDescription: string;
-  curriculum: { year: number; courses: Course[] }[];
-  dayInLife: string[];
-  skills: string[];
-  careers: string[];
-  source: { label: string; url?: string; updatedAt: string };
-}
-
-export interface Course {
-  code?: string;
-  name: string;
-  credits?: number;
-  description?: string;
-}
-
 export interface RoomEntry {
   code?: string;
   name: string;
@@ -141,3 +123,4 @@ export interface ReviewNote {
 }
 
 export type * from './lesson';
+export type * from './major';

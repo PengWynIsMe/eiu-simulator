@@ -1,0 +1,520 @@
+{
+  "majorId": "mau-a",
+  "programCode": "0000001",
+  "totalCredits": 120,
+  "yearsInferred": false,
+  "years": [
+    {
+      "year": 1,
+      "courses": [
+        {
+          "code": "MAU 101",
+          "name": {
+            "vi": "Nhập môn lập trình mẫu",
+            "en": "Sample Intro to Programming"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 102",
+          "name": {
+            "vi": "Toán rời rạc mẫu",
+            "en": "Sample Discrete Mathematics"
+          },
+          "credits": 3,
+          "block": "co-so-nganh",
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 103",
+          "name": {
+            "vi": "Kỹ năng học đại học mẫu",
+            "en": "Sample University Study Skills"
+          },
+          "credits": 2,
+          "block": "dai-cuong",
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 104",
+          "name": {
+            "vi": "Cấu trúc dữ liệu mẫu",
+            "en": "Sample Data Structures"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 105",
+          "name": {
+            "vi": "Tiếng Anh học thuật mẫu",
+            "en": "Sample Academic English"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "dc-xa-hoi",
+          "credits": 4,
+          "semester": 2
+        }
+      ]
+    },
+    {
+      "year": 2,
+      "courses": [
+        {
+          "code": "MAU 201",
+          "name": {
+            "vi": "Cơ sở dữ liệu mẫu",
+            "en": "Sample Databases"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 202",
+          "name": {
+            "vi": "Kiến trúc máy tính mẫu",
+            "en": "Sample Computer Architecture"
+          },
+          "credits": 3,
+          "block": "co-so-nganh",
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 203",
+          "name": {
+            "vi": "Lập trình hướng đối tượng mẫu",
+            "en": "Sample Object-Oriented Programming"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 204",
+          "name": {
+            "vi": "Xác suất thống kê mẫu",
+            "en": "Sample Probability and Statistics"
+          },
+          "credits": 3,
+          "block": "co-so-nganh",
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 205",
+          "name": {
+            "vi": "Mạng máy tính mẫu",
+            "en": "Sample Computer Networks"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 206",
+          "name": {
+            "vi": "Thực tập nhận thức mẫu",
+            "en": "Sample Orientation Internship"
+          },
+          "credits": 2,
+          "block": "bo-tro",
+          "year": 2,
+          "semester": 4,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [
+        {
+          "code": "MAU 301",
+          "name": {
+            "vi": "Công nghệ phần mềm mẫu",
+            "en": "Sample Software Engineering"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 302",
+          "name": {
+            "vi": "Hệ điều hành mẫu",
+            "en": "Sample Operating Systems"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 303",
+          "name": {
+            "vi": "Phát triển ứng dụng web mẫu cho doanh nghiệp vừa và nhỏ (tên rất dài để thử xuống dòng)",
+            "en": "Sample Web Application Development for Small and Medium Enterprises (very long name to test wrapping)"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 2,
+          "th": 2,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 304",
+          "name": {
+            "vi": "Đồ án môn học mẫu",
+            "en": "Sample Course Project"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [
+        {
+          "code": "MAU 404",
+          "name": {
+            "vi": "Đạo đức nghề nghiệp mẫu",
+            "en": "Sample Professional Ethics"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 401",
+          "name": {
+            "vi": "Quản lý dự án mẫu",
+            "en": "Sample Project Management"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 402",
+          "name": {
+            "vi": "Thực tập doanh nghiệp mẫu",
+            "en": "Sample Industry Internship"
+          },
+          "credits": 6,
+          "block": "tot-nghiep",
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 403",
+          "name": {
+            "vi": "Khóa luận tốt nghiệp mẫu",
+            "en": "Sample Graduation Thesis"
+          },
+          "credits": 9,
+          "block": "tot-nghiep",
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "cn-a1",
+          "credits": 8,
+          "semester": 2
+        }
+      ]
+    }
+  ],
+  "electiveGroups": [
+    {
+      "id": "dc-xa-hoi",
+      "title": {
+        "vi": "Đại cương: Xã hội – Nhân văn",
+        "en": "General: Social Sciences & Humanities"
+      },
+      "minCredits": 4,
+      "courses": [
+        {
+          "code": "MAU 111",
+          "name": {
+            "vi": "Tâm lý học mẫu",
+            "en": "Sample Psychology"
+          },
+          "credits": 2,
+          "block": "dai-cuong"
+        },
+        {
+          "code": "MAU 112",
+          "name": {
+            "vi": "Xã hội học mẫu",
+            "en": "Sample Sociology"
+          },
+          "credits": 2,
+          "block": "dai-cuong"
+        },
+        {
+          "code": "MAU 113",
+          "name": {
+            "vi": "Âm nhạc mẫu",
+            "en": "Sample Music Appreciation"
+          },
+          "credits": 2,
+          "block": "dai-cuong"
+        },
+        {
+          "code": "MAU 114",
+          "name": {
+            "vi": "Lịch sử văn minh mẫu",
+            "en": "Sample History of Civilization"
+          },
+          "credits": 2,
+          "block": "dai-cuong"
+        },
+        {
+          "code": "MAU 115",
+          "name": {
+            "vi": "Nhập môn triết học mẫu",
+            "en": "Sample Intro to Philosophy"
+          },
+          "credits": 2,
+          "block": "dai-cuong"
+        }
+      ]
+    },
+    {
+      "id": "cn-a1",
+      "title": {
+        "vi": "Tự chọn chuyên ngành A1",
+        "en": "Specialization A1 electives"
+      },
+      "minCredits": 8,
+      "specializationId": "sample-a1",
+      "courses": [
+        {
+          "code": "MAU 351",
+          "name": {
+            "vi": "Chuyên đề A1-1 mẫu",
+            "en": "Sample A1 Topic 1"
+          },
+          "credits": 3,
+          "block": "chuyen-nganh"
+        },
+        {
+          "code": "MAU 352",
+          "name": {
+            "vi": "Chuyên đề A1-2 mẫu",
+            "en": "Sample A1 Topic 2"
+          },
+          "credits": 2,
+          "block": "chuyen-nganh"
+        },
+        {
+          "code": "MAU 353",
+          "name": {
+            "vi": "Chuyên đề A1-3 mẫu",
+            "en": "Sample A1 Topic 3"
+          },
+          "credits": 3,
+          "block": "chuyen-nganh"
+        },
+        {
+          "code": "MAU 354",
+          "name": {
+            "vi": "Chuyên đề A1-4 mẫu",
+            "en": "Sample A1 Topic 4"
+          },
+          "credits": 2,
+          "block": "chuyen-nganh"
+        }
+      ]
+    },
+    {
+      "id": "cn-a2",
+      "title": {
+        "vi": "Tự chọn chuyên ngành A2",
+        "en": "Specialization A2 electives"
+      },
+      "minCredits": 8,
+      "specializationId": "sample-a2",
+      "courses": [
+        {
+          "code": "MAU 361",
+          "name": {
+            "vi": "Chuyên đề A2-1 mẫu",
+            "en": "Sample A2 Topic 1"
+          },
+          "credits": 3,
+          "block": "chuyen-nganh"
+        },
+        {
+          "code": "MAU 362",
+          "name": {
+            "vi": "Chuyên đề A2-2 mẫu",
+            "en": "Sample A2 Topic 2"
+          },
+          "credits": 2,
+          "block": "chuyen-nganh"
+        },
+        {
+          "code": "MAU 363",
+          "name": {
+            "vi": "Chuyên đề A2-3 mẫu",
+            "en": "Sample A2 Topic 3"
+          },
+          "credits": 3,
+          "block": "chuyen-nganh"
+        },
+        {
+          "code": "MAU 364",
+          "name": {
+            "vi": "Chuyên đề A2-4 mẫu",
+            "en": "Sample A2 Topic 4"
+          },
+          "credits": 2,
+          "block": "chuyen-nganh"
+        }
+      ],
+      "note": {
+        "vi": "Sinh viên chọn 8, 12 hoặc 16 TC tùy lộ trình cố vấn học tập (ghi chú mẫu)",
+        "en": "Students choose 8, 12 or 16 credits depending on the advisor plan (sample note)"
+      }
+    }
+  ],
+  "specializations": [
+    {
+      "id": "sample-a1",
+      "name": {
+        "vi": "Chuyên ngành mẫu A1",
+        "en": "Sample Specialization A1"
+      },
+      "requiredCourses": [
+        {
+          "code": "MAU 341",
+          "name": {
+            "vi": "Chuyên sâu A1 – phần 1 mẫu",
+            "en": "Sample A1 Deep Dive I"
+          },
+          "credits": 3,
+          "block": "chuyen-nganh",
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 441",
+          "name": {
+            "vi": "Chuyên sâu A1 – phần 2 mẫu",
+            "en": "Sample A1 Deep Dive II"
+          },
+          "credits": 3,
+          "block": "chuyen-nganh",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": [
+        "cn-a1"
+      ]
+    },
+    {
+      "id": "sample-a2",
+      "name": {
+        "vi": "Chuyên ngành mẫu A2",
+        "en": "Sample Specialization A2"
+      },
+      "requiredCourses": [
+        {
+          "code": "MAU 342",
+          "name": {
+            "vi": "Chuyên sâu A2 – phần 1 mẫu",
+            "en": "Sample A2 Deep Dive I"
+          },
+          "credits": 3,
+          "block": "chuyen-nganh",
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MAU 442",
+          "name": {
+            "vi": "Chuyên sâu A2 – phần 2 mẫu",
+            "en": "Sample A2 Deep Dive II"
+          },
+          "credits": 3,
+          "block": "chuyen-nganh",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": [
+        "cn-a2"
+      ]
+    }
+  ],
+  "source": {
+    "file": "MAU-A.pdf",
+    "kind": "bm08",
+    "year": 2026,
+    "pages": "1–10 (mẫu)"
+  },
+  "generatedAt": "2026-11-23"
+}

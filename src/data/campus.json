@@ -104,7 +104,7 @@
         "floors": 4,
         "color": "#7e7280",
         "detailLevel": 1,
-        "majorIds": [],
+        "majorIds": ["mau-a", "mau-b"],
         "notes": "4 tầng. Văn phòng khoa CNTT, Kỹ thuật, Sức khỏe. Hành lang mái che nối hông B11 ↔ đầu B4 và B11 ↔ B10. Ảnh: campus_16–20,23,24"
       },
       {
@@ -356,6 +356,5 @@
         "notes": "Người dùng: nhà xe có tầng trên và tầng hầm, cạnh đường Lê Duẩn gần B9/B10. Khung nền = bãi xe OSM w605661324. Cần lối dốc xuống hầm"
       }
     ]
-  },
-  "majors": []
+  }
 }

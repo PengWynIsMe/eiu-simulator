@@ -3,7 +3,9 @@
 import campusRaw from './campus.json';
 import layoutRaw from './layout.json';
 import buildingDetailsRaw from './building-details.json';
-import type { Building, BuildingDetail, BuildingFloorDetail, BuildingInfo, BuildingKind, Campus, DetailLevel, Footprint, InfoSource, Layout, Major, Road, RoadKind, RoomEntry, RoomGroup, Vec2 } from '../types';
+import type { Building, BuildingDetail, BuildingFloorDetail, BuildingInfo, BuildingKind, Campus, DetailLevel, Footprint, InfoSource, Layout, Road, RoadKind, RoomEntry, RoomGroup, Vec2 } from '../types';
+import { majors } from './majors';
+import type { Major } from '../types';
 import { arr, fail, num, obj, oneOf, optStr, polygon, str, vec2 } from './validate';
 
 /** Chiều cao trung bình một tầng (m). */
@@ -35,41 +37,6 @@ function buildingInfo(v: unknown, path: string): BuildingInfo {
     modelUrl: optStr(o.modelUrl, `${path}.modelUrl`),
     majorIds: arr(o.majorIds, `${path}.majorIds`).map((m, i) => str(m, `${path}.majorIds[${i}]`)),
     notes: optStr(o.notes, `${path}.notes`),
-  };
-}
-
-function major(v: unknown, path: string): Major {
-  const o = obj(v, path);
-  const strings = (x: unknown, p: string) => arr(x, p).map((s, i) => str(s, `${p}[${i}]`));
-  const source = obj(o.source, `${path}.source`);
-  return {
-    id: str(o.id, `${path}.id`),
-    name: str(o.name, `${path}.name`),
-    shortDescription: str(o.shortDescription, `${path}.shortDescription`),
-    curriculum: arr(o.curriculum, `${path}.curriculum`).map((y, i) => {
-      const yo = obj(y, `${path}.curriculum[${i}]`);
-      return {
-        year: num(yo.year, `${path}.curriculum[${i}].year`),
-        courses: arr(yo.courses, `${path}.curriculum[${i}].courses`).map((c, j) => {
-          const p = `${path}.curriculum[${i}].courses[${j}]`;
-          const co = obj(c, p);
-          return {
-            code: optStr(co.code, `${p}.code`),
-            name: str(co.name, `${p}.name`),
-            credits: co.credits === undefined ? undefined : num(co.credits, `${p}.credits`),
-            description: optStr(co.description, `${p}.description`),
-          };
-        }),
-      };
-    }),
-    dayInLife: strings(o.dayInLife, `${path}.dayInLife`),
-    skills: strings(o.skills, `${path}.skills`),
-    careers: strings(o.careers, `${path}.careers`),
-    source: {
-      label: str(source.label, `${path}.source.label`),
-      url: optStr(source.url, `${path}.source.url`),
-      updatedAt: str(source.updatedAt, `${path}.source.updatedAt`),
-    },
   };
 }
 
@@ -130,7 +97,7 @@ function centroid(pts: Vec2[]): Vec2 {
   return [sx / pts.length, sz / pts.length];
 }
 
-function load(): { campus: Campus; majors: Major[]; buildingDetails: Record<string, BuildingDetail> } {
+function load(): { campus: Campus; buildingDetails: Record<string, BuildingDetail> } {
   const root = obj(campusRaw, 'campus.json');
   const campusObj = obj(root.campus, 'campus');
   const lay = obj(layoutRaw, 'layout.json');
@@ -144,7 +111,6 @@ function load(): { campus: Campus; majors: Major[]; buildingDetails: Record<stri
     });
   });
 
-  const majors = arr(root.majors, 'majors').map((m, i) => major(m, `majors[${i}]`));
   const majorIds = new Set(majors.map((m) => m.id));
 
   const ids = new Set<string>();
@@ -182,7 +148,6 @@ function load(): { campus: Campus; majors: Major[]; buildingDetails: Record<stri
 
   return {
     campus: { id: str(campusObj.id, 'campus.id'), name: str(campusObj.name, 'campus.name'), buildings, layout },
-    majors,
     buildingDetails,
   };
 }
@@ -190,7 +155,7 @@ function load(): { campus: Campus; majors: Major[]; buildingDetails: Record<stri
 const data = load();
 
 export const campus: Campus = data.campus;
-export const majors: Major[] = data.majors;
+export { majors };
 const buildingDetails = data.buildingDetails;
 
 const buildingById = new Map(campus.buildings.map((b) => [b.id, b]));
