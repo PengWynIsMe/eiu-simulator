@@ -27,9 +27,9 @@ export interface SubscribableWalkStore {
 export interface DirectorDeps {
   silver: SubscribableSilverStore;
   activity: SubscribableActivityStore;
-  walk?: SubscribableWalkStore;
+  walk: SubscribableWalkStore;
+  toWorld: (frame: 'b11' | 'b8', u: number, v: number) => Vec2;
   getClassroom?: (code: string) => Classroom | undefined;
-  toWorld?: (frame: 'b11' | 'b8', u: number, v: number) => Vec2;
 }
 
 /**
@@ -39,8 +39,8 @@ export function startDirector({
   silver,
   activity,
   walk,
-  getClassroom: getRoom = getClassroom,
   toWorld,
+  getClassroom: getRoom = getClassroom,
 }: DirectorDeps): () => void {
   let prevItemId: string | null = null;
   let prevItem: RunItem | null = null;
@@ -95,17 +95,15 @@ export function startDirector({
     if (keepSeated) {
       teleportTo = 'none';
     } else if (sameDay && (prevScreen === 'play' || prevScreen === 'week')) {
-      if (walk) {
-        const walkState = walk.getState();
-        const playerPos = walkState.playerPos;
-        const interior = walkState.interior;
-        const sameBuilding = (interior?.buildingId ?? null) === (stage.arrival.buildingId ?? null);
-        const sameFloor = (interior?.floor ?? null) === (stage.arrival.floor ?? null);
-        if (sameBuilding && sameFloor) {
-          const dist = Math.hypot(playerPos.x - stage.arrival.x, playerPos.z - stage.arrival.z);
-          if (dist < 60) {
-            teleportTo = 'none';
-          }
+      const walkState = walk.getState();
+      const playerPos = walkState.playerPos;
+      const interior = walkState.interior;
+      const sameBuilding = (interior?.buildingId ?? null) === (stage.arrival.buildingId ?? null);
+      const sameFloor = (interior?.floor ?? null) === (stage.arrival.floor ?? null);
+      if (sameBuilding && sameFloor) {
+        const dist = Math.hypot(playerPos.x - stage.arrival.x, playerPos.z - stage.arrival.z);
+        if (dist < 60) {
+          teleportTo = 'none';
         }
       }
     }
@@ -140,17 +138,14 @@ export function startDirector({
 
   // useWalkStore.walkMode về false giữa lượt:
   // Nếu đang ở màn 'play' thì exitRun()
-  let stopWalk: (() => void) | undefined;
-  if (walk) {
-    stopWalk = walk.subscribe((state, prev) => {
-      if (prev.walkMode && !state.walkMode) {
-        const silverState = silver.getState();
-        if (silverState.screen === 'play') {
-          silverState.exitRun();
-        }
+  const stopWalk = walk.subscribe((state, prev) => {
+    if (prev.walkMode && !state.walkMode) {
+      const silverState = silver.getState();
+      if (silverState.screen === 'play') {
+        silverState.exitRun();
       }
-    });
-  }
+    }
+  });
 
   // Kiểm tra nếu khi khởi động đã ở screen === 'play'
   const initialSilver = silver.getState();
@@ -160,6 +155,6 @@ export function startDirector({
 
   return () => {
     stopSilver();
-    stopWalk?.();
+    stopWalk();
   };
 }
