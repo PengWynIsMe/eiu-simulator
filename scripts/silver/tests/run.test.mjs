@@ -64,8 +64,8 @@ export default {
     const order = { type: 'order', answer: ['y', 'x', 'z'], explainCorrect: text, explainWrong: question.explainWrong };
     assert.deepEqual(gradeStep(order, 'y,x,z'), { correct: true, explain: text, correctAnswer: 'y,x,z' });
     assert.deepEqual(gradeStep(order, 'x,y,z'), { correct: false, explain: question.explainWrong, correctAnswer: 'y,x,z' });
-    const code = { type: 'code', answers: ['println'], outputCorrect: 'Hello EIU', outputWrong: 'error', explainWrong: question.explainWrong };
-    assert.deepEqual(gradeStep(code, ' println '), { correct: true, output: 'Hello EIU', correctAnswer: 'println' });
-    assert.deepEqual(gradeStep(code, 'Println'), { correct: false, output: 'error', explain: question.explainWrong, correctAnswer: 'println' });
+    const code = { type: 'code', answers: ['println', 'print'], outputCorrect: 'Hello EIU', outputWrong: 'error', explainWrong: question.explainWrong };
+    assert.deepEqual(gradeStep(code, ' print '), { correct: true, output: 'Hello EIU', correctAnswer: 'println' });
+    assert.deepEqual(gradeStep(code, 'Print'), { correct: false, output: 'error', explain: question.explainWrong, correctAnswer: 'println' });
   },
 };

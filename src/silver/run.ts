@@ -121,7 +121,7 @@ export function gradeStep(step: GradedStep, value: string): { correct: boolean; 
     return { correct, explain: correct ? step.explainCorrect : step.explainWrong, correctAnswer };
   }
   const correctAnswer = step.answers[0] ?? '';
-  const correct = value.trim() === correctAnswer;
+  const correct = step.answers.some(answer => value.trim() === answer);
   if (correct) {
     return { correct, output: step.outputCorrect, correctAnswer };
   }
