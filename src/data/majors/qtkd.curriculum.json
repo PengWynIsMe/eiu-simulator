@@ -1,0 +1,530 @@
+{
+  "majorId": "qtkd",
+  "programCode": null,
+  "totalCredits": null,
+  "yearsInferred": true,
+  "years": [
+    {
+      "year": 1,
+      "courses": [
+        {
+          "code": "LAWS 122",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Cộng sản Việt Nam) 5 POLS 132 Ho Chi Minh's Ideology"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ANT 110",
+          "name": {
+            "vi": "doanh căn bản) 1.2.2. Các MH Tự chọn",
+            "en": "chọn tối thiểu 4 tín chỉ"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "CIVI 101",
+          "name": {
+            "vi": "1.2.2. Các MH Tự chọn",
+            "en": "chọn tối thiểu 4 tín chỉ"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 103",
+          "name": {
+            "vi": "12 1 tổ hợp 3 môn gồm 12 tín chỉ của Khối 5) 1 MATH 103 Linear Algebra",
+            "en": "Đ ại số tuyến tính"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 104",
+          "name": {
+            "vi": "1 tổ hợp 3 môn gồm 12 tín chỉ của Khối 5) 1 MATH 103 Linear Algebra",
+            "en": "Đ ại số tuyến tính"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "INFO 106",
+          "name": {
+            "vi": "1.4. Khối 4: Công nghệ số 8 1.4.1. Các MH Bắt buộc 4 1 INFO 106 Focused Inquiry: Digital Literacy",
+            "en": "Năng l ực công nghệ số"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "INFO 101",
+          "name": {
+            "vi": "1.4.2. Các MH Tự chọn",
+            "en": "chọn tối thiểu 4 tín chỉ"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "WRT 122",
+          "name": {
+            "vi": "1.5. Khối 5: Giao tiếp, ngôn ngữ và nghệ thuật 16 1.5.1. Các MH Bắt buộc 4 1 WRT 122 English Composition",
+            "en": "Vi ết luận tiếng Anh"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "WRT 187",
+          "name": {
+            "vi": "12 Khối 5 hoặc 3 môn gồm 12 tín chỉ của Khối 3) 1 WRT 187 Academic Reading and Writing",
+            "en": "K ỹ năng đọc v à vi ết học thu ật"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "COMS 101",
+          "name": {
+            "vi": "K ỹ năng đọc v à vi ết học thu ật",
+            "en": "Khối 5 hoặc 3 môn gồm 12 tín chỉ của Khối 3) 1 WRT 187 Academic Reading and Writing"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "UNIV 111",
+          "name": {
+            "vi": "1.6.1. Các MH Bắt buộc 8 3 1 UNIV 111 Focused Inquiry: Sustainability",
+            "en": "Phát tri ển bền vững"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 2,
+      "courses": [
+        {
+          "code": "THE 223",
+          "name": {
+            "vi": "(Khiêu vũ 2) 20 DANC 212 Dance 3",
+            "en": "Khiêu vũ 3"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECO 204",
+          "name": {
+            "vi": "2.1. Kiến thức cơ sở của khối ngành và ngành 32 2.1.1. Các MH bắt buộc 24 1 ECO 204 Microeconomics",
+            "en": "Kinh t ế vi mô"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECO 205",
+          "name": {
+            "vi": "2.1.1. Các MH bắt buộc 24 1 ECO 204 Microeconomics",
+            "en": "Kinh t ế vi mô"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "SPCH 201",
+          "name": {
+            "vi": "định với thông tin kế toán) 2.1.2. Các MH tự chọn",
+            "en": "tối thiểu 8 TC"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "WRT 209",
+          "name": {
+            "vi": "2.1.2. Các MH tự chọn",
+            "en": "tối thiểu 8 TC"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACTG 221",
+          "name": {
+            "vi": "căn bản) 4 MGMT 216 Fundamentals of Management",
+            "en": "Quản lý căn bản"
+          },
+          "credits": 1,
+          "block": "dai-cuong",
+          "lt": 1,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "INTL 271",
+          "name": {
+            "vi": "người) 12 FIN 239 Personal Finance",
+            "en": "Tài chính cá nhân"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "INFO 284",
+          "name": {
+            "vi": "thị) 15 ECO 279 International Trade",
+            "en": "Thương mại quốc tế"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [
+        {
+          "code": "MKTG 363",
+          "name": {
+            "vi": "2.3.4 Kiến thức chuyên ngành Marketing 28 1 MKTG 336 Professional Selling",
+            "en": "Bán hàng chuyên nghi ệp"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HRM 351",
+          "name": {
+            "vi": "hợp chuỗi cung ứng và logistics) 2.3.6. Kiến thức chuyên ngành Quản trị nhà hàng - khách sạn 28 1 HRM 351 Human Resource Management",
+            "en": "Qu ản trị nguồn nhân lực"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HMGT 358",
+          "name": {
+            "vi": "2.3.6. Kiến thức chuyên ngành Quản trị nhà hàng - khách sạn 28 1 HRM 351 Human Resource Management",
+            "en": "Qu ản trị nguồn nhân lực"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECO 303",
+          "name": {
+            "vi": "vững) 10 BUS 474 Business Internship 2",
+            "en": "Thực tập 2"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [
+        {
+          "code": "FIN 443",
+          "name": {
+            "vi": "trung cấp) 2 FIN 352 Investments",
+            "en": "Đầu tư tài chính"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MIS 446",
+          "name": {
+            "vi": "liệu) 4 MIS 443 Business Data Management",
+            "en": "Quản lý dữ liệu kinh doanh"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACTG 421",
+          "name": {
+            "vi": "Thu ế",
+            "en": "Phân tích kinh doanh; hoặc 24 TC đối với chuyên ngành Kế toán, Quản trị nguồn nhân lực, Quản trị chuỗi cung ứng, Khởi nghiệp) 1 ACTG 421 Taxation"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 473",
+          "name": {
+            "vi": "nghiệp) 19 FIN 446 Portfolio Management",
+            "en": "Quản trị danh mục đầu tư"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MKTG 403",
+          "name": {
+            "vi": "lao động) 35 MGMT 440 Leadership",
+            "en": "Nghệ thuật lãnh đạo"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "SCLM 415",
+          "name": {
+            "vi": "marketing tích hợp) 41 MKTG 465 Franchising",
+            "en": "Nhượng quyền thương mại"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MIS 455",
+          "name": {
+            "vi": "lực) 51 MIS 454 Marketing Analytics",
+            "en": "Phân tích dữ liệu Marketing"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 475",
+          "name": {
+            "vi": "lực doanh nghiệp) 56 FIN 474 Financial Modelling",
+            "en": "Mô hình tài chính"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "BUS 496",
+          "name": {
+            "vi": "3. Kiến thức tốt nghiệp 12 1 BUS 450 Final Year Project",
+            "en": "Đ ồ án cuối khóa"
+          },
+          "credits": 6,
+          "block": "dai-cuong",
+          "lt": 6,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveSlots": []
+    }
+  ],
+  "electiveGroups": [],
+  "specializations": [
+    {
+      "id": "ke-toan",
+      "name": {
+        "vi": "Kế toán",
+        "en": "Accounting"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "tai-chinh",
+      "name": {
+        "vi": "Tài chính",
+        "en": "Finance"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "quan-tri-nguon-nhan-luc",
+      "name": {
+        "vi": "Quản trị nguồn nhân lực",
+        "en": "Human Resource Management"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "marketing",
+      "name": {
+        "vi": "Marketing",
+        "en": "Marketing"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "quan-tri-chuoi-cung-ung",
+      "name": {
+        "vi": "Quản trị chuỗi cung ứng",
+        "en": "Supply Chain Management"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "quan-tri-nha-hang-khach-san",
+      "name": {
+        "vi": "Quản trị nhà hàng – khách sạn",
+        "en": "Hospitality Management"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "khoi-nghiep",
+      "name": {
+        "vi": "Khởi nghiệp",
+        "en": "Entrepreneurship"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "phan-tich-kinh-doanh",
+      "name": {
+        "vi": "Phân tích kinh doanh",
+        "en": "Business Analytics"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    }
+  ],
+  "source": {
+    "file": "QTKD.pdf",
+    "kind": "khung",
+    "year": null,
+    "pages": "1–7"
+  },
+  "generatedAt": "2026-11-23"
+}

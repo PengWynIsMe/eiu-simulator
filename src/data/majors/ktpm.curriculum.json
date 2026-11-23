@@ -1,0 +1,37 @@
+{
+  "majorId": "ktpm",
+  "programCode": "7480103",
+  "totalCredits": null,
+  "yearsInferred": false,
+  "years": [
+    {
+      "year": 1,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 2,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [],
+      "electiveSlots": []
+    }
+  ],
+  "electiveGroups": [],
+  "specializations": [],
+  "source": {
+    "file": "BSE.pdf",
+    "kind": "bm08",
+    "year": 2026,
+    "pages": "7–57, 75–76"
+  },
+  "generatedAt": "2026-11-23"
+}

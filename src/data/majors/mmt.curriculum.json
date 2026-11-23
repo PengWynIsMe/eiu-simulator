@@ -1,0 +1,65 @@
+{
+  "majorId": "mmt",
+  "programCode": "7480102",
+  "totalCredits": null,
+  "yearsInferred": false,
+  "years": [
+    {
+      "year": 1,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 2,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [],
+      "electiveSlots": []
+    }
+  ],
+  "electiveGroups": [],
+  "specializations": [
+    {
+      "id": "quan-tri-mang",
+      "name": {
+        "vi": "Quản trị mạng máy tính và truyền thông",
+        "en": "Computer Network and Communications Administration"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "an-ninh-mang",
+      "name": {
+        "vi": "An ninh mạng",
+        "en": "Cybersecurity"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "iot",
+      "name": {
+        "vi": "Internet of Things",
+        "en": "Internet of Things"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    }
+  ],
+  "source": {
+    "file": "CNDC.pdf",
+    "kind": "bm08",
+    "year": 2026,
+    "pages": "7–55, 66–67"
+  },
+  "generatedAt": "2026-11-23"
+}

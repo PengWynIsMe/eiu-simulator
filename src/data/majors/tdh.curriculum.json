@@ -1,0 +1,56 @@
+{
+  "majorId": "tdh",
+  "programCode": "7520216",
+  "totalCredits": null,
+  "yearsInferred": false,
+  "years": [
+    {
+      "year": 1,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 2,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [],
+      "electiveSlots": []
+    }
+  ],
+  "electiveGroups": [],
+  "specializations": [
+    {
+      "id": "tu-dong-hoa-cong-nghiep",
+      "name": {
+        "vi": "Tự động hóa công nghiệp",
+        "en": "Industrial Automation"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "he-thong-dieu-khien",
+      "name": {
+        "vi": "Hệ thống điều khiển",
+        "en": "Control Systems"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    }
+  ],
+  "source": {
+    "file": "ACE.pdf",
+    "kind": "bm08",
+    "year": 2026,
+    "pages": "8–73, 83–84"
+  },
+  "generatedAt": "2026-11-23"
+}

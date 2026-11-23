@@ -1,0 +1,79 @@
+{
+  "majorId": "cokhi",
+  "programCode": null,
+  "totalCredits": null,
+  "yearsInferred": true,
+  "years": [
+    {
+      "year": 1,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 2,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [
+        {
+          "code": "ME 481",
+          "name": {
+            "vi": "2.4.2.1. Chuyên ngành Thiết kế Cơ khí",
+            "en": "Mechanical Design concentration"
+          },
+          "credits": 2,
+          "block": "dai-cuong",
+          "lt": 0,
+          "th": 2,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveSlots": []
+    }
+  ],
+  "electiveGroups": [],
+  "specializations": [
+    {
+      "id": "thiet-ke-co-khi",
+      "name": {
+        "vi": "Thiết kế cơ khí",
+        "en": "Mechanical Design"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "gia-cong-che-tao",
+      "name": {
+        "vi": "Gia công chế tạo",
+        "en": "Manufacturing"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "he-thong-nang-luong",
+      "name": {
+        "vi": "Hệ thống năng lượng",
+        "en": "Energy Systems"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    }
+  ],
+  "source": {
+    "file": "COKHI.pdf",
+    "kind": "khung",
+    "year": null,
+    "pages": "1–5"
+  },
+  "generatedAt": "2026-11-23"
+}

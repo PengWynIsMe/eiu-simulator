@@ -1,0 +1,18 @@
+{
+  "qtkd": {
+    "courses": {
+      "LNGS-C101": {"why": "Ghép mã bị tách thành nhiều ô trong PDF."},
+      "LNGS-J101": {"why": "Ghép mã bị tách thành nhiều ô trong PDF."},
+      "LNGS-K101": {"why": "Ghép mã bị tách thành nhiều ô trong PDF."},
+      "MATH 114": {"why": "Ghép mã bị ngắt dòng trong bảng."}
+    }
+  },
+  "dtvt": {
+    "courses": {
+      "MATH 111": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},
+      "MATH 112": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},
+      "MATH 113": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},
+      "MATH 114": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."}
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "majorId": "dtvt",
+  "programCode": null,
+  "totalCredits": null,
+  "yearsInferred": true,
+  "years": [
+    {
+      "year": 1,
+      "courses": [
+        {
+          "code": "POLS 136",
+          "name": {
+            "vi": "4 POLS 135 Chủ nghĩa xã hội khoa học",
+            "en": "Scientific socialism"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 2,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [],
+      "electiveSlots": []
+    }
+  ],
+  "electiveGroups": [],
+  "specializations": [
+    {
+      "id": "xu-ly-tin-hieu-hinh-anh",
+      "name": {
+        "vi": "Xử lý tín hiệu và hình ảnh",
+        "en": "Signal and Image Processing"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "he-thong-vien-thong",
+      "name": {
+        "vi": "Hệ thống viễn thông",
+        "en": "Telecommunications Systems"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "ky-thuat-cao-tan-anten",
+      "name": {
+        "vi": "Kỹ thuật cao tần và anten",
+        "en": "RF and Antenna Engineering"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "thiet-ke-vi-mach",
+      "name": {
+        "vi": "Thiết kế vi mạch",
+        "en": "Integrated Circuit Design"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "he-thong-nhung",
+      "name": {
+        "vi": "Hệ thống nhúng",
+        "en": "Embedded Systems"
+      },
+      "requiredCourses": [],
+      "electiveGroupIds": []
+    }
+  ],
+  "source": {
+    "file": "DTVT.pdf",
+    "kind": "khung",
+    "year": null,
+    "pages": "1–9"
+  },
+  "generatedAt": "2026-11-23"
+}
