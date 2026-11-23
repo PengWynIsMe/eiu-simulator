@@ -22,6 +22,7 @@ import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
 import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 import ClassroomNpcs from '../npc/ClassroomNpcs';
 import Lesson406 from '../lesson/Lesson406';
+import CanteenFurniture from './CanteenFurniture';
 
 function makeOrientedLocalBox(
   toWorld: (u: number, v: number) => Vec2,
@@ -171,6 +172,7 @@ export default function InteriorScene() {
   const isB8 = buildingId.toLowerCase() === 'b8';
   const isB11 = buildingId.toLowerCase() === 'b11';
   const isB6 = buildingId.toLowerCase() === 'b6';
+  const isCanteen = buildingId.toLowerCase() === 'can-tin';
   const isTwinWing = isB8 || isB11;
   const isMultiFloor = isB8 || isB11 || isB6;
 
@@ -538,17 +540,18 @@ export default function InteriorScene() {
     if (isB11) return layout.toWorld(65.8, -125.8);
     if (isB8) return layout.toWorld(64.7, -188.1);
     if (isB6) return layout.toWorld(17.0, 24.0);
+    if (isCanteen) return layout.toWorld(32, 18);
     return layout.toWorld(0, 20.0);
-  }, [layout, isB8, isB11, isB6]);
+  }, [layout, isB8, isB11, isB6, isCanteen]);
 
   // Màu tường và sàn theo tài liệu thực tế của từng tòa
   const wallColor = isTwinWing ? '#42322c' : '#f8fafc'; // B8 & B11: nâu sẫm, B3: trắng sáng
   const baseboardColor = isTwinWing ? '#261e1b' : '#334155';
-  const floorColor = isTwinWing ? '#cbd5e1' : isB6 ? '#475569' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng, B6: gạch xám đậm sảnh sang trọng
+  const floorColor = isCanteen ? '#dddcd2' : isTwinWing ? '#cbd5e1' : isB6 ? '#475569' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng, B6: gạch xám đậm, căn tin: terra sáng
 
   return (
     <>
-      <color attach="background" args={[isTwinWing ? '#8cc8f5' : '#0f172a']} />
+      <color attach="background" args={[isTwinWing || isCanteen ? '#c9e1e7' : '#0f172a']} />
       {isTwinWing && (
         <Sky
           distance={2000}
@@ -562,21 +565,21 @@ export default function InteriorScene() {
 
       <group>
         {/* Chiếu sáng nội thất */}
-        <ambientLight intensity={isTwinWing ? 0.8 : 0.8} color="#f8fafc" />
-        {(isTwinWing || isB6) && <hemisphereLight args={['#e0f2fe', '#94a3b8', 0.85]} />}
+        <ambientLight intensity={isCanteen ? 1.35 : 0.8} color="#f8fafc" />
+        {(isTwinWing || isB6 || isCanteen) && <hemisphereLight args={['#e0f2fe', '#94a3b8', 0.85]} />}
 
         <directionalLight
           position={[centerPos[0] + 20, 45, centerPos[1] - 20]}
           intensity={isTwinWing ? 1.05 : 0.9}
           color="#fffbeb"
-          castShadow={!isB6}
+          castShadow={!isB6 && !isCanteen}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
           shadow-bias={-0.0005}
           shadow-normalBias={0.03}
         />
 
-      {!isB6 && <pointLight position={[centerPos[0], 3.5, centerPos[1]]} intensity={0.7} distance={35} color="#fef08a" />}
+      {!isB6 && !isCanteen && <pointLight position={[centerPos[0], 3.5, centerPos[1]]} intensity={0.7} distance={35} color="#fef08a" />}
       {isB11 ? (
         <>
           {/* Đèn dọc 2 sân trong & cầu nối B11 */}
@@ -649,6 +652,7 @@ export default function InteriorScene() {
             color="#bae6fd"
             transparent
             opacity={0.35}
+            depthWrite={!isCanteen}
             roughness={0.1}
             metalness={0.2}
           />
@@ -702,6 +706,7 @@ export default function InteriorScene() {
 
       {/* 4. Nội thất instancing */}
       <InteriorFurniture buildingId={buildingId} floor={floor} showUpperFloors={!isTopDown} />
+      {isCanteen && <CanteenFurniture showRoof={!isTopDown} />}
       <ClassroomNpcs />
       <Lesson406 />
 

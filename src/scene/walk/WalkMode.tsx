@@ -328,6 +328,7 @@ export default function WalkMode() {
       const cur = state.interior;
       const prev = prevInterior.current;
       if (prev?.buildingId === cur?.buildingId && prev?.floor === cur?.floor) return;
+      // Record the transition before setPlayerPos synchronously notifies subscribers.
       prevInterior.current = cur ? { ...cur } : null;
 
       if (!prev && cur) {
