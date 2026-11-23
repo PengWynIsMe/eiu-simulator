@@ -6,21 +6,7 @@
   "years": [
     {
       "year": 1,
-      "courses": [
-        {
-          "code": "POLS 136",
-          "name": {
-            "vi": "4 POLS 135 Chủ nghĩa xã hội khoa học",
-            "en": "Scientific socialism"
-          },
-          "credits": 3,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        }
-      ],
+      "courses": [],
       "electiveSlots": []
     },
     {
@@ -30,16 +16,216 @@
     },
     {
       "year": 3,
-      "courses": [],
+      "courses": [
+        {
+          "code": "ECE 300",
+          "name": {
+            "vi": "Trường điện từ",
+            "en": "Electromagnetics"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ETE 343",
+          "name": {
+            "vi": "Hệ thống viễn thông 2",
+            "en": "Communications Systems 2"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ETE 344",
+          "name": {
+            "vi": "Mạng không dây",
+            "en": "Wireless Networks"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ETE 349",
+          "name": {
+            "vi": "Thiết kế hệ thống nhúng (Embedded System Design) Lập trình điều khiển nhúng",
+            "en": "Embedded Controller Programming"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACE 304",
+          "name": {
+            "vi": "Đo lường và thiết bị đo",
+            "en": "Measurement and Instrumentation"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "EE 302",
+          "name": {
+            "vi": "Điện tử công suất",
+            "en": "Power Electronics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACE 306",
+          "name": {
+            "vi": "Hệ thống điều khiển hồi tiếp",
+            "en": "Feedback Control Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        }
+      ],
       "electiveSlots": []
     },
     {
       "year": 4,
-      "courses": [],
+      "courses": [
+        {
+          "code": "ETE 443",
+          "name": {
+            "vi": "Internet vạn vật",
+            "en": "Internet of Things"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ],
       "electiveSlots": []
     }
   ],
-  "electiveGroups": [],
+  "electiveGroups": [
+    {
+      "id": "tu-chon-chuyen-nganh-toi-thieu-8-tin",
+      "title": {
+        "vi": "Tự chọn chuyên ngành: tối thiểu 8 tín chỉ",
+        "en": "Tự chọn chuyên ngành: tối thiểu 8 tín chỉ"
+      },
+      "minCredits": 8,
+      "courses": [
+        {
+          "code": "ETE 416",
+          "name": {
+            "vi": "Quang điện tử",
+            "en": "Optoelectronics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ETE 421",
+          "name": {
+            "vi": "Kỹ thuật cao tần",
+            "en": "Radio Frequency Engineering"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ETE 422",
+          "name": {
+            "vi": "Thiết kế Anten",
+            "en": "Antenna Design"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ETE 423",
+          "name": {
+            "vi": "Hệ thống radar",
+            "en": "Radar Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ETE 424",
+          "name": {
+            "vi": "Thông tin vệ tinh (Satellite Communications) Cơ sở viễn thám",
+            "en": "Fundamentals of Remote Sensing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ]
+    },
+    {
+      "id": "tu-chon-ngoai-chuyen-nganh-toi-thieu",
+      "title": {
+        "vi": "Tự chọn ngoài chuyên ngành: tối thiểu 8 tín chỉ",
+        "en": "Tự chọn ngoài chuyên ngành: tối thiểu 8 tín chỉ"
+      },
+      "minCredits": 8,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-toi-thieu-8-tin-chi",
+      "title": {
+        "vi": "Tự chọn: tối thiểu 8 tín chỉ",
+        "en": "Tự chọn: tối thiểu 8 tín chỉ"
+      },
+      "minCredits": 8,
+      "courses": []
+    }
+  ],
   "specializations": [
     {
       "id": "xu-ly-tin-hieu-hinh-anh",

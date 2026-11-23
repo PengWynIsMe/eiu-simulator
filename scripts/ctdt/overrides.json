@@ -9,6 +9,7 @@
   },
   "dtvt": {
     "courses": {
+      "ECE 300": {"name": {"vi": "Trường điện từ", "en": "Electromagnetics"}, "why": "Mục lục bảng bị dồn tên môn Cấu trúc dữ liệu phía trên; sửa theo hàng 13 ở trang 5."},
       "MATH 111": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},
       "MATH 112": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},
       "MATH 113": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},

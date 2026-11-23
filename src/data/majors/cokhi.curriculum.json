@@ -1,37 +1,612 @@
 {
   "majorId": "cokhi",
   "programCode": null,
-  "totalCredits": null,
+  "totalCredits": 186,
   "yearsInferred": true,
   "years": [
     {
       "year": 1,
-      "courses": [],
+      "courses": [
+        {
+          "code": "POLS 132",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Ho Chi Minh's Ideology"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 133",
+          "name": {
+            "vi": "Triết học Mác- Lênin",
+            "en": "Philosophy of Marxism and Leninism"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 134",
+          "name": {
+            "vi": "Kinh tế chính trị Mác-Lênin",
+            "en": "Political Economics of Marxism and Leninism"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 135",
+          "name": {
+            "vi": "Chủ nghĩa xã hội khoa học",
+            "en": "Scientific socialism"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 136",
+          "name": {
+            "vi": "Lịch sử Đảng Cộng sản Việt Nam",
+            "en": "History of Vietnamese Communist Party"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "LAWS 122",
+          "name": {
+            "vi": "Lý luận nhà nước và pháp luật",
+            "en": "General Theory of Law and State"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 103",
+          "name": {
+            "vi": "Đại số tuyến tính",
+            "en": "Linear Algebra"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 111",
+          "name": {
+            "vi": "Giải tích I",
+            "en": "Calculus I"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 113",
+          "name": {
+            "vi": "Giải tích III",
+            "en": "Calculus III"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 114",
+          "name": {
+            "vi": "Giải tích IV",
+            "en": "Calculus IV"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 122",
+          "name": {
+            "vi": "Phương trình vi phân",
+            "en": "Differential Equations"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 123",
+          "name": {
+            "vi": "Tính toán kỹ thuật",
+            "en": "Engineering Computation"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHYS 101",
+          "name": {
+            "vi": "Vật lý I",
+            "en": "Physics I"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHYS 102",
+          "name": {
+            "vi": "Vật lý II",
+            "en": "Physics II"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHYS 103",
+          "name": {
+            "vi": "Vật lý III",
+            "en": "Physics III"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "CHEM 100",
+          "name": {
+            "vi": "Hóa đại cương",
+            "en": "General Chemistry"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "STAT 101",
+          "name": {
+            "vi": "Xác suất và thống kê",
+            "en": "Statistics and Probability"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECE 106",
+          "name": {
+            "vi": "Nhập môn Lập trình",
+            "en": "Introduction to Programming"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MEC 100",
+          "name": {
+            "vi": "Nhập môn Công tác Kỹ sư Cơ khí – Cơ điện tử",
+            "en": "Introduction to Mechanical Mechatronics Engineering"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MEC 120",
+          "name": {
+            "vi": "Hình họa vẽ kỹ thuật",
+            "en": "Engineering Graphics"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        }
+      ],
       "electiveSlots": []
     },
     {
       "year": 2,
-      "courses": [],
+      "courses": [
+        {
+          "code": "MEC 210",
+          "name": {
+            "vi": "Tĩnh học",
+            "en": "Statics"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECE 201",
+          "name": {
+            "vi": "Mạch điện 1",
+            "en": "Electric Circuits 1"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MEC 211",
+          "name": {
+            "vi": "Sức bền vật liệu",
+            "en": "Strength of Materials"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MEC 220",
+          "name": {
+            "vi": "Động lực học",
+            "en": "Dynamics"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 231",
+          "name": {
+            "vi": "Thực hành đo cơ tính của Vật liệu",
+            "en": "Mechanics of Materials Lab"
+          },
+          "credits": 1,
+          "block": "co-so-nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MEC 270",
+          "name": {
+            "vi": "Mạch điện tử",
+            "en": "Electronic Circuits"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "yearSource": "ma-mon"
+        }
+      ],
       "electiveSlots": []
     },
     {
       "year": 3,
-      "courses": [],
+      "courses": [
+        {
+          "code": "MEC 362",
+          "name": {
+            "vi": "Vật liệu học",
+            "en": "Materials Science and Engineering"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 305",
+          "name": {
+            "vi": "Nguyên lý máy",
+            "en": "Theory of Machines"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MEC 366",
+          "name": {
+            "vi": "Nhiệt động lực học cơ bản",
+            "en": "Introduction to Thermodynamics"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 300",
+          "name": {
+            "vi": "Quy trình chế tạo",
+            "en": "Manufacturing Processes"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 310",
+          "name": {
+            "vi": "Thực tập gia công I",
+            "en": "Practical Workshop I"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "lt": 0,
+          "th": 2,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 320",
+          "name": {
+            "vi": "Thực tập gia công II",
+            "en": "Practical Workshop II"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "lt": 0,
+          "th": 2,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MEC 340",
+          "name": {
+            "vi": "Thiết kế máy",
+            "en": "Machine Design"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 341",
+          "name": {
+            "vi": "Đồ án thiết kế",
+            "en": "Mechanical Design Project"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 311",
+          "name": {
+            "vi": "Đồ án Chế tạo",
+            "en": "Manufacturing Process Design Project"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 360",
+          "name": {
+            "vi": "Cơ lưu chất",
+            "en": "Fluid Mechanics"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 361",
+          "name": {
+            "vi": "Truyền nhiệt",
+            "en": "Heat Transfer"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        }
+      ],
       "electiveSlots": []
     },
     {
       "year": 4,
       "courses": [
         {
-          "code": "ME 481",
+          "code": "ME 440",
           "name": {
-            "vi": "2.4.2.1. Chuyên ngành Thiết kế Cơ khí",
-            "en": "Mechanical Design concentration"
+            "vi": "Manufacturing Tooling 3 Vật liệu Composite",
+            "en": "Composite Materials"
+          },
+          "credits": 1,
+          "block": "chuyen-nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 425",
+          "name": {
+            "vi": "Gia công bồi đắp",
+            "en": "Additive Manufacturing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 462",
+          "name": {
+            "vi": "Hệ thống sưởi, thông gió và điều hòa không khí",
+            "en": "Heating, Ventilating Air Conditioning"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 463",
+          "name": {
+            "vi": "Năng lượng mặt trời và năng lượng tái tạo",
+            "en": "Solar and renewable energy systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 430",
+          "name": {
+            "vi": "Tính toán động lực học chất lưu",
+            "en": "Computational Fluid Dynamics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 471",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Cơ khí 1",
+            "en": "Capstone Project 1"
+          },
+          "credits": 1,
+          "block": "chuyen-nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 472",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Cơ khí 2",
+            "en": "Capstone Project 2"
           },
           "credits": 2,
-          "block": "dai-cuong",
+          "block": "chuyen-nganh",
           "lt": 0,
           "th": 2,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 473",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Cơ khí 3",
+            "en": "Capstone Project 3"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 0,
+          "th": 4,
           "year": 4,
           "yearSource": "ma-mon"
         }
@@ -39,7 +614,207 @@
       "electiveSlots": []
     }
   ],
-  "electiveGroups": [],
+  "electiveGroups": [
+    {
+      "id": "khoi-khoa-hoc-xa-hoi-va-hanh-vi-tu-c",
+      "title": {
+        "vi": "Khối Khoa học xã hội và hành vi: tự chọn tối thiểu 4 tín chỉ",
+        "en": "Khối Khoa học xã hội và hành vi: tự chọn tối thiểu 4 tín chỉ"
+      },
+      "minCredits": 4,
+      "courses": [
+        {
+          "code": "SOC 144",
+          "name": {
+            "vi": "Xã hội học",
+            "en": "Sociology"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "BUS 101",
+          "name": {
+            "vi": "Quản trị kinh doanh căn bản",
+            "en": "Fundamentals of Business Administration"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "EBS 110",
+          "name": {
+            "vi": "Kinh tế kỹ thuật",
+            "en": "Engineering Economy"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 239",
+          "name": {
+            "vi": "Tài chính cá nhân",
+            "en": "Personal Finance"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "IREL 101",
+          "name": {
+            "vi": "Nhập môn quan hệ quốc tế",
+            "en": "Foundations of International Relations"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        }
+      ]
+    },
+    {
+      "id": "giao-tiep-ngon-ngu-va-nghe-thuat-tu-",
+      "title": {
+        "vi": "Giao tiếp, ngôn ngữ và nghệ thuật: tự chọn tối thiểu 4 tín chỉ",
+        "en": "Giao tiếp, ngôn ngữ và nghệ thuật: tự chọn tối thiểu 4 tín chỉ"
+      },
+      "minCredits": 4,
+      "courses": [
+        {
+          "code": "WRT 122",
+          "name": {
+            "vi": "Viết luận tiếng anh",
+            "en": "English Composition"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "WRT 187",
+          "name": {
+            "vi": "Kỹ năng đọc và viết học thuật",
+            "en": "Academic Reading and Writing"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "COMS 101",
+          "name": {
+            "vi": "Kỹ năng giao tiếp",
+            "en": "Communication Skills"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHL 255",
+          "name": {
+            "vi": "Tư duy phản biện và sáng tạo",
+            "en": "Critical and Creative Thinking"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        }
+      ]
+    },
+    {
+      "id": "cac-chu-de-mo-rong-trong-giao-duc-da",
+      "title": {
+        "vi": "Các chủ đề mở rộng trong giáo dục đại học: tự chọn tối thiểu 4 tín",
+        "en": "Các chủ đề mở rộng trong giáo dục đại học: tự chọn tối thiểu 4 tín"
+      },
+      "minCredits": 4,
+      "courses": [
+        {
+          "code": "MGMT 291",
+          "name": {
+            "vi": "Chuyên đề thời sự đương đại",
+            "en": "Seminar in Current Affairs"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "UNIV 111",
+          "name": {
+            "vi": "Phát triển bền vững",
+            "en": "Focused Inquiry: Sustainability"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "UNIV 112",
+          "name": {
+            "vi": "Toàn cầu hóa",
+            "en": "Focused Inquiry: Globalization"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "UNIV 226",
+          "name": {
+            "vi": "Thành phố và cộng đồng thông minh",
+            "en": "Focused Inquiry: Smart Cities and Communities"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        }
+      ]
+    }
+  ],
   "specializations": [
     {
       "id": "thiet-ke-co-khi",

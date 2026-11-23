@@ -1,31 +1,521 @@
 {
   "majorId": "ktpm",
   "programCode": "7480103",
-  "totalCredits": null,
+  "totalCredits": 180,
   "yearsInferred": false,
   "years": [
     {
       "year": 1,
-      "courses": [],
-      "electiveSlots": []
+      "courses": [
+        {
+          "code": "POLS 133",
+          "name": {
+            "vi": "Triết học Mác – Lênin",
+            "en": "Philosophy of Marxism and Leninism"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "LAWS 122",
+          "name": {
+            "vi": "Lý luận nhà nước và pháp luật",
+            "en": "General Theory of Law and State"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 103",
+          "name": {
+            "vi": "Đại số tuyến tính",
+            "en": "Linear Algebra"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 134",
+          "name": {
+            "vi": "Kinh tế và chính trị Mác- Lênin",
+            "en": "Political Economics of Marxism and Leninism"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 111",
+          "name": {
+            "vi": "Giải tích I",
+            "en": "Calculus I"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 135",
+          "name": {
+            "vi": "Chủ nghĩa xã hội khoa học",
+            "en": "Scientific Socialism"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 112",
+          "name": {
+            "vi": "Giải tích II",
+            "en": "Calculus II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 103",
+          "name": {
+            "vi": "Lập trình và giải quyết vấn đề I",
+            "en": "Programming and Problem Solving I"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "cong-nghe-so",
+          "credits": 4,
+          "semester": 1
+        },
+        {
+          "groupId": "cac-chu-de-nghien-cuu",
+          "credits": 4,
+          "semester": 0
+        },
+        {
+          "groupId": "giao-tiep-ngon-ngu-va",
+          "credits": 4,
+          "semester": 3
+        },
+        {
+          "groupId": "tu-chon-chuyen-nganh",
+          "credits": 8,
+          "semester": 0
+        }
+      ]
     },
     {
       "year": 2,
-      "courses": [],
-      "electiveSlots": []
+      "courses": [
+        {
+          "code": "POLS 132",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Ho Chi Minh Ideology"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 113",
+          "name": {
+            "vi": "Giải tích III",
+            "en": "Calculus III"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 136",
+          "name": {
+            "vi": "Lịch Sử Đảng Cộng Sản Việt Nam",
+            "en": "History of Vietnamese Communist Party"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 122",
+          "name": {
+            "vi": "Phương trình vi phân",
+            "en": "Differential Equations"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 203",
+          "name": {
+            "vi": "Lập trình hướng đối tượng",
+            "en": "Object-Oriented Development"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 201",
+          "name": {
+            "vi": "Cấu trúc dữ liệu và giải thuật",
+            "en": "Data Structures and Algorithms"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "STAT 101",
+          "name": {
+            "vi": "Xác suất thống kê",
+            "en": "Statistics and Probability"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 301",
+          "name": {
+            "vi": "Cơ sở dữ liệu",
+            "en": "Introduction to Databases"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 206",
+          "name": {
+            "vi": "Kiến trúc và cấu tạo máy tính",
+            "en": "Computer Architecture and Organization"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "khoa-hoc-xa-hoi-va-hanh",
+          "credits": 4,
+          "semester": 3
+        }
+      ]
     },
     {
       "year": 3,
-      "courses": [],
-      "electiveSlots": []
+      "courses": [
+        {
+          "code": "PHYS 102",
+          "name": {
+            "vi": "Vật lý II",
+            "en": "Physics II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 309",
+          "name": {
+            "vi": "Phân tích và thiết kế hệ thống thông tin",
+            "en": "Information System Analysis and Design"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 202",
+          "name": {
+            "vi": "Toán rời rạc 2",
+            "en": "Discrete Mathematics II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 307",
+          "name": {
+            "vi": "Kỹ thuật yêu cầu",
+            "en": "Requirement Engineering"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 406",
+          "name": {
+            "vi": "Kiến trúc phần mềm",
+            "en": "Software Architecture"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 302",
+          "name": {
+            "vi": "Hệ điều hành",
+            "en": "Operating System"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 315",
+          "name": {
+            "vi": "Lý thuyết tính toán",
+            "en": "Theory of Computation"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 400",
+          "name": {
+            "vi": "Thực tập tốt nghiệp Kỹ thuật phần mềm",
+            "en": "Computing Internship"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 0,
+          "th": 4,
+          "year": 3,
+          "semester": 4,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "khoa-hoc-tu-nhien-va-tu",
+          "credits": 8,
+          "semester": 3
+        }
+      ]
     },
     {
       "year": 4,
-      "courses": [],
-      "electiveSlots": []
+      "courses": [
+        {
+          "code": "CSW 481",
+          "name": {
+            "vi": "Đồ án tốt nghiệp KTPM",
+            "en": "II Software Engineering Capstone Project II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 0,
+          "th": 4,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 482",
+          "name": {
+            "vi": "Đồ án tốt nghiệp KTPM",
+            "en": "III Software Engineering Capstone Project IIII"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 0,
+          "th": 4,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 430",
+          "name": {
+            "vi": "Phát triển ứng dụng di động",
+            "en": "Mobile Application Development"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "tu-chon-chuyen-nganh",
+          "credits": 8,
+          "semester": 2
+        }
+      ]
     }
   ],
-  "electiveGroups": [],
+  "electiveGroups": [
+    {
+      "id": "cong-nghe-so",
+      "title": {
+        "vi": "Công nghệ số",
+        "en": "Digital literacy"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "cac-chu-de-nghien-cuu",
+      "title": {
+        "vi": "Các chủ đề nghiên cứu",
+        "en": "University studies"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "giao-tiep-ngon-ngu-va",
+      "title": {
+        "vi": "Giao tiếp| ngôn ngữ và",
+        "en": "Communications|"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "khoa-hoc-xa-hoi-va-hanh",
+      "title": {
+        "vi": "Khoa học xã hội và hành",
+        "en": "vi"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "khoa-hoc-tu-nhien-va-tu",
+      "title": {
+        "vi": "Khoa học tự nhiên và tư",
+        "en": "Natural sciences and"
+      },
+      "minCredits": 8,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-chuyen-nganh",
+      "title": {
+        "vi": "Tự chọn chuyên ngành",
+        "en": "Specialization Elective"
+      },
+      "minCredits": 8,
+      "courses": []
+    }
+  ],
   "specializations": [],
   "source": {
     "file": "BSE.pdf",
