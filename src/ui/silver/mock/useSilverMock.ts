@@ -17,6 +17,7 @@ import type {
   WeekView,
 } from '../../../types/silver';
 import { useLangStore } from '../../../store/useLangStore';
+import { useSnowStore } from '../../../store/useSnowStore';
 import rawFixture from './fixture.json';
 
 interface MockFixture {
@@ -68,6 +69,9 @@ function readUrlParamsOnce(): UrlParams {
   }
   const silverRaw = params.get('silver');
   const silver = silverRaw && VALID_SCREENS.has(silverRaw) ? (silverRaw as SilverScreen) : null;
+  if (silver !== null) {
+    useSnowStore.getState().endCinematic();
+  }
   const stateRaw = params.get('state');
   const validStates: ReadonlySet<string> = new Set(['loading', 'error', 'empty', 'blocked', 'corrupt', 'old', 'long']);
   const state = stateRaw && validStates.has(stateRaw) ? (stateRaw as MockStateParam) : null;
