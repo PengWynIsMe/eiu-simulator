@@ -62,3 +62,11 @@ Ghi chú: spec nêu rõ 7 môn lab phải lỗi dù lịch 6 ngày × 2 khối c
 | typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
 
 Không tạo dữ liệu nội dung thật; test sử dụng fixture tổng hợp và fixture UI có sẵn.
+
+## BE-06 review corrections
+
+| Yêu cầu rà soát | Kiểm chứng | Kết quả |
+|---|---|---|
+| Áp quy tắc lab/project cho cả summary và core; summary project 4–8 phút | `content.test.mjs` regression: summary lab, project durations and course lesson rules | Đạt |
+| Core project nhiều buổi, cộng phút exam vào tổng; exam 3 bước chấm điểm; id cảnh duy nhất gồm exam | `content.test.mjs` regression: project core multi sessions and exam minutes and ids | Đạt |
+| Speaker thuộc SpeakerId; answers là chuỗi; mọi file loader chạy parser; test loader tương thích thư mục có/không nội dung | `content.test.mjs` regression tests và optional loaders test | Đạt |

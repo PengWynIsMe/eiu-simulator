@@ -48,12 +48,49 @@ export default {
     assert.throws(() => parseCourseContent(validCore, 'course', { lt: 3, th: 0 }), /lab/);
     assert.throws(() => parseCourseContent(validCore, 'course', { lt: 0, th: 4 }), /lab|project/);
   },
-  'content filename mapping and empty lazy loaders': async ({ assert, load }) => {
+  'content filename mapping and optional loaders': async ({ assert, load }) => {
     const m = await load('/src/data/silver/content.ts');
     assert.equal(m.contentFileName('CSE 103'), 'cse-103');
     assert.equal(m.contentFileName('LNGS-J101'), 'lngs-j101');
-    assert.deepEqual([...await m.availableContentCodes], []);
-    assert.equal(await m.loadChapter('entrance'), undefined);
-    assert.equal(await m.loadCourseContent('CSE 103'), undefined);
+    const codes = await m.availableContentCodes;
+    for (const code of codes) assert.equal(m.contentFileName(code), code.toLowerCase().replace(' ', '-'));
+    assert.equal(await m.loadChapter('5.4'), undefined);
+    assert.equal(await m.loadCourseContent('NOT A REAL COURSE'), undefined);
+    for (const code of codes) assert.ok(await m.loadCourseContent(code));
+  },
+  'regression: summary lab, project durations and course lesson rules': async ({ assert, load }) => {
+    const { parseCourseContent } = await load('/src/data/silver/validateContent.ts');
+    const summaryLab = courseContent();
+    summaryLab.sessions.push({ slot: 'lab', scene: { ...scene('lab'), minutes: 1 } });
+    assert.doesNotThrow(() => parseCourseContent(summaryLab, 'summaryLab', { lt: 3, th: 1 }));
+    assert.throws(() => parseCourseContent(courseContent(), 'missingLab', { lt: 3, th: 1 }), /lab/);
+    const summaryProject = courseContent();
+    summaryProject.sessions = ['p1', 'p2'].map(id => ({ slot: 'project', scene: { ...scene(id), minutes: 2 } }));
+    assert.doesNotThrow(() => parseCourseContent(summaryProject, 'summaryProject', { lt: 0, th: 4 }));
+    summaryProject.sessions[1].scene.minutes = 1;
+    assert.throws(() => parseCourseContent(summaryProject, 'shortProject'), /project 4–8/);
+  },
+  'regression: project core multi sessions and exam minutes and ids': async ({ assert, load }) => {
+    const { parseCourseContent } = await load('/src/data/silver/validateContent.ts');
+    const projectCore = courseContent();
+    projectCore.tier = 'core';
+    projectCore.sessions = ['p1', 'p2'].map(id => ({ slot: 'project', scene: { ...scene(id), minutes: 4 } }));
+    projectCore.exam = scene('exam', [question('q1'), question('q2'), question('q3')]);
+    projectCore.exam.minutes = 2;
+    assert.doesNotThrow(() => parseCourseContent(projectCore, 'projectCore', { lt: 0, th: 4 }));
+    projectCore.exam.id = 'p1';
+    assert.throws(() => parseCourseContent(projectCore, 'duplicateScene'), /id cảnh duy nhất/);
+    projectCore.exam.id = 'exam';
+    projectCore.exam.steps = [say('say'), question('q2'), question('q3')];
+    assert.throws(() => parseCourseContent(projectCore, 'badExam'), /3 bước chấm điểm/);
+  },
+  'regression: speaker and code answer types': async ({ assert, load }) => {
+    const { parseChapter } = await load('/src/data/silver/validateContent.ts');
+    const invalidSpeaker = chapter();
+    invalidSpeaker.scenes[0].steps[0].speaker = 'unknown';
+    assert.throws(() => parseChapter(invalidSpeaker, 'badSpeaker'), /speaker/);
+    const invalidAnswers = chapter();
+    invalidAnswers.scenes[0].steps = [{ id: 'code', type: 'code', title: text, instruction: text, template: '___', answers: [1], outputCorrect: 'ok', outputWrong: 'no', hint: text, explainWrong: text }];
+    assert.throws(() => parseChapter(invalidAnswers, 'badAnswers'), /answers\[0\]/);
   },
 };

@@ -1,4 +1,5 @@
 import type { ChapterContent, ChapterId, CourseContent } from '../../types/silver';
+import { parseChapter, parseCourseContent } from './validateContent';
 
 const chapters = import.meta.glob('./chapters/*.json', { import: 'default' });
 const courseFiles = import.meta.glob('./content/*.json', { import: 'default' });
@@ -17,10 +18,12 @@ export const availableContentCodes: Promise<ReadonlySet<string>> = Promise.resol
 
 export async function loadChapter(id: ChapterId): Promise<ChapterContent | undefined> {
   const loader = chapters[`./chapters/${id}.json`];
-  return loader ? await loader() as ChapterContent : undefined;
+  if (!loader) return undefined;
+  return parseChapter(await loader(), `chapters/${id}.json`);
 }
 
 export async function loadCourseContent(code: string): Promise<CourseContent | undefined> {
   const loader = courseFiles[`./content/${contentFileName(code)}.json`];
-  return loader ? await loader() as CourseContent : undefined;
+  if (!loader) return undefined;
+  return parseCourseContent(await loader(), `content/${contentFileName(code)}.json`);
 }

@@ -1,8 +1,17 @@
-import type { ChapterContent, CourseContent, SceneContent, SilverCourse, SilverStep } from '../../types/silver';
+import type { ChapterContent, CourseContent, SceneContent, SilverCourse, SilverStep, SpeakerId } from '../../types/silver';
 import { arr, fail, loc, num, obj, oneOf, str } from '../validate';
 
 function localized(value: unknown, path: string): void {
   loc(value, path);
+}
+
+function speaker(value: unknown, path: string): SpeakerId {
+  return oneOf(value, ['player', 'thanh', 'quyen', 'han', 'teacher', 'examiner', 'guide', 'narrator'] as const, path);
+}
+
+function sceneIdsUnique(scenes: SceneContent[], path: string): void {
+  const ids = scenes.map(item => item.id);
+  if (new Set(ids).size !== ids.length) fail(path, 'id cảnh duy nhất trong file');
 }
 
 function condition(value: unknown, path: string): void {
@@ -21,7 +30,7 @@ function step(value: unknown, path: string): SilverStep {
   const type = oneOf(item.type, ['say', 'choice', 'slide', 'question', 'order', 'code'] as const, `${path}.type`);
   str(item.id, `${path}.id`);
   if (type === 'say') {
-    str(item.speaker, `${path}.speaker`);
+    speaker(item.speaker, `${path}.speaker`);
     localized(item.text, `${path}.text`);
     const variants = item.variants === undefined ? [] : arr(item.variants, `${path}.variants`);
     variants.forEach((value, index) => {
@@ -42,7 +51,7 @@ function step(value: unknown, path: string): SilverStep {
       return optionId;
     });
     if (type === 'choice') {
-      str(item.speaker, `${path}.speaker`);
+      speaker(item.speaker, `${path}.speaker`);
       localized(item.text, `${path}.text`);
       if (item.flag !== undefined) str(item.flag, `${path}.flag`);
     } else {
@@ -85,7 +94,9 @@ function step(value: unknown, path: string): SilverStep {
   localized(item.instruction, `${path}.instruction`);
   const template = str(item.template, `${path}.template`);
   if ((template.match(/___/g) ?? []).length !== 1) fail(`${path}.template`, 'đúng một ___');
-  if (arr(item.answers, `${path}.answers`).length === 0) fail(`${path}.answers`, 'không rỗng');
+  const answers = arr(item.answers, `${path}.answers`);
+  if (answers.length === 0) fail(`${path}.answers`, 'không rỗng');
+  answers.forEach((answer, index) => str(answer, `${path}.answers[${index}]`));
   localized(item.hint, `${path}.hint`);
   localized(item.explainWrong, `${path}.explainWrong`);
   str(item.outputCorrect, `${path}.outputCorrect`);
@@ -170,27 +181,37 @@ export function parseCourseContent(value: unknown, path: string, course?: Silver
   const code = str(item.code, `${path}.code`);
   const tier = oneOf(item.tier, ['core', 'summary'] as const, `${path}.tier`);
   const slots = sessions.map(session => session.slot);
+  const project = slots.includes('project');
   if (tier === 'summary') {
-    if (slots.includes('project') || !slots.includes('theoryA') || !slots.includes('theoryB')) fail(`${path}.sessions`, 'summary có theoryA và theoryB, không exam/project');
+    if (project ? slots.some(slot => slot !== 'project') : !slots.includes('theoryA') || !slots.includes('theoryB')) {
+      fail(`${path}.sessions`, 'summary có theoryA/theoryB hoặc chỉ project');
+    }
+  }
+  if (course) {
+    const hasLab = slots.includes('lab');
+    if ((course.lt > 0 && course.th > 0) !== hasLab) fail(`${path}.sessions`, 'lab phải khớp lt và th');
+    if (course.lt === 0 && (slots.length === 0 || slots.some(slot => slot !== 'project'))) fail(`${path}.sessions`, 'lt 0 chỉ có project');
+    if (course.lt > 0 && slots.includes('project')) fail(`${path}.sessions`, 'project chỉ khi lt 0');
+  }
+  const parsedExam = item.exam === undefined ? undefined : scene(item.exam, `${path}.exam`);
+  const sceneIds = sessions.map(session => session.scene);
+  if (parsedExam) sceneIds.push(parsedExam);
+  sceneIdsUnique(sceneIds, path);
+  if (tier === 'summary') {
     const minutes = sessions.reduce((total, session) => total + session.scene.minutes, 0);
-    if (minutes < 3 || minutes > 6) fail(`${path}.sessions`, 'summary tổng 3–6 phút');
+    const minimum = project ? 4 : 3;
+    const maximum = project ? 8 : 6;
+    if (minutes < minimum || minutes > maximum) fail(`${path}.sessions`, 'summary tổng 3–6 phút hoặc project 4–8 phút');
     if (item.exam !== undefined) fail(`${path}.exam`, 'summary không có exam');
   } else {
-    const project = slots.includes('project');
     if (project ? slots.some(slot => slot !== 'project') : !slots.includes('theoryA') || !slots.includes('theoryB')) fail(`${path}.sessions`, 'core có theoryA/theoryB hoặc chỉ project');
-    if (course) {
-      const hasLab = slots.includes('lab');
-      if ((course.lt > 0 && course.th > 0) !== hasLab) fail(`${path}.sessions`, 'lab phải khớp lt và th');
-      if (course.lt === 0 && (slots.length !== 1 || slots[0] !== 'project')) fail(`${path}.sessions`, 'lt 0 chỉ có project');
-    }
     const minutes = sessions.reduce((total, session) => total + session.scene.minutes, 0);
-    const low = project ? 8 : 12;
-    if (sessions.length < (project ? 1 : 3) || sessions.length > (project ? 5 : 5) || minutes < low || minutes > 16) fail(`${path}.sessions`, 'core 3–5 buổi/12–16 phút hoặc project 1–5 buổi/8–16 phút');
-    if (item.exam !== undefined) {
-      const exam = scene(item.exam, `${path}.exam`);
-      const graded = exam.steps.filter(current => current.type === 'question' || current.type === 'order' || current.type === 'code');
-      if (!project && (exam.steps.length !== 3 || graded.length !== 3)) fail(`${path}.exam.steps`, 'exam đúng 3 bước chấm điểm');
-      if (project && (exam.steps.length < 1 || exam.steps.length > 5 || graded.length !== exam.steps.length)) fail(`${path}.exam.steps`, 'exam project 1–5 bước chấm điểm');
+    const totalMinutes = minutes + (parsedExam?.minutes ?? 0);
+    const minimum = project ? 8 : 12;
+    if (sessions.length < (project ? 1 : 3) || sessions.length > 5 || totalMinutes < minimum || totalMinutes > 16) fail(`${path}.sessions`, 'core 3–5 buổi/12–16 phút hoặc project 1–5 buổi/8–16 phút');
+    if (parsedExam) {
+      const graded = parsedExam.steps.filter(current => current.type === 'question' || current.type === 'order' || current.type === 'code');
+      if (parsedExam.steps.length !== 3 || graded.length !== 3) fail(`${path}.exam.steps`, 'exam đúng 3 bước chấm điểm');
     } else if (!project) fail(`${path}.exam`, 'core bắt buộc có exam');
   }
   if (item.version !== 1) fail(`${path}.version`, '1');
@@ -202,7 +223,7 @@ export function parseCourseContent(value: unknown, path: string, course?: Silver
     basis: (() => { const basis = obj(item.basis, `${path}.basis`); return { pdfPages: str(basis.pdfPages, `${path}.basis.pdfPages`), note: loc(basis.note, `${path}.basis.note`) }; })(),
     summary: loc(item.summary, `${path}.summary`),
     sessions,
-    ...(item.exam === undefined ? {} : { exam: scene(item.exam, `${path}.exam`) }),
+    ...(parsedExam === undefined ? {} : { exam: parsedExam }),
     closing: loc(item.closing, `${path}.closing`),
   };
 }
