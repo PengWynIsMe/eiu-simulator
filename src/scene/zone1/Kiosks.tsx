@@ -342,9 +342,14 @@ export function HighlandsKiosk({ building, isHovered, isSelected }: KioskProps) 
         <mesh geometry={vinesGeo} castShadow>
           <meshStandardMaterial
             map={vineTexture ?? undefined}
-            alphaTest={0.3}
+            transparent
+            alphaTest={0.15}
+            depthWrite
             side={DoubleSide}
-            roughness={0.85}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.06}
           />
         </mesh>
       )}

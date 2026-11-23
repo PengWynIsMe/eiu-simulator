@@ -165,9 +165,14 @@ export default function Bridges() {
         <mesh geometry={pergolaCanopyGeo} castShadow receiveShadow>
           <meshStandardMaterial
             map={canopyTexture ?? undefined}
-            alphaTest={0.3}
+            transparent
+            alphaTest={0.18}
+            depthWrite
             side={DoubleSide}
-            roughness={0.85}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.05}
           />
         </mesh>
       )}
@@ -177,9 +182,14 @@ export default function Bridges() {
         <mesh geometry={pergolaVinesGeo} castShadow>
           <meshStandardMaterial
             map={vineTexture ?? undefined}
-            alphaTest={0.3}
+            transparent
+            alphaTest={0.15}
+            depthWrite
             side={DoubleSide}
-            roughness={0.85}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.06}
           />
         </mesh>
       )}

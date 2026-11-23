@@ -4,7 +4,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import type { Vec2 } from '../../types';
 import { addBox } from '../kit/geometryHelpers';
 import { GRASS, INTERNAL } from '../groundLevels';
-import { getOrCreateVineTexture, getOrCreateCanopyTexture, addVineCurtain, addCanopyQuad } from './vineTexture';
+import { getOrCreateVineTexture, getOrCreateCanopyTexture, addVineCurtain, addPostVines, addCanopyQuad } from './vineTexture';
 
 const ALL_CORRIDORS: readonly { readonly points: readonly Vec2[]; readonly roofH: number; readonly width: number }[] = [
   // B9 ↔ B10
@@ -123,13 +123,18 @@ export default function CampusGreenery() {
               p1[1] + dz * t1 + nz * (halfW * side),
             ];
 
-            // Rèm buông rủ biến thiên tự nhiên mềm mại từ 0.75m tới 1.6m
-            const drop1 = 0.85 + Math.sin(i * 2.3 + side * 1.7) * 0.45;
+            // Rèm buông rủ tha thướt tự nhiên từ 1.0m tới 1.9m (ngang tầm mắt người đi bộ theo t017s)
+            const drop1 = 1.45 + Math.sin(i * 1.8 + side * 1.3) * 0.45;
             addVineCurtain(cvPos, cvNorm, cvUvs, cvInd, pa, pb, corridor.roofH, drop1, nx * side, nz * side, 0);
 
-            // Dải rèm so le thứ hai lệch nhẹ 5cm vào trong để tạo độ dày 3D từ mọi góc nhìn
-            const drop2 = 0.70 + Math.cos(i * 1.9 + side * 0.8) * 0.35;
-            addVineCurtain(cvPos, cvNorm, cvUvs, cvInd, pa, pb, corridor.roofH, drop2, nx * side, nz * side, -0.05);
+            // Dải rèm so le thứ hai lệch nhẹ 6cm vào trong để tạo độ dày 3D rực rỡ
+            const drop2 = 1.25 + Math.cos(i * 1.5 + side * 0.7) * 0.35;
+            addVineCurtain(cvPos, cvNorm, cvUvs, cvInd, pa, pb, corridor.roofH, drop2, nx * side, nz * side, -0.06);
+
+            // Dây leo quấn bám dọc thân cột thép tại mỗi nhịp
+            if (i % 4 === 0) {
+              addPostVines(cvPos, cvNorm, cvUvs, cvInd, [pa[0], pa[1]], corridor.roofH, 0.45, 0.12);
+            }
           }
 
           // Đèn thả trần ở tim hành lang (mỗi ~3.5m)
@@ -312,14 +317,19 @@ export default function CampusGreenery() {
 
   return (
     <group>
-      {/* 1. Rèm dây leo rủ dọc hành lang (t017s) */}
+      {/* 1. Rèm dây leo rủ dọc hành lang (t017s, walk-eiu/00) */}
       {corridorVinesGeo && (
         <mesh geometry={corridorVinesGeo} castShadow>
           <meshStandardMaterial
             map={vineTexture ?? undefined}
-            alphaTest={0.3}
+            transparent
+            alphaTest={0.15}
+            depthWrite
             side={DoubleSide}
-            roughness={0.85}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.06}
           />
         </mesh>
       )}
@@ -343,9 +353,14 @@ export default function CampusGreenery() {
         <mesh geometry={roadPergolaVinesGeo} castShadow>
           <meshStandardMaterial
             map={vineTexture ?? undefined}
-            alphaTest={0.3}
+            transparent
+            alphaTest={0.15}
+            depthWrite
             side={DoubleSide}
-            roughness={0.85}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.06}
           />
         </mesh>
       )}
@@ -355,9 +370,14 @@ export default function CampusGreenery() {
         <mesh geometry={roadPergolaCanopyGeo} castShadow receiveShadow>
           <meshStandardMaterial
             map={canopyTexture ?? undefined}
-            alphaTest={0.3}
+            transparent
+            alphaTest={0.18}
+            depthWrite
             side={DoubleSide}
-            roughness={0.85}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.05}
           />
         </mesh>
       )}

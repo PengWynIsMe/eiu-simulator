@@ -15,8 +15,11 @@ let cachedVineTexture: CanvasTexture | null = null;
 let cachedCanopyTexture: CanvasTexture | null = null;
 
 /**
- * Sinh CanvasTexture rèm dây leo buông rủ (Cúc Tần Ấn Độ / Vernonia elliptica)
- * gồm các sợi tơ rủ mảnh, chùm lá nhỏ hình bầu dục nhiều sắc xanh tự nhiên xen kẽ khe sáng xuyên qua (alpha).
+ * Sinh CanvasTexture rèm dây leo buông rủ Cúc Tần Ấn Độ (Vernonia elliptica)
+ * theo ảnh thực tế t017s, t037s, walk-eiu/00:
+ * - Viền tán lá xanh sum suê bám mép nóc/xà trần.
+ * - Nhiều sợi tơ buông rủ mềm mại với các chùm lá bầu dục xanh tươi, nhiều sắc độ diệp lục.
+ * - Khe sáng tự nhiên xuyên qua giữa các dải lá rủ, nền alpha trong suốt.
  */
 export function getOrCreateVineTexture(): CanvasTexture | null {
   if (cachedVineTexture) return cachedVineTexture;
@@ -33,29 +36,51 @@ export function getOrCreateVineTexture(): CanvasTexture | null {
   ctx.clearRect(0, 0, width, height);
   const rng = createPrng(20261123);
 
+  // Bảng màu xanh diệp lục tươi sáng tự nhiên hắt nắng theo ảnh thật
   const leafPalette = [
-    '#365314', // Xanh rêu đậm
-    '#3f6212', // Xanh olive
-    '#4d7c0f', // Xanh lá tự nhiên
-    '#65a30d', // Xanh lá non tươi
-    '#84cc16', // Chồi xanh non điểm sáng
-    '#2d4f10', // Xanh bóng râm
-    '#1a2e05', // Xanh lõi tối
+    '#84cc16', // Chồi xanh non sáng (lime 500)
+    '#65a30d', // Xanh lá tươi rực rỡ (lime 600)
+    '#4ade80', // Xanh lộc tươi sáng (green 400)
+    '#22c55e', // Xanh diệp lục tươi (green 500)
+    '#16a34a', // Xanh tự nhiên trung tính (green 600)
+    '#a3e635', // Chồi non nõn chuối (lime 400)
+    '#4d7c0f', // Xanh lá bóng râm nhẹ (lime 700)
   ];
 
-  // Vẽ 28 dải sợi dây leo mảnh buông rủ từ đỉnh xuống
-  const strandCount = 28;
+  // 1. Viền tán lá dày đặc bám mép trần (y từ 0 đến 55px)
+  const topBorderLeaves = 90;
+  for (let i = 0; i < topBorderLeaves; i++) {
+    const lx = rng() * width;
+    const ly = rng() * 45;
+    const angle = (rng() - 0.5) * 1.4 + Math.PI / 2;
+    const len = 12 + rng() * 10;
+    const wid = 5 + rng() * 4;
+
+    ctx.save();
+    ctx.translate(lx, ly);
+    ctx.rotate(angle);
+    ctx.fillStyle = leafPalette[Math.floor(rng() * leafPalette.length)] ?? '#65a30d';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(len * 0.45, -wid * 0.6, len, 0);
+    ctx.quadraticCurveTo(len * 0.45, wid * 0.6, 0, 0);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // 2. Vẽ 46 sợi dây leo mảnh buông rủ tha thướt
+  const strandCount = 46;
   for (let i = 0; i < strandCount; i++) {
-    const baseX = 8 + (i / (strandCount - 1)) * (width - 16) + (rng() - 0.5) * 8;
+    const baseX = 6 + (i / (strandCount - 1)) * (width - 12) + (rng() - 0.5) * 6;
     // Độ dài dải ngẫu nhiên rủ từ 65% tới 98% chiều cao
     const strandLen = height * (0.68 + rng() * 0.30);
-    const waveFreq = 0.015 + rng() * 0.015;
-    const waveAmp = 4 + rng() * 6;
+    const waveFreq = 0.012 + rng() * 0.015;
+    const waveAmp = 4 + rng() * 7;
 
-    // 1. Thân sợi dây leo mảnh
+    // Thân sợi dây leo
     ctx.beginPath();
-    ctx.strokeStyle = rng() > 0.4 ? '#4a5320' : '#394018';
-    ctx.lineWidth = 1.2 + rng() * 0.8;
+    ctx.strokeStyle = rng() > 0.4 ? '#4d7c0f' : '#3f6212';
+    ctx.lineWidth = 1.3 + rng() * 0.8;
     ctx.lineCap = 'round';
 
     for (let y = 0; y <= strandLen; y += 8) {
@@ -65,32 +90,32 @@ export function getOrCreateVineTexture(): CanvasTexture | null {
     }
     ctx.stroke();
 
-    // 2. Các chùm lá nhỏ mọc so le dọc sợi dây leo
-    const leafStep = 9 + rng() * 6;
-    for (let y = 6; y < strandLen - 12; y += leafStep) {
+    // Các chùm lá mọc dày so le dọc sợi dây leo
+    const leafStep = 8 + rng() * 5;
+    for (let y = 8; y < strandLen - 10; y += leafStep) {
       const curX = baseX + Math.sin(y * waveFreq) * waveAmp;
-      const leavesPerNode = rng() > 0.3 ? 2 : 1;
+      const leavesPerNode = rng() > 0.35 ? 2 : 1;
 
       for (let l = 0; l < leavesPerNode; l++) {
         const side = l === 0 ? (rng() > 0.5 ? 1 : -1) : -1;
-        const leafAngle = (Math.PI / 2) + side * (0.45 + rng() * 0.45);
-        const leafLen = 8 + rng() * 9;
-        const leafW = 3.5 + rng() * 2.5;
+        const leafAngle = (Math.PI / 2) + side * (0.42 + rng() * 0.45);
+        const leafLen = 9 + rng() * 9;
+        const leafW = 4.0 + rng() * 3.0;
 
         ctx.save();
         ctx.translate(curX, y);
         ctx.rotate(leafAngle);
 
-        ctx.fillStyle = leafPalette[Math.floor(rng() * leafPalette.length)] ?? '#4d7c0f';
+        ctx.fillStyle = leafPalette[Math.floor(rng() * leafPalette.length)] ?? '#65a30d';
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.quadraticCurveTo(leafLen * 0.45, -leafW * 0.6, leafLen, 0);
-        ctx.quadraticCurveTo(leafLen * 0.45, leafW * 0.6, 0, 0);
+        ctx.quadraticCurveTo(leafLen * 0.45, -leafW * 0.65, leafLen, 0);
+        ctx.quadraticCurveTo(leafLen * 0.45, leafW * 0.65, 0, 0);
         ctx.fill();
 
-        // Gân lá mảnh tinh tế
-        if (rng() > 0.4) {
-          ctx.strokeStyle = '#a3e635';
+        // Gân lá màu vàng chanh sáng
+        if (rng() > 0.35) {
+          ctx.strokeStyle = '#d9f99d';
           ctx.lineWidth = 0.6;
           ctx.beginPath();
           ctx.moveTo(0, 0);
@@ -128,22 +153,22 @@ export function getOrCreateCanopyTexture(): CanvasTexture | null {
   ctx.clearRect(0, 0, size, size);
   const rng = createPrng(20261124);
 
-  const colors = ['#284408', '#365314', '#3f6212', '#4d7c0f', '#65a30d', '#1e3304'];
+  const colors = ['#3f6212', '#4d7c0f', '#65a30d', '#84cc16', '#22c55e', '#2e5b0e'];
 
-  // Vẽ hàng trăm chiếc lá đan dày kín mặt giàn nhưng để lại các lỗ hổng xuyên sáng tự nhiên
-  const leafCount = 900;
+  // Vẽ 900 chiếc lá đan dày kín mặt giàn nhưng để lại các lỗ hổng xuyên sáng tự nhiên
+  const leafCount = 950;
   for (let i = 0; i < leafCount; i++) {
     const lx = rng() * size;
     const ly = rng() * size;
     const angle = rng() * Math.PI * 2;
-    const len = 12 + rng() * 14;
-    const wid = 5 + rng() * 4;
+    const len = 13 + rng() * 15;
+    const wid = 5.5 + rng() * 4.5;
 
     ctx.save();
     ctx.translate(lx, ly);
     ctx.rotate(angle);
 
-    ctx.fillStyle = colors[Math.floor(rng() * colors.length)] ?? '#3f6212';
+    ctx.fillStyle = colors[Math.floor(rng() * colors.length)] ?? '#4d7c0f';
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.quadraticCurveTo(len * 0.5, -wid, len, 0);
@@ -161,6 +186,7 @@ export function getOrCreateCanopyTexture(): CanvasTexture | null {
 
 /**
  * Thêm một dải rèm quad buông rủ từ p1 [x1, z1] đến p2 [x2, z2] ở cao độ topY, rủ xuống topY - dropH.
+ * UV được ánh xạ đúng: đỉnh quad (topY) nhận V=1 (nơi lá bám mép trần), đáy quad nhận V=0 (đầu rủ).
  */
 export function addVineCurtain(
   positions: number[],
@@ -194,17 +220,42 @@ export function addVineCurtain(
     nx, 0, nz,
   );
 
+  // Đỉnh quad map vào v=1 (đỉnh rèm lá canvas), đáy quad map vào v=0 (đầu buông rủ)
   uvs.push(
-    0, 0,
-    1, 0,
-    1, 1,
     0, 1,
+    1, 1,
+    1, 0,
+    0, 0,
   );
 
   indices.push(
     baseIdx, baseIdx + 1, baseIdx + 2,
     baseIdx, baseIdx + 2, baseIdx + 3,
   );
+}
+
+/**
+ * Thêm dải lá dây leo quấn bám dọc thân cột thép (creepers on post) theo ảnh thật t017s, walk-eiu/00.
+ */
+export function addPostVines(
+  positions: number[],
+  normals: number[],
+  uvs: number[],
+  indices: number[],
+  colPos: [number, number],
+  topY: number,
+  bottomY: number,
+  halfW = 0.16,
+): void {
+  const [cx, cz] = colPos;
+  const dropH = topY - bottomY;
+
+  // Mặt trước-sau
+  addVineCurtain(positions, normals, uvs, indices, [cx - halfW, cz + halfW + 0.02], [cx + halfW, cz + halfW + 0.02], topY, dropH, 0, 1, 0);
+  addVineCurtain(positions, normals, uvs, indices, [cx + halfW, cz - halfW - 0.02], [cx - halfW, cz - halfW - 0.02], topY, dropH, 0, -1, 0);
+  // Mặt trái-phải
+  addVineCurtain(positions, normals, uvs, indices, [cx + halfW + 0.02, cz + halfW], [cx + halfW + 0.02, cz - halfW], topY, dropH, 1, 0, 0);
+  addVineCurtain(positions, normals, uvs, indices, [cx - halfW - 0.02, cz - halfW], [cx - halfW - 0.02, cz + halfW], topY, dropH, -1, 0, 0);
 }
 
 /**
@@ -229,4 +280,3 @@ export function addCanopyQuad(
     baseIdx, baseIdx + 2, baseIdx + 3,
   );
 }
-
