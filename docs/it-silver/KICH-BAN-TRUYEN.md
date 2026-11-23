@@ -1,6 +1,8 @@
 # Kịch bản truyện — bản đọc cho chủ dự án
 
-Tạo từ chính các file JSON nên khớp từng chữ; **trạng thái: nháp (`nhap`), chờ chủ dự án duyệt**. Mỗi câu: tiếng Việt, dòng nghiêng bên dưới là tiếng Anh. “Nếu …” là biến thể câu thoại hoặc điều kiện của sổ kỷ niệm. Tên “Anna”, “Sam”, “Mai”, “Tom”, thông báo thư viện đều là hư cấu minh họa.
+> **Đã duyệt 24/11/2026.**
+
+Tạo từ chính các file JSON nên khớp từng chữ; **đã duyệt 24/11/2026**. Mỗi câu: tiếng Việt, dòng nghiêng bên dưới là tiếng Anh. “Nếu …” là biến thể câu thoại hoặc điều kiện của sổ kỷ niệm. Tên “Anna”, “Sam”, “Mai”, “Tom”, thông báo thư viện đều là hư cấu minh họa.
 
 **Ba bạn:** Han (nữ, Level 1, cùng lớp; hay đùa, hay run nhưng thẳng) · Thành (Level 2, khác ngành; điềm tĩnh, lịch sự, tò mò) · Quyền (Level 3, cùng KTPM; ít nói, khô, thực tế).
 
@@ -499,7 +501,7 @@ Tóm tắt khi vào thẳng: Trong câu chuyện này, bạn đã qua năm level
 
 ---
 
-## CSE 103 — Lập trình và giải quyết vấn đề I (ND-03, môn trọng tâm, `nhap`)
+## CSE 103 — Lập trình và giải quyết vấn đề I (ND-03, môn trọng tâm, `da-duyet`)
 
 - Căn cứ PDF tr.30: Mô phỏng ngắn, dựa trên mô tả môn ở trang 30 của chương trình đào tạo (lập trình có cấu trúc, cú pháp, cấu trúc điều khiển). Đây không phải đề cương, giáo trình hay đề thi thật của trường.
   > *A short simulation based on the course description on page 30 of the programme document (structured programming, syntax, control structures). It is not the real syllabus, textbook or exam.*

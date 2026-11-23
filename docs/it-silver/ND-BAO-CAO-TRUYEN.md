@@ -1,6 +1,8 @@
 # ND-TRUYEN — báo cáo (ND-01, ND-02, ND-03, ND-06)
 
-Nhánh `PengWynIsMe/it-silver-nd-truyen` (từ `origin/main` = `b946e54`). Chưa push, chưa merge, không bật dev server. Mọi nội dung `nhap` — chờ chủ dự án duyệt. Bản đọc để duyệt không cần mở JSON: `docs/it-silver/KICH-BAN-TRUYEN.md` (sinh tự động từ chính các file JSON).
+> **Đã duyệt 24/11/2026.**
+
+Nhánh `PengWynIsMe/it-silver-nd-truyen` (từ `origin/main` = `b946e54`). Chưa push, chưa merge, không bật dev server. Nội dung đã được chủ dự án duyệt ngày 24/11/2026 (`CourseContent` có `status: "da-duyet"`). Bản đọc để duyệt không cần mở JSON: `docs/it-silver/KICH-BAN-TRUYEN.md` (sinh tự động từ chính các file JSON).
 
 ## File và commit
 
@@ -15,7 +17,7 @@ Chỉ tạo các file JSON trên + báo cáo + bản đọc. Không chạm code,
 
 ## Lần sửa theo góp ý (vòng 2)
 
-Vẫn `nhap` ở mọi file; chủ dự án chưa duyệt xong. Đã sửa đúng ba điểm được giao, phần khác giữ nguyên từng chữ:
+Đã sửa đúng ba điểm được giao, phần khác giữ nguyên từng chữ:
 1. `2.2/closing`: bỏ câu `say` rủ làm chung của Quyền; lời rủ nay nằm gọn trong `choice` `after` (giữ id, flag `2.2/after`, các option). Câu “Nhóm mình ăn ý đấy” chuyển vào lời rủ.
 2. `2.2/closing`: bỏ câu hỏi “Bạn thấy sao?” của Han ở câu mặc định và hai variants (không thêm bước; cảnh còn 4 bước).
 3. `entrance/speaking`: thêm một câu dẫn của người dẫn truyện ở đầu cảnh (sang phòng khác, giáo viên hỏi riêng từng người). Tổng phút vẫn 8,0.
@@ -57,7 +59,7 @@ Chơi theo thứ tự thấy ≥ 4 chỗ nhắc lại (Thành ở 2.2, Han ở l
 | **ND-03** 4 bài + thi, tổng 14,5 phút | **Đạt** |
 | ND-03 hai câu Han đúng nguyên văn (VI + EN), đặt ngay sau bước code in lời chào; `seen 1.1/greet-han` | **Đạt** |
 | ND-03 mọi code đã kiểm: biên dịch và chạy thật bằng JDK (xem dưới) | **Đạt** |
-| ND-03 `exam` đúng 3 bước (đọc đầu ra, điền một dòng, tìm lỗi); `status: nhap`; `basis` ghi “mô phỏng ngắn” | **Đạt** |
+| ND-03 `exam` đúng 3 bước (đọc đầu ra, điền một dòng, tìm lỗi); `status: da-duyet`; `basis` ghi “mô phỏng ngắn” | **Đạt** |
 | **ND-06** `scenes: []`, không `englishLevel`; `recap`, `2.2/opening`, `2.2/closing`, `2.2/club` đúng id/phút | **Đạt** |
 | ND-06 vào thẳng (không flag) vẫn tự nhiên; chơi theo thứ tự ≥ 2 chỗ nhắc lại | **Đạt** |
 | ND-06 mọi `when` trỏ tới flag/cảnh có thật | **Đạt** (script kiểm) |
@@ -87,7 +89,7 @@ Chơi theo thứ tự thấy ≥ 4 chỗ nhắc lại (Thành ở 2.2, Han ở l
 5. **Thành ở năm 2 kỳ 2** xuất hiện ở B8 chỉ như “gặp lại”; không nói ngành của Thành (spec chỉ ghi “khác ngành”).
 6. **Bài code 3 (`>=`)** chỉ nhận `>=`. Với `visits = 3`, `==` cũng ra `Stamp` nhưng sai ý “từ 3 trở lên”, nên không liệt vào `answers`. Nếu BE chấm bằng đầu ra thay vì chuỗi thì cần biết điểm này.
 7. **Sổ kỷ niệm 2.2**: `Cond` chỉ cho một flag, nên các câu kết hợp dùng `seen "1.1/greet-han"` + flag `2.2/after`. Hai câu theo `1.1/han` chỉ hiện khi `2.2/after` không có (ví dụ bỏ qua cảnh closing); thứ tự khớp từ trên xuống nên `2.2/after` được ưu tiên.
-8. **Trạng thái `nhap`**: `status: "nhap"` chỉ có ở `CourseContent` (kiểu có trường này). `ChapterContent` không có trường trạng thái nên trạng thái “nháp” nằm ở báo cáo và bản đọc.
+8. **Trạng thái:** `status` chỉ có ở `CourseContent` (nay `"da-duyet"` ở `cse-103.json`). `ChapterContent` không có trường trạng thái nên việc duyệt được ghi ở báo cáo và bản đọc.
 
 ## Điểm cần BE/UI biết (không tự xử lý)
 
@@ -99,4 +101,4 @@ Chơi theo thứ tự thấy ≥ 4 chỗ nhắc lại (Thành ở 2.2, Han ở l
 
 ## Chưa làm / ngoài phạm vi
 
-ND-04, ND-05 (môn tóm gọn, môn đổi), mọi code/kiểu/UI. Phần bản đọc không thay cho bước chủ dự án duyệt giọng ba bạn (Q15).
+ND-04, ND-05 (môn tóm gọn, môn đổi), mọi code/kiểu/UI. Giọng ba bạn (Q15) đã được chủ dự án duyệt.
