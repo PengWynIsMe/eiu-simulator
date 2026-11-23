@@ -1,3 +1,4 @@
+import { getClassroom } from '../../../data';
 import type { Vec2 } from '../../../types';
 import type {
   WallSegment,
@@ -476,6 +477,48 @@ const TANG_1_WALLS = createFloorWalls(1);
 const TANG_2_WALLS = createFloorWalls(2);
 const TANG_3_WALLS = createFloorWalls(3);
 const TANG_4_WALLS = createFloorWalls(4);
+
+// Bàn phòng 406.B8 chỉ tham gia va chạm; không dựng lại hình học bàn ở đây.
+(function addClassroom406B8Obstacles(): void {
+  const room = getClassroom('406.B8');
+  if (!room) return;
+
+  const { depth, width } = room.desk;
+  const rowDeskUs = [...new Set(room.seats.map((seat) => seat.deskU))];
+  for (const deskU of rowDeskUs) {
+    const rowSeats = room.seats.filter((seat) => seat.deskU === deskU);
+    const blocks = [
+      rowSeats.filter((seat) => seat.v < room.aisle.minV),
+      rowSeats.filter((seat) => seat.v > room.aisle.maxV),
+    ];
+
+    for (const block of blocks) {
+      if (block.length === 0) continue;
+
+      const vs = block.map((seat) => seat.v);
+      const v1 = Math.min(...vs) - width / 2 + 0.25 + depth / 2;
+      const v2 = Math.max(...vs) + width / 2 - 0.25 - depth / 2;
+      TANG_4_WALLS.push({
+        u1: deskU,
+        v1,
+        u2: deskU,
+        v2,
+        thickness: depth,
+        isRailing: true,
+      });
+    }
+  }
+
+  const desk = room.teacherDesk;
+  TANG_4_WALLS.push({
+    u1: desk.u,
+    v1: desk.v - desk.width / 2 + desk.depth / 2,
+    u2: desk.u,
+    v2: desk.v + desk.width / 2 - desk.depth / 2,
+    thickness: desk.depth,
+    isRailing: true,
+  });
+})();
 
 export function getFloorWalls(floor: number): readonly WallSegment[] {
   if (floor === 1) return TANG_1_WALLS;
