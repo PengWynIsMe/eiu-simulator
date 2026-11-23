@@ -11,6 +11,7 @@ import { useWalkStore } from '../../store/useWalkStore';
 import { useLessonStore } from '../../store/useLessonStore';
 import type { Vec2 } from '../../types';
 import { isPointInPond } from '../zone1/pondLayout';
+import { isOnPondPot } from '../zone1/pondTerraceLayout';
 import { b11ToLocal, b11ToWorld } from '../interior/layouts/b11';
 import { SIT_Y_OFFSET, localDirToYaw } from '../npc/sitPose';
 import {
@@ -92,6 +93,11 @@ function resolvePosition(x: number, z: number, previousX: number, previousZ: num
   output[1] = z;
   if (!pointInPolygon(x, z, campus.layout.boundary)) { output[0] = previousX; output[1] = previousZ; return; }
   if (!isOnBridge(x, z) && isPointInPond(x, z, PLAYER_RADIUS)) { output[0] = previousX; output[1] = previousZ; return; }
+  if (isOnPondPot(x, z, PLAYER_RADIUS)) {
+    output[0] = previousX;
+    output[1] = previousZ;
+    return;
+  }
 
   for (const building of campus.buildings) {
     const inside = pointInPolygon(output[0], output[1], building.shape.outer);

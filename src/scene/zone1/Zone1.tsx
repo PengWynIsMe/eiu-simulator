@@ -4,6 +4,7 @@ import { BoxGeometry, CylinderGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import Pond from './Pond';
 import Bridges from './Bridges';
+import PondTerraces from './PondTerraces';
 
 export default function Zone1() {
   // 1. Cột cờ trên thềm quảng trường tròn (campus_14)
@@ -108,6 +109,7 @@ export default function Zone1() {
     <group>
       {/* 3 hồ nước bậc thang */}
       <Pond />
+      <PondTerraces />
 
       {/* 2 cầu mái tôn xanh nối Block 4 ↔ Block 3 */}
       <Bridges />

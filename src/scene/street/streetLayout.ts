@@ -6,6 +6,7 @@ import { getGroundHeight } from '../walk/groundHeight';
 import { isPointInPond } from '../zone1/pondLayout';
 import {
   BRIDGE_WIDTH,
+  CANTEEN_PARKING_DECK,
   FOOTWAY_WIDTH,
   ROAD_WIDTH,
   ROUNDABOUT_ROAD_WIDTH,
@@ -265,6 +266,7 @@ function bridgeBins(mask: GrassMask): Placement[] {
 
 interface BikeLot {
   outer: readonly Vec2[];
+  deckY?: number;
   /** Đường cột chống (tọa độ v cục bộ) cần chừa; hàng xe xếp giữa các cột. */
   postLines: readonly number[] | null;
   /** Vùng cho phép theo u: [min, max]. */
@@ -280,7 +282,13 @@ function bikeLots(): BikeLot[] {
   for (const b of parkingBuildings) {
     const { maxU, maxV } = computePrincipalAxis(b.shape.outer);
     if (b.id === 'nha-xe-can-tin') {
-      lots.push({ outer: b.shape.outer, postLines: [0, 0.45, maxV / 2, maxV - 0.45, maxV], uRange: [1, maxU - 1], vRange: null });
+      lots.push({
+        outer: b.shape.outer,
+        deckY: CANTEEN_PARKING_DECK,
+        postLines: [0, 0.45, maxV / 2, maxV - 0.45, maxV],
+        uRange: [1, maxU - 1],
+        vRange: null,
+      });
     } else if (b.id === 'nha-xe-b5') {
       lots.push({
         outer: b.shape.outer,
@@ -348,7 +356,7 @@ function bikePlacements(): BikePlacement[] {
         const yaw = Math.atan2(axis.vx * heading, axis.vz * heading) + jitter;
         slots.push({
           x,
-          y: getGroundHeight(x, z),
+          y: lot.deckY ?? getGroundHeight(x, z),
           z,
           yaw,
           dark: hash01(Math.round(u * 10), key + 77) < 0.5,
