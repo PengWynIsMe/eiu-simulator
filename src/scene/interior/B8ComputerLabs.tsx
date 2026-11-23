@@ -336,7 +336,10 @@ export default function B8ComputerLabs() {
       // --- 3. TƯỜNG TRƯỚC (TƯỜNG ĐÔNG): TV + 2 BẢNG TRẮNG SÁNG KHUNG NHÔM + BÀN GV ---
       // Khung viền TV đen & Màn hình TV
       tvFrames.push(createInstanceMatrix(toWorld, frontU, vCenter, 2.15, 0, 0.05, 1.3, 2.2));
-      tvScreens.push(createInstanceMatrix(toWorld, frontU - 0.03, vCenter, 2.15, 0, 0.02, 1.2, 2.1));
+      // Bỏ tvScreens của phòng đang là sân khấu (406.B8) để tránh z-fighting với ProjectorScreen
+      if (r.code !== '406.B8') {
+        tvScreens.push(createInstanceMatrix(toWorld, frontU - 0.03, vCenter, 2.15, 0, 0.02, 1.2, 2.1));
+      }
 
       // 2 Bảng trắng sáng hai bên TV (Left & Right Whiteboard)
       for (const wbV of [-207.8, -202.4]) {

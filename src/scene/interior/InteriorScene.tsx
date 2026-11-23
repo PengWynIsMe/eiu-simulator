@@ -18,6 +18,7 @@ import { getFloorDoors } from './layouts/b8';
 import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
 import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 import Lesson406 from '../lesson/Lesson406';
+import SilverStage from '../silver/SilverStage';
 import CanteenFurniture from './CanteenFurniture';
 
 function makeOrientedLocalBox(
@@ -764,6 +765,7 @@ export default function InteriorScene() {
       <InteriorFurniture buildingId={buildingId} floor={floor} showUpperFloors={!isTopDown} />
       {isCanteen && <CanteenFurniture showRoof={!isTopDown} />}
       <Lesson406 />
+      <SilverStage />
 
       {/* 5. Biển số phòng nhỏ gắn tường */}
       {roomSigns.map((sign, idx) => (
