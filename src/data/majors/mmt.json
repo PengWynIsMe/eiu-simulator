@@ -1,0 +1,151 @@
+{
+  "id": "mmt",
+  "facultyId": "cntt",
+  "name": {
+    "vi": "Mạng máy tính và Truyền thông dữ liệu",
+    "en": "Computer Networks and Data Communications"
+  },
+  "degree": {
+    "vi": "Cử nhân Mạng máy tính và Truyền thông dữ liệu",
+    "en": "Bachelor of Computer Networks and Data Communications"
+  },
+  "summary": {
+    "vi": "Chương trình đào tạo Cử nhân Mạng máy tính và Truyền thông dữ liệu trang bị kiến thức chuyên sâu về hạ tầng mạng, an toàn thông tin và hệ thống kết nối IoT. Sinh viên được rèn luyện kỹ năng thiết kế, cấu hình và bảo vệ hệ thống mạng doanh nghiệp, sẵn sàng gia nhập thị trường công nghệ số toàn cầu.",
+    "en": "The Bachelor of Computer Networks and Data Communications program provides expertise in network infrastructure, cybersecurity, and IoT connectivity. Students master designing, configuring, and securing enterprise networks, ready for competitive roles in the global digital economy."
+  },
+  "highlights": [
+    {
+      "code": "CSN 205",
+      "why": {
+        "vi": "Môn học nền tảng về nguyên lý truyền dẫn dữ liệu, mô hình OSI và các giao thức mạng cốt lõi.",
+        "en": "Foundational course on data transmission principles, OSI model, and core network protocols."
+      }
+    },
+    {
+      "code": "CSN 303",
+      "why": {
+        "vi": "Trang bị kiến thức cơ sở về mã hóa, phòng thủ mã độc và nguyên lý an toàn mạng máy tính.",
+        "en": "Equips students with fundamental cryptography, malware defense, and cyber security principles."
+      }
+    },
+    {
+      "code": "CSN 305",
+      "why": {
+        "vi": "Thực hành triển khai hạ tầng ảo hóa và dịch vụ đám mây phục vụ lưu trữ, tính toán quy mô lớn.",
+        "en": "Hands-on virtualization infrastructure and cloud service deployment for scalable computing."
+      }
+    },
+    {
+      "code": "CSN 401",
+      "why": {
+        "vi": "Học cách rà soát lỗ hổng, phòng chống tấn công mạng và thiết lập chính sách an ninh thông tin.",
+        "en": "Learn vulnerability scanning, cyber attack mitigation, and security policy implementation."
+      }
+    },
+    {
+      "code": "CSN 404",
+      "why": {
+        "vi": "Cấu hình thiết bị định tuyến, chuyển mạch và tối ưu hóa hiệu năng mạng doanh nghiệp quy mô lớn.",
+        "en": "Configure enterprise routers and switches while optimizing large-scale network performance."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "vi": "Thiết kế và cấu hình mạng doanh nghiệp trên bộ định tuyến, chuyển mạch",
+      "en": "Design and configure enterprise networks on routers and switch appliances"
+    },
+    {
+      "vi": "Giám sát, phân tích lưu lượng và xử lý sự cố hạ tầng mạng máy tính",
+      "en": "Monitor traffic, analyze packet flows, and troubleshoot network infrastructure"
+    },
+    {
+      "vi": "Triển khai các giải pháp bảo mật mạng, phòng chống tấn công và tường lửa",
+      "en": "Deploy network security solutions, firewalls, and cyber defense systems"
+    },
+    {
+      "vi": "Lập trình phát triển ứng dụng mạng và hệ thống IoT kết nối thông minh",
+      "en": "Develop network applications and smart connected IoT systems"
+    },
+    {
+      "vi": "Quản trị hệ thống máy chủ và dịch vụ đám mây phục vụ truyền thông dữ liệu",
+      "en": "Administer server systems and cloud services for reliable data communication"
+    }
+  ],
+  "careers": [
+    {
+      "vi": "Kỹ sư mạng: thiết kế, cấu hình và vận hành hệ thống mạng doanh nghiệp",
+      "en": "Network Engineer: design, configure, and operate enterprise network systems"
+    },
+    {
+      "vi": "Chuyên viên an toàn thông tin: giám sát bảo mật và phòng thủ an ninh mạng",
+      "en": "Information Security Analyst: monitor security and defend cyber infrastructure"
+    },
+    {
+      "vi": "Kỹ sư giải pháp IoT: phát triển hệ sinh thái thiết bị thông minh kết nối",
+      "en": "IoT Solutions Engineer: build connected device ecosystems and smart gateways"
+    },
+    {
+      "vi": "Quản trị viên hệ thống mạng: quản lý máy chủ và hạ tầng trung tâm dữ liệu",
+      "en": "Network Systems Administrator: maintain servers and data center infrastructure"
+    },
+    {
+      "vi": "Kỹ sư tư vấn giải pháp mạng: thiết kế và chuyển giao công nghệ viễn thông",
+      "en": "Network Solutions Consultant: design architectures and deliver IT solutions"
+    }
+  ],
+  "dayInLife": [
+    {
+      "time": "07:30",
+      "text": {
+        "vi": "Uống cà phê sáng tại ki-ốt Highlands cạnh hồ nước trước khi vào ca thực hành.",
+        "en": "Morning coffee by the lake Highlands kiosk before the first practical session."
+      }
+    },
+    {
+      "time": "08:00",
+      "text": {
+        "vi": "Thực hành cấu hình thiết bị chuyển mạch môn CSN 301 tại phòng Lab CNTT 404.B11.",
+        "en": "Configure network switches for CSN 301 at IT Computer Lab 404.B11."
+      }
+    },
+    {
+      "time": "10:15",
+      "text": {
+        "vi": "Di chuyển sang Trung tâm An ninh mạng 100.B6 tham quan hệ thống diễn tập mạng.",
+        "en": "Visit Cybersecurity Center 100.B6 to observe network simulation defenses."
+      }
+    },
+    {
+      "time": "12:00",
+      "text": {
+        "vi": "Dùng bữa trưa tại Căn tin trường cùng các bạn cùng khóa ngành MMT.",
+        "en": "Enjoy lunch at the campus Canteen with fellow network engineering students."
+      }
+    },
+    {
+      "time": "13:30",
+      "text": {
+        "vi": "Thực hành kết nối vi điều khiển và cảm biến môn CSN 302 tại xưởng FabLab 210.B11.",
+        "en": "Wire sensors and microcontrollers for CSN 302 IoT at FabLab workshop 210.B11."
+      }
+    },
+    {
+      "time": "15:45",
+      "text": {
+        "vi": "Ôn tập từ vựng chuyên ngành tiếng Anh chuẩn bị mục tiêu chuẩn đầu ra IELTS 6.0.",
+        "en": "Study technical English terminology targeting the IELTS 6.0 exit benchmark."
+      }
+    },
+    {
+      "time": "17:15",
+      "text": {
+        "vi": "Họp nhóm đồ án tốt nghiệp tại sảnh tự học Block 11 trước khi ra về.",
+        "en": "Capstone project sync at the Block 11 study lounge before heading home."
+      }
+    }
+  ],
+  "contentBasis": "bm08",
+  "contentStatus": "chua-duyet",
+  "updatedAt": "2026-11-23"
+}

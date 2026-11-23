@@ -1,0 +1,1353 @@
+{
+  "majorId": "qtkd",
+  "programCode": null,
+  "totalCredits": 195,
+  "yearsInferred": true,
+  "years": [
+    {
+      "year": 1,
+      "courses": [
+        {
+          "code": "POLS 133",
+          "name": {
+            "vi": "Triết học Mác- Lênin",
+            "en": "Philosophy of Marxism and Leninism"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 134",
+          "name": {
+            "vi": "Kinh tế chính trị Mác-Lênin",
+            "en": "Political Economics of Marxism and Leninism"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 135",
+          "name": {
+            "vi": "Chủ nghĩa Xã hội khoa học",
+            "en": "Scientific socialism"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 136",
+          "name": {
+            "vi": "Lịch sử Đảng Cộng sản Việt Nam",
+            "en": "History of Vietnamese Communist Party"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 132",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Ho Chi Minh's Ideology"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "BUS 101",
+          "name": {
+            "vi": "Quản trị Kinh doanh căn bản",
+            "en": "Fundamentals of Business Administration"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 103",
+          "name": {
+            "vi": "Đại số tuyến tính",
+            "en": "Linear Algebra"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 104",
+          "name": {
+            "vi": "Giải tích đa biến",
+            "en": "Multivariate calculus"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 111",
+          "name": {
+            "vi": "Giải tích I",
+            "en": "Calculus I"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 112",
+          "name": {
+            "vi": "Giải tích II",
+            "en": "Calculus II"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 122",
+          "name": {
+            "vi": "Phương trình vi phân",
+            "en": "Differential Equations"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 123",
+          "name": {
+            "vi": "Tính toán kỹ thuật",
+            "en": "Engineering Computation"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHYS 100",
+          "name": {
+            "vi": "Vật lí đại cương",
+            "en": "General Physics"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHYS 101",
+          "name": {
+            "vi": "Vật lý I",
+            "en": "Physics I"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHYS 102",
+          "name": {
+            "vi": "Vật lý II",
+            "en": "Physics II"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHYS 103",
+          "name": {
+            "vi": "Vật lý III",
+            "en": "Physics III"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "CHEM 100",
+          "name": {
+            "vi": "Hóa học đại cương",
+            "en": "General Chemistry"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "BIO 110",
+          "name": {
+            "vi": "Sinh học tế bào",
+            "en": "Biology: Atoms to cell"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "STAT 101",
+          "name": {
+            "vi": "Xác suất thống kê I",
+            "en": "Probability and Statistics I"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "INFO 106",
+          "name": {
+            "vi": "Năng lực công nghệ số",
+            "en": "Focused Inquiry: Digital Literacy"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "LNGS C101",
+          "name": {
+            "vi": "Tiếng Trung 1",
+            "en": "Chinese 1"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "LNGS C102",
+          "name": {
+            "vi": "Tiếng Trung 2",
+            "en": "Chinese 2"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "LNGS J102",
+          "name": {
+            "vi": "Tiếng Nhật 2",
+            "en": "Japanese 2"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "LNGS J103",
+          "name": {
+            "vi": "Tiếng Nhật 3",
+            "en": "Japanese 3"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "LNGS K101",
+          "name": {
+            "vi": "Tiếng Hàn 1",
+            "en": "Korean 1"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "LNGS K102",
+          "name": {
+            "vi": "Tiếng Hàn 2",
+            "en": "Korean 2"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "LNGS K103",
+          "name": {
+            "vi": "Tiếng Hàn 3",
+            "en": "Korean 3"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ART 101",
+          "name": {
+            "vi": "Nghệ thuật trong đời sống xã hội",
+            "en": "Art in Society"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 2,
+      "courses": [
+        {
+          "code": "STAT 202",
+          "name": {
+            "vi": "Xác suất thống kê II",
+            "en": "Probability and Statistics II"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHL 255",
+          "name": {
+            "vi": "Tư duy phản biện và sáng tạo",
+            "en": "Critical and Creative Thinking"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MUSI 204",
+          "name": {
+            "vi": "Âm nhạc 2",
+            "en": "Music 2"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MUSI 205",
+          "name": {
+            "vi": "Âm nhạc 3",
+            "en": "Music 3"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "DANC 210",
+          "name": {
+            "vi": "Khiêu vũ 1",
+            "en": "Dance 1"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "DANC 211",
+          "name": {
+            "vi": "Khiêu vũ 2",
+            "en": "Dance 2"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [
+        {
+          "block": "tot-nghiep",
+          "yearSource": "ma-mon",
+          "code": "BUS 450",
+          "name": {
+            "vi": "Đồ án cuối khóa",
+            "en": "Final Year Project"
+          },
+          "credits": 6,
+          "lt": 6,
+          "th": 0,
+          "year": 4
+        },
+        {
+          "block": "tot-nghiep",
+          "yearSource": "ma-mon",
+          "code": "BUS 496",
+          "name": {
+            "vi": "Chiến lược kinh doanh",
+            "en": "Capstone: Business Strategy"
+          },
+          "credits": 6,
+          "lt": 6,
+          "th": 0,
+          "year": 4
+        }
+      ],
+      "electiveSlots": []
+    }
+  ],
+  "electiveGroups": [
+    {
+      "id": "cac-mh-tu-chon-chon-toi-thieu-4-tin-",
+      "title": {
+        "vi": "Các MH Tự chọn (chọn tối thiểu 4 tín chỉ)",
+        "en": "Các MH Tự chọn (chọn tối thiểu 4 tín chỉ)"
+      },
+      "minCredits": 4,
+      "courses": [
+        {
+          "code": "ANT 110",
+          "name": {
+            "vi": "Nhân học văn hóa",
+            "en": "Cultural Anthropology"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "CIVI 101",
+          "name": {
+            "vi": "Lịch sử văn minh thế giới",
+            "en": "The Story of Civilization"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECO 110",
+          "name": {
+            "vi": "Nguyên lý kinh tế học",
+            "en": "Principles of Economics"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 239",
+          "name": {
+            "vi": "Tài chính cá nhân",
+            "en": "Personal Finance"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "IEPS 100",
+          "name": {
+            "vi": "Tư duy kinh doanh",
+            "en": "Entrepreneurial Thinking"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "IREL 101",
+          "name": {
+            "vi": "Nhập môn quan hệ quốc tế",
+            "en": "Foundations of International Relations"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "INFO 101",
+          "name": {
+            "vi": "Truyền thông, thông tin và xã hội",
+            "en": "Communication, Information and Society"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "INFO 201",
+          "name": {
+            "vi": "Tư duy tính toán",
+            "en": "Computational Thinking"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "DSCI 130",
+          "name": {
+            "vi": "Quyền riêng tư dữ liệu và công nghệ",
+            "en": "Data Privacy and Technology"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "DSCI 261",
+          "name": {
+            "vi": "Nhập môn Khoa học dữ liệu bằng Python",
+            "en": "Introduction to Data Science using Python"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECE 106",
+          "name": {
+            "vi": "Nhập môn Lập trình",
+            "en": "Introduction to Programming"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "WRT 122",
+          "name": {
+            "vi": "Viết luận tiếng Anh",
+            "en": "English Composition"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        }
+      ]
+    },
+    {
+      "id": "chuyen-nganh-ke-toan",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Kế toán",
+        "en": "Accounting specialization electives"
+      },
+      "minCredits": 24,
+      "specializationId": "ke-toan",
+      "courses": []
+    },
+    {
+      "id": "chuyen-nganh-tai-chinh",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Tài chính",
+        "en": "Finance specialization electives"
+      },
+      "minCredits": 20,
+      "specializationId": "tai-chinh",
+      "courses": []
+    },
+    {
+      "id": "chuyen-nganh-nhan-luc",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Quản trị nguồn nhân lực",
+        "en": "Human Resource Management specialization electives"
+      },
+      "minCredits": 24,
+      "specializationId": "quan-tri-nguon-nhan-luc",
+      "courses": []
+    },
+    {
+      "id": "chuyen-nganh-marketing",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Marketing",
+        "en": "Marketing specialization electives"
+      },
+      "minCredits": 20,
+      "specializationId": "marketing",
+      "courses": []
+    },
+    {
+      "id": "chuyen-nganh-chuoi-cung-ung",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Quản trị chuỗi cung ứng",
+        "en": "Supply Chain Management specialization electives"
+      },
+      "minCredits": 24,
+      "specializationId": "quan-tri-chuoi-cung-ung",
+      "courses": []
+    },
+    {
+      "id": "chuyen-nganh-nha-hang",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Quản trị nhà hàng – khách sạn",
+        "en": "Hospitality Management specialization electives"
+      },
+      "minCredits": 16,
+      "specializationId": "quan-tri-nha-hang-khach-san",
+      "courses": []
+    },
+    {
+      "id": "chuyen-nganh-khoi-nghiep",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Khởi nghiệp",
+        "en": "Entrepreneurship specialization electives"
+      },
+      "minCredits": 24,
+      "specializationId": "khoi-nghiep",
+      "courses": []
+    },
+    {
+      "id": "chuyen-nganh-phan-tich",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Phân tích kinh doanh",
+        "en": "Business Analytics specialization electives"
+      },
+      "minCredits": 20,
+      "specializationId": "phan-tich-kinh-doanh",
+      "courses": []
+    }
+  ],
+  "specializations": [
+    {
+      "id": "ke-toan",
+      "name": {
+        "vi": "Kế toán",
+        "en": "Accounting"
+      },
+      "requiredCourses": [
+        {
+          "code": "ACTG 335",
+          "name": {
+            "vi": "Hệ thống thông tin kế toán",
+            "en": "Accounting Information Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACTG 360",
+          "name": {
+            "vi": "Kế toán chi phí",
+            "en": "Cost Accounting"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACTG 381",
+          "name": {
+            "vi": "Kế toán tài chính và báo cáo 1",
+            "en": "Financial Accounting and Reporting 1"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACTG 382",
+          "name": {
+            "vi": "Kế toán tài chính và báo cáo 2",
+            "en": "Financial Accounting and Reporting 2"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACTG 383",
+          "name": {
+            "vi": "Kế toán tài chính và báo cáo 3",
+            "en": "Financial Accounting and Reporting 3"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACTG 498",
+          "name": {
+            "vi": "Các vấn đề tích hợp về kế toán",
+            "en": "Integrated Accounting Issues"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "chuyen-nganh-ke-toan"
+      ]
+    },
+    {
+      "id": "tai-chinh",
+      "name": {
+        "vi": "Tài chính",
+        "en": "Finance"
+      },
+      "requiredCourses": [
+        {
+          "code": "FIN 319",
+          "name": {
+            "vi": "Quản trị tài chính trung cấp",
+            "en": "Intermediate Financial Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 352",
+          "name": {
+            "vi": "Đầu tư tài chính",
+            "en": "Investments"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 443",
+          "name": {
+            "vi": "Chứng khoán phái sinh",
+            "en": "Derivative Securities"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 449",
+          "name": {
+            "vi": "Thẩm định giá",
+            "en": "Valuation"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 456",
+          "name": {
+            "vi": "Quản trị tài chính quốc tế",
+            "en": "International Financial Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "FIN 465",
+          "name": {
+            "vi": "Tình huống tài chính",
+            "en": "Cases in Finance"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "chuyen-nganh-tai-chinh"
+      ]
+    },
+    {
+      "id": "quan-tri-nguon-nhan-luc",
+      "name": {
+        "vi": "Quản trị nguồn nhân lực",
+        "en": "Human Resource Management"
+      },
+      "requiredCourses": [
+        {
+          "code": "HRM 351",
+          "name": {
+            "vi": "Quản trị nguồn nhân lực",
+            "en": "Human Resource Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HRM 461",
+          "name": {
+            "vi": "Hệ thống khen thưởng và quản lý hiệu suất",
+            "en": "Reward Systems and Performance Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HRM 471",
+          "name": {
+            "vi": "Tuyển dụng và bố trí nhân sự",
+            "en": "Staffing and Employee Selection"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HRM 491",
+          "name": {
+            "vi": "Phát triển nguồn nhân lực",
+            "en": "Human Resource Development"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HRM 492",
+          "name": {
+            "vi": "Quản trị nguồn nhân lực quốc tế",
+            "en": "International Human Resource Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HRM 493",
+          "name": {
+            "vi": "Chiến lược nguồn nhân lực",
+            "en": "Human Resource Strategy"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "chuyen-nganh-nhan-luc"
+      ]
+    },
+    {
+      "id": "marketing",
+      "name": {
+        "vi": "Marketing",
+        "en": "Marketing"
+      },
+      "requiredCourses": [
+        {
+          "code": "MKTG 336",
+          "name": {
+            "vi": "Bán hàng chuyên nghiệp",
+            "en": "Professional Selling"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MKTG 363",
+          "name": {
+            "vi": "Hành vi khách hàng",
+            "en": "Consumer Behavior"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MKTG 460",
+          "name": {
+            "vi": "Nghiên cứu thị trường",
+            "en": "Marketing Research"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MKTG 461",
+          "name": {
+            "vi": "E-marketing",
+            "en": "E-marketing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MKTG 462",
+          "name": {
+            "vi": "Phát triển sản phẩm mới",
+            "en": "New Product Development"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MKTG 466",
+          "name": {
+            "vi": "Marketing toàn cầu",
+            "en": "Global Marketing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MKTG 467",
+          "name": {
+            "vi": "Chiến lược và quản trị Marketing",
+            "en": "Marketing Strategy and Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "chuyen-nganh-marketing"
+      ]
+    },
+    {
+      "id": "quan-tri-chuoi-cung-ung",
+      "name": {
+        "vi": "Quản trị chuỗi cung ứng",
+        "en": "Supply Chain Management"
+      },
+      "requiredCourses": [
+        {
+          "code": "SCLM 429",
+          "name": {
+            "vi": "Quản trị vận tải và logistics",
+            "en": "Transportation and Logistics Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "SCLM 439",
+          "name": {
+            "vi": "Quản lý thu mua và chuỗi cung ứng",
+            "en": "Purchasing and Supply Chain Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "SCLM 449",
+          "name": {
+            "vi": "Quản lý và cải tiến quy trình",
+            "en": "Process Control and Improvement"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "SCLM 459",
+          "name": {
+            "vi": "Lập kế hoạch và kiểm soát sản xuất",
+            "en": "Production Planning and Control"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "SCLM 479",
+          "name": {
+            "vi": "Quản trị tích hợp chuỗi cung ứng và logistics",
+            "en": "Integrated Supply and Logistics Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "chuyen-nganh-chuoi-cung-ung"
+      ]
+    },
+    {
+      "id": "quan-tri-nha-hang-khach-san",
+      "name": {
+        "vi": "Quản trị nhà hàng – khách sạn",
+        "en": "Hospitality Management"
+      },
+      "requiredCourses": [
+        {
+          "code": "HRM 351",
+          "name": {
+            "vi": "Quản trị nguồn nhân lực",
+            "en": "Human Resource Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HMGT 358",
+          "name": {
+            "vi": "Quản trị nơi lưu trú",
+            "en": "Lodging Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HMGT 361",
+          "name": {
+            "vi": "Quản trị điểm đến và sự kiện",
+            "en": "Destination and Event Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HMGT 401",
+          "name": {
+            "vi": "Quản trị dịch vụ ăn uống",
+            "en": "Food and Beverage Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HMGT 410",
+          "name": {
+            "vi": "Quản trị chất lượng dịch vụ",
+            "en": "Service Quality Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HMGT 434",
+          "name": {
+            "vi": "Các vấn đề và kỹ năng quản trị hospitality quốc tế",
+            "en": "International Hospitality Issues and Management Skills"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "HMGT 482",
+          "name": {
+            "vi": "Quản trị hospitality tích hợp",
+            "en": "Integrated Hospitality Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "chuyen-nganh-nha-hang"
+      ]
+    },
+    {
+      "id": "khoi-nghiep",
+      "name": {
+        "vi": "Khởi nghiệp",
+        "en": "Entrepreneurship"
+      },
+      "requiredCourses": [
+        {
+          "code": "IEPS 360",
+          "name": {
+            "vi": "Sở hữu trí tuệ và thương mại hóa",
+            "en": "Intellectual Property and Commercialization"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "IEPS 361",
+          "name": {
+            "vi": "Quản trị khởi nghiệp",
+            "en": "Planning and Managing New Venture"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "IEPS 371",
+          "name": {
+            "vi": "Phát triển sản phẩm khởi nghiệp",
+            "en": "Entrepreneurial Product Development"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "IEPS 385",
+          "name": {
+            "vi": "Đổi mới sáng tạo và thiết kế trong công nghệ",
+            "en": "Technology Innovation and Design"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "IEPS 450",
+          "name": {
+            "vi": "Quản lý vốn đầu tư mạo hiểm",
+            "en": "Venture Capital Financing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "IEPS 488",
+          "name": {
+            "vi": "Đổi mới chiến lược và lãnh đạo bền vững",
+            "en": "Strategic Innovation and Sustainable Leadership"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "chuyen-nganh-khoi-nghiep"
+      ]
+    },
+    {
+      "id": "phan-tich-kinh-doanh",
+      "name": {
+        "vi": "Phân tích kinh doanh",
+        "en": "Business Analytics"
+      },
+      "requiredCourses": [
+        {
+          "code": "MIS 301",
+          "name": {
+            "vi": "Lập trình Python trong kinh doanh",
+            "en": "Programming in Python for Business"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MIS 311",
+          "name": {
+            "vi": "Nhập môn phân tích kinh doanh",
+            "en": "Introduction to Business Analytics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MIS 315",
+          "name": {
+            "vi": "Nguyên lý về phân tích dữ liệu",
+            "en": "Principles of Data Analytics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MIS 443",
+          "name": {
+            "vi": "Quản lý dữ liệu kinh doanh",
+            "en": "Business Data Management"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MIS 446",
+          "name": {
+            "vi": "Mô phỏng dữ liệu",
+            "en": "Data Visualization"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MIS 451",
+          "name": {
+            "vi": "Học máy cho kinh doanh",
+            "en": "Machine Learning for Business"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MIS 495",
+          "name": {
+            "vi": "Chiến lược phân tích kinh doanh",
+            "en": "Strategic Business Analytics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "chuyen-nganh-phan-tich"
+      ]
+    }
+  ],
+  "source": {
+    "file": "QTKD.pdf",
+    "kind": "khung",
+    "year": null,
+    "pages": "1–7",
+    "note": "hand-checked từ PDF"
+  },
+  "generatedAt": "2026-11-23"
+}

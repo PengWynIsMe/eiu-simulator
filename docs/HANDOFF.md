@@ -1,5 +1,10 @@
 # HANDOFF — bàn giao cho đồng nghiệp
 
+## 📋 KẾ HOẠCH MỚI (2026-11-23) — Ngành học thật + song ngữ (nhánh `PengWynIsMe/nganh-ke-hoach`, chưa gộp main)
+
+Kế hoạch `docs/PLAN-NGANH-SONG-NGU.md`; brief N1 (Codex), N2 (Antigravity), N3 (Claude Sonnet), NR (Codex review) trong `docs/tasks/N*.md`.
+Việc tiếp theo: chủ dự án trả lời câu hỏi PLAN mục 11 → tạo 3 worktree từ nhánh kế hoạch → chạy N1/N2/N3 song song → Claude gộp N3 → N1 → N2 → NR.
+
 ## ⚡ ĐANG CHẠY (2026-11-23) — Giai đoạn 2 "Một buổi học ở EIU"
 
 Kế hoạch: **`docs/PLAN-GIAI-DOAN-2.md`**. Đã trong `main` (chưa push): W0, S1/S2 nhân vật + NPC, S3/S4 cỏ/gió/đường, S5/S6/S9 máy ảo + UI buổi học + âm thanh, S7/S7b bạn học ngồi, S8 phố xá, T07 chia bundle.

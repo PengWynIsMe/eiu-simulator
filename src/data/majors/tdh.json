@@ -1,0 +1,151 @@
+{
+  "id": "tdh",
+  "facultyId": "ky-thuat",
+  "name": {
+    "vi": "Kỹ thuật Điều khiển và Tự động hóa",
+    "en": "Control and Automation Engineering"
+  },
+  "degree": {
+    "vi": "Cử nhân Kỹ thuật Điều khiển và Tự động hóa",
+    "en": "Bachelor of Automation and Control Engineering"
+  },
+  "summary": {
+    "vi": "Chương trình đào tạo Cử nhân Kỹ thuật Điều khiển và Tự động hóa trang bị kiến thức chuyên sâu về hệ thống điều khiển tự động, thiết bị cảm biến và dây chuyền sản xuất thông minh. Sinh viên thành thạo lập trình PLC, SCADA và ứng dụng robot công nghiệp, sẵn sàng đón đầu kỷ nguyên công nghiệp 4.0.",
+    "en": "The Bachelor of Automation and Control Engineering program equips students with mastery of automatic control systems, sensors, and smart production lines. Students gain proficiency in PLC, SCADA programming, and industrial robotics, ready to lead smart manufacturing in Industry 4.0."
+  },
+  "highlights": [
+    {
+      "code": "ECE 201",
+      "why": {
+        "vi": "Môn cơ sở cốt lõi giúp sinh viên nắm vững định luật mạch điện, phân tích mạch AC và DC.",
+        "en": "Core foundation course covering fundamental electric circuit laws and AC/DC network analysis."
+      }
+    },
+    {
+      "code": "ECE 207",
+      "why": {
+        "vi": "Thiết kế mạch logic số, vi mạch số và ứng dụng đại số Boolean trong điều khiển công nghiệp.",
+        "en": "Design digital logic circuits and apply Boolean algebra to industrial control systems."
+      }
+    },
+    {
+      "code": "ACE 304",
+      "why": {
+        "vi": "Thực hành đo lường thông số vật lý và chuyển đổi tín hiệu cảm biến trong công nghiệp.",
+        "en": "Hands-on physical parameter measurement and sensor signal conditioning in industry."
+      }
+    },
+    {
+      "code": "MEC 327",
+      "why": {
+        "vi": "Thiết kế và đấu nối hệ thống truyền động van, xi lanh thủy lực và khí nén tự động hóa.",
+        "en": "Design and assemble automated pneumatic and hydraulic valve and cylinder actuators."
+      }
+    },
+    {
+      "code": "ACE 404",
+      "why": {
+        "vi": "Xây dựng giao diện giám sát vận hành SCADA và điều khiển phân tán cho nhà máy hiện đại.",
+        "en": "Build SCADA monitoring interfaces and distributed control systems for modern plants."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "vi": "Lập trình và cấu hình các dòng bộ điều khiển lập trình PLC công nghiệp",
+      "en": "Program and configure industrial Programmable Logic Controllers (PLCs)"
+    },
+    {
+      "vi": "Thiết kế giao diện HMI và hệ thống thu thập giám sát dữ liệu SCADA",
+      "en": "Design HMI interfaces and supervisory control data acquisition (SCADA) systems"
+    },
+    {
+      "vi": "Mô hình hóa và thiết kế giải thuật điều khiển hồi tiếp cho hệ cơ điện",
+      "en": "Model and synthesize feedback control algorithms for electromechanical plants"
+    },
+    {
+      "vi": "Đo lường, hiệu chuẩn cảm biến và xử lý tín hiệu đo lường công nghiệp",
+      "en": "Measure, calibrate sensor signals, and condition industrial instrumentation"
+    },
+    {
+      "vi": "Vận hành, bảo trì và khắc phục sự cố hệ thống tự động hóa nhà máy",
+      "en": "Operate, maintain, and troubleshoot factory automation installations"
+    }
+  ],
+  "careers": [
+    {
+      "vi": "Kỹ sư tự động hóa: lập trình PLC và triển khai hệ thống điều khiển nhà máy",
+      "en": "Automation Engineer: program PLCs and deploy factory control systems"
+    },
+    {
+      "vi": "Kỹ sư hệ thống SCADA: thiết kế giao diện giám sát và điều khiển công nghiệp",
+      "en": "SCADA Systems Engineer: design supervisory interfaces and industrial monitoring"
+    },
+    {
+      "vi": "Kỹ sư điều khiển robot: tích hợp và lập trình tay máy trong sản xuất",
+      "en": "Robotics Control Engineer: integrate and program robotic manipulators"
+    },
+    {
+      "vi": "Kỹ sư bảo trì cơ điện: chẩn đoán và bảo dưỡng dây chuyền tự động hóa",
+      "en": "Electro-Mechanical Maintenance Engineer: inspect and maintain automated lines"
+    },
+    {
+      "vi": "Kỹ sư tư vấn giải pháp công nghệ 4.0: nâng cấp nhà máy thông minh",
+      "en": "Industry 4.0 Solutions Consultant: modernize smart manufacturing lines"
+    }
+  ],
+  "dayInLife": [
+    {
+      "time": "07:30",
+      "text": {
+        "vi": "Gặp nhóm tại khu bàn pergola ngoài trời Căn tin trao đổi bài trước giờ lên lớp.",
+        "en": "Meet teammates at the outdoor pergola canteen tables to review lab work."
+      }
+    },
+    {
+      "time": "08:00",
+      "text": {
+        "vi": "Thực hành đấu nối và lập trình PLC môn ACE 303 tại Phòng Thực Hành PLC tầng 2 Block 11.",
+        "en": "Wire and program PLC racks for ACE 303 at the 2nd floor PLC Lab, Block 11."
+      }
+    },
+    {
+      "time": "10:30",
+      "text": {
+        "vi": "Xuống Phòng thí nghiệm Công nghệ 4.0 104.B11 quan sát mô hình cánh tay robot.",
+        "en": "Head to Industry 4.0 Lab 104.B11 to observe robotic arm demo cells."
+      }
+    },
+    {
+      "time": "12:00",
+      "text": {
+        "vi": "Ăn trưa tại Căn tin và thư giãn trong không gian xanh mát của khuôn viên EIU.",
+        "en": "Have lunch at the Canteen and relax in EIU's green campus atmosphere."
+      }
+    },
+    {
+      "time": "13:30",
+      "text": {
+        "vi": "Thực hành thiết kế giao diện giám sát SCADA môn ACE 404 tại phòng máy 408.B11.",
+        "en": "Design SCADA monitoring dashboards for ACE 404 at computer lab 408.B11."
+      }
+    },
+    {
+      "time": "15:45",
+      "text": {
+        "vi": "Sang Thư viện B4 nghiên cứu tài liệu kỹ thuật điều khiển tự động bằng tiếng Anh.",
+        "en": "Visit Block 4 Library to study English textbooks on modern control theory."
+      }
+    },
+    {
+      "time": "17:15",
+      "text": {
+        "vi": "Ghé Văn phòng Khoa Kỹ thuật 416.B11 nộp báo cáo thực hành đồ án môn học.",
+        "en": "Stop by Engineering Faculty Office 416.B11 to submit project lab reports."
+      }
+    }
+  ],
+  "contentBasis": "bm08",
+  "contentStatus": "chua-duyet",
+  "updatedAt": "2026-11-23"
+}

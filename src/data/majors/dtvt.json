@@ -1,0 +1,151 @@
+{
+  "id": "dtvt",
+  "facultyId": "ky-thuat",
+  "name": {
+    "vi": "Kỹ thuật Điện tử – Viễn thông",
+    "en": "Electronics and Telecommunications Engineering"
+  },
+  "degree": {
+    "vi": "Cử nhân Kỹ thuật Điện tử – Viễn thông",
+    "en": "Bachelor of Electronics and Telecommunications Engineering"
+  },
+  "summary": {
+    "vi": "Chương trình đào tạo Cử nhân Kỹ thuật Điện tử – Viễn thông trang bị kiến thức nền tảng về xử lý tín hiệu, mạng truyền thông và thiết kế vi mạch. Sinh viên được học cách phát triển hệ thống nhúng, thiết bị cao tần và mạng thông tin di động, đáp ứng nhu cầu nhân lực công nghệ bán dẫn và kết nối số.",
+    "en": "The Bachelor of Electronics and Telecommunications Engineering program covers signal processing, telecommunications, and integrated circuit design. Students learn to develop embedded systems, RF equipment, and wireless networks, meeting high demands in semiconductor and digital connectivity."
+  },
+  "highlights": [
+    {
+      "code": "ETE 343",
+      "why": {
+        "vi": "Nghiên cứu kiến trúc mạng viễn thông hiện đại, các chuẩn ghép kênh và truyền dẫn đường dài.",
+        "en": "Study modern telecom network architecture, multiplexing standards, and trunk lines."
+      }
+    },
+    {
+      "code": "ETE 344",
+      "why": {
+        "vi": "Khảo sát kiến trúc mạng không dây, kỹ thuật điều chế và truyền dẫn dữ liệu tốc độ cao.",
+        "en": "Survey wireless network architectures, modulation techniques, and high-speed data transmission."
+      }
+    },
+    {
+      "code": "ETE 416",
+      "why": {
+        "vi": "Khám phá nguyên lý quang điện tử, nguồn phát laser và truyền dẫn trên sợi cáp quang.",
+        "en": "Explore optoelectronic principles, laser sources, and fiber-optic communication."
+      }
+    },
+    {
+      "code": "ETE 421",
+      "why": {
+        "vi": "Nghiên cứu nguyên lý vi dải, phối hợp trở kháng và thiết kế mạch điện tử tần số siêu cao.",
+        "en": "Study microstrip theory, impedance matching, and high-frequency circuit design."
+      }
+    },
+    {
+      "code": "ETE 422",
+      "why": {
+        "vi": "Tính toán và thiết kế anten vi dải, mảng anten phục vụ thông tin vô tuyến và radar.",
+        "en": "Calculate and synthesize microstrip patch antennas and phased arrays for radar and wireless."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "vi": "Phân tích, thiết kế mạch điện tử tương tự và số trên phần mềm mô phỏng",
+      "en": "Analyze and design analog and digital electronic circuits in simulators"
+    },
+    {
+      "vi": "Lập trình thuật toán xử lý tín hiệu số và xử lý ảnh trên DSP và máy tính",
+      "en": "Program DSP and computer algorithms for digital signal and image processing"
+    },
+    {
+      "vi": "Thiết kế và đo kiểm mạch viễn thông cao tần, anten và thiết bị truyền sóng",
+      "en": "Design and measure RF circuits, antennas, and wireless transmission equipment"
+    },
+    {
+      "vi": "Phát triển phần mềm điều khiển cho các hệ thống vi điều khiển nhúng",
+      "en": "Develop firmware and control software for embedded microcontroller systems"
+    },
+    {
+      "vi": "Thiết kế sơ đồ nguyên lý và layout bảng mạch in PCB cho thiết bị điện tử",
+      "en": "Design schematic diagrams and PCB layouts for electronic hardware appliances"
+    }
+  ],
+  "careers": [
+    {
+      "vi": "Kỹ sư thiết kế phần cứng: thiết kế mạch điện tử và layout bảng mạch PCB",
+      "en": "Hardware Design Engineer: design electronic circuits and PCB layouts"
+    },
+    {
+      "vi": "Kỹ sư hệ thống nhúng: lập trình vi điều khiển và firmware thiết bị thông minh",
+      "en": "Embedded Systems Engineer: develop firmware and drivers for smart devices"
+    },
+    {
+      "vi": "Kỹ sư viễn thông: vận hành và tối ưu hóa mạng thông tin di động không dây",
+      "en": "Telecommunications Engineer: operate and optimize wireless cellular networks"
+    },
+    {
+      "vi": "Kỹ sư thiết kế vi mạch: thiết kế và kiểm thử vi mạch tích hợp bán dẫn",
+      "en": "IC Design Engineer: design and verify semiconductor integrated circuits"
+    },
+    {
+      "vi": "Kỹ sư đo lường RF: đo kiểm anten và chất lượng sóng vô tuyến cao tần",
+      "en": "RF Test Engineer: test antenna performance and radio frequency quality"
+    }
+  ],
+  "dayInLife": [
+    {
+      "time": "07:30",
+      "text": {
+        "vi": "Gặp bạn bè tại Căn tin trường ăn sáng và chuẩn bị linh kiện cho buổi đo mạch.",
+        "en": "Meet classmates at the Canteen for breakfast and prep components for circuit lab."
+      }
+    },
+    {
+      "time": "08:00",
+      "text": {
+        "vi": "Thực hành khảo sát mạch điện tử tại Phòng Thực Hành Kỹ Thuật Điện Tử tầng 2 B11.",
+        "en": "Experiment with electronic circuits at Electronics Practice Lab, 2nd floor B11."
+      }
+    },
+    {
+      "time": "10:15",
+      "text": {
+        "vi": "Lên phòng máy 408.B11 mô phỏng thuật toán xử lý tín hiệu số môn ETE 341.",
+        "en": "Head to Lab 408.B11 to simulate digital signal processing filters for ETE 341."
+      }
+    },
+    {
+      "time": "12:00",
+      "text": {
+        "vi": "Dùng cơm trưa tại Căn tin và nghỉ ngơi dưới bóng cây khuôn viên Block 11.",
+        "en": "Lunch at the Canteen and relax under tree canopies around Block 11."
+      }
+    },
+    {
+      "time": "13:30",
+      "text": {
+        "vi": "Học chuyên đề thiết kế vi mạch ETE 431 tại giảng đường tầng 3 Block 11.",
+        "en": "Attend IC Design (ETE 431) lecture in a 3rd-floor classroom at Block 11."
+      }
+    },
+    {
+      "time": "15:45",
+      "text": {
+        "vi": "Sang Thư viện B4 mượn tài liệu kiến trúc vi xử lý và hệ thống viễn thông 5G.",
+        "en": "Visit Block 4 Library to read references on processor architecture and 5G networks."
+      }
+    },
+    {
+      "time": "17:15",
+      "text": {
+        "vi": "Trao đổi với giảng viên tại Văn phòng Khoa Kỹ thuật 416.B11 về đề tài tốt nghiệp.",
+        "en": "Consult lecturer at Engineering Faculty Office 416.B11 on capstone topics."
+      }
+    }
+  ],
+  "contentBasis": "bang-mon",
+  "contentStatus": "chua-duyet",
+  "updatedAt": "2026-11-23"
+}

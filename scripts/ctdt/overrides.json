@@ -1,0 +1,113 @@
+{
+  "ktpm": {
+    "courses": {
+      "CSW 482": {"name": {"vi": "Đồ án tốt nghiệp KTPM III", "en": "Software Engineering Capstone Project III"}, "why": "Sửa chữ III bị lặp đầu/cuối ở PDF p. 53."},
+      "POLS 132": {"name": {"vi": "Tư tưởng Hồ Chí Minh", "en": "Ho Chi Minh's Ideology"}, "why": "Chuẩn hóa tên Anh theo bảng môn học."}
+    }
+  },
+  "dien": {
+    "add": [
+      {"code":"PHYS 101","name":{"vi":"Vật lý I","en":"Physics I"},"credits":4,"lt":3,"th":1,"block":"dai-cuong","year":1,"semester":1,"yearSource":"ke-hoach"}
+    ]
+  },
+  "qtkd": {
+    "specializations": {
+      "ke-toan": [
+        {"code":"ACTG 335","name":{"vi":"Hệ thống thông tin kế toán","en":"Accounting Information Systems"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"ACTG 360","name":{"vi":"Kế toán chi phí","en":"Cost Accounting"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"ACTG 381","name":{"vi":"Kế toán tài chính và báo cáo 1","en":"Financial Accounting and Reporting 1"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"ACTG 382","name":{"vi":"Kế toán tài chính và báo cáo 2","en":"Financial Accounting and Reporting 2"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"ACTG 383","name":{"vi":"Kế toán tài chính và báo cáo 3","en":"Financial Accounting and Reporting 3"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"ACTG 498","name":{"vi":"Các vấn đề tích hợp về kế toán","en":"Integrated Accounting Issues"},"credits":4,"block":"chuyen-nganh"}
+      ],
+      "tai-chinh": [
+        {"code":"FIN 319","name":{"vi":"Quản trị tài chính trung cấp","en":"Intermediate Financial Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"FIN 352","name":{"vi":"Đầu tư tài chính","en":"Investments"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"FIN 443","name":{"vi":"Chứng khoán phái sinh","en":"Derivative Securities"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"FIN 449","name":{"vi":"Thẩm định giá","en":"Valuation"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"FIN 456","name":{"vi":"Quản trị tài chính quốc tế","en":"International Financial Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"FIN 465","name":{"vi":"Tình huống tài chính","en":"Cases in Finance"},"credits":4,"block":"chuyen-nganh"}
+      ],
+      "quan-tri-nguon-nhan-luc": [
+        {"code":"HRM 351","name":{"vi":"Quản trị nguồn nhân lực","en":"Human Resource Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HRM 461","name":{"vi":"Hệ thống khen thưởng và quản lý hiệu suất","en":"Reward Systems and Performance Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HRM 471","name":{"vi":"Tuyển dụng và bố trí nhân sự","en":"Staffing and Employee Selection"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HRM 491","name":{"vi":"Phát triển nguồn nhân lực","en":"Human Resource Development"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HRM 492","name":{"vi":"Quản trị nguồn nhân lực quốc tế","en":"International Human Resource Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HRM 493","name":{"vi":"Chiến lược nguồn nhân lực","en":"Human Resource Strategy"},"credits":4,"block":"chuyen-nganh"}
+      ],
+      "marketing": [
+        {"code":"MKTG 336","name":{"vi":"Bán hàng chuyên nghiệp","en":"Professional Selling"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MKTG 363","name":{"vi":"Hành vi khách hàng","en":"Consumer Behavior"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MKTG 460","name":{"vi":"Nghiên cứu thị trường","en":"Marketing Research"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MKTG 461","name":{"vi":"E-marketing","en":"E-marketing"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MKTG 462","name":{"vi":"Phát triển sản phẩm mới","en":"New Product Development"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MKTG 466","name":{"vi":"Marketing toàn cầu","en":"Global Marketing"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MKTG 467","name":{"vi":"Chiến lược và quản trị Marketing","en":"Marketing Strategy and Management"},"credits":4,"block":"chuyen-nganh"}
+      ],
+      "quan-tri-chuoi-cung-ung": [
+        {"code":"SCLM 429","name":{"vi":"Quản trị vận tải và logistics","en":"Transportation and Logistics Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"SCLM 439","name":{"vi":"Quản lý thu mua và chuỗi cung ứng","en":"Purchasing and Supply Chain Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"SCLM 449","name":{"vi":"Quản lý và cải tiến quy trình","en":"Process Control and Improvement"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"SCLM 459","name":{"vi":"Lập kế hoạch và kiểm soát sản xuất","en":"Production Planning and Control"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"SCLM 479","name":{"vi":"Quản trị tích hợp chuỗi cung ứng và logistics","en":"Integrated Supply and Logistics Management"},"credits":4,"block":"chuyen-nganh"}
+      ],
+      "quan-tri-nha-hang-khach-san": [
+        {"code":"HRM 351","name":{"vi":"Quản trị nguồn nhân lực","en":"Human Resource Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HMGT 358","name":{"vi":"Quản trị nơi lưu trú","en":"Lodging Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HMGT 361","name":{"vi":"Quản trị điểm đến và sự kiện","en":"Destination and Event Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HMGT 401","name":{"vi":"Quản trị dịch vụ ăn uống","en":"Food and Beverage Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HMGT 410","name":{"vi":"Quản trị chất lượng dịch vụ","en":"Service Quality Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HMGT 434","name":{"vi":"Các vấn đề và kỹ năng quản trị hospitality quốc tế","en":"International Hospitality Issues and Management Skills"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"HMGT 482","name":{"vi":"Quản trị hospitality tích hợp","en":"Integrated Hospitality Management"},"credits":4,"block":"chuyen-nganh"}
+      ],
+      "khoi-nghiep": [
+        {"code":"IEPS 360","name":{"vi":"Sở hữu trí tuệ và thương mại hóa","en":"Intellectual Property and Commercialization"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"IEPS 361","name":{"vi":"Quản trị khởi nghiệp","en":"Planning and Managing New Venture"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"IEPS 371","name":{"vi":"Phát triển sản phẩm khởi nghiệp","en":"Entrepreneurial Product Development"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"IEPS 385","name":{"vi":"Đổi mới sáng tạo và thiết kế trong công nghệ","en":"Technology Innovation and Design"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"IEPS 450","name":{"vi":"Quản lý vốn đầu tư mạo hiểm","en":"Venture Capital Financing"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"IEPS 488","name":{"vi":"Đổi mới chiến lược và lãnh đạo bền vững","en":"Strategic Innovation and Sustainable Leadership"},"credits":4,"block":"chuyen-nganh"}
+      ],
+      "phan-tich-kinh-doanh": [
+        {"code":"MIS 301","name":{"vi":"Lập trình Python trong kinh doanh","en":"Programming in Python for Business"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MIS 311","name":{"vi":"Nhập môn phân tích kinh doanh","en":"Introduction to Business Analytics"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MIS 315","name":{"vi":"Nguyên lý về phân tích dữ liệu","en":"Principles of Data Analytics"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MIS 443","name":{"vi":"Quản lý dữ liệu kinh doanh","en":"Business Data Management"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MIS 446","name":{"vi":"Mô phỏng dữ liệu","en":"Data Visualization"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MIS 451","name":{"vi":"Học máy cho kinh doanh","en":"Machine Learning for Business"},"credits":4,"block":"chuyen-nganh"},
+        {"code":"MIS 495","name":{"vi":"Chiến lược phân tích kinh doanh","en":"Strategic Business Analytics"},"credits":4,"block":"chuyen-nganh"}
+      ]
+    },
+    "groups": [
+      {"id":"chuyen-nganh-ke-toan","title":{"vi":"Tự chọn chuyên ngành Kế toán","en":"Accounting specialization electives"},"minCredits":24,"specializationId":"ke-toan","courses":[]},
+      {"id":"chuyen-nganh-tai-chinh","title":{"vi":"Tự chọn chuyên ngành Tài chính","en":"Finance specialization electives"},"minCredits":20,"specializationId":"tai-chinh","courses":[]},
+      {"id":"chuyen-nganh-nhan-luc","title":{"vi":"Tự chọn chuyên ngành Quản trị nguồn nhân lực","en":"Human Resource Management specialization electives"},"minCredits":24,"specializationId":"quan-tri-nguon-nhan-luc","courses":[]},
+      {"id":"chuyen-nganh-marketing","title":{"vi":"Tự chọn chuyên ngành Marketing","en":"Marketing specialization electives"},"minCredits":20,"specializationId":"marketing","courses":[]},
+      {"id":"chuyen-nganh-chuoi-cung-ung","title":{"vi":"Tự chọn chuyên ngành Quản trị chuỗi cung ứng","en":"Supply Chain Management specialization electives"},"minCredits":24,"specializationId":"quan-tri-chuoi-cung-ung","courses":[]},
+      {"id":"chuyen-nganh-nha-hang","title":{"vi":"Tự chọn chuyên ngành Quản trị nhà hàng – khách sạn","en":"Hospitality Management specialization electives"},"minCredits":16,"specializationId":"quan-tri-nha-hang-khach-san","courses":[]},
+      {"id":"chuyen-nganh-khoi-nghiep","title":{"vi":"Tự chọn chuyên ngành Khởi nghiệp","en":"Entrepreneurship specialization electives"},"minCredits":24,"specializationId":"khoi-nghiep","courses":[]},
+      {"id":"chuyen-nganh-phan-tich","title":{"vi":"Tự chọn chuyên ngành Phân tích kinh doanh","en":"Business Analytics specialization electives"},"minCredits":20,"specializationId":"phan-tich-kinh-doanh","courses":[]}
+    ],
+    "add": [
+      {"code":"BUS 450","name":{"vi":"Đồ án cuối khóa","en":"Final Year Project"},"credits":6,"lt":6,"th":0,"block":"tot-nghiep","year":4},
+      {"code":"BUS 496","name":{"vi":"Chiến lược kinh doanh","en":"Capstone: Business Strategy"},"credits":6,"lt":6,"th":0,"block":"tot-nghiep","year":4}
+    ],
+    "courses": {
+      "LNGS-C101": {"why": "Ghép mã bị tách thành nhiều ô trong PDF."},
+      "LNGS-J101": {"why": "Ghép mã bị tách thành nhiều ô trong PDF."},
+      "LNGS-K101": {"why": "Ghép mã bị tách thành nhiều ô trong PDF."},
+      "MATH 114": {"why": "Ghép mã bị ngắt dòng trong bảng."}
+    }
+  },
+  "dtvt": {
+    "courses": {
+      "ECE 300": {"name": {"vi": "Trường điện từ", "en": "Electromagnetics"}, "why": "Mục lục bảng bị dồn tên môn Cấu trúc dữ liệu phía trên; sửa theo hàng 13 ở trang 5."},
+      "ETE 349": {"name": {"vi": "Thiết kế hệ thống nhúng", "en": "Embedded System Design"}, "why": "Tách khỏi dòng kế tiếp; dòng 'Lập trình điều khiển nhúng' không có mã môn trong bản PDF."},
+      "MATH 111": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},
+      "MATH 112": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},
+      "MATH 113": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."},
+      "MATH 114": {"why": "Mã môn bị ngắt dòng giữa tiền tố và số."}
+    }
+  }
+}

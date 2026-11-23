@@ -35,8 +35,23 @@ Sau mỗi task: Claude review → người dùng xem thử → commit → cập 
 
 ## Giai đoạn 1.5 — Nội dung ngành + "chất game"
 
-- Dữ liệu ngành thật của EIU (đề xuất: Kỹ thuật phần mềm, QTKD, Điều dưỡng) → panel ngành.
+- Dữ liệu ngành thật của EIU → panel ngành. **Đã lên kế hoạch ở Giai đoạn 2b** (8 ngành theo CTĐT thật).
 - Hộ chiếu ngành (đóng dấu tòa đã ghé), quiz "ngành nào hợp với bạn", NPC sinh viên, chế độ đi bộ.
+
+## Giai đoạn 2b — Ngành học thật + song ngữ VI/EN
+
+Kế hoạch: **`docs/PLAN-NGANH-SONG-NGU.md`** (Claude Opus, 2026-11-23). 8 CTĐT thật trong `references/ctdt/`; mỗi ngành 2 file
+`src/data/majors/<id>.json` (viết tay) + `<id>.curriculum.json` (sinh bằng script). N1–N3 chạy song song, mỗi luồng 1 worktree tạo từ nhánh `PengWynIsMe/nganh-ke-hoach`.
+
+| Task | Người làm | Nội dung | Trạng thái |
+| --- | --- | --- | --- |
+| **N1** Trích bảng môn | Codex | `scripts/ctdt/` (pdfjs-dist trong package riêng) → 8 `*.curriculum.json`, chạy lại được, `check.mjs` | Brief: `docs/tasks/N1-trich-bang-mon.md` |
+| **N2** Nội dung + đối chiếu | Antigravity | 8 profile song ngữ (mô tả, môn core, kỹ năng, nghề, một ngày) + đối chiếu JSON N1 với PDF | Brief: `docs/tasks/N2-noi-dung-doi-chieu.md` |
+| **N3** Ngôn ngữ + panel ngành | Claude Sonnet | `useLangStore` + `t()`/`UI_TEXT`, nút VI/EN, panel ngành (tab năm, chuyên ngành, bottom sheet), loader + types theo PLAN | Brief: `docs/tasks/N3-ngon-ngu-panel-nganh.md` |
+| **NR** Review cuối | Codex | typecheck/lint/build, JSON đúng schema, đủ 8 ngành, thử giao diện | Brief: `docs/tasks/NR-review-nganh.md` — sau khi Claude gộp N3 → N1 → N2 |
+| N4 Song ngữ phần còn lại | (chưa giao) | Chuỗi buổi học / máy ảo / góp ý sang `UI_TEXT`; bài giảng `nmlt-01` song ngữ | Chưa |
+
+Chưa làm (chỉ chừa chỗ trong schema): kỷ niệm hành trình học (môn core, tiến độ, hoạt động).
 
 ## Giai đoạn 2+ — Tầm nhìn (chưa làm)
 
