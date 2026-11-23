@@ -53,6 +53,10 @@ Kế hoạch: **`docs/PLAN-NGANH-SONG-NGU.md`** (Claude Opus, 2026-11-23). 8 CT�
 
 Chưa làm (chỉ chừa chỗ trong schema): kỷ niệm hành trình học (môn core, tiến độ, hoạt động).
 
+## Nhánh tổng hợp 2026-11-23 (`PengWynIsMe/tong-hop`)
+
+Gộp N1–N3, tuyết rơi, 406, an ninh mạng (B6), căn tin trong, Thư viện B4, khuôn viên; ghép ngành vào B3/B6/B8/B11, ngôn ngữ + tuyết dùng chung, TopBar gọn trên điện thoại. Xem `docs/tasks/TONG-HOP-bao-cao.md`. Chờ chủ dự án thử → merge main. NR (review ngành) đã làm gộp trong báo cáo này.
+
 ## Giai đoạn 2+ — Tầm nhìn (chưa làm)
 
 Nội thất (tour 360 có 142 ảnh bên trong B3, B4–5, B6, B8, B11) → Supabase → multiplayer/vào lớp → voice/video.

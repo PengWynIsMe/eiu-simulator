@@ -1,5 +1,16 @@
 # HANDOFF — bàn giao cho đồng nghiệp
 
+## 🧩 NHÁNH TỔNG HỢP (2026-11-23) — `PengWynIsMe/tong-hop` (chưa push, chưa vào main)
+
+Gộp 9 nhánh trong ngày từ main (24483be): fix-fp-nhay, ngành (n2 ⊃ n1 ⊃ kế hoạch, n3), tuyết rơi, phòng máy 406, an-ninh-mang (⊃ codex-phu), canteen-trong, thu-vien-b4, khuon-vien.
+Báo cáo đầy đủ + danh sách chủ dự án thử: **`docs/tasks/TONG-HOP-bao-cao.md`**. Dev: `http://localhost:5180/`.
+- Ngành thật vào tòa: b3=QTKD, b6=MMT, b8=Điện, b11=7 ngành (gom khoa). Mẫu `mau-*` đã xóa. Năm học 3 ngành khung ngắn suy bằng `scripts/ctdt/infer-years.mjs` (chạy sau `extract.mjs`).
+- Một trạng thái ngôn ngữ (`useLangStore`), chuỗi tuyết nằm trong `UI_TEXT`. Tuyết **bật mặc định** (`?snow=0` tắt, `?snow=1` bật). TopBar một hàng icon trên điện thoại.
+- Trùng lặp đã chọn: nội thất căn tin = canteen-trong; nhà xe căn tin + bậc hồ = codex-phu; mặt tiền/sân căn tin, Highlands, nhà xe B5, hành lang/vườn = khuon-vien.
+- Việc kế: chủ dự án thử theo báo cáo → sửa → merge vào main. `npm run dev` có `window.__stores` / `window.__gl` để đo/kiểm.
+
+---
+
 ## 📋 KẾ HOẠCH MỚI (2026-11-23) — Ngành học thật + song ngữ (nhánh `PengWynIsMe/nganh-ke-hoach`, chưa gộp main)
 
 Kế hoạch `docs/PLAN-NGANH-SONG-NGU.md`; brief N1 (Codex), N2 (Antigravity), N3 (Claude Sonnet), NR (Codex review) trong `docs/tasks/N*.md`.
