@@ -180,11 +180,13 @@ export interface ClassroomNpcsProps {
   subscribe: (listener: () => void) => () => void;
   crowd?: number;
   sitYOffset?: number;
+  models?: string[];
 }
 
 /**
  * Bạn học ngồi trong phòng học (406.B11, 406.B8...).
  * Nhận room, getSignal, subscribe, crowd, sitYOffset (mặc định 0.40).
+ * Cho phép tùy chọn mảng models (mặc định characterConfig.roles.students).
  * Không import useLessonStore. Điều kiện mount do nơi gọi quản lý.
  */
 export default function ClassroomNpcs({
@@ -192,11 +194,11 @@ export default function ClassroomNpcs({
   getSignal,
   crowd,
   sitYOffset = SIT_Y_OFFSET,
+  models = characterConfig.roles.students,
 }: ClassroomNpcsProps) {
   const effectiveSitY = room.sitYOffset ?? sitYOffset;
   const effectiveCrowd = crowd ?? room.npcSeats.length;
   const students = useMemo(() => buildClassroomPlan(room, effectiveCrowd), [room, effectiveCrowd]);
-  const models = characterConfig.roles.students;
 
   return (
     <>
