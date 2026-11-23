@@ -321,12 +321,14 @@ export function getFloorWalls(floor: number): readonly WallSegment[] {
   }
 
   // Tường Nam (Vách kính suốt nhìn ra hồ nước & Highlands)
+  // isRailing: true để InteriorScene nhường cho B4Furniture vẽ vách kính khung đen công nghiệp,
+  // đồng thời vẫn giữ nguyên va chạm cản người chơi không đi xuyên qua kính.
   if (floor === 1) {
     // Có cửa chính ở u = 26.0..30.0
-    walls.push({ u1: 0, v1: 28, u2: 26, v2: 28, thickness: 0.1, isGlass: true });
-    walls.push({ u1: 30, v1: 28, u2: 67, v2: 28, thickness: 0.1, isGlass: true });
+    walls.push({ u1: 0, v1: 28, u2: 26, v2: 28, thickness: 0.1, isRailing: true });
+    walls.push({ u1: 30, v1: 28, u2: 67, v2: 28, thickness: 0.1, isRailing: true });
   } else {
-    walls.push({ u1: 0, v1: 28, u2: 67, v2: 28, thickness: 0.1, isGlass: true });
+    walls.push({ u1: 0, v1: 28, u2: 67, v2: 28, thickness: 0.1, isRailing: true });
   }
 
   // Tường buồng thang máy (u: 28.5..31.5, v: 3.5..5.5)

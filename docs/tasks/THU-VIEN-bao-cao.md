@@ -2,7 +2,7 @@
 
 - **Người thực hiện**: Gemini (Antigravity)
 - **Nhánh**: `PengWynIsMe/thu-vien-b4`
-- **Mục tiêu**: Tái hiện trung thực không gian nội thất 3 tầng của Thư viện EIU (Block 4) dựa trên 17 ảnh trích xuất từ clip TikTok thực tế của trường (`thu-vien-eiu/`), tích hợp va chạm, thang bộ, thang máy trong chế độ đi bộ (WalkMode), bảo đảm FPS cao (≥ 60 FPS) và đạt 0 lỗi ở tất cả các cổng kiểm tra.
+- **Mục tiêu**: Tái hiện trung thực không gian nội thất 3 tầng của Thư viện EIU (Block 4) dựa trên 17 ảnh trích xuất từ clip TikTok thực tế của trường và các ảnh bổ sung (`thu-vien-eiu/`), tích hợp va chạm, thang bộ, thang máy trong chế độ đi bộ (WalkMode), bảo đảm FPS cao (≥ 60 FPS) và đạt 0 lỗi ở tất cả các cổng kiểm tra.
 
 ---
 
@@ -71,7 +71,7 @@ Do clip TikTok chỉ quay cục bộ các góc ấn tượng của sinh viên, c
 ### A. Cổng kiểm tra tĩnh
 1. `npm run typecheck`: **0 lỗi** (`tsc -b --noEmit` đạt chuẩn strict).
 2. `npm run lint`: **0 lỗi** (`eslint .` sạch 100%, không cảnh báo).
-3. `npm run build`: **Thành công** (`vite build` hoàn tất trong ~2.4s, bundle tối ưu).
+3. `npm run build`: **Thành công** (`vite build` hoàn tất trong ~2.3s, bundle tối ưu).
 
 ### B. Kiểm thử tự động trên trình duyệt (Headless Chrome WebGL)
 - Chạy kịch bản tự động hóa đi bộ từ bên ngoài khuôn viên vào sảnh B4, đi qua các khu vực Tầng 1, đi thang máy lên Tầng 2, ngắm thông tầng và phòng họp nhóm, lên Tầng 3 và bước ra ngoài.
@@ -94,22 +94,45 @@ Do clip TikTok chỉ quay cục bộ các góc ấn tượng của sinh viên, c
 
 ---
 
-## 5. Danh sách file thay đổi & bổ sung
+## 5. Cập nhật Lần 2 (Sửa các vật thể lơ lửng, bám sát ảnh thực tế)
+
+Theo phản hồi từ điều phối viên và các ảnh bổ sung (`w021s`, `w023s`, `w025s`, `t077s`, `t081s`):
+1. **Poster dán kính phẳng**:
+   - Dán sát trực tiếp vào mặt trong của vách kính mặt Nam ($v = 27.95, y = 1.85m$, độ dày 0.005m), không còn lơ lửng giữa phòng.
+   - Xung quanh poster nhìn xuyên thấu qua kính thấy rõ thảm cỏ, hàng cây xanh và ki-ốt Highlands Coffee bên ngoài.
+2. **Loại bỏ hoàn toàn các vật thể lơ lửng**:
+   - Bỏ các khối xanh lá và ống gió lớn cắt ngang khoảng thông tầng Atrium Tầng 2; khoang giếng trời hoàn toàn thông thoáng từ Tầng 1 lên mái.
+   - Ống gió HVAC gọn gàng bám sát mép trần ($y = 3.55m$ né giếng trời), đèn LED tuýp thả thanh mảnh ($2.4m \times 0.04m \times 0.08m$).
+   - Cây cảnh nội thất dùng chậu trụ tròn thanh lịch đặt trên sàn Tầng 1.
+3. **Ghế Tolix & Ghế Teal thanh mảnh có chân (chuẩn Style 3D)**:
+   - Ghế Tolix công nghiệp chân sắt mảnh, mặt ngồi kim loại mỏng và lưng tựa uốn cong thoáng đãng.
+   - Ghế teal bọc nệm êm ái có 4 chân thanh mảnh, loại bỏ hoàn toàn các khối hộp đặc màu đen.
+4. **Dãy kệ sách trắng nhiều tầng có gáy sách màu (`w025s`, `w023s`, `14`)**:
+   - Khung sắt trắng nhiều tầng, đợt kệ ngang trắng, hồi kệ gỗ sồi gắn biển hiệu xanh tím EIU và các hàng sách nhiều màu rực rỡ (đỏ, xanh lam, vàng, xanh lá, trắng).
+   - Bố trí nổi bật tại khu Zone B và sảnh đọc.
+5. **Vách kính lớn mặt Nam nhìn ra cây xanh**:
+   - Dựng hệ khung nhôm đen công nghiệp (đố đứng 2.5m, đố ngang $y = 1.2m, 2.4m$) và kính trong suốt nhìn ra thảm cỏ, lối đi bộ lát gạch, hàng cây xanh rợp bóng và ki-ốt Highlands Coffee bên ngoài.
+6. **Lối vào có cổng quẹt thẻ (`t077s`)**:
+   - Trụ inox quẹt thẻ có cánh flap mica xanh và 4 bảng gỗ nhận diện EIU ốp tường sảnh đón.
+
+---
+
+## 6. Danh sách file thay đổi & bổ sung
 
 | File | Thao tác | Mô tả |
 | :--- | :--- | :--- |
 | `docs/tasks/THU-VIEN-B4.md` | Tạo mới | Brief thiết kế chi tiết đối chiếu ảnh và quy hoạch mặt bằng |
-| `docs/tasks/THU-VIEN-bao-cao.md` | Tạo mới | Báo cáo hoàn thành nhiệm vụ |
-| `docs/tasks/THU-VIEN-anh/*.png` | Tạo mới | 10 ảnh chụp nghiệm thu từng khu vực nội thất B4 |
+| `docs/tasks/THU-VIEN-bao-cao.md` | Cập nhật | Báo cáo hoàn thành nhiệm vụ & nghiệm thu lần 2 |
+| `docs/tasks/THU-VIEN-anh/*.png` | Tạo mới | Ảnh chụp nghiệm thu từng khu vực nội thất B4 |
 | `src/scene/interior/layouts/b4.ts` | Tạo mới | Định nghĩa hình học, ranh giới, va chạm và lõi thang B4 |
-| `src/scene/interior/B4Furniture.tsx` | Tạo mới | Component 3D nội thất B4 dùng instanced mesh tối ưu |
+| `src/scene/interior/B4Furniture.tsx` | Tạo mới & Tinh chỉnh | Component 3D nội thất B4 bám sát ảnh thực tế, tối ưu instanced mesh |
 | `src/scene/interior/layouts/index.ts` | Chỉnh sửa | Đăng ký `b4Layout` vào danh sách interior layout |
 | `src/scene/interior/InteriorFurniture.tsx` | Chỉnh sửa | Render `<B4Furniture />` khi vào tòa B4 |
-| `src/scene/interior/InteriorScene.tsx` | Chỉnh sửa | Bổ sung tâm tòa nhà, ánh sáng tự nhiên và màu sàn be ấm cho B4 |
+| `src/scene/interior/InteriorScene.tsx` | Chỉnh sửa | Bổ sung multi-floor B4, cảnh quan ngoại thất nhìn qua kính (cỏ, cây, Highlands) |
 
 ---
 
-## 6. Đề xuất phát triển tiếp theo
+## 7. Đề xuất phát triển tiếp theo
 
 - Khi có thêm ảnh chi tiết của Tầng 3 hoặc khu vực sách chuyên ngành sâu hơn, có thể bổ sung thêm các phân khu đặc thù như phòng hội thảo đa năng hoặc studio sáng tạo.
 - Xem xét gắn thêm các liên kết tương tác mở danh mục sách thư viện trực tuyến EIU khi click vào máy tính tra cứu OPAC.
