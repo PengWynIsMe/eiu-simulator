@@ -19,6 +19,9 @@ import type { SpeakerId } from '../types/silver';
 import { arr, fail, num, obj, oneOf, optStr, str, vec2 } from './validate';
 
 const CLIPS: readonly CharacterClip[] = ['idle', 'walk', 'run', 'sit', 'yes', 'no', 'interact', 'raiseHand'];
+const VALID_SPEAKER_IDS: readonly SpeakerId[] = [
+  'player', 'thanh', 'quyen', 'han', 'teacher', 'examiner', 'guide', 'narrator',
+];
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
 
 function characters(v: unknown): CharacterConfig {
@@ -34,7 +37,8 @@ function characters(v: unknown): CharacterConfig {
     const storyObj = obj(o.story, 'characters.story');
     story = {};
     for (const [k, val] of Object.entries(storyObj)) {
-      story[k as SpeakerId] = asset(str(val, `characters.story.${k}`));
+      const speaker = oneOf(k, VALID_SPEAKER_IDS, `characters.story.${k}`);
+      story[speaker] = asset(str(val, `characters.story.${k}`));
     }
   }
 
