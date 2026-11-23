@@ -1,0 +1,1444 @@
+{
+ "version": 1,
+ "stages": [
+  {
+   "sceneId": "entrance/meet-thanh",
+   "tier": "light",
+   "trigger": "talk",
+   "place": {
+    "vi": "Sân trước B8 (cửa Nam)",
+    "en": "In front of B8 (south door)"
+   },
+   "roomCode": null,
+   "arrival": {
+    "buildingId": null,
+    "floor": null,
+    "x": 17.43,
+    "z": -158.06,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": null,
+    "floor": null,
+    "x": 17.91,
+    "z": -164.85,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "thanh",
+     "spot": {
+      "buildingId": null,
+      "floor": null,
+      "x": 17.91,
+      "z": -164.85,
+      "facing": [
+       0.23,
+       0.97
+      ]
+     },
+     "pose": "idle"
+    }
+   ],
+   "crowd": 0
+  },
+  {
+   "sceneId": "entrance/listening",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 206.B8, tầng 2",
+    "en": "Room 206.B8, 2nd floor"
+   },
+   "roomCode": "206.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 38.39,
+    "z": -218.9,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "examiner",
+     "pose": "idle"
+    }
+   ],
+   "crowd": 10
+  },
+  {
+   "sceneId": "entrance/reading",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 206.B8, tầng 2",
+    "en": "Room 206.B8, 2nd floor"
+   },
+   "roomCode": "206.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 38.39,
+    "z": -218.9,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "examiner",
+     "pose": "idle"
+    }
+   ],
+   "crowd": 10
+  },
+  {
+   "sceneId": "entrance/writing",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 206.B8, tầng 2",
+    "en": "Room 206.B8, 2nd floor"
+   },
+   "roomCode": "206.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 38.39,
+    "z": -218.9,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "examiner",
+     "pose": "idle"
+    }
+   ],
+   "crowd": 10
+  },
+  {
+   "sceneId": "entrance/speaking",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 208.B8, tầng 2",
+    "en": "Room 208.B8, 2nd floor"
+   },
+   "roomCode": "208.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 26.72,
+    "z": -209.92,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 29.44,
+    "z": -217.43,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "examiner",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 2,
+      "x": 27.93,
+      "z": -217.08,
+      "facing": [
+       0.97,
+       -0.23
+      ]
+     },
+     "pose": "sit"
+    }
+   ],
+   "crowd": 0
+  },
+  {
+   "sceneId": "entrance/result",
+   "tier": "light",
+   "trigger": "look",
+   "place": {
+    "vi": "Sân trước B8 (cửa Nam)",
+    "en": "In front of B8 (south door)"
+   },
+   "roomCode": null,
+   "arrival": {
+    "buildingId": null,
+    "floor": null,
+    "x": 17.43,
+    "z": -158.06,
+    "facing": [
+     -0.62,
+     -0.88
+    ]
+   },
+   "target": {
+    "buildingId": null,
+    "floor": null,
+    "x": 11.92,
+    "z": -164.99,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "thanh",
+     "spot": {
+      "buildingId": null,
+      "floor": null,
+      "x": 13.46,
+      "z": -164.53,
+      "facing": [
+       -0.77,
+       -0.64
+      ]
+     },
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "spot": {
+      "buildingId": null,
+      "floor": null,
+      "x": 10.78,
+      "z": -163.7,
+      "facing": [
+       0.4,
+       -0.92
+      ]
+     },
+     "pose": "idle"
+    }
+   ],
+   "crowd": 0
+  },
+  {
+   "sceneId": "1.1/greet-han",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 206.B8, tầng 2",
+    "en": "Room 206.B8, 2nd floor"
+   },
+   "roomCode": "206.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 38.39,
+    "z": -218.9,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "seatId": "206-r2-s5",
+     "pose": "sit"
+    },
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    }
+   ],
+   "crowd": 10
+  },
+  {
+   "sceneId": "1.1/skills",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 206.B8, tầng 2",
+    "en": "Room 206.B8, 2nd floor"
+   },
+   "roomCode": "206.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 38.39,
+    "z": -218.9,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "seatId": "206-r2-s5",
+     "pose": "sit"
+    },
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    }
+   ],
+   "crowd": 10
+  },
+  {
+   "sceneId": "1.1/midterm",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 206.B8, tầng 2",
+    "en": "Room 206.B8, 2nd floor"
+   },
+   "roomCode": "206.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 38.39,
+    "z": -218.9,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "seatId": "206-r2-s5",
+     "pose": "sit"
+    },
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    }
+   ],
+   "crowd": 10
+  },
+  {
+   "sceneId": "1.1/final",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 206.B8, tầng 2",
+    "en": "Room 206.B8, 2nd floor"
+   },
+   "roomCode": "206.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 38.39,
+    "z": -218.9,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "seatId": "206-r2-s5",
+     "pose": "sit"
+    },
+    {
+     "speaker": "examiner",
+     "pose": "idle"
+    }
+   ],
+   "crowd": 10
+  },
+  {
+   "sceneId": "1.1/philosophy",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng lớn 311.B8, tầng 3",
+    "en": "Large room 311.B8, 3rd floor"
+   },
+   "roomCode": "311.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 3,
+    "x": -10.74,
+    "z": -181.18,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 3,
+    "x": -18.32,
+    "z": -174.49,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "seatId": "311-r4-s2",
+     "pose": "sit"
+    },
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    }
+   ],
+   "crowd": 18
+  },
+  {
+   "sceneId": "1.1/pe",
+   "tier": "light",
+   "trigger": "talk",
+   "place": {
+    "vi": "Sân cỏ cạnh B8",
+    "en": "Lawn beside B8"
+   },
+   "roomCode": null,
+   "arrival": {
+    "buildingId": null,
+    "floor": null,
+    "x": -0.88,
+    "z": -153.8,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "target": {
+    "buildingId": null,
+    "floor": null,
+    "x": -5.23,
+    "z": -154.84,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "spot": {
+      "buildingId": null,
+      "floor": null,
+      "x": -5.23,
+      "z": -154.84,
+      "facing": [
+       0.23,
+       0.97
+      ]
+     },
+     "pose": "idle"
+    }
+   ],
+   "crowd": 4
+  },
+  {
+   "sceneId": "1.1/after",
+   "tier": "light",
+   "trigger": "talk",
+   "place": {
+    "vi": "Hành lang tầng 2 B8",
+    "en": "B8 2nd-floor corridor"
+   },
+   "roomCode": null,
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     0.97,
+     -0.23
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 40.77,
+    "z": -213.08,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 2,
+      "x": 40.77,
+      "z": -213.08,
+      "facing": [
+       -0.97,
+       0.23
+      ]
+     },
+     "pose": "idle"
+    },
+    {
+     "speaker": "thanh",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 2,
+      "x": 42.1,
+      "z": -212.67,
+      "facing": [
+       -0.97,
+       0.23
+      ]
+     },
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 2,
+      "x": 45.53,
+      "z": -214.7,
+      "facing": [
+       0.97,
+       -0.23
+      ]
+     },
+     "pose": "idle"
+    }
+   ],
+   "crowd": 0
+  },
+  {
+   "sceneId": "2.2/opening",
+   "tier": "light",
+   "trigger": "talk",
+   "place": {
+    "vi": "Sảnh giữa tầng 1 B8",
+    "en": "B8 ground-floor central hall"
+   },
+   "roomCode": null,
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 1,
+    "x": 10.97,
+    "z": -185.82,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 1,
+    "x": 10.07,
+    "z": -189.72,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "thanh",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 1,
+      "x": 9.41,
+      "z": -189.87,
+      "facing": [
+       0.23,
+       0.97
+      ]
+     },
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 1,
+      "x": 10.73,
+      "z": -190.39,
+      "facing": [
+       0.23,
+       0.97
+      ]
+     },
+     "pose": "idle"
+    }
+   ],
+   "crowd": 0
+  },
+  {
+   "sceneId": "CSE 103/lab-1",
+   "tier": "full",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng máy 406.B8, tầng 4",
+    "en": "Computer lab 406.B8, 4th floor"
+   },
+   "roomCode": "406.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 37.95,
+    "z": -218.49,
+    "facing": [
+     0.97,
+     -0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "406-r2-s6",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 12
+  },
+  {
+   "sceneId": "CSE 103/lab-2",
+   "tier": "full",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng máy 406.B8, tầng 4",
+    "en": "Computer lab 406.B8, 4th floor"
+   },
+   "roomCode": "406.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 37.95,
+    "z": -218.49,
+    "facing": [
+     0.97,
+     -0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "406-r2-s6",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 12
+  },
+  {
+   "sceneId": "CSE 103/a",
+   "tier": "full",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "207-r2-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 12
+  },
+  {
+   "sceneId": "CSE 103/b",
+   "tier": "full",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "207-r2-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 12
+  },
+  {
+   "sceneId": "CSE 103/exam",
+   "tier": "full",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng máy 406.B8, tầng 4",
+    "en": "Computer lab 406.B8, 4th floor"
+   },
+   "roomCode": "406.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 37.95,
+    "z": -218.49,
+    "facing": [
+     0.97,
+     -0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "406-r2-s6",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 12
+  },
+  {
+   "sceneId": "MATH 112/theory-a",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "207-r2-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "MATH 112/theory-b",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "207-r2-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "POLS 135/theory-a",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "seatId": "207-r1-s1",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "POLS 135/theory-b",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "seatId": "207-r1-s1",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "COMS 101/theory-a",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "207-r2-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "COMS 101/theory-b",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "207-r2-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "STAT 101/theory-a",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "207-r2-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "STAT 101/theory-b",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "han",
+     "seatId": "207-r2-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "CSE 204/theory-a",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "seatId": "207-r1-s1",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "CSE 204/theory-b",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng 207.B8, tầng 2",
+    "en": "Room 207.B8, 2nd floor"
+   },
+   "roomCode": "207.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 39.22,
+    "z": -192.81,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 2,
+    "x": 44.21,
+    "z": -189.04,
+    "facing": [
+     -0.97,
+     0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "seatId": "207-r1-s1",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "CSE 204/lab-1",
+   "tier": "light",
+   "trigger": "sit",
+   "place": {
+    "vi": "Phòng máy 406.B8, tầng 4",
+    "en": "Computer lab 406.B8, 4th floor"
+   },
+   "roomCode": "406.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 37.95,
+    "z": -218.49,
+    "facing": [
+     0.97,
+     -0.23
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "teacher",
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "seatId": "406-r1-s2",
+     "pose": "sit"
+    }
+   ],
+   "crowd": 8
+  },
+  {
+   "sceneId": "2.2/closing",
+   "tier": "light",
+   "trigger": "talk",
+   "place": {
+    "vi": "Phòng máy 406.B8, tầng 4",
+    "en": "Computer lab 406.B8, 4th floor"
+   },
+   "roomCode": "406.B8",
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 35.88,
+    "z": -212.05,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 4,
+    "x": 37.6,
+    "z": -219.22,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 4,
+      "x": 38.67,
+      "z": -219.47,
+      "facing": [
+       -0.97,
+       0.23
+      ]
+     },
+     "pose": "idle"
+    },
+    {
+     "speaker": "quyen",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 4,
+      "x": 38.1,
+      "z": -219.7,
+      "facing": [
+       -0.93,
+       0.42
+      ]
+     },
+     "pose": "idle"
+    }
+   ],
+   "crowd": 0
+  },
+  {
+   "sceneId": "2.2/club",
+   "tier": "backdrop",
+   "trigger": "talk",
+   "place": {
+    "vi": "Sảnh giữa tầng 1 B8",
+    "en": "B8 ground-floor central hall"
+   },
+   "roomCode": null,
+   "arrival": {
+    "buildingId": "b8",
+    "floor": 1,
+    "x": 10.07,
+    "z": -189.72,
+    "facing": [
+     0.23,
+     0.97
+    ]
+   },
+   "target": {
+    "buildingId": "b8",
+    "floor": 1,
+    "x": 10.97,
+    "z": -185.82,
+    "facing": [
+     -0.23,
+     -0.97
+    ]
+   },
+   "actors": [
+    {
+     "speaker": "han",
+     "spot": {
+      "buildingId": "b8",
+      "floor": 1,
+      "x": 10.97,
+      "z": -185.82,
+      "facing": [
+       -0.23,
+       -0.97
+      ]
+     },
+     "pose": "idle"
+    }
+   ],
+   "crowd": 0
+  }
+ ]
+}
