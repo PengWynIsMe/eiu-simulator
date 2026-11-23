@@ -104,8 +104,8 @@
           "type": "say",
           "speaker": "han",
           "text": {
-            "vi": "Câu cuối thi mình suýt dính cái dấu =. Bạn thấy sao?",
-            "en": "I almost fell for that = sign in the last question. How was it for you?"
+            "vi": "Câu cuối thi mình suýt dính cái dấu =.",
+            "en": "I almost fell for that = sign in the last question."
           },
           "variants": [
             {
@@ -116,8 +116,8 @@
                 }
               },
               "text": {
-                "vi": "Câu cuối thi mình suýt dính cái dấu =. Mà nghĩ lại, hồi tập “Nice to meet you” mình còn run hơn thế nhiều. Bạn thấy sao?",
-                "en": "I almost fell for that = sign in the last question. But thinking back, I was a lot more nervous practising \"Nice to meet you\". How was it for you?"
+                "vi": "Câu cuối thi mình suýt dính cái dấu =. Mà nghĩ lại, hồi tập “Nice to meet you” mình còn run hơn thế nhiều.",
+                "en": "I almost fell for that = sign in the last question. But thinking back, I was a lot more nervous practising \"Nice to meet you\"."
               }
             },
             {
@@ -128,28 +128,19 @@
                 }
               },
               "text": {
-                "vi": "Câu cuối thi mình suýt dính cái dấu =. Mà may là không phải nói “Nice to meet you” ba lần mới chạy được. Bạn thấy sao?",
-                "en": "I almost fell for that = sign in the last question. At least I didn't have to say \"Nice to meet you\" three times to make it run. How was it for you?"
+                "vi": "Câu cuối thi mình suýt dính cái dấu =. Mà may là không phải nói “Nice to meet you” ba lần mới chạy được.",
+                "en": "I almost fell for that = sign in the last question. At least I didn't have to say \"Nice to meet you\" three times to make it run."
               }
             }
           ]
-        },
-        {
-          "id": "quyen",
-          "type": "say",
-          "speaker": "quyen",
-          "text": {
-            "vi": "Cũng ổn. Nhóm mình ăn ý đấy. Lần sau có bài làm chung, làm cùng nhé.",
-            "en": "Not bad. Our group works well together. Next time there's a team assignment, let's do it together."
-          }
         },
         {
           "id": "after",
           "type": "choice",
           "speaker": "quyen",
           "text": {
-            "vi": "Làm chung nhé?",
-            "en": "Team up?"
+            "vi": "Nhóm mình ăn ý đấy. Lần sau có bài làm chung, làm cùng nhé?",
+            "en": "Our group works well together. Next time there's a team assignment, shall we do it together?"
           },
           "options": [
             {

@@ -372,6 +372,15 @@
       "minutes": 1,
       "steps": [
         {
+          "id": "go",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Đến phần nói, bạn được dẫn sang một phòng khác. Giáo viên hỏi riêng từng người, và bạn chọn câu trả lời của mình.",
+            "en": "For the speaking part you are led to another room. The teacher asks each student one-on-one, and you choose your own answers."
+          }
+        },
+        {
           "id": "q1",
           "type": "choice",
           "speaker": "examiner",

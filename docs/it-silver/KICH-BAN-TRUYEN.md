@@ -105,6 +105,8 @@ Tóm tắt khi vào thẳng: Trước khi nhập học, bạn cùng các bạn m
 #### Cảnh: Phần nói / *Speaking*
 `entrance/speaking` · nơi `b8` · 1 phút
 
+- **Dẫn truyện:** Đến phần nói, bạn được dẫn sang một phòng khác. Giáo viên hỏi riêng từng người, và bạn chọn câu trả lời của mình.
+  > *For the speaking part you are led to another room. The teacher asks each student one-on-one, and you choose your own answers.*
 - **Giám thị:** Chào bạn. Bạn vui lòng cho mình biết tên của bạn nhé?
   > *Hello. Could you tell me your name, please?*
   - ▸ `a` — My name is [tên của bạn].
@@ -424,16 +426,14 @@ Tóm tắt khi vào thẳng: Trong câu chuyện này, bạn đã qua năm level
 
 - **Dẫn truyện:** Hết buổi cuối. Ba người bạn đứng quanh một màn hình, tay còn chưa rời bàn phím.
   > *The last session is over. Three friends stand around one screen, hands still on the keyboard.*
-- **Han:** Câu cuối thi mình suýt dính cái dấu =. Bạn thấy sao?
-  > *I almost fell for that = sign in the last question. How was it for you?*
-  - ↳ *Nếu `1.1/han` = `practice`:* Câu cuối thi mình suýt dính cái dấu =. Mà nghĩ lại, hồi tập “Nice to meet you” mình còn run hơn thế nhiều. Bạn thấy sao?
-  > *I almost fell for that = sign in the last question. But thinking back, I was a lot more nervous practising "Nice to meet you". How was it for you?*
-  - ↳ *Nếu `1.1/han` = `joke`:* Câu cuối thi mình suýt dính cái dấu =. Mà may là không phải nói “Nice to meet you” ba lần mới chạy được. Bạn thấy sao?
-  > *I almost fell for that = sign in the last question. At least I didn't have to say "Nice to meet you" three times to make it run. How was it for you?*
-- **Quyền:** Cũng ổn. Nhóm mình ăn ý đấy. Lần sau có bài làm chung, làm cùng nhé.
-  > *Not bad. Our group works well together. Next time there's a team assignment, let's do it together.*
-- **Quyền:** Làm chung nhé?
-  > *Team up?*  *(ghi flag `2.2/after`)*
+- **Han:** Câu cuối thi mình suýt dính cái dấu =.
+  > *I almost fell for that = sign in the last question.*
+  - ↳ *Nếu `1.1/han` = `practice`:* Câu cuối thi mình suýt dính cái dấu =. Mà nghĩ lại, hồi tập “Nice to meet you” mình còn run hơn thế nhiều.
+  > *I almost fell for that = sign in the last question. But thinking back, I was a lot more nervous practising "Nice to meet you".*
+  - ↳ *Nếu `1.1/han` = `joke`:* Câu cuối thi mình suýt dính cái dấu =. Mà may là không phải nói “Nice to meet you” ba lần mới chạy được.
+  > *I almost fell for that = sign in the last question. At least I didn't have to say "Nice to meet you" three times to make it run.*
+- **Quyền:** Nhóm mình ăn ý đấy. Lần sau có bài làm chung, làm cùng nhé?
+  > *Our group works well together. Next time there's a team assignment, shall we do it together?*  *(ghi flag `2.2/after`)*
   - ▸ `plan` — Làm chung đi, mình lên kế hoạch trước.
   > *Let's team up. I'll plan it out first.*
     - Đáp lại: Được. Mình lo chia việc.

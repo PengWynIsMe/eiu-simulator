@@ -13,6 +13,15 @@ Nhánh `PengWynIsMe/it-silver-nd-truyen` (từ `origin/main` = `b946e54`). Chưa
 
 Chỉ tạo các file JSON trên + báo cáo + bản đọc. Không chạm code, kiểu, UI, BE, `nmlt-01.json`.
 
+## Lần sửa theo góp ý (vòng 2)
+
+Vẫn `nhap` ở mọi file; chủ dự án chưa duyệt xong. Đã sửa đúng ba điểm được giao, phần khác giữ nguyên từng chữ:
+1. `2.2/closing`: bỏ câu `say` rủ làm chung của Quyền; lời rủ nay nằm gọn trong `choice` `after` (giữ id, flag `2.2/after`, các option). Câu “Nhóm mình ăn ý đấy” chuyển vào lời rủ.
+2. `2.2/closing`: bỏ câu hỏi “Bạn thấy sao?” của Han ở câu mặc định và hai variants (không thêm bước; cảnh còn 4 bước).
+3. `entrance/speaking`: thêm một câu dẫn của người dẫn truyện ở đầu cảnh (sang phòng khác, giáo viên hỏi riêng từng người). Tổng phút vẫn 8,0.
+
+Đã chạy lại toàn bộ kiểm (JSON, `tsc --strict`, ngữ nghĩa, 23 kiểm tra Java): đều đạt.
+
 ## Giọng ba bạn (giữ nhất quán qua cả bốn file)
 
 - **Han** (nữ, Level 1, cùng lớp): hay đùa, thừa nhận mình run, nói thẳng, hay rủ (“Đi!”, “Xong!”). Xưng mình/bạn.
