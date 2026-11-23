@@ -1,0 +1,151 @@
+{
+  "id": "qtkd",
+  "facultyId": "kinh-te",
+  "name": {
+    "vi": "Quản trị kinh doanh",
+    "en": "Business Administration"
+  },
+  "degree": {
+    "vi": "Cử nhân Quản trị kinh doanh",
+    "en": "Bachelor of Business Administration"
+  },
+  "summary": {
+    "vi": "Chương trình đào tạo Cử nhân Quản trị kinh doanh trang bị kiến thức toàn diện về quản trị chiến lược, tài chính, marketing và chuỗi cung ứng. Sinh viên được rèn luyện tư duy phân tích kinh doanh, kỹ năng lãnh đạo và tinh thần khởi nghiệp, sẵn sàng làm việc tại các doanh nghiệp đa quốc gia.",
+    "en": "The Bachelor of Business Administration program provides extensive training in strategic management, finance, marketing, and supply chains. Students build analytical mindsets, leadership, and entrepreneurial drive, prepared to thrive in multinational corporations and dynamic markets."
+  },
+  "highlights": [
+    {
+      "code": "BUS 101",
+      "why": {
+        "vi": "Môn học mở đầu bức tranh toàn cảnh về mô hình tổ chức, chức năng quản trị và thị trường.",
+        "en": "Introductory course offering a complete overview of organizational models and markets."
+      }
+    },
+    {
+      "code": "ECO 110",
+      "why": {
+        "vi": "Nắm vững quy luật cung cầu, cơ chế thị trường và hành vi của người tiêu dùng lẫn doanh nghiệp.",
+        "en": "Master supply-demand laws, market mechanisms, and microeconomic behavior of firms."
+      }
+    },
+    {
+      "code": "FIN 239",
+      "why": {
+        "vi": "Trang bị phương pháp quản lý tài chính, lập ngân sách chi tiêu và phân bổ danh mục đầu tư.",
+        "en": "Equips students with wealth management, personal budgeting, and portfolio allocation methods."
+      }
+    },
+    {
+      "code": "IEPS 100",
+      "why": {
+        "vi": "Phát triển tư duy khởi nghiệp đổi mới sáng tạo, nhận diện cơ hội kinh doanh trên thị trường.",
+        "en": "Cultivate an entrepreneurial mindset and identify viable innovative market opportunities."
+      }
+    },
+    {
+      "code": "DSCI 261",
+      "why": {
+        "vi": "Ứng dụng ngôn ngữ lập trình Python xử lý và trực quan hóa dữ liệu kinh doanh thực tế.",
+        "en": "Apply Python programming to process and visualize real-world business data insights."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "vi": "Phân tích báo cáo tài chính và thẩm định hiệu quả các dự án đầu tư",
+      "en": "Analyze financial reports and assess viability of investment projects"
+    },
+    {
+      "vi": "Xây dựng kế hoạch tiếp thị đa kênh và phát triển chiến lược thương hiệu",
+      "en": "Build multi-channel marketing plans and develop brand growth strategies"
+    },
+    {
+      "vi": "Tối ưu hóa quy trình vận hành và điều phối mạng lưới chuỗi cung ứng",
+      "en": "Optimize operations workflows and coordinate supply chain networks"
+    },
+    {
+      "vi": "Ứng dụng công cụ phân tích dữ liệu vào dự báo thị trường và ra quyết định",
+      "en": "Leverage data analytics tools for market forecasting and decision making"
+    },
+    {
+      "vi": "Thương lượng đàm phán hợp đồng và giao tiếp kinh doanh bằng tiếng Anh",
+      "en": "Negotiate business agreements and communicate in professional English"
+    }
+  ],
+  "careers": [
+    {
+      "vi": "Chuyên viên phân tích tài chính: phân tích dòng tiền và lập kế hoạch tài chính",
+      "en": "Financial Analyst: evaluate cash flows and prepare corporate financial plans"
+    },
+    {
+      "vi": "Chuyên viên Marketing số: chạy chiến dịch quảng bá và phát triển thương hiệu",
+      "en": "Digital Marketing Specialist: design brand campaigns and lead media initiatives"
+    },
+    {
+      "vi": "Chuyên viên quản trị chuỗi cung ứng: điều phối logistics và quản lý kho vận",
+      "en": "Supply Chain Specialist: coordinate logistics operations and warehouse inventory"
+    },
+    {
+      "vi": "Chuyên viên phân tích kinh doanh: phân tích dữ liệu và tư vấn giải pháp quản trị",
+      "en": "Business Analyst: analyze corporate metrics and propose management solutions"
+    },
+    {
+      "vi": "Chuyên viên quản trị nhân sự: tuyển dụng, đào tạo và phát triển nguồn nhân lực",
+      "en": "HR Specialist: manage talent acquisition, staff training, and workforce policies"
+    }
+  ],
+  "dayInLife": [
+    {
+      "time": "07:30",
+      "text": {
+        "vi": "Ghé Highlands xe buýt đỏ thưởng thức cà phê sáng và đọc bản tin thị trường kinh doanh.",
+        "en": "Stop by the red bus Highlands kiosk for morning coffee and daily business news."
+      }
+    },
+    {
+      "time": "08:00",
+      "text": {
+        "vi": "Tham gia tiết học Tài chính doanh nghiệp BUS 328 tại Giảng đường 201.B3 tầng 2.",
+        "en": "Attend Corporate Finance (BUS 328) lecture at Lecture Hall 201.B3, 2nd floor."
+      }
+    },
+    {
+      "time": "10:15",
+      "text": {
+        "vi": "Thảo luận tình huống môn Quản trị vận hành BUS 357 tại Cụm Phòng học 102.B3.",
+        "en": "Discuss operations case studies for BUS 357 at Classroom Suite 102.B3."
+      }
+    },
+    {
+      "time": "12:00",
+      "text": {
+        "vi": "Ăn trưa tại Căn tin trường cùng các bạn học ngành Quản trị Kinh doanh.",
+        "en": "Enjoy lunch at the campus Canteen with Business Administration classmates."
+      }
+    },
+    {
+      "time": "13:30",
+      "text": {
+        "vi": "Học thực hành phân tích dữ liệu kinh doanh MIS 301 trên máy tính cá nhân tại Thư viện B4.",
+        "en": "Practice business analytics for MIS 301 on laptops at Block 4 Library."
+      }
+    },
+    {
+      "time": "15:45",
+      "text": {
+        "vi": "Ghé Văn phòng Khoa QTKD 104.B3 xin tư vấn kế hoạch thực tập doanh nghiệp.",
+        "en": "Visit School of Business Office 104.B3 for guidance on corporate internships."
+      }
+    },
+    {
+      "time": "17:15",
+      "text": {
+        "vi": "Tham dự buổi tọa đàm kỹ năng nghề nghiệp tại Hội trường lớn 200.B3.",
+        "en": "Attend a career skills seminar at the main Grand Auditorium 200.B3."
+      }
+    }
+  ],
+  "contentBasis": "bang-mon",
+  "contentStatus": "chua-duyet",
+  "updatedAt": "2026-11-23"
+}

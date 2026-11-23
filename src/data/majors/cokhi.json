@@ -1,0 +1,151 @@
+{
+  "id": "cokhi",
+  "facultyId": "ky-thuat",
+  "name": {
+    "vi": "Kỹ thuật Cơ khí",
+    "en": "Mechanical Engineering"
+  },
+  "degree": {
+    "vi": "Cử nhân Kỹ thuật Cơ khí",
+    "en": "Bachelor of Mechanical Engineering"
+  },
+  "summary": {
+    "vi": "Chương trình đào tạo Cử nhân Kỹ thuật Cơ khí trang bị kiến thức chuyên sâu về thiết kế máy, gia công chế tạo chính xác và hệ thống năng lượng nhiệt. Sinh viên được rèn luyện kỹ năng vận hành máy công cụ, ứng dụng phần mềm CAD/CAM và công nghệ in 3D hiện đại, sẵn sàng làm việc tại các nhà máy chế tạo.",
+    "en": "The Bachelor of Mechanical Engineering program offers training in machine design, precision manufacturing, and thermal energy systems. Students master operating machine tools, applying CAD/CAM software, and 3D printing technologies, ready to excel in modern industrial manufacturing plants."
+  },
+  "highlights": [
+    {
+      "code": "MEC 100",
+      "why": {
+        "vi": "Nhập môn nghề nghiệp giúp sinh viên nắm vững quy chuẩn an toàn lao động và tư duy kỹ thuật cơ khí.",
+        "en": "Introductory course establishing industrial safety protocols and mechanical engineering mindset."
+      }
+    },
+    {
+      "code": "ME 300",
+      "why": {
+        "vi": "Nghiên cứu công nghệ đúc, hàn, tạo hình kim loại và quy trình sản xuất cơ khí trong nhà máy.",
+        "en": "Study casting, welding, metal forming technologies, and industrial manufacturing workflows."
+      }
+    },
+    {
+      "code": "ME 310",
+      "why": {
+        "vi": "Trực tiếp thực hành thao tác trên các loại máy tiện, phay và máy công cụ cắt gọt kim loại.",
+        "en": "Hands-on practice operating metal cutting machine tools, lathes, and milling equipment."
+      }
+    },
+    {
+      "code": "ME 341",
+      "why": {
+        "vi": "Đồ án thiết kế máy giúp sinh viên tính toán kết cấu, động học và bản vẽ kỹ thuật chi tiết.",
+        "en": "Machine design project where students calculate structural kinematics and drafting."
+      }
+    },
+    {
+      "code": "ME 425",
+      "why": {
+        "vi": "Làm chủ công nghệ in 3D và chế tạo bồi đắp vật liệu kim loại, polyme tạo mẫu nhanh.",
+        "en": "Master 3D printing and additive manufacturing of metals and polymers for rapid prototyping."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "vi": "Thiết kế mô hình 3D và lập bản vẽ kỹ thuật máy móc theo tiêu chuẩn quốc tế",
+      "en": "Design 3D mechanical models and create standardized engineering drawings"
+    },
+    {
+      "vi": "Lập trình gia công chi tiết cơ khí trên máy công cụ điều khiển số CNC",
+      "en": "Program and operate Computer Numerical Control (CNC) machining equipment"
+    },
+    {
+      "vi": "Mô phỏng ứng suất cơ học và phân tích truyền nhiệt bằng phần mềm CAE",
+      "en": "Simulate mechanical stress distributions and heat transfers using CAE tools"
+    },
+    {
+      "vi": "Vận hành công nghệ chế tạo bồi đắp và in 3D tạo mẫu nhanh trong nhà xưởng",
+      "en": "Operate additive manufacturing and 3D printing rapid prototyping equipment"
+    },
+    {
+      "vi": "Lập kế hoạch bảo trì, kiểm tra chất lượng và quản lý phân xưởng cơ khí",
+      "en": "Plan maintenance schedules, inspect part quality, and supervise workshops"
+    }
+  ],
+  "careers": [
+    {
+      "vi": "Kỹ sư thiết kế cơ khí: thiết kế máy móc, kết cấu và khuôn mẫu sản phẩm",
+      "en": "Mechanical Design Engineer: design machinery, structures, and industrial molds"
+    },
+    {
+      "vi": "Kỹ sư chế tạo CNC: lập trình và vận hành máy gia công cơ khí chính xác",
+      "en": "CNC Manufacturing Engineer: program and operate precision machining tools"
+    },
+    {
+      "vi": "Kỹ sư mô phỏng CAE: phân tích ứng suất, độ bền và khí động lực học chi tiết",
+      "en": "CAE Simulation Engineer: analyze structural stress, fatigue, and fluid dynamics"
+    },
+    {
+      "vi": "Kỹ sư cơ điện lạnh: thiết kế và bảo dưỡng hệ thống điều hòa thông gió HVAC",
+      "en": "HVAC / Thermal Engineer: design and service industrial ventilation systems"
+    },
+    {
+      "vi": "Kỹ sư quản lý chất lượng QA/QC: kiểm soát tiêu chuẩn sản phẩm cơ khí",
+      "en": "QA/QC Inspector: supervise manufacturing tolerances and quality standards"
+    }
+  ],
+  "dayInLife": [
+    {
+      "time": "07:30",
+      "text": {
+        "vi": "Ăn sáng tại Căn tin và chuẩn bị trang phục bảo hộ cho ca thực hành cơ khí.",
+        "en": "Have breakfast at the Canteen and put on safety gear for workshop practice."
+      }
+    },
+    {
+      "time": "08:00",
+      "text": {
+        "vi": "Thực hành vận hành máy tiện và phay môn ME 310 tại Xưởng Shop FabLab tầng trệt B11.",
+        "en": "Operate lathes and milling equipment for ME 310 at Shop FabLab, ground floor B11."
+      }
+    },
+    {
+      "time": "10:30",
+      "text": {
+        "vi": "Ghé PTN Công nghệ 4.0 104.B11 xem minh họa quy trình sản xuất tích hợp tự động.",
+        "en": "Stop by Industry 4.0 Lab 104.B11 to observe integrated automated production demos."
+      }
+    },
+    {
+      "time": "12:00",
+      "text": {
+        "vi": "Ăn trưa tại Căn tin trường và nghỉ ngơi tại băng ghế ngoài trời khuôn viên.",
+        "en": "Lunch at the Canteen and relax on outdoor benches in the campus yard."
+      }
+    },
+    {
+      "time": "13:30",
+      "text": {
+        "vi": "Mô phỏng sức bền chi tiết máy môn ME 410 tại phòng máy tính Khoa Kỹ thuật 402.B11.",
+        "en": "Simulate component stresses for ME 410 at Engineering Computer Lab 402.B11."
+      }
+    },
+    {
+      "time": "15:45",
+      "text": {
+        "vi": "Sang Thư viện B4 tìm tài liệu tiêu chuẩn dung sai chế tạo và sổ tay dung sai máy.",
+        "en": "Head to Block 4 Library to look up machinery tolerance standards handbooks."
+      }
+    },
+    {
+      "time": "17:15",
+      "text": {
+        "vi": "Trao đổi tiến độ đồ án ME 341 cùng nhóm tại sảnh tầng trệt Block 11.",
+        "en": "Discuss ME 341 project progress with group members at Block 11 ground hall."
+      }
+    }
+  ],
+  "contentBasis": "bang-mon",
+  "contentStatus": "chua-duyet",
+  "updatedAt": "2026-11-23"
+}

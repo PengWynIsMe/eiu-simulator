@@ -1,0 +1,151 @@
+{
+  "id": "cdt",
+  "facultyId": "ky-thuat",
+  "name": {
+    "vi": "Kỹ thuật Cơ điện tử",
+    "en": "Mechatronics Engineering"
+  },
+  "degree": {
+    "vi": "Cử nhân Kỹ thuật Cơ điện tử",
+    "en": "Bachelor of Mechatronics Engineering"
+  },
+  "summary": {
+    "vi": "Chương trình đào tạo Cử nhân Kỹ thuật Cơ điện tử là sự giao thoa liên ngành giữa cơ khí chính xác, điện tử thông minh và lập trình điều khiển. Sinh viên làm chủ công nghệ thiết kế robot, hệ thống thủy khí và dây chuyền tự động tích hợp, sẵn sàng làm việc tại các tập đoàn sản xuất công nghệ cao.",
+    "en": "The Bachelor of Mechatronics Engineering program bridges precision mechanics, intelligent electronics, and control programming. Students master designing robots, fluid power systems, and integrated automated lines, prepared for high-tech manufacturing corporations worldwide."
+  },
+  "highlights": [
+    {
+      "code": "MEC 100",
+      "why": {
+        "vi": "Nhập môn giúp sinh viên hình thành tác phong kỹ sư chuyên nghiệp và tư duy giải quyết vấn đề kỹ thuật.",
+        "en": "Introductory course shaping engineering ethics, safety standards, and practical problem-solving."
+      }
+    },
+    {
+      "code": "ECE 201",
+      "why": {
+        "vi": "Môn cơ sở cốt lõi giúp sinh viên nắm vững định luật mạch điện, phân tích mạch AC và DC.",
+        "en": "Core foundation course covering fundamental electric circuit laws and AC/DC network analysis."
+      }
+    },
+    {
+      "code": "ECE 207",
+      "why": {
+        "vi": "Thiết kế mạch logic số, vi mạch số và ứng dụng đại số Boolean trong điều khiển cơ điện tử.",
+        "en": "Design digital logic circuits and apply Boolean algebra to mechatronic control systems."
+      }
+    },
+    {
+      "code": "ACE 303",
+      "why": {
+        "vi": "Học lập trình điều khiển logic cho hệ thống cơ điện tử với các dòng PLC công nghiệp.",
+        "en": "Master logic control programming for mechatronic setups using industrial PLCs."
+      }
+    },
+    {
+      "code": "MEC 402",
+      "why": {
+        "vi": "Thiết kế động học, động lực học và ứng dụng cánh tay robot công nghiệp vào dây chuyền sản xuất.",
+        "en": "Design kinematics, dynamics, and apply industrial manipulator arms to assembly lines."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "vi": "Thiết kế mô hình cơ khí 3D và phân tích động lực học hệ cơ điện tử",
+      "en": "Design 3D mechanical models and analyze mechatronic system dynamics"
+    },
+    {
+      "vi": "Lập trình vi điều khiển, nhúng và PLC điều khiển cơ cấu chuyển động",
+      "en": "Program microcontrollers, embedded boards, and PLCs for motion control"
+    },
+    {
+      "vi": "Thiết kế và lắp đặt hệ thống truyền động thủy lực và khí nén tự động",
+      "en": "Design and assemble automated hydraulic and pneumatic drive circuits"
+    },
+    {
+      "vi": "Tích hợp cảm biến thông minh, camera thị giác máy vào robot công nghiệp",
+      "en": "Integrate smart sensors and machine vision systems into industrial robots"
+    },
+    {
+      "vi": "Vận hành máy gia công chế tạo mẫu nhanh tại phòng xưởng FabLab",
+      "en": "Operate rapid prototyping and digital fabrication machines in FabLab"
+    }
+  ],
+  "careers": [
+    {
+      "vi": "Kỹ sư robot: thiết kế, chế tạo và lập trình điều khiển tay máy công nghiệp",
+      "en": "Robotics Engineer: design, build, and program industrial manipulator systems"
+    },
+    {
+      "vi": "Kỹ sư tích hợp hệ thống: lắp ráp và vận hành dây chuyền sản xuất tự động",
+      "en": "Systems Integration Engineer: assemble and commission automated lines"
+    },
+    {
+      "vi": "Kỹ sư thiết kế cơ điện tử: phát triển sản phẩm thông minh và thiết bị tự hành",
+      "en": "Mechatronics Design Engineer: develop smart products and autonomous vehicles"
+    },
+    {
+      "vi": "Kỹ sư thủy khí: thiết kế và bảo dưỡng hệ thống van xi lanh công nghiệp",
+      "en": "Fluid Power Engineer: design and maintain industrial hydraulic valve systems"
+    },
+    {
+      "vi": "Quản lý dự án kỹ thuật: điều phối nhóm phát triển công nghệ liên ngành",
+      "en": "Engineering Project Manager: coordinate multidisciplinary tech teams"
+    }
+  ],
+  "dayInLife": [
+    {
+      "time": "07:30",
+      "text": {
+        "vi": "Nạp năng lượng bữa sáng tại Căn tin trường trước khi bắt đầu buổi thực hành xưởng.",
+        "en": "Grab breakfast at the Canteen before heading down to workshop lab sessions."
+      }
+    },
+    {
+      "time": "08:00",
+      "text": {
+        "vi": "Thực hành đấu nối van và xi lanh môn MEC 327 tại Phòng thí nghiệm Thủy lực 108.B11.",
+        "en": "Assemble valves and cylinders for MEC 327 at Hydraulics Lab 108.B11."
+      }
+    },
+    {
+      "time": "10:15",
+      "text": {
+        "vi": "Lên FabLab 210.B11 in 3D vỏ bọc linh kiện cho robot đồ án môn học MEC 332.",
+        "en": "Go up to FabLab 210.B11 to 3D print component brackets for MEC 332 robot project."
+      }
+    },
+    {
+      "time": "12:00",
+      "text": {
+        "vi": "Ăn trưa tại Căn tin và đi dạo bên bờ hồ ngắm cầu nối khuôn viên xanh mát.",
+        "en": "Enjoy lunch at the Canteen and stroll along the lake scenic footbridge."
+      }
+    },
+    {
+      "time": "13:30",
+      "text": {
+        "vi": "Học thiết kế hệ thống cơ điện tử MEC 480 tại phòng máy tính Khoa Kỹ thuật 402.B11.",
+        "en": "Study mechatronic system design MEC 480 at Engineering Computer Lab 402.B11."
+      }
+    },
+    {
+      "time": "15:45",
+      "text": {
+        "vi": "Lên Thư viện B4 tra cứu tài liệu tiêu chuẩn ISO về an toàn máy và tự động hóa.",
+        "en": "Head to Block 4 Library to research ISO machinery safety and robotics standards."
+      }
+    },
+    {
+      "time": "17:15",
+      "text": {
+        "vi": "Chụp ảnh sản phẩm robot vừa lắp ráp hoàn thành tại xưởng Shop FabLab tầng trệt.",
+        "en": "Take photos of the assembled robot prototype at ground floor Shop FabLab."
+      }
+    }
+  ],
+  "contentBasis": "bm08",
+  "contentStatus": "chua-duyet",
+  "updatedAt": "2026-11-23"
+}

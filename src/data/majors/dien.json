@@ -1,0 +1,151 @@
+{
+  "id": "dien",
+  "facultyId": "ky-thuat",
+  "name": {
+    "vi": "Kỹ thuật Điện",
+    "en": "Electrical Engineering"
+  },
+  "degree": {
+    "vi": "Cử nhân Kỹ thuật Điện",
+    "en": "Bachelor of Electrical Engineering"
+  },
+  "summary": {
+    "vi": "Chương trình đào tạo Cử nhân Kỹ thuật Điện cung cấp kiến thức toàn diện về hệ thống cung cấp điện, năng lượng tái tạo và lưới điện thông minh. Sinh viên được thực hành phân tích máy điện, điện tử công suất và thiết kế giải pháp chiếu sáng công nghiệp, hướng tới phát triển năng lượng xanh bền vững.",
+    "en": "The Bachelor of Electrical Engineering program offers comprehensive expertise in power systems, renewable energy, and smart grids. Students gain practical experience in electrical machines, power electronics, and industrial lighting design, driving forward sustainable and green energy solutions."
+  },
+  "highlights": [
+    {
+      "code": "ECE 201",
+      "why": {
+        "vi": "Môn cơ sở cốt lõi giúp sinh viên nắm vững định luật mạch điện, phân tích mạch AC và DC.",
+        "en": "Core foundation course covering fundamental electric circuit laws and AC/DC network analysis."
+      }
+    },
+    {
+      "code": "EE 301",
+      "why": {
+        "vi": "Khảo sát cấu tạo, nguyên lý vận hành và điều khiển các loại máy biến áp và động cơ điện.",
+        "en": "Examine operational principles and control methods of transformers and electric motors."
+      }
+    },
+    {
+      "code": "EE 302",
+      "why": {
+        "vi": "Nghiên cứu các bộ biến đổi công suất bán dẫn ứng dụng trong biến tần và năng lượng mặt trời.",
+        "en": "Study semiconductor power converters applied in motor drives and solar power systems."
+      }
+    },
+    {
+      "code": "EE 401",
+      "why": {
+        "vi": "Tính toán trào lưu công suất, ngắn mạch và phân tích độ ổn định hệ thống điện lưới.",
+        "en": "Calculate power flows, fault currents, and analyze electrical grid reliability and stability."
+      }
+    },
+    {
+      "code": "EE 411",
+      "why": {
+        "vi": "Phát triển và tích hợp các nguồn điện gió, điện mặt trời vào mạng lưới phân phối điện năng.",
+        "en": "Develop and integrate wind and solar generation systems into modern distribution grids."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "vi": "Tính toán và thiết kế hệ thống cung cấp điện cho nhà xưởng và tòa nhà",
+      "en": "Calculate and design power distribution systems for plants and buildings"
+    },
+    {
+      "vi": "Vận hành và thí nghiệm các loại máy điện, biến áp và khí cụ đóng cắt",
+      "en": "Operate and test electrical machines, transformers, and switchgear devices"
+    },
+    {
+      "vi": "Thiết kế mạch điện tử công suất ứng dụng biến tần và năng lượng tái tạo",
+      "en": "Design power electronic converters for inverters and renewable energy systems"
+    },
+    {
+      "vi": "Mô phỏng và phân tích lưới điện bằng các phần mềm kỹ thuật chuyên dụng",
+      "en": "Simulate and analyze electrical power grids using specialized software"
+    },
+    {
+      "vi": "Thiết kế hệ thống chiếu sáng thông minh và giải pháp tiết kiệm năng lượng",
+      "en": "Design smart lighting systems and energy efficiency solutions"
+    }
+  ],
+  "careers": [
+    {
+      "vi": "Kỹ sư thiết kế điện M&E: thiết kế hệ thống điện công trình và nhà máy",
+      "en": "Electrical M&E Engineer: design building services and industrial power systems"
+    },
+    {
+      "vi": "Kỹ sư vận hành hệ thống điện: quản lý vận hành lưới điện và trạm biến áp",
+      "en": "Power Systems Engineer: manage grid operations and substation facilities"
+    },
+    {
+      "vi": "Kỹ sư năng lượng tái tạo: phát triển hệ thống điện mặt trời và điện gió",
+      "en": "Renewable Energy Engineer: develop solar and wind power generation systems"
+    },
+    {
+      "vi": "Kỹ sư thiết kế chiếu sáng: tư vấn giải pháp chiếu sáng công nghiệp và kiến trúc",
+      "en": "Lighting Design Engineer: consult industrial and architectural illumination"
+    },
+    {
+      "vi": "Kỹ sư an toàn và thí nghiệm điện: kiểm định thiết bị và đo lường an toàn",
+      "en": "Electrical Safety & Testing Engineer: inspect apparatus and verify compliance"
+    }
+  ],
+  "dayInLife": [
+    {
+      "time": "07:30",
+      "text": {
+        "vi": "Đi bộ qua quảng trường vào Block 11 hít thở không khí trong lành đầu ngày.",
+        "en": "Walk across the roundabout into Block 11, enjoying the fresh morning air."
+      }
+    },
+    {
+      "time": "08:00",
+      "text": {
+        "vi": "Học lý thuyết môn Hệ thống điện EE 401 tại giảng đường tầng 3 Block 11.",
+        "en": "Attend Power Systems (EE 401) lecture at Block 11 3rd-floor classroom."
+      }
+    },
+    {
+      "time": "10:00",
+      "text": {
+        "vi": "Thực hành đo kiểm thiết bị tại Phòng Thực Hành Chiếu Sáng 217.B11 môn EE 404.",
+        "en": "Conduct lighting measurement experiments in Room 217.B11 for EE 404."
+      }
+    },
+    {
+      "time": "12:00",
+      "text": {
+        "vi": "Nghỉ trưa dùng cơm tại Căn tin và trò chuyện cùng bạn học nhóm đồ án.",
+        "en": "Lunch break at the Canteen, catching up with capstone project team members."
+      }
+    },
+    {
+      "time": "13:30",
+      "text": {
+        "vi": "Thực hành khảo sát máy biến áp tại Phòng Thực Hành Mạch Điện & Điện Tử Công Suất.",
+        "en": "Experiment with transformers at Circuit & Power Electronics Practice Lab, B11."
+      }
+    },
+    {
+      "time": "15:45",
+      "text": {
+        "vi": "Tham quan PTN Năng lượng 308.B11 tìm hiểu pin mặt trời và tuabin năng lượng gió.",
+        "en": "Visit Energy Lab 308.B11 to observe solar cell and wind turbine setups."
+      }
+    },
+    {
+      "time": "17:15",
+      "text": {
+        "vi": "Tự học tại sảnh tầng trệt B11 trước khi kết thúc một ngày học tập hào hứng.",
+        "en": "Self-study at Block 11 ground lobby before concluding an exciting day."
+      }
+    }
+  ],
+  "contentBasis": "bm08",
+  "contentStatus": "chua-duyet",
+  "updatedAt": "2026-11-23"
+}
