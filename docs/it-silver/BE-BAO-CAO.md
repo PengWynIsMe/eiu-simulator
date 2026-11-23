@@ -145,3 +145,18 @@ BE-07 dùng `RegistrationView` và `CourseStatus` hiện hành. Kết quả tr�
 | Bốn lệnh kiểm | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run test:silver` | Đạt cả bốn, 58 ca Silver gồm 18 ca mới |
 
 Các file BE-11 gồm `src/store/useSilverStore.ts`, `scripts/silver/tests/store.test.mjs` và báo cáo này. `SilverApi` và `UseSilver` giữ nguyên theo hợp đồng. Trước khi chốt đăng ký, checkpoint trỏ tới item mở đầu và danh sách môn rỗng. Khi tiếp tục checkpoint này, store mở đăng ký với danh sách đã lưu hoặc mặc định. Nội dung thật chỉ được đọc từ hai worktree để kiểm bằng Vite SSR middleware. Kiểm thử giao diện tích hợp nằm ở bước ghép UI.
+
+## BE-12 — Kiểm dữ liệu
+
+| Mục / tiêu chí | Test / kết quả | Trạng thái |
+|---|---|---|
+| Parse catalog/plan, in tổng kế hoạch; khác 180 chỉ cảnh báo | `check:silver` in tổng 180 TC | Đạt |
+| Parse mọi chapter/content; file khớp id/code; mã content có trong catalog, parse kèm SilverCourse để kiểm lab | chạy trên JSON chép tạm từ pompano/loach: 3 chapter, 6 course; tất cả được nhận | Đạt |
+| Cond.seen/flag/is tham chiếu scene, choice flag, option thật | `check.test.mjs` valid refs và từng trường seen/flag/is sai | Đạt |
+| Giới hạn từ theory/lab/summary/closing và cảnh báo VI=EN dài | `check.test.mjs` wordCount + biên 130/200/25; nội dung duyệt chạy strict không báo lỗi | Đạt |
+| Thiếu môn kỳ 2.2 cảnh báo mặc định, --strict thành lỗi | `check.test.mjs` chạy cả chế độ thường và strict trên 4 môn thiếu | Đạt |
+| Đối chiếu 37 required với curriculum: mã, TC, LT/TH, năm.kỳ | script không phát hiện chênh lệch nào | Đạt |
+| Nội dung đã duyệt từ pompano/loach với `check:silver --strict` | exit 0; 3 chương + 6 môn parsed; dọn tệp tạm, `git status` chỉ còn file task đang sửa | Đạt |
+| typecheck, lint, build, test:silver | Tất cả lệnh exit 0 | Đạt |
+
+Khi workspace không có nội dung, checker báo 4 cảnh báo thiếu nội dung kỳ 2.2 và exit 0; `--strict` đổi các cảnh báo này thành lỗi và exit 1.
