@@ -114,3 +114,16 @@ Không tạo dữ liệu nội dung thật; test sử dụng fixture tổng hợ
 |---|---|---|
 | makeMemoryView dùng gợi ý theo điều kiện hiện tại, `old` chỉ bật hasOld, savedAt null; savedMemoryView tiếp tục khôi phục entry | `notebook.test.mjs` — replay offers fresh suggestions while signaling an old page | Đạt |
 | typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
+
+## BE-07 — Đăng ký môn
+
+| Tiêu chí | Kiểm chứng | Kết quả |
+|---|---|---|
+| Ví dụ 2.2 trong brief với catalog và lịch thật, khóa môn trọng tâm, làm tròn phút | `registration.test.mjs` | Mặc định 15 TC / 31 phút; thêm CSE 204: 19 TC / 33 phút; đổi COMS 101 lấy CSE 204: 15 TC / 32 phút; chỉ CSE 103 và MATH 112: 8 TC / 24 phút, `too-few` |
+| Thứ tự hàng, bỏ trùng, tín chỉ và lab, tier theo thứ tự hàng và tier dự kiến của môn chưa chọn | `registration.test.mjs` | Đạt |
+| `done` và `taken`, chọn lại môn đã bỏ, thiếu tiên quyết, chờ xác nhận, thiếu nội dung | `registration.test.mjs` | Đạt |
+| Số môn tối thiểu theo lịch, mốc sáu môn, thêm môn thứ bảy và ẩn lịch khi quá sáu | `registration.test.mjs` | Đạt |
+| Thử với nội dung đã duyệt | Đọc và kiểm sáu JSON ở worktree loach và pompano bằng parser hiện hành | Mặc định, thêm và đổi môn đều khớp ví dụ, lần lượt có 9, 12 và 10 buổi |
+| `npm run typecheck`, `npm run lint`, `npm run build`, `npm run test:silver` | Bốn lệnh kiểm, gồm 7 ca mới | Đạt |
+
+BE-07 dùng `RegistrationView` và `CourseStatus` hiện hành. Kết quả trả `chapterId` từ `term.term` và dùng mã `needs-confirmation` cho “chờ xác nhận”. Hàng trong lịch thiếu nội dung hiện `no-content`. Khi đã có ba môn ngoài core được chọn, hàng chưa chọn hiện tier dự kiến `quick` theo quy tắc thêm cuối, còn các môn đã chọn luôn được xếp tier theo thứ tự hàng.
