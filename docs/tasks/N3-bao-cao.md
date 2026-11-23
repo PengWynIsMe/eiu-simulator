@@ -33,3 +33,16 @@ Toàn bộ `BUILDING_PANEL_TEXT` → `UI_TEXT` (đã xóa); thêm `floorN` ("T�
 - N4: chuyển chuỗi buổi học / máy ảo / ReviewPanel sang `UI_TEXT`; xóa các khóa `TEXT` TopBar không còn dùng.
 - Khi gộp: xóa `mau-*`, đặt `b11.majorIds` thật, thêm `b3` → `["qtkd"]`.
 - `building-details.json` vẫn chỉ có tiếng Việt (đã có `viOnlyNote`).
+
+## Cập nhật 2026-11-23 — chủ dự án chốt mục 11 PLAN
+1. PDF không lên git. 3. B11 gom 7 ngành theo khoa là ổn. 4. QTKD/DTVT/COKHI: giữ `year: null` và tên tiếng Anh đề xuất.
+2. Gán thêm ngành: **chưa sửa `campus.json` trong nhánh này** vì `mmt`, `dien` chưa tồn tại (N1/N2) và loader sẽ báo "Dữ liệu sai". Ánh xạ cần đặt lúc gộp (Claude làm):
+
+| Tòa | `majorIds` |
+| --- | --- |
+| `b3` | `["qtkd"]` |
+| `b6` | `["mmt"]` |
+| `b8` | `["dien"]` |
+| `b11` | `["ktpm", "mmt", "tdh", "dien", "cdt", "dtvt", "cokhi"]` (gom theo khoa) |
+
+Sau khi gộp: kiểm tra panel B6/B8 chỉ có 1 chip (không gom khoa) và B11 có 7 chip.
