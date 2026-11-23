@@ -15,9 +15,6 @@ export function toTimetableCourse(course: SilverCourse, core: boolean): Timetabl
 }
 
 export function buildTimetable(courses: TimetableCourse[]): Meeting[] {
-  if (courses.filter(course => course.lab !== null).length > 6) {
-    throw new Error('Không còn ca trống cho lab/project');
-  }
   const ordered = courses
     .map((course, index) => ({ course, index }))
     .sort((a, b) => Number(b.course.core) - Number(a.course.core) || a.index - b.index)

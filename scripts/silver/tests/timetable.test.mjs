@@ -52,7 +52,7 @@ export default {
   'D project, E seven labs and course conversion': async ({ assert, load }) => {
     const { buildTimetable, toTimetableCourse } = await load('/src/silver/timetable.ts');
     assert.equal(normalize(buildTimetable([{ code: 'CSW400', core: true, lab: 'project', theory: 0 }])), 'CSW400 project 0.0×2');
-    assert.throws(() => buildTimetable(Array.from({ length: 7 }, (_, i) => ({ code: `l${i}`, core: i === 0, lab: 'lab', theory: 0 }))), /Không còn ca/);
+    assert.throws(() => buildTimetable(Array.from({ length: 7 }, (_, i) => ({ code: `l${i}`, core: i === 0, lab: 'lab', theory: 2 }))), /Không còn ca/);
     const catalog = await load('/src/data/silver/catalog.ts');
     assert.deepEqual(toTimetableCourse(catalog.getCourse('CSE 103'), true), { code: 'CSE 103', core: true, lab: 'lab', theory: 2 });
     assert.deepEqual(toTimetableCourse(catalog.getCourse('POLS 133'), false), { code: 'POLS 133', core: false, lab: null, theory: 2 });
