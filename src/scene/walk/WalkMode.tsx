@@ -22,7 +22,7 @@ import {
 } from '../interior/layouts';
 
 /** Phải khớp `near` của <Canvas> trong App.tsx. */
-const OUTDOOR_CAMERA_NEAR = 5;
+const OUTDOOR_CAMERA_NEAR = 0.3;
 const OUTDOOR_CAMERA_FAR = 2500;
 const WALK_SPEED = 5;
 const RUN_SPEED = 12;

@@ -52,7 +52,7 @@ export default function App() {
         camera={{
           position: [OVERVIEW_CAMERA.position[0], OVERVIEW_CAMERA.position[1], OVERVIEW_CAMERA.position[2]],
           fov: 45,
-          near: 5,
+          near: 0.3,
           far: 2500,
         }}
       >

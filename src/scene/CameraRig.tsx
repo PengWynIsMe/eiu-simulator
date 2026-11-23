@@ -125,6 +125,8 @@ export default function CameraRig() {
       ) {
         controls.minDistance = 0.5;
         controls.maxPolarAngle = Math.PI * 0.495;
+        controls.camera.near = 0.3;
+        controls.camera.updateProjectionMatrix();
         controls.setLookAt(px, py, pz, tx, ty, tz, false);
         const boundaryBox = new Box3(
           new Vector3(-450, 0, -450),
