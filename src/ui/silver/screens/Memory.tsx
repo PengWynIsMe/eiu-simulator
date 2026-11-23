@@ -1,0 +1,81 @@
+import { useEffect, useState, type MutableRefObject } from 'react';
+import { useT } from '../../text';
+import { useSilver } from '../adapter';
+import { ST } from '../text';
+import ConfirmDialog from '../parts/ConfirmDialog';
+import EmptyView from '../parts/EmptyView';
+import MemoryPage from '../parts/MemoryPage';
+import Panel from '../parts/Panel';
+import PrimaryButton from '../parts/PrimaryButton';
+import SecondaryButton from '../parts/SecondaryButton';
+
+interface MemoryProps {
+  exitHandlerRef: MutableRefObject<(() => void) | null>;
+}
+
+/** Màn hình xem và lưu trang kỷ niệm cuối chương. */
+export default function Memory({ exitHandlerRef }: MemoryProps) {
+  const tr = useT();
+  const memory = useSilver((s) => s.memory);
+  const pickPhoto = useSilver((s) => s.pickPhoto);
+  const saveMemory = useSilver((s) => s.saveMemory);
+  const exitRun = useSilver((s) => s.exitRun);
+
+  const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
+
+  useEffect(() => {
+    exitHandlerRef.current = () => setExitConfirmOpen(true);
+    return () => {
+      exitHandlerRef.current = null;
+    };
+  }, [exitHandlerRef]);
+
+  if (!memory) {
+    return <EmptyView />;
+  }
+
+  return (
+    <div className="mx-auto mb-4 max-w-3xl space-y-4 sm:mb-6">
+      <Panel className="space-y-4">
+        <h2 className="text-lg font-bold text-[#0b3d91] sm:text-xl">{tr(ST.memTitle)}</h2>
+        <MemoryPage page={memory} onPickPhoto={pickPhoto} />
+
+        <div className="sticky bottom-0 z-10 -mx-4 space-y-2.5 rounded-b-2xl border-t border-slate-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:-mx-6 sm:px-6 sm:pb-5">
+          {memory.hasOld && (
+            <p className="rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-[13px] font-medium text-amber-950 sm:text-[14px]">
+              {tr(ST.memAsk)}
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center justify-end gap-2.5">
+            {memory.hasOld ? (
+              <>
+                <SecondaryButton onClick={() => saveMemory('keep-old')}>
+                  {tr(ST.keepOld)}
+                </SecondaryButton>
+                <PrimaryButton onClick={() => saveMemory('replace')}>
+                  {tr(ST.replaceMem)}
+                </PrimaryButton>
+              </>
+            ) : (
+              <PrimaryButton onClick={() => saveMemory('replace')}>
+                {tr(ST.saveMem)}
+              </PrimaryButton>
+            )}
+          </div>
+        </div>
+      </Panel>
+
+      <ConfirmDialog
+        open={exitConfirmOpen}
+        title={tr(ST.exit)}
+        body={tr(ST.memExit)}
+        onCancel={() => setExitConfirmOpen(false)}
+        onConfirm={() => {
+          setExitConfirmOpen(false);
+          exitRun();
+        }}
+      />
+    </div>
+  );
+}
