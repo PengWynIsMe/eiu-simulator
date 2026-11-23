@@ -1,45 +1,73 @@
 import { getClassroom } from '../data/phase2';
-import { getStage } from '../data/silver/stages';
-import { useActivityStore } from '../store/useActivityStore';
-import { useSilverStore } from '../store/useSilverStore';
-import { useWalkStore } from '../store/useWalkStore';
+import { getStage, isStageAvailable } from '../data/silver/stages';
 import type { Classroom } from '../types/lesson';
-import type { RunItem, SilverApi, SilverScreen, UseSilver } from '../types/silver';
-import type { StageSpec } from '../types/silverWorld';
+import type { Vec2 } from '../types';
+import type { RunItem, SilverApi, SilverScreen } from '../types/silver';
+import type { ActivityState, StageSpec } from '../types/silverWorld';
+import { useWalkStore } from '../store/useWalkStore';
 import { createStageActivity } from './stageContext';
 
-export interface SilverStoreSubscribable {
+type WalkState = ReturnType<typeof useWalkStore.getState>;
+
+export interface SubscribableSilverStore {
   getState: () => SilverApi;
   subscribe: (listener: (state: SilverApi, prev: SilverApi) => void) => () => void;
 }
 
-export interface DirectorDeps {
-  silver?: SilverStoreSubscribable | UseSilver;
-  activity?: typeof useActivityStore;
-  walk?: typeof useWalkStore;
-  getClassroom?: (code: string) => Classroom | undefined;
+export interface SubscribableActivityStore {
+  getState: () => ActivityState;
+  subscribe: (listener: (state: ActivityState, prev: ActivityState) => void) => () => void;
 }
 
-export function startDirector(deps?: DirectorDeps): () => void {
-  const silverStore = (deps?.silver ?? useSilverStore) as SilverStoreSubscribable;
-  const activityStore = deps?.activity ?? useActivityStore;
-  const walkStore = deps?.walk ?? useWalkStore;
-  const getRoom = deps?.getClassroom ?? getClassroom;
+export interface SubscribableWalkStore {
+  getState: () => WalkState;
+  subscribe: (listener: (state: WalkState, prev: WalkState) => void) => () => void;
+}
 
+export interface DirectorDeps {
+  silver: SubscribableSilverStore;
+  activity: SubscribableActivityStore;
+  walk?: SubscribableWalkStore;
+  getClassroom?: (code: string) => Classroom | undefined;
+  toWorld?: (frame: 'b11' | 'b8', u: number, v: number) => Vec2;
+}
+
+/**
+ * Đạo diễn Silver: điều phối luồng chơi giữa useSilverStore và useActivityStore.
+ */
+export function startDirector({
+  silver,
+  activity,
+  walk,
+  getClassroom: getRoom = getClassroom,
+  toWorld,
+}: DirectorDeps): () => void {
   let prevItemId: string | null = null;
   let prevItem: RunItem | null = null;
   let prevStage: StageSpec | null = null;
   let prevScreen: SilverScreen | null = null;
   const warnedSceneIds = new Set<string>();
 
-  const handlePlayItem = (currItem: RunItem, screenJustEntered: boolean) => {
+  const handlePlayItem = (currItem: RunItem) => {
+    // Cùng item.id thì không begin lại
+    if (currItem.id === prevItemId) {
+      prevScreen = 'play';
+      return;
+    }
+
     const sceneId = currItem.scene?.id ?? currItem.id;
     const stage = getStage(sceneId);
+    const available = Boolean(stage && isStageAvailable(stage, getRoom));
 
-    if (!stage) {
+    if (!available || !stage) {
       if (!warnedSceneIds.has(sceneId)) {
         warnedSceneIds.add(sceneId);
-        console.warn(`[SilverDirector] Cảnh không có trong stages.json: ${sceneId}`);
+        console.warn(`[SilverDirector] Cảnh lạ hoặc phòng chưa có: ${sceneId}`);
+      }
+      // Cảnh lạ/vắng: nếu activity Silver cũ còn thì end(), không end activity nguồn lesson
+      const currentActivity = activity.getState().activity;
+      if (currentActivity?.source === 'silver') {
+        activity.getState().end();
       }
       prevItemId = currItem.id;
       prevItem = currItem;
@@ -48,8 +76,8 @@ export function startDirector(deps?: DirectorDeps): () => void {
       return;
     }
 
-    const activity = createStageActivity(stage, { getClassroom: getRoom });
-    const activityState = activityStore.getState();
+    const stageActivity = createStageActivity(stage, currItem.id, { getClassroom: getRoom, toWorld });
+    const activityState = activity.getState();
     const wasSeated = activityState.seated;
 
     // keepSeated khi cùng phòng, cùng meeting.day (hoặc cùng không có meeting) và đang ngồi
@@ -62,24 +90,27 @@ export function startDirector(deps?: DirectorDeps): () => void {
 
     // teleportTo='none' khi cùng tòa/tầng và cách arrival < 60 m và không đổi ngày
     // 'arrival' khi vào chương/tiếp tục/đổi ngày/khác nơi
+    // Từ week sang item MỚI cùng ngày, gần: theo luật 60 m (vào chương/tiếp tục từ home/recap mới là 'arrival')
     let teleportTo: 'none' | 'arrival' = 'arrival';
     if (keepSeated) {
       teleportTo = 'none';
-    } else if (!screenJustEntered && sameDay) {
-      const walkState = walkStore.getState();
-      const playerPos = walkState.playerPos;
-      const interior = walkState.interior;
-      const sameBuilding = (interior?.buildingId ?? null) === (stage.arrival.buildingId ?? null);
-      const sameFloor = (interior?.floor ?? null) === (stage.arrival.floor ?? null);
-      if (sameBuilding && sameFloor) {
-        const dist = Math.hypot(playerPos.x - stage.arrival.x, playerPos.z - stage.arrival.z);
-        if (dist < 60) {
-          teleportTo = 'none';
+    } else if (sameDay && (prevScreen === 'play' || prevScreen === 'week')) {
+      if (walk) {
+        const walkState = walk.getState();
+        const playerPos = walkState.playerPos;
+        const interior = walkState.interior;
+        const sameBuilding = (interior?.buildingId ?? null) === (stage.arrival.buildingId ?? null);
+        const sameFloor = (interior?.floor ?? null) === (stage.arrival.floor ?? null);
+        if (sameBuilding && sameFloor) {
+          const dist = Math.hypot(playerPos.x - stage.arrival.x, playerPos.z - stage.arrival.z);
+          if (dist < 60) {
+            teleportTo = 'none';
+          }
         }
       }
     }
 
-    activityStore.getState().begin(activity, { teleportTo, keepSeated });
+    activity.getState().begin(stageActivity, { teleportTo, keepSeated });
 
     prevItemId = currItem.id;
     prevItem = currItem;
@@ -87,19 +118,17 @@ export function startDirector(deps?: DirectorDeps): () => void {
     prevScreen = 'play';
   };
 
-  const stopSilver = silverStore.subscribe((state: SilverApi, prev: SilverApi) => {
+  const stopSilver = silver.subscribe((state: SilverApi) => {
     if (state.screen === 'play') {
-      const isEnteringPlay = prev.screen !== 'play' || prevScreen !== 'play';
-      const isItemChanged = state.play !== null && state.play.item.id !== prevItemId;
-      if (state.play && (isEnteringPlay || isItemChanged)) {
-        handlePlayItem(state.play.item, isEnteringPlay);
+      if (state.play) {
+        handlePlayItem(state.play.item);
       }
     } else {
       // PLAN-3D mục 4.5: screen==='closed'|'home' → end
       if (state.screen === 'closed' || state.screen === 'home') {
-        const currentActivity = activityStore.getState().activity;
+        const currentActivity = activity.getState().activity;
         if (currentActivity?.source === 'silver') {
-          activityStore.getState().end();
+          activity.getState().end();
         }
         prevItemId = null;
         prevItem = null;
@@ -109,24 +138,28 @@ export function startDirector(deps?: DirectorDeps): () => void {
     }
   });
 
-  // useWalkStore.walkMode về false giữa lượt → exitRun()
-  const stopWalk = walkStore.subscribe((state, prev) => {
-    if (prev.walkMode && !state.walkMode) {
-      const silverState = silverStore.getState();
-      if (silverState.screen === 'play') {
-        silverState.exitRun();
+  // useWalkStore.walkMode về false giữa lượt:
+  // Nếu đang ở màn 'play' thì exitRun()
+  let stopWalk: (() => void) | undefined;
+  if (walk) {
+    stopWalk = walk.subscribe((state, prev) => {
+      if (prev.walkMode && !state.walkMode) {
+        const silverState = silver.getState();
+        if (silverState.screen === 'play') {
+          silverState.exitRun();
+        }
       }
-    }
-  });
+    });
+  }
 
   // Kiểm tra nếu khi khởi động đã ở screen === 'play'
-  const initialSilver = silverStore.getState();
+  const initialSilver = silver.getState();
   if (initialSilver.screen === 'play' && initialSilver.play) {
-    handlePlayItem(initialSilver.play.item, true);
+    handlePlayItem(initialSilver.play.item);
   }
 
   return () => {
     stopSilver();
-    stopWalk();
+    stopWalk?.();
   };
 }

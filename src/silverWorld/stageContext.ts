@@ -7,20 +7,22 @@ import { resolveSeatAnchor } from './seatAnchor';
 
 export interface StageContextOptions {
   getClassroom?: (code: string) => Classroom | undefined;
-  toWorld?: (u: number, v: number) => Vec2;
+  toWorld?: (frame: 'b11' | 'b8', u: number, v: number) => Vec2;
 }
 
 /**
  * Tạo Activity từ StageSpec để điều khiển người chơi và WalkMode.
+ * Khóa Activity theo hợp đồng là silver:<RunItem.id>.
  */
 export function createStageActivity(
   stage: StageSpec,
+  itemId: string,
   opts?: StageContextOptions,
 ): Activity {
   const getRoom = opts?.getClassroom ?? getClassroom;
   let seat: SeatAnchor | null = null;
-  if (stage.trigger === 'sit') {
-    seat = resolveSeatAnchor(stage.roomCode, getRoom);
+  if (stage.trigger === 'sit' && opts?.toWorld) {
+    seat = resolveSeatAnchor(stage.roomCode, getRoom, opts.toWorld);
   }
 
   let prompt: LocalizedText;
@@ -35,7 +37,7 @@ export function createStageActivity(
   }
 
   return {
-    key: `silver:${stage.sceneId}`,
+    key: `silver:${itemId}`,
     source: 'silver',
     trigger: stage.trigger,
     arrival: stage.arrival,
@@ -50,8 +52,9 @@ export function createStageActivity(
  */
 export function getStageActivity(
   sceneId: string,
+  itemId: string,
   opts?: StageContextOptions,
 ): Activity | undefined {
   const stage = getStage(sceneId);
-  return stage ? createStageActivity(stage, opts) : undefined;
+  return stage ? createStageActivity(stage, itemId, opts) : undefined;
 }
