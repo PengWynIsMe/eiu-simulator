@@ -167,7 +167,9 @@ export default function InteriorScene() {
   const layout = useMemo(() => getInteriorLayout(buildingId) ?? b3Layout, [buildingId]);
   const isB8 = buildingId.toLowerCase() === 'b8';
   const isB11 = buildingId.toLowerCase() === 'b11';
+  const isB6 = buildingId.toLowerCase() === 'b6';
   const isTwinWing = isB8 || isB11;
+  const isMultiFloor = isB8 || isB11 || isB6;
 
   // 1. Sàn tầng hiện tại (y = -0.15 .. 0)
   const floorGeometry = useMemo(() => {
@@ -212,7 +214,7 @@ export default function InteriorScene() {
   // Các tầng còn lại (1–4 trừ tầng đang đứng) & mái chìa sân trong Block 11 / Block 8
   // Giúp đứng ở Tầng 1 nhìn lên vẫn thấy đủ Tầng 2, 3, 4 + mái; ẩn tầng trên khi bật C (nhìn từ trên xuống)
   const multiFloorB11 = useMemo(() => {
-    if (!isB11 && !isB8) {
+    if (!isMultiFloor) {
       return {
         otherFloorsGeo: null,
         otherSolidWallsGeo: null,
@@ -387,7 +389,7 @@ export default function InteriorScene() {
       elevatorTowerGeo,
       ...ext,
     };
-  }, [layout, floor, isB11, isB8, isTopDown]);
+  }, [layout, floor, isB11, isB8, isMultiFloor, isTopDown]);
 
   useEffect(() => {
     return () => {
@@ -506,6 +508,7 @@ export default function InteriorScene() {
     const rooms = layout.getFloorRooms(floor);
     const yaw = getLocalFacingYaw(layout.toWorld, 0);
 
+    if (isB6) return [];
     return rooms
       .filter((r) => r.code.includes('.B') || r.code.startsWith('P.'))
       .map((room) => {
@@ -525,18 +528,20 @@ export default function InteriorScene() {
           yaw,
         };
       });
-  }, [layout, floor, isB8, isB11]);
+  }, [layout, floor, isB8, isB11, isB6]);
 
   // Tọa độ tâm tòa nhà để bố trí nguồn sáng
   const centerPos = useMemo(() => {
     if (isB11) return layout.toWorld(65.8, -125.8);
-    return isB8 ? layout.toWorld(64.7, -188.1) : layout.toWorld(0, 20.0);
-  }, [layout, isB8, isB11]);
+    if (isB8) return layout.toWorld(64.7, -188.1);
+    if (isB6) return layout.toWorld(17.0, 24.0);
+    return layout.toWorld(0, 20.0);
+  }, [layout, isB8, isB11, isB6]);
 
   // Màu tường và sàn theo tài liệu thực tế của từng tòa
   const wallColor = isTwinWing ? '#42322c' : '#f8fafc'; // B8 & B11: nâu sẫm, B3: trắng sáng
   const baseboardColor = isTwinWing ? '#261e1b' : '#334155';
-  const floorColor = isTwinWing ? '#cbd5e1' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng
+  const floorColor = isTwinWing ? '#cbd5e1' : isB6 ? '#475569' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng, B6: gạch xám đậm sảnh sang trọng
 
   return (
     <>
@@ -583,6 +588,14 @@ export default function InteriorScene() {
           <pointLight position={[layout.toWorld(31.7, -188.5)[0], 3.6, layout.toWorld(31.7, -188.5)[1]]} intensity={0.65} distance={30} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(84.5, -188.0)[0], 3.6, layout.toWorld(84.5, -188.0)[1]]} intensity={0.65} distance={35} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(53.5, -188.35)[0], 3.4, layout.toWorld(53.5, -188.35)[1]]} intensity={0.7} distance={15} color="#fffbeb" />
+        </>
+      ) : isB6 ? (
+        <>
+          {/* Đèn sảnh kính thông tầng BBI & Trung tâm An ninh mạng */}
+          <pointLight position={[layout.toWorld(14, 12)[0], 3.6, layout.toWorld(14, 12)[1]]} intensity={0.8} distance={30} color="#f8fafc" />
+          <pointLight position={[layout.toWorld(14, 30)[0], 3.6, layout.toWorld(14, 30)[1]]} intensity={0.8} distance={30} color="#f8fafc" />
+          <pointLight position={[layout.toWorld(26, 10)[0], 3.5, layout.toWorld(26, 10)[1]]} intensity={0.9} distance={25} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(5, 20)[0], 3.5, layout.toWorld(5, 20)[1]]} intensity={0.7} distance={25} color="#fffbeb" />
         </>
       ) : buildingId.toLowerCase() === 'b3' ? (
         <>
