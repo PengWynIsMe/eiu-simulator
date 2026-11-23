@@ -33,6 +33,14 @@ export default function TopBar() {
   const toggleSnow = useSnowStore((s) => s.toggleSnow);
   const startCinematic = useSnowStore((s) => s.startCinematic);
 
+  const silverScreen = useSilver((s) => s.screen);
+  const silverClosed = silverScreen === 'closed';
+
+  // Ẩn TopBar chung khi đang ở màn play của chế độ 3D world (WorldLayer có header riêng)
+  if (silverScreen === 'play' && mode === 'world') {
+    return null;
+  }
+
   return (
     <>
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 p-2 sm:p-4">
@@ -105,7 +113,7 @@ export default function TopBar() {
           </button>
 
           {/* Nút Buổi học */}
-          {lessonIdle && !reviewMode && (
+          {lessonIdle && silverClosed && !reviewMode && (
             <button
               type="button"
               onClick={toggleSchedule}

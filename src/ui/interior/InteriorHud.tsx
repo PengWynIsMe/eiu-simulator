@@ -18,7 +18,10 @@ export default function InteriorHud() {
   const walkMode = useWalkStore((s) => s.walkMode);
   const interior = useWalkStore((s) => s.interior);
   const activity = useActivityStore((s) => s.activity);
+  const phase = useActivityStore((s) => s.phase);
+  const screenOpen = useActivityStore((s) => s.screenOpen);
   const lang = useLangStore((s) => s.lang);
+  const activityEngaged = Boolean(activity && (phase === 'engaged' || screenOpen));
 
   const [proximity, setProximity] = useState<ProximityState>({ interactive: null, activeRoom: null });
   const [elevatorOpen, setElevatorOpen] = useState(false);
@@ -207,21 +210,21 @@ export default function InteriorHud() {
       />
 
       {/* 2. Thẻ thông tin tầng & phòng học / hành lang đang đứng */}
-      {interior && (
-        <div className="pointer-events-none fixed top-16 left-1/2 z-40 -translate-x-1/2">
-          <div className="flex max-w-md flex-col items-center rounded-2xl border border-sky-400/40 bg-slate-950/80 px-5 py-2.5 text-center shadow-xl backdrop-blur-md">
+      {interior && !activityEngaged && (
+        <div className="pointer-events-none fixed top-14 left-1/2 z-40 -translate-x-1/2 sm:top-16">
+          <div className="flex max-w-md flex-col items-center rounded-2xl border border-sky-400/40 bg-slate-950/80 px-4 py-2 text-center shadow-xl backdrop-blur-md sm:px-5 sm:py-2.5">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-sky-500/20 px-2.5 py-0.5 text-xs font-semibold text-sky-300">
+              <span className="rounded-full bg-sky-500/20 px-2 py-0.5 text-xs font-semibold text-sky-300 sm:px-2.5">
                 {currentFloorLabel}
               </span>
               {proximity.activeRoom && (
-                <span className="text-sm font-bold text-sky-400">
+                <span className="text-xs font-bold text-sky-400 sm:text-sm">
                   {proximity.activeRoom.code}
                 </span>
               )}
             </div>
             {proximity.activeRoom && (
-              <div className="mt-1 text-sm font-medium text-white">
+              <div className="mt-0.5 text-xs font-medium text-white sm:mt-1 sm:text-sm">
                 {proximity.activeRoom.name}
               </div>
             )}

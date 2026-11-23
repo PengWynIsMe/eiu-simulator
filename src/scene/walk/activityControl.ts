@@ -26,6 +26,9 @@ let handledEscape = false;
 
 export function handleActivityEscape(event: KeyboardEvent): void {
   if (event.key !== 'Escape') return;
+  if (typeof document !== 'undefined' && Boolean(document.querySelector('[role="alertdialog"]'))) {
+    return;
+  }
   const state = useActivityStore.getState();
   if (!event.repeat) handledEscape = state.screenOpen || state.seated;
   if (!handledEscape) return;

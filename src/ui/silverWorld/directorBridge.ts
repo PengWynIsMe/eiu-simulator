@@ -1,6 +1,6 @@
 import type { SubscribableSilverStore } from '../../silverWorld/director';
-import type { SilverApi } from '../../types/silver';
-import { isStageAvailable } from '../../data/silver/stages';
+import { useWalkStore } from '../../store/useWalkStore';
+import { getSilverUserMode } from '../silver/presentation';
 
 /**
  * Type guard kiểm tra xem store useSilverStore có hỗ trợ subscribe và getState hay không.
@@ -18,64 +18,22 @@ export function isSubscribableSilver(store: unknown): store is SubscribableSilve
 }
 
 /**
- * Kiểm tra trạng thái kích hoạt của chế độ 3D world:
- * Chỉ bật khi chạy DEV, có param ?silver3d=lab1, screen đang là 'play'
- * và sceneId hiện hành có stage khả dụng (isStageAvailable).
+ * Kiểm tra trạng thái kích hoạt của director Silver 3D:
+ * - Director chạy suốt lượt chơi 3D (từ home, recap, registration, week, play, ...)
+ * - Không dừng khi chuyển qua màn tuần (week) để bảo toàn prevItem, ngày học và keepSeated.
+ * - Chỉ dừng khi đóng Silver (screen === 'closed') hoặc người chơi chọn chế độ 2D overlay.
+ * - Trong môi trường SSR test (typeof window === 'undefined'), trả về false.
  */
-export function isWorldActive(screen?: string | null, sceneId?: string | null): boolean {
-  if (!import.meta.env.DEV) return false;
+export function isWorldActive(screen?: string | null, _sceneId?: string | null): boolean {
+  void _sceneId;
   if (typeof window === 'undefined') return false;
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('silver3d') !== 'lab1') return false;
-  if (screen !== 'play' || !sceneId) return false;
-  return isStageAvailable(sceneId);
-}
+  if (!screen || screen === 'closed') return false;
+  if (getSilverUserMode() === 'overlay') return false;
 
-let devInitTriggered = false;
-
-export type SilverStoreTarget = { getState: () => SilverApi } | SilverApi;
-
-function isStoreGetter(target: SilverStoreTarget): target is { getState: () => SilverApi } {
-  return (
-    (typeof target === 'function' || (typeof target === 'object' && target !== null)) &&
-    'getState' in target &&
-    typeof (target as { getState: unknown }).getState === 'function'
-  );
-}
-
-/**
- * Cửa vào dev ?silver3d=lab1 (chỉ import.meta.env.DEV):
- * Tự gọi load, startChapter('2.2', 'restart'), confirmRecap, confirmRegistration, bỏ qua opening, playNext.
- */
-export async function initDevSilver3DLab1(target: SilverStoreTarget): Promise<void> {
-  if (typeof window !== 'undefined') {
-    (window as unknown as Record<string, unknown>).__silverStore = target;
+  // Khi vào màn play trong lượt 3D, tự bật walkMode nếu chưa bật
+  if (screen === 'play' && !useWalkStore.getState().walkMode) {
+    useWalkStore.setState({ walkMode: true });
   }
-  if (!import.meta.env.DEV || typeof window === 'undefined') return;
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('silver3d') !== 'lab1') return;
-  if (devInitTriggered) return;
-  devInitTriggered = true;
 
-  const getSilver = (): SilverApi => (isStoreGetter(target) ? target.getState() : target);
-
-  try {
-    await getSilver().load();
-    getSilver().startChapter('2.2', 'restart');
-
-    if (getSilver().screen === 'recap') {
-      getSilver().confirmRecap();
-    }
-    if (getSilver().screen === 'registration') {
-      getSilver().confirmRegistration();
-    }
-    if (getSilver().screen === 'play') {
-      getSilver().skipItem();
-    }
-    if (getSilver().screen === 'week') {
-      getSilver().playNext();
-    }
-  } catch (err) {
-    console.error('[initDevSilver3DLab1] Failed to auto-start 3D lab1:', err);
-  }
+  return true;
 }

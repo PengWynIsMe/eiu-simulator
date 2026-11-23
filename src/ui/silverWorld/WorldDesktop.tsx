@@ -36,12 +36,17 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
   const [runState, setRunState] = useState<CodeLabRunState>(feedback?.kind === 'graded' ? 'shown' : 'idle');
   const [runId, setRunId] = useState(0);
   const prevFeedbackRef = useRef<Feedback | null>(null);
+  const runTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Mở máy tính khi bước code bắt đầu
+  // Mở máy tính khi bước code bắt đầu và dọn dẹp timer khi unmount
   useEffect(() => {
     setScreenOpen(true);
     return () => {
       setScreenOpen(false);
+      if (runTimerRef.current) {
+        clearTimeout(runTimerRef.current);
+        runTimerRef.current = null;
+      }
     };
   }, [setScreenOpen]);
 
@@ -73,41 +78,41 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
       retry();
     }
     setRunState('compiling');
-    setTimeout(() => {
-      try {
-        answer(value);
-      } catch {
-        // noop
-      }
+    if (runTimerRef.current) {
+      clearTimeout(runTimerRef.current);
+    }
+    runTimerRef.current = setTimeout(() => {
+      runTimerRef.current = null;
+      answer(value);
       setRunId((n) => n + 1);
       setRunState('shown');
     }, 400);
   };
 
   const desktopLabels: DesktopLabels = {
-    loginStudentId: 'Mã số sinh viên / Student ID',
-    loginPassword: 'Mật khẩu / Password',
-    loginBtn: 'Đăng nhập / Log in',
-    loggingIn: 'Đang vào… / Logging in…',
-    studentName: 'Sinh viên EIU',
+    loginStudentId: tr(ST_W.loginStudentId),
+    loginPassword: tr(ST_W.loginPassword),
+    loginBtn: tr(ST_W.loginBtn),
+    loggingIn: tr(ST_W.loggingIn),
+    studentName: tr(ST_W.studentName),
     codeLabApp: 'Code Lab',
-    slidesApp: 'Bài giảng / Slides',
-    trashApp: 'Thùng rác / Trash',
-    trashEmpty: 'Thùng rác trống / Trash is empty',
-    noLecture: 'Chưa có slide / No slides',
+    slidesApp: tr(ST_W.slidesApp),
+    trashApp: tr(ST_W.trashApp),
+    trashEmpty: tr(ST_W.trashEmpty),
+    noLecture: tr(ST_W.noLecture),
     slideLabel: 'Slide',
     minimize: tr(ST_W.minimizeComputer),
-    close: 'Đóng / Close',
-    hideTip: 'Thu máy (Esc)',
+    close: tr(ST_W.close),
+    hideTip: tr(ST_W.hideTip),
   };
 
   const codeLabLabels: CodeLabLabels = {
     hintBtn: tr(ST_W.hint),
-    blankLabel: 'Điền code / Fill code',
+    blankLabel: tr(ST_W.blankLabel),
     runBtn: tr(ST_W.run),
-    outputTitle: 'Kết quả / Output',
-    compiling: 'Đang chạy… / Running…',
-    outputEmpty: 'Chưa chạy lệnh / No output yet',
+    outputTitle: tr(ST_W.outputTitle),
+    compiling: tr(ST_W.compiling),
+    outputEmpty: tr(ST_W.outputEmpty),
     revealBtn: tr(ST_W.reveal),
   };
 
