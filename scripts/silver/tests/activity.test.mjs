@@ -91,6 +91,7 @@ export default {
       assert.equal(store.getState().seated, true);
       assert.equal(escape(), true);
       assert.equal(store.getState().seated, false);
+      assert.equal(escape(true), true);
       assert.equal(escape(), false);
     } finally {
       store.getState().end();

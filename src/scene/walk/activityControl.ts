@@ -22,10 +22,13 @@ export function focusActivity(state: ActivityState): Activity | null {
   return phase === 'engaged' && (activity?.trigger === 'talk' || activity?.trigger === 'look') ? activity : null;
 }
 
+let handledEscape = false;
+
 export function handleActivityEscape(event: KeyboardEvent): void {
   if (event.key !== 'Escape') return;
   const state = useActivityStore.getState();
-  if (!state.screenOpen && !state.seated) return;
+  if (!event.repeat) handledEscape = state.screenOpen || state.seated;
+  if (!handledEscape) return;
   event.preventDefault();
   event.stopImmediatePropagation();
   if (event.repeat) return;
