@@ -19,6 +19,7 @@ import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
 import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 import ClassroomNpcs from '../npc/ClassroomNpcs';
 import Lesson406 from '../lesson/Lesson406';
+import CanteenFurniture from './CanteenFurniture';
 
 function makeOrientedLocalBox(
   toWorld: (u: number, v: number) => Vec2,
@@ -167,6 +168,7 @@ export default function InteriorScene() {
   const layout = useMemo(() => getInteriorLayout(buildingId) ?? b3Layout, [buildingId]);
   const isB8 = buildingId.toLowerCase() === 'b8';
   const isB11 = buildingId.toLowerCase() === 'b11';
+  const isCanteen = buildingId.toLowerCase() === 'can-tin';
   const isTwinWing = isB8 || isB11;
 
   // 1. Sàn tầng hiện tại (y = -0.15 .. 0)
@@ -530,13 +532,13 @@ export default function InteriorScene() {
   // Tọa độ tâm tòa nhà để bố trí nguồn sáng
   const centerPos = useMemo(() => {
     if (isB11) return layout.toWorld(65.8, -125.8);
-    return isB8 ? layout.toWorld(64.7, -188.1) : layout.toWorld(0, 20.0);
-  }, [layout, isB8, isB11]);
+    return isB8 ? layout.toWorld(64.7, -188.1) : isCanteen ? layout.toWorld(32, 18) : layout.toWorld(0, 20.0);
+  }, [layout, isB8, isB11, isCanteen]);
 
   // Màu tường và sàn theo tài liệu thực tế của từng tòa
   const wallColor = isTwinWing ? '#42322c' : '#f8fafc'; // B8 & B11: nâu sẫm, B3: trắng sáng
   const baseboardColor = isTwinWing ? '#261e1b' : '#334155';
-  const floorColor = isTwinWing ? '#cbd5e1' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng
+  const floorColor = isCanteen ? '#b98257' : isTwinWing ? '#cbd5e1' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng
 
   return (
     <>
@@ -687,6 +689,7 @@ export default function InteriorScene() {
 
       {/* 4. Nội thất instancing */}
       <InteriorFurniture buildingId={buildingId} floor={floor} showUpperFloors={!isTopDown} />
+      {isCanteen && <CanteenFurniture showRoof={!isTopDown} />}
       <ClassroomNpcs />
       <Lesson406 />
 
