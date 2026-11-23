@@ -57,8 +57,8 @@ export interface Classroom {
   name: string;
   buildingId: string;
   floor: number;
-  /** Hệ tọa độ địa phương: hiện chỉ có "b11" (b11ToWorld). */
-  frame: string;
+  /** Hệ tọa độ địa phương của tòa nhà. */
+  frame: 'b11' | 'b8';
   bounds: { minU: number; maxU: number; minV: number; maxV: number };
   door: LocalPoint;
   /** Cửa phòng phía hành lang, tọa độ thế giới — UI dùng cho la bàn. */
@@ -80,6 +80,8 @@ export interface Classroom {
   airConditioners: (LocalPoint & { y: number })[];
   seats: Seat[];
   playerSeat: string;
+  companionSeat?: string;
+  standPoint?: LocalPoint;
   npcSeats: string[];
 }
 

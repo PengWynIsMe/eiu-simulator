@@ -84,12 +84,18 @@ function classroom(v: unknown, path: string): Classroom {
   const playerSeat = seatRef(o.playerSeat, `${path}.playerSeat`);
   const npcSeats = arr(o.npcSeats, `${path}.npcSeats`).map((s, i) => seatRef(s, `${path}.npcSeats[${i}]`));
   if (npcSeats.includes(playerSeat)) fail(`${path}.npcSeats`, 'không chứa ghế người chơi');
+  const companionSeat = o.companionSeat === undefined
+    ? undefined
+    : seatRef(o.companionSeat, `${path}.companionSeat`);
+  if (companionSeat && (npcSeats.includes(companionSeat) || companionSeat === playerSeat)) {
+    fail(`${path}.companionSeat`, 'ghế thật, không thuộc npcSeats và khác playerSeat');
+  }
   return {
     code: str(o.code, `${path}.code`),
     name: str(o.name, `${path}.name`),
     buildingId: str(o.buildingId, `${path}.buildingId`),
     floor: num(o.floor, `${path}.floor`),
-    frame: oneOf(o.frame, ['b11'], `${path}.frame`),
+    frame: oneOf(o.frame, ['b11', 'b8'], `${path}.frame`),
     bounds: {
       minU: num(b.minU, `${path}.bounds.minU`),
       maxU: num(b.maxU, `${path}.bounds.maxU`),
@@ -126,6 +132,8 @@ function classroom(v: unknown, path: string): Classroom {
     }),
     seats,
     playerSeat,
+    ...(companionSeat ? { companionSeat } : {}),
+    ...(o.standPoint === undefined ? {} : { standPoint: point(o.standPoint, `${path}.standPoint`) }),
     npcSeats,
   };
 }
