@@ -109,6 +109,7 @@ export default function WeekGrid({ meetings, names }: WeekGridProps) {
                     <td
                       key={key}
                       rowSpan={meeting.length === 2 ? 2 : 1}
+                      data-current={isCurrent ? 'true' : undefined}
                       aria-label={getAriaLabel(meeting)}
                       style={{ backgroundColor: bg }}
                       className={`border border-slate-300 p-2 align-top transition ${

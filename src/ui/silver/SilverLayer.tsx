@@ -12,6 +12,7 @@ import EmptyView from './parts/EmptyView';
 import Home from './screens/Home';
 import Recap from './screens/Recap';
 import Registration from './screens/Registration';
+import Week from './screens/Week';
 import Play from './screens/Play';
 
 function SilverOverlay() {
@@ -22,6 +23,7 @@ function SilverOverlay() {
   const load = useSilver((s) => s.load);
   const close = useSilver((s) => s.close);
   const exitRun = useSilver((s) => s.exitRun);
+  const playSceneTitle = useSilver((s) => (s.screen === 'play' ? s.play?.item.scene?.title ?? null : null));
 
   const [warnDismissed, setWarnDismissed] = useState(false);
   const overlayRef = useRef<HTMLDivElement | null>(null);
@@ -104,7 +106,7 @@ function SilverOverlay() {
             tabIndex={-1}
             className="truncate text-base font-bold text-white focus:outline-none sm:text-lg"
           >
-            {tr(SCREEN_TITLES[screen])}
+            {playSceneTitle ? tr(playSceneTitle) : tr(SCREEN_TITLES[screen])}
           </h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -144,10 +146,12 @@ function SilverOverlay() {
               {screen === 'home' && <Home />}
               {screen === 'recap' && <Recap />}
               {screen === 'registration' && <Registration exitHandlerRef={exitHandlerRef} />}
+              {screen === 'week' && <Week exitHandlerRef={exitHandlerRef} />}
               {screen === 'play' && <Play exitHandlerRef={exitHandlerRef} />}
               {screen !== 'home' &&
                 screen !== 'recap' &&
                 screen !== 'registration' &&
+                screen !== 'week' &&
                 screen !== 'play' && <EmptyView />}
             </>
           )}

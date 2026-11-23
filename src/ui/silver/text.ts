@@ -154,8 +154,22 @@ export const ST = {
   sNow: { vi: 'Buổi kế', en: 'Next' },
   sLater: { vi: 'Chưa tới', en: 'Later' },
 
-  // Tiêu đề các màn chưa dựng xong (sẽ cập nhật đúng bảng ST ở UI-05..07)
-  screenWeek: { vi: 'Tuần học', en: 'Your week' },
+  // UI-05 — Tuần học
+  weekTitle: { vi: 'Tuần học', en: 'Your week' },
+  sessions: { vi: '{i}/{n} buổi', en: '{i}/{n} sessions' },
+  nextSession: { vi: 'Buổi kế: {name}', en: 'Next: {name}' },
+  enter: { vi: 'Vào buổi học', en: 'Go to class' },
+  weekStart: {
+    vi: 'Một tuần tiêu biểu, đại diện cho cả kỳ.',
+    en: 'One typical week stands for the whole term.',
+  },
+  weekDone: {
+    vi: 'Xong tuần học. Tiếp theo là cuối kỳ.',
+    en: 'The week is done. Next: the end of term.',
+  },
+  toExam: { vi: 'Đến cuối kỳ', en: 'Go to end of term' },
+
+  // Tiêu đề các màn chưa dựng xong (sẽ cập nhật đúng bảng ST ở UI-06..07)
   screenPlay: { vi: 'Cảnh truyện', en: 'Story scene' },
   screenTranscript: { vi: 'Bảng điểm', en: 'Transcript' },
   screenMemory: { vi: 'Trang kỷ niệm', en: 'Memory page' },
@@ -179,7 +193,7 @@ export const SCREEN_TITLES: Record<Exclude<SilverScreen, 'closed'>, LocalizedTex
   home: ST.title,
   recap: ST.recapTitle,
   registration: ST.regTitle,
-  week: ST.screenWeek,
+  week: ST.weekTitle,
   play: ST.screenPlay,
   transcript: ST.screenTranscript,
   memory: ST.screenMemory,
