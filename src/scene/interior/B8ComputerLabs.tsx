@@ -12,7 +12,10 @@ import {
 } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { getClassroom } from '../../data';
+import { getStage } from '../../data/silver/stages';
+import { useActivityStore } from '../../store/useActivityStore';
 import { useLangStore } from '../../store/useLangStore';
+import { useSilverStore } from '../../store/useSilverStore';
 import { toWorld, B8_ROTATION_Y } from './layouts/b8';
 import { createInstanceMatrix } from './InteriorFurniture';
 import {
@@ -240,6 +243,13 @@ export default function B8ComputerLabs() {
     postersTex,
   ]);
 
+  // Đọc trạng thái hoạt động Silver để chỉ bỏ tvScreens khi phòng đang là sân khấu
+  const isSilverActive = useActivityStore((s) => s.activity?.source === 'silver');
+  const stageRoomCode = useSilverStore((s) => {
+    const item = s.play?.item;
+    return item?.scene?.id ? getStage(item.scene.id)?.roomCode : null;
+  });
+
   // 2. Tính toán ma trận InstancedMesh cho tất cả 10 phòng
   const batches = useMemo(() => {
     const desks: Matrix4[] = [];
@@ -336,8 +346,9 @@ export default function B8ComputerLabs() {
       // --- 3. TƯỜNG TRƯỚC (TƯỜNG ĐÔNG): TV + 2 BẢNG TRẮNG SÁNG KHUNG NHÔM + BÀN GV ---
       // Khung viền TV đen & Màn hình TV
       tvFrames.push(createInstanceMatrix(toWorld, frontU, vCenter, 2.15, 0, 0.05, 1.3, 2.2));
-      // Bỏ tvScreens của phòng đang là sân khấu (406.B8) để tránh z-fighting với ProjectorScreen
-      if (r.code !== '406.B8') {
+      // Chỉ bỏ tvScreens khi phòng đang là sân khấu Silver để tránh z-fighting với ProjectorScreen
+      const isStageRoom = isSilverActive && r.code === (stageRoomCode ?? '406.B8');
+      if (!isStageRoom) {
         tvScreens.push(createInstanceMatrix(toWorld, frontU - 0.03, vCenter, 2.15, 0, 0.02, 1.2, 2.1));
       }
 
@@ -431,7 +442,7 @@ export default function B8ComputerLabs() {
       posters,
       signs,
     };
-  }, []);
+  }, [isSilverActive, stageRoomCode]);
 
   return (
     <group>

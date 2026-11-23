@@ -1,153 +1,189 @@
 import { Suspense, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
-import { Group, Vector3 } from 'three';
+import { Vector3, type Group } from 'three';
 import CharacterModel, { type CharacterHandle } from '../characters/CharacterModel';
 import { turnToward } from '../npc/lod';
 import { toWorld, yawOf } from './frame';
 import { characterConfig } from '../../data';
 import type { Classroom } from '../../types';
-import type { ClassSignal, StageSpec } from '../../types/silverWorld';
+import type { SpeakerId } from '../../types/silver';
+import type { ClassSignal, StageActor, StageSpec } from '../../types/silverWorld';
+
+const SPEAKER_NAMES: Partial<Record<SpeakerId, string>> = {
+  han: 'Han',
+  quyen: 'Quyền',
+  thanh: 'Thành',
+  teacher: 'Thầy Nam',
+  examiner: 'Giám khảo',
+  guide: 'Hướng dẫn viên',
+  player: 'Bạn',
+};
 
 export interface StoryActorsProps {
   room: Classroom;
-  stage?: StageSpec;
+  stage: StageSpec;
   getSignal: () => ClassSignal;
-  subscribe: (listener: (signal: ClassSignal) => void) => () => void;
+  subscribe: (listener: () => void) => () => void;
   sitYOffset?: number;
 }
 
-interface HanActorProps {
+interface ActorInstanceProps {
+  actor: StageActor;
   room: Classroom;
-  seatId: string;
-  stage?: StageSpec;
+  stage: StageSpec;
   getSignal: () => ClassSignal;
   sitYOffset: number;
 }
 
-/**
- * Nhân vật Han: bạn học ngồi cạnh người chơi ở companionSeat (406-r2-s6 trong 406.B8).
- * - Clip chính: `sit`, mông chạm mặt ghế cao 0.45 m (sitYOffset = 0.40).
- * - Quay mặt về người chơi khi đang nói (signal.speaker === 'han'), quay về bảng khi không nói.
- * - playUpper('raiseHand') 1 lần khi cảnh bắt đầu.
- * - playUpper('yes') khi người chơi hoàn thành đúng bài tập code.
- * - Nhãn tên nhỏ (<= 6 m) bằng <Html> của drei, dấu "!" khi là đích talk.
- */
-function HanActor({ room, seatId, stage, getSignal, sitYOffset }: HanActorProps) {
+function ActorInstance({ actor, room, stage, getSignal, sitYOffset }: ActorInstanceProps) {
   const group = useRef<Group>(null);
   const handle = useRef<CharacterHandle>(null);
   const labelRef = useRef<HTMLDivElement>(null);
 
-  const seat = useMemo(() => {
-    return room.seats.find((s) => s.id === seatId) ?? room.seats.find((s) => s.id === room.companionSeat);
-  }, [room, seatId]);
+  // Tính tọa độ, hướng quay mặc định và hướng nhìn về người chơi
+  const poseInfo = useMemo(() => {
+    if (actor.pose === 'sit' || actor.seatId) {
+      const seat = room.seats.find((s) => s.id === actor.seatId)
+        ?? (actor.speaker === 'han' ? room.seats.find((s) => s.id === room.companionSeat) : undefined);
+      if (!seat) return null;
 
-  const playerSeat = useMemo(() => {
-    return room.seats.find((s) => s.id === room.playerSeat);
-  }, [room]);
+      const [sx, sz] = toWorld(room.frame, seat.u, seat.v);
+      const playerSeat = room.seats.find((s) => s.id === room.playerSeat);
+      const [px, pz] = playerSeat ? toWorld(room.frame, playerSeat.u, playerSeat.v) : [sx, sz];
 
-  const { seatW, defaultYaw, playerYaw } = useMemo(() => {
-    const sU = seat?.u ?? 86.48;
-    const sV = seat?.v ?? -203.2;
-    const [sx, sz] = toWorld(room.frame, sU, sV);
-    const pU = playerSeat?.u ?? 86.48;
-    const pV = playerSeat?.v ?? -204.2;
-    const [px, pz] = toWorld(room.frame, pU, pV);
+      const defYaw = yawOf(room.frame, room.studentFacing[0], room.studentFacing[1]);
+      const pYaw = Math.atan2(px - sx, pz - sz);
 
-    const defYaw = yawOf(room.frame, room.studentFacing[0], room.studentFacing[1]);
-    const pYaw = Math.atan2(px - sx, pz - sz);
+      return {
+        pos: [sx, sitYOffset, sz] as const,
+        worldVec: new Vector3(sx, sitYOffset, sz),
+        defaultYaw: defYaw,
+        playerYaw: pYaw,
+        clip: 'sit' as const,
+        labelY: 1.05, // Sát đỉnh đầu khi ngồi (chiều cao đầu ngồi ~ 0.95 - 1.0 m)
+      };
+    }
+
+    // Đứng tại spot
+    const spot = actor.spot ?? stage.arrival;
+    const defYaw = Math.atan2(spot.facing[0], spot.facing[1]);
+    const target = stage.target;
+    const pYaw = Math.atan2(target.x - spot.x, target.z - spot.z);
 
     return {
-      seatW: [sx, sz] as const,
+      pos: [spot.x, 0, spot.z] as const,
+      worldVec: new Vector3(spot.x, 0, spot.z),
       defaultYaw: defYaw,
       playerYaw: pYaw,
+      clip: 'idle' as const,
+      labelY: 1.80, // Sát đỉnh đầu khi đứng (chiều cao nhân vật ~ 1.7 m)
     };
-  }, [room, seat, playerSeat]);
+  }, [actor, room, stage, sitYOffset]);
 
-  const sim = useMemo(() => {
-    const pos = new Vector3(seatW[0], sitYOffset, seatW[1]);
-    return {
-      yaw: defaultYaw,
-      startTime: -1,
-      hasRaisedHand: false,
-      raising: false,
-      seenResultId: -1,
-      nextTyping: 8 + Math.random() * 5,
-      worldPos: pos,
-    };
-  }, [seatW, defaultYaw, sitYOffset]);
+  // Bộ nhớ trạng thái mô phỏng hoạt cảnh và cử chỉ
+  const lastSceneIdRef = useRef<string>(stage.sceneId);
+  const initialResultId = useRef<number>(getSignal().result?.id ?? -1);
+  const seenResultIdRef = useRef<number>(initialResultId.current);
+  const hasRaisedHandRef = useRef<boolean>(false);
+  const isRaisingRef = useRef<boolean>(false);
+  const raiseStartRef = useRef<number>(-1);
+  const nextTypingRef = useRef<number>(8 + Math.random() * 5);
+  const currentYawRef = useRef<number>(poseInfo?.defaultYaw ?? 0);
 
-  const isTalkTarget = Boolean(stage?.trigger === 'talk');
+  // Reset cử chỉ giơ tay khi đổi sceneId (vd lab-1 -> lab-2 mà không unmount)
+  if (lastSceneIdRef.current !== stage.sceneId) {
+    lastSceneIdRef.current = stage.sceneId;
+    hasRaisedHandRef.current = false;
+    isRaisingRef.current = false;
+    raiseStartRef.current = -1;
+    seenResultIdRef.current = getSignal().result?.id ?? -1;
+  }
+
+  const isTalkTarget = Boolean(stage.trigger === 'talk');
+  const actorName = SPEAKER_NAMES[actor.speaker] ?? actor.speaker;
 
   useFrame((state, delta) => {
     const g = group.current;
-    if (!g) return;
+    if (!g || !poseInfo) return;
+
     const dt = Math.min(delta, 0.1);
     const now = state.clock.elapsedTime;
     const signal = getSignal();
 
-    if (sim.startTime < 0) {
-      sim.startTime = now;
-    }
+    // Cử chỉ riêng cho Han: giơ tay một lần khi cảnh bắt đầu, phản ứng yes khi đúng bài tập
+    if (actor.speaker === 'han') {
+      // 1. Giơ tay 1 lần ở đầu cảnh
+      if (!hasRaisedHandRef.current) {
+        hasRaisedHandRef.current = true;
+        isRaisingRef.current = true;
+        raiseStartRef.current = now;
+        handle.current?.playUpper('raiseHand', { loop: false, timeScale: 0.6 });
+      }
+      if (isRaisingRef.current && now - raiseStartRef.current > 1.8) {
+        isRaisingRef.current = false;
+        handle.current?.stopUpper();
+      }
 
-    // 1. Giơ tay 1 lần khi cảnh bắt đầu
-    if (!sim.hasRaisedHand) {
-      sim.hasRaisedHand = true;
-      sim.raising = true;
-      handle.current?.playUpper('raiseHand', { loop: false, timeScale: 0.6 });
-    }
-    if (sim.raising && now - sim.startTime > 1.8) {
-      sim.raising = false;
-      handle.current?.stopUpper();
-    }
+      // 2. Phản ứng hoan hô (yes) khi bài tập code đúng (chỉ phản ứng với result mới phát sinh sau khi vào cảnh)
+      if (signal.result && signal.result.id !== seenResultIdRef.current) {
+        seenResultIdRef.current = signal.result.id;
+        if (signal.result.correct && signal.mode === 'exercise') {
+          handle.current?.playUpper('yes');
+          nextTypingRef.current = now + 4;
+        }
+      }
 
-    // 2. Phản ứng đúng khi làm bài tập code (emote-yes)
-    if (signal.result && signal.result.id !== sim.seenResultId) {
-      sim.seenResultId = signal.result.id;
-      if (signal.result.correct && signal.mode === 'exercise') {
-        handle.current?.playUpper('yes');
-        sim.nextTyping = now + 4;
+      // 3. Thi thoảng gõ phím khi đang ngồi trong lớp
+      if (poseInfo.clip === 'sit' && !isRaisingRef.current && signal.mode !== 'end' && now >= nextTypingRef.current) {
+        nextTypingRef.current = now + 8 + Math.random() * 8;
+        handle.current?.playUpper('interact');
       }
     }
 
-    // 3. Thi thoảng gõ phím khi đang ngồi nghe/học
-    if (!sim.raising && signal.mode !== 'end' && now >= sim.nextTyping) {
-      sim.nextTyping = now + 8 + Math.random() * 8;
-      handle.current?.playUpper('interact');
-    }
+    // Quay mặt về phía người chơi khi đang nói chuyện (signal.speaker trùng với mình)
+    const isSpeaking = signal.speaker === actor.speaker;
+    const targetYaw = isSpeaking ? poseInfo.playerYaw : poseInfo.defaultYaw;
+    currentYawRef.current = turnToward(currentYawRef.current, targetYaw, Math.min(1, dt * 8));
+    g.rotation.y = currentYawRef.current;
 
-    // 4. Quay mặt về người chơi khi đang nói
-    const isSpeaking = signal.speaker === 'han';
-    const targetYaw = isSpeaking ? playerYaw : defaultYaw;
-    sim.yaw = turnToward(sim.yaw, targetYaw, Math.min(1, dt * 8));
-    g.rotation.y = sim.yaw;
-
-    // 5. Cập nhật nhãn tên ẩn/hiện theo khoảng cách camera <= 6 m (không kích hoạt React re-render)
+    // Cập nhật ẩn/hiện nhãn tên theo khoảng cách camera <= 6.0 m
     if (labelRef.current) {
-      const dist = state.camera.position.distanceTo(sim.worldPos);
+      const dist = state.camera.position.distanceTo(poseInfo.worldVec);
       labelRef.current.style.display = dist <= 6.0 ? 'flex' : 'none';
     }
   });
 
-  const hanUrl = characterConfig.story?.han ?? characterConfig.roles.students[3] ?? 'models/characters/character-female-c.glb';
+  if (!poseInfo) return null;
+
+  const roleCandidate = actor.speaker in characterConfig.roles
+    ? characterConfig.roles[actor.speaker as keyof typeof characterConfig.roles]
+    : undefined;
+  const roleUrl = typeof roleCandidate === 'string' ? roleCandidate : undefined;
+
+  const modelUrl = characterConfig.story?.[actor.speaker]
+    ?? roleUrl
+    ?? characterConfig.roles.player;
 
   return (
-    <group ref={group} position={[seatW[0], sitYOffset, seatW[1]]} rotation={[0, defaultYaw, 0]}>
-      <CharacterModel ref={handle} url={hanUrl} clip="sit" />
-      <Html position={[0, 1.45, 0]} center zIndexRange={[15, 0]}>
+    <group ref={group} position={poseInfo.pos} rotation={[0, poseInfo.defaultYaw, 0]}>
+      <Suspense fallback={null}>
+        <CharacterModel ref={handle} url={modelUrl} clip={poseInfo.clip} />
+      </Suspense>
+      <Html position={[0, poseInfo.labelY, 0]} center zIndexRange={[15, 0]}>
         <div
           ref={labelRef}
           style={{ display: 'none' }}
           className="flex-col items-center pointer-events-none select-none transform -translate-y-2"
         >
           {isTalkTarget && (
-            <div className="mb-1 w-5 h-5 rounded-full bg-amber-400 text-slate-900 font-bold text-xs flex items-center justify-center shadow-md animate-bounce">
+            <div className="mb-0.5 w-4 h-4 rounded-full bg-amber-400 text-slate-900 font-bold text-[10px] flex items-center justify-center shadow-md animate-bounce">
               !
             </div>
           )}
-          <div className="px-2 py-0.5 rounded bg-slate-900/90 text-white text-[11px] font-semibold border border-slate-700/80 shadow backdrop-blur-sm whitespace-nowrap">
-            Han
-          </div>
+          <span className="px-2 py-0.5 rounded bg-slate-900/90 text-white font-medium text-xs whitespace-nowrap shadow border border-slate-700/60">
+            {actorName}
+          </span>
         </div>
       </Html>
     </group>
@@ -155,7 +191,12 @@ function HanActor({ room, seatId, stage, getSignal, sitYOffset }: HanActorProps)
 }
 
 /**
- * Quản lý các nhân vật cốt truyện (Han, Thành, Quyền, ...) xuất hiện trong cảnh theo StageSpec.
+ * Diễn viên cốt truyện theo StageActor của StageSpec:
+ * - Dựng tất cả diễn viên trong stage.actors (ngoại trừ teacher do component Teacher đảm nhiệm).
+ * - Tự động định vị theo seatId (ngồi) hoặc spot (đứng).
+ * - Quay mặt về người chơi khi signal.speaker là mình.
+ * - Cử chỉ đặc thù của Han: giơ tay một lần khi bắt đầu cảnh, yes khi bài tập code đúng.
+ * - Nhãn tên gắn sát đỉnh đầu (<Html>), tự ẩn khi xa > 6 m, hiện huy hiệu "!" khi là đối tượng talk.
  */
 export default function StoryActors({
   room,
@@ -163,21 +204,23 @@ export default function StoryActors({
   getSignal,
   sitYOffset = 0.4,
 }: StoryActorsProps) {
-  const actors = stage?.actors ?? [];
-
-  // Han ở companionSeat (mặc định luôn có trong các cảnh lab CSE 103 và 406.B8)
-  const hanActorSpec = actors.find((a) => a.speaker === 'han');
-  const hanSeatId = hanActorSpec?.seatId ?? room.companionSeat ?? '406-r2-s6';
+  // Lọc bỏ teacher vì teacher do component Teacher riêng đảm nhiệm
+  const nonTeacherActors = useMemo(() => {
+    return stage.actors.filter((a) => a.speaker !== 'teacher');
+  }, [stage.actors]);
 
   return (
-    <Suspense fallback={null}>
-      <HanActor
-        room={room}
-        seatId={hanSeatId}
-        stage={stage}
-        getSignal={getSignal}
-        sitYOffset={sitYOffset}
-      />
-    </Suspense>
+    <>
+      {nonTeacherActors.map((actor, idx) => (
+        <ActorInstance
+          key={`${stage.sceneId}:${actor.speaker}:${actor.seatId ?? idx}`}
+          actor={actor}
+          room={room}
+          stage={stage}
+          getSignal={getSignal}
+          sitYOffset={sitYOffset}
+        />
+      ))}
+    </>
   );
 }

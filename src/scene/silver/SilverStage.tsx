@@ -1,16 +1,18 @@
-import { useEffect, useMemo } from 'react';
-import { getClassroom } from '../../data';
+import { useEffect, useMemo, useState } from 'react';
+import { getClassroom, characterConfig } from '../../data';
 import { getStage } from '../../data/silver/stages';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useLangStore } from '../../store/useLangStore';
 import { useSilverStore } from '../../store/useSilverStore';
 import { useWalkStore } from '../../store/useWalkStore';
-import { createSilverSignal, type SubscribablePlayStore } from '../../silverWorld/silverSignal';
+import { createSilverSignal, type SilverSignalHandle, type SubscribablePlayStore } from '../../silverWorld/silverSignal';
+import ClassroomNpcs from '../npc/ClassroomNpcs';
 import ProjectorScreen from '../lesson/ProjectorScreen';
 import Teacher from '../lesson/Teacher';
 import SeatHighlight from './SeatHighlight';
-import SilverClassroomNpcs from './SilverClassroomNpcs';
 import StoryActors from './StoryActors';
+import { createSafeClassroomForStage, filterBackgroundModels } from './stageFiltering';
+import type { Classroom } from '../../types';
 import type { PlayView } from '../../types/silver';
 import type { StageSpec } from '../../types/silverWorld';
 
@@ -28,92 +30,95 @@ export interface SilverStageProps {
   stageSpec?: StageSpec;
 }
 
+interface SilverStageContentProps {
+  stage: StageSpec;
+  room: Classroom;
+  sitYOffset: number;
+}
+
 /**
- * Gom phòng học Silver (406.B8) thành sân khấu tương tác 3D:
- * - Khi useActivityStore.activity.source === 'silver' và người chơi ở đúng tòa B8 tầng 4:
- *   mount Teacher, ProjectorScreen, ClassroomNpcs, StoryActors (Han), SeatHighlight theo StageSpec.
- * - Tự động unmount toàn bộ diễn viên khi đổi tầng hoặc rời tòa nhà.
- * - Nối tín hiệu lớp học với store qua createSilverSignal và tự giải phóng khi unmount.
+ * Nội dung sân khấu tương tác Silver — chỉ mount khi các điều kiện kiểm tra đã thỏa mãn.
+ * Quản lý vòng đời createSilverSignal trong useEffect an toàn với React StrictMode:
+ * mount -> subscribe -> unmount -> dispose -> remount -> subscribe lại với handle mới.
  */
-export default function SilverStage({ sitYOffset = 0.4, stageSpec }: SilverStageProps) {
-  const interior = useWalkStore((s) => s.interior);
-  const activity = useActivityStore((s) => s.activity);
+function SilverStageContent({ stage, room, sitYOffset }: SilverStageContentProps) {
   const seated = useActivityStore((s) => s.seated);
-  const playItem = useSilverStore((s) => s.play?.item);
+  const activity = useActivityStore((s) => s.activity);
 
-  const isB8Floor4 = Boolean(
-    interior && interior.buildingId.toLowerCase() === 'b8' && interior.floor === 4,
-  );
-  const isSilverActive = Boolean(activity && activity.source === 'silver');
+  // Kiểm tra store hợp lệ: ném lỗi rõ ràng nếu store thiếu hàm subscribe
+  if (!isSubscribable(useSilverStore)) {
+    throw new Error('[SilverStage] useSilverStore thiếu phương thức subscribe');
+  }
 
-  const sceneId = playItem?.scene?.id;
-  const stage = useMemo(() => {
-    if (stageSpec) return stageSpec;
-    if (sceneId) return getStage(sceneId);
-    return getStage('CSE 103/lab-1');
-  }, [stageSpec, sceneId]);
-
-  const room = useMemo(() => {
-    const code = stage?.roomCode ?? '406.B8';
-    return getClassroom(code) ?? getClassroom('406.B8');
-  }, [stage]);
-
-  // Bộ tín hiệu Silver kết nối với useSilverStore và useLangStore
-  const signalHandle = useMemo(() => {
-    const playStore: SubscribablePlayStore = isSubscribable(useSilverStore)
-      ? useSilverStore
-      : {
-          getState: () => ({ play: useSilverStore.getState().play }),
-          subscribe: () => () => {},
-        };
-    return createSilverSignal(playStore, useLangStore);
-  }, []);
+  // Khởi tạo và hủy signal trong cùng 1 useEffect chịu được StrictMode
+  const [handle, setHandle] = useState<SilverSignalHandle | null>(null);
 
   useEffect(() => {
+    const nextHandle = createSilverSignal(
+      useSilverStore as unknown as SubscribablePlayStore,
+      useLangStore,
+    );
+    setHandle(nextHandle);
     return () => {
-      signalHandle.dispose();
+      nextHandle.dispose();
+      setHandle(null);
     };
-  }, [signalHandle]);
+  }, []);
 
-  // Điều kiện mount: chỉ mount khi ở đúng B8 tầng 4 và activity nguồn silver đang hoạt động
-  if (!isB8Floor4 || !isSilverActive || !room) {
+  // Lọc model sinh viên nền (bỏ các model của nhân vật cốt truyện)
+  const filteredModels = useMemo(() => {
+    return filterBackgroundModels(characterConfig.roles.students, characterConfig.story);
+  }, []);
+
+  // Phòng an toàn (đã loại bỏ ghế người chơi, companionSeat và ghế của tất cả diễn viên trong stage)
+  const safeRoom = useMemo(() => {
+    return createSafeClassroomForStage(room, stage);
+  }, [room, stage]);
+
+  const hasTeacher = useMemo(() => {
+    return stage.actors.some((a) => a.speaker === 'teacher');
+  }, [stage.actors]);
+
+  if (!handle) {
     return null;
   }
 
   const effectiveSitY = room.sitYOffset ?? sitYOffset;
+  const effectiveCrowd = stage.crowd ?? safeRoom.npcSeats.length;
 
   return (
     <>
-      {/* Ánh sáng tự nhiên phòng máy 406.B8 sáng sủa, trắng tự nhiên như ảnh thực tế */}
-      <ambientLight intensity={1.5} color="#ffffff" />
-      <directionalLight position={[42.0, 3.7, -220.0]} intensity={0.9} color="#fffcf5" />
+      {/* 1. Màn TV slide trên tường trước (không thêm đèn vào scene) */}
+      <ProjectorScreen room={room} getSignal={handle.getSignal} subscribe={handle.subscribe} />
 
-      {/* 1. Màn TV slide trên tường trước (91.2; -205.1) */}
-      <ProjectorScreen room={room} getSignal={signalHandle.getSignal} subscribe={signalHandle.subscribe} />
+      {/* 2. Thầy giảng đi lại và phản ứng với bài học (chỉ dựng khi stage có teacher) */}
+      {hasTeacher && (
+        <Teacher
+          room={room}
+          getSignal={handle.getSignal}
+          subscribe={handle.subscribe}
+          crowd={effectiveCrowd}
+        />
+      )}
 
-      {/* 2. Thầy giảng đi lại và phản ứng với bài học */}
-      <Teacher
-        room={room}
-        getSignal={signalHandle.getSignal}
-        subscribe={signalHandle.subscribe}
-        crowd={stage?.crowd}
-      />
+      {/* 3. Bạn học nền (dùng trực tiếp ClassroomNpcs với safeRoom và models đã lọc, crowd = 0 thì không dựng) */}
+      {effectiveCrowd > 0 && (
+        <ClassroomNpcs
+          room={safeRoom}
+          getSignal={handle.getSignal}
+          subscribe={handle.subscribe}
+          crowd={effectiveCrowd}
+          sitYOffset={effectiveSitY}
+          models={filteredModels}
+        />
+      )}
 
-      {/* 3. 12 bạn học nền ngồi gõ phím, giơ tay, hoan hô (đã loại ghế Han và lọc model người trong truyện) */}
-      <SilverClassroomNpcs
-        room={room}
-        getSignal={signalHandle.getSignal}
-        subscribe={signalHandle.subscribe}
-        crowd={stage?.crowd}
-        sitYOffset={effectiveSitY}
-      />
-
-      {/* 4. Nhân vật cốt truyện (Han ở companionSeat 406-r2-s6, quay nhìn người chơi, chào tay, yes...) */}
+      {/* 4. Diễn viên cốt truyện (Han, Quyền... theo danh sách stage.actors) */}
       <StoryActors
         room={room}
         stage={stage}
-        getSignal={signalHandle.getSignal}
-        subscribe={signalHandle.subscribe}
+        getSignal={handle.getSignal}
+        subscribe={handle.subscribe}
         sitYOffset={effectiveSitY}
       />
 
@@ -121,4 +126,45 @@ export default function SilverStage({ sitYOffset = 0.4, stageSpec }: SilverStage
       <SeatHighlight room={room} activity={activity} seated={seated} />
     </>
   );
+}
+
+/**
+ * Gom phòng học Silver thành sân khấu tương tác 3D:
+ * - Khi useActivityStore.activity.source === 'silver' và người chơi ở đúng tòa nhà / tầng của phòng:
+ *   mount ProjectorScreen, Teacher (nếu có), ClassroomNpcs (nếu crowd > 0), StoryActors, SeatHighlight.
+ * - Không fallback về cảnh khác hay phòng khác khi không tìm thấy stage / room.
+ * - Tự động unmount toàn bộ diễn viên khi đổi tầng hoặc rời tòa nhà.
+ */
+export default function SilverStage({ sitYOffset = 0.4, stageSpec }: SilverStageProps) {
+  const interior = useWalkStore((s) => s.interior);
+  const activity = useActivityStore((s) => s.activity);
+  const playItem = useSilverStore((s) => s.play?.item);
+
+  const isSilverActive = Boolean(activity && activity.source === 'silver');
+  const sceneId = playItem?.scene?.id;
+
+  const stage = useMemo(() => {
+    if (stageSpec) return stageSpec;
+    if (sceneId) return getStage(sceneId) ?? null;
+    return null;
+  }, [stageSpec, sceneId]);
+
+  const room = useMemo(() => {
+    if (!stage?.roomCode) return null;
+    return getClassroom(stage.roomCode) ?? null;
+  }, [stage]);
+
+  // Điều kiện mount: chỉ mount khi ở đúng tòa nhà và tầng của phòng (không viết cứng b8/4)
+  if (!isSilverActive || !stage || !room || !interior) {
+    return null;
+  }
+
+  const isSameBuilding = interior.buildingId.toLowerCase() === room.buildingId.toLowerCase();
+  const isSameFloor = interior.floor === room.floor;
+
+  if (!isSameBuilding || !isSameFloor) {
+    return null;
+  }
+
+  return <SilverStageContent stage={stage} room={room} sitYOffset={sitYOffset} />;
 }
