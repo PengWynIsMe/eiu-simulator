@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { BufferGeometry } from 'three';
 import { FLOOR_HEIGHT } from '../../data';
 import type { Building, Vec2 } from '../../types';
+import { useSnowStore } from '../../store/useSnowStore';
 import {
   addBox,
   addRotatedBox,
@@ -85,6 +86,7 @@ function extractHoleNotches(pts: Vec2[], b: BoxBounds2D): BoxBounds2D[] {
  * tháp thang kính, dải cửa sổ, lam chắn nắng và mái chìa.
  */
 export default function TwinWingBlock({ building, isHovered, isSelected }: TwinWingBlockProps) {
+  const isSnowing = useSnowStore((s) => s.isSnowing);
   const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
   const emissiveIntensity = isSelected ? 0.24 : isHovered ? 0.16 : 0;
 
@@ -431,7 +433,7 @@ export default function TwinWingBlock({ building, isHovered, isSelected }: TwinW
       {roofGeo && (
         <mesh geometry={roofGeo} castShadow receiveShadow>
           <meshStandardMaterial
-            color="#8a8f96"
+            color={isSnowing ? '#f8fafc' : '#8a8f96'}
             roughness={0.78}
             metalness={0.1}
             emissive={emissiveColor}
@@ -441,12 +443,12 @@ export default function TwinWingBlock({ building, isHovered, isSelected }: TwinW
       )}
       {building.id !== 'b11' && courtyardFloorGeo && (
         <mesh geometry={courtyardFloorGeo} receiveShadow>
-          <meshStandardMaterial color="#cbd5e1" roughness={0.9} />
+          <meshStandardMaterial color={isSnowing ? '#edf2f7' : '#cbd5e1'} roughness={0.9} />
         </mesh>
       )}
       {building.id !== 'b11' && planterGeo && (
         <mesh geometry={planterGeo} receiveShadow>
-          <meshStandardMaterial color="#4d7c0f" roughness={0.85} />
+          <meshStandardMaterial color={isSnowing ? '#8da592' : '#4d7c0f'} roughness={0.85} />
         </mesh>
       )}
     </group>

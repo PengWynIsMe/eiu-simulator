@@ -1,24 +1,39 @@
 import { Sky } from '@react-three/drei';
+import { useSnowStore } from '../store/useSnowStore';
 
 export const SHADOWS_ENABLED = true;
 
 export default function Environment() {
+  const isSnowing = useSnowStore((s) => s.isSnowing);
+
+  const bgColor = isSnowing ? '#cbd8e6' : '#d6e6f7';
+  const fogColor = isSnowing ? '#cbd8e6' : '#d6e6f7';
+  const fogNear = isSnowing ? 140 : 250;
+  const fogFar = isSnowing ? 750 : 900;
+
   return (
     <>
-      <color attach="background" args={['#d6e6f7']} />
-      <fog attach="fog" args={['#d6e6f7', 250, 900]} />
+      <color attach="background" args={[bgColor]} />
+      <fog attach="fog" args={[fogColor, fogNear, fogFar]} />
       <Sky
         distance={3000}
-        sunPosition={[220, 200, 140]}
-        turbidity={5}
-        rayleigh={0.3}
-        mieCoefficient={0.003}
+        sunPosition={isSnowing ? [180, 140, 100] : [220, 200, 140]}
+        turbidity={isSnowing ? 8 : 5}
+        rayleigh={isSnowing ? 1.0 : 0.3}
+        mieCoefficient={isSnowing ? 0.008 : 0.003}
         mieDirectionalG={0.8}
       />
-      <hemisphereLight args={['#ffffff', '#8fa382', 1.0]} />
+      <hemisphereLight
+        args={
+          isSnowing
+            ? ['#e2f1ff', '#cbd5e1', 1.05]
+            : ['#ffffff', '#8fa382', 1.0]
+        }
+      />
       <directionalLight
         position={[220, 260, 140]}
-        intensity={1.6}
+        intensity={isSnowing ? 1.4 : 1.6}
+        color={isSnowing ? '#f8fafc' : '#ffffff'}
         castShadow={SHADOWS_ENABLED}
         shadow-mapSize={SHADOWS_ENABLED ? [2048, 2048] : [256, 256]}
         shadow-normalBias={0.05}

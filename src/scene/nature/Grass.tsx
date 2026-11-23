@@ -14,6 +14,7 @@ import { BRIDGE_WIDTH, FOOTWAY_WIDTH, GRASS, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUND
 import { isPointInPond } from '../zone1/pondLayout';
 import { buildGrassMask, type GrassMaskRoad } from './grassMask';
 import { applyWind } from './wind';
+import { useSnowStore } from '../../store/useSnowStore';
 
 /** Số ngọn tối đa (ngân sách PLAN mục 5). */
 export const GRASS_MAX_BLADES = 40000;
@@ -110,9 +111,14 @@ export default function Grass() {
 
   // Vị trí tâm lần dựng gần nhất (số thuần, không tạo object mỗi khung).
   const last = useMemo(() => ({ x: 1e9, z: 1e9 }), []);
+  const isSnowing = useSnowStore((s) => s.isSnowing);
 
   useFrame(({ camera }) => {
     const { mesh } = state;
+    if (isSnowing) {
+      if (mesh.visible) mesh.visible = false;
+      return;
+    }
     const cx = camera.position.x;
     const cz = camera.position.z;
     const show = camera.position.y < HIDE_ABOVE_Y;
