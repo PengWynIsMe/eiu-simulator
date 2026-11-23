@@ -17,7 +17,18 @@ function getInitialState(): { isSnowing: boolean; isCinematicActive: boolean } {
   const off = snowParam === '0' || snowParam === 'false';
   // ?cam= / ?building= là liên kết kiểm thử camera: không chạy cảnh mở đầu để khỏi giành camera.
   const debugCamera = params.has('cam') || params.has('building');
-  return { isSnowing: !off, isCinematicActive: !off && !debugCamera };
+  return { isSnowing: !off, isCinematicActive: !off && !debugCamera && claimIntroOnce() };
+}
+
+/** Cảnh mở đầu chỉ tự chạy lần đầu trong một phiên tab (tải lại trang không chạy lại). */
+function claimIntroOnce(): boolean {
+  try {
+    if (window.sessionStorage.getItem('eiu-snow-intro-seen') === '1') return false;
+    window.sessionStorage.setItem('eiu-snow-intro-seen', '1');
+  } catch {
+    // sessionStorage bị chặn: vẫn cho chạy
+  }
+  return true;
 }
 
 const initial = getInitialState();
