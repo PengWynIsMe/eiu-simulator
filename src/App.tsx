@@ -46,6 +46,7 @@ export default function App() {
       <Canvas
         shadows
         dpr={[1, 2]}
+        gl={{ logarithmicDepthBuffer: true }}
         onCreated={({ gl, scene }) => {
           if (import.meta.env.DEV) {
             (window as unknown as Record<string, unknown>).__gl = gl;
