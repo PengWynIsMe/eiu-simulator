@@ -213,13 +213,16 @@ export default function WalkMode() {
       isTopDownView.current = custom.detail.enabled;
     };
     const onSetPose = (event: Event) => {
-      const custom = event as CustomEvent<{ x: number; z: number; yaw?: number; y?: number }>;
+      const custom = event as CustomEvent<{ x: number; z: number; yaw?: number; pitch?: number; y?: number }>;
       player.current[0] = custom.detail.x;
       player.current[2] = custom.detail.z;
       if (custom.detail.y !== undefined) player.current[1] = custom.detail.y;
       if (custom.detail.yaw !== undefined) {
         cameraYaw.current = custom.detail.yaw;
         facingYaw.current = custom.detail.yaw;
+      }
+      if (custom.detail.pitch !== undefined) {
+        cameraPitch.current = custom.detail.pitch;
       }
     };
     const onStairMove = (event: Event) => {
@@ -274,7 +277,7 @@ export default function WalkMode() {
         // Đứng dậy: đặt nhân vật ở lối đi cạnh ghế
         const room = getClassroom('406.B11');
         if (room) {
-          const [standX, standZ] = b11ToWorld(92.2, -142.0);
+          const [standX, standZ] = b11ToWorld(91.8, -142.0);
           player.current[0] = standX;
           player.current[1] = 0.0;
           player.current[2] = standZ;
@@ -296,7 +299,7 @@ export default function WalkMode() {
           lesson.standUp();
           const room = getClassroom('406.B11');
           if (room) {
-            const [standX, standZ] = b11ToWorld(92.2, -142.0);
+            const [standX, standZ] = b11ToWorld(91.8, -142.0);
             player.current[0] = standX;
             player.current[1] = 0.0;
             player.current[2] = standZ;
@@ -701,15 +704,15 @@ export default function WalkMode() {
         }
 
         // Camera ngồi:
-        // Desktop open: tiến sát màn hình
-        // Normal sitting: sau vai ngang mắt 1.55 m, nhìn màn hình + bảng
-        const camU = lesson.desktopOpen ? 92.05 : 92.85;
+        // Desktop open: tiến sát màn hình (u=92.0 nhìn u=92.45)
+        // Normal sitting: sau vai ngang mắt 1.55 m, nhìn màn hình + bảng + TV tường Đông
+        const camU = lesson.desktopOpen ? 92.0 : 91.15;
         const camY = lesson.desktopOpen ? 1.08 : 1.55;
-        const camV = lesson.desktopOpen ? -140.8 : -140.65;
+        const camV = lesson.desktopOpen ? -141.0 : -140.85;
 
-        const tgtU = lesson.desktopOpen ? 91.57 : 89.2;
+        const tgtU = lesson.desktopOpen ? 92.45 : 96.4;
         const tgtY = lesson.desktopOpen ? 1.05 : 1.35;
-        const tgtV = lesson.desktopOpen ? -140.8 : -142.0;
+        const tgtV = lesson.desktopOpen ? -141.0 : -142.0;
 
         const [camX, camZ] = b11ToWorld(camU, camV);
         const [tgtX, tgtZ] = b11ToWorld(tgtU, tgtV);

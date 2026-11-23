@@ -39,8 +39,8 @@ export function buildClassroomPlan(): StudentSpec[] {
     const seat = room.seats.find((s) => s.id === id);
     if (!seat) throw new Error(`Không thấy ghế ${id}`);
     const uv: number[] = [
-      seat.u + BACK_OFFSET_U, seat.v,
-      seat.u + BACK_OFFSET_U, aisleV,
+      seat.u - BACK_OFFSET_U, seat.v,
+      seat.u - BACK_OFFSET_U, aisleV,
       room.door.u, aisleV,
       room.door.u, room.door.v,
     ];
