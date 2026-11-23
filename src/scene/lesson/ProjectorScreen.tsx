@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { AdditiveBlending, CanvasTexture, DoubleSide, PlaneGeometry, Quaternion, SRGBColorSpace, Vector3, ConeGeometry } from 'three';
+import { CanvasTexture, PlaneGeometry, Quaternion, SRGBColorSpace, Vector3, ConeGeometry } from 'three';
 import { getClassroom } from '../../data';
 import { getCurrentStep, useLessonStore } from '../../store/useLessonStore';
 import type { Slide } from '../../types';
@@ -39,12 +39,12 @@ export default function ProjectorScreen() {
 
     const sc = room.projectorScreen;
     const plane = new PlaneGeometry(sc.width, sc.height);
-    plane.rotateY(Math.PI / 2); // mặt +z → +x (= +u)
+    plane.rotateY(-Math.PI / 2); // mặt +z → -x (= -u) hướng về phía sinh viên
 
-    // Cone: đỉnh ở máy chiếu, đáy phủ màn. Trục cone mặc định đỉnh +y → xoay (0,−1,0) về hướng chiếu.
+    // Cone: đỉnh ở máy chiếu, đáy phủ màn.
     const pj = room.projector;
-    const apex = new Vector3(pj.u - pj.size[0] / 2, pj.y, pj.v);
-    const target = new Vector3(sc.u + 0.03, sc.bottom + sc.height / 2, sc.v);
+    const apex = new Vector3(pj.u, pj.y, pj.v);
+    const target = new Vector3(sc.u - 0.03, sc.bottom + sc.height / 2, sc.v);
     const dir = target.clone().sub(apex);
     const len = dir.length();
     dir.divideScalar(len);
@@ -59,7 +59,7 @@ export default function ProjectorScreen() {
       cone,
       quat: quat.toArray() as [number, number, number, number],
       conePos: conePos.toArray() as [number, number, number],
-      screenPos: [sc.u + 0.012, sc.bottom + sc.height / 2, sc.v] as [number, number, number],
+      screenPos: [sc.u - 0.015, sc.bottom + sc.height / 2, sc.v] as [number, number, number],
     };
   }, [room]);
 
@@ -89,17 +89,6 @@ export default function ProjectorScreen() {
     <group rotation-y={B11_ROTATION_Y}>
       <mesh geometry={built.plane} position={built.screenPos}>
         <meshBasicMaterial map={built.texture} toneMapped={false} />
-      </mesh>
-      <mesh geometry={built.cone} position={built.conePos} quaternion={built.quat} renderOrder={2}>
-        <meshBasicMaterial
-          color="#bcd8ff"
-          transparent
-          opacity={0.05}
-          blending={AdditiveBlending}
-          depthWrite={false}
-          side={DoubleSide}
-          toneMapped={false}
-        />
       </mesh>
     </group>
   );

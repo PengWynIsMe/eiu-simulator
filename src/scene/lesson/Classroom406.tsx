@@ -11,6 +11,8 @@ import {
   makeDeskGeometry,
   makeKeyboardGeometry,
   makeMonitorGeometry,
+  makePendantLightGeometry,
+  makePostersGeometry,
   makeScreenFaceGeometry,
 } from './classroom406Plan';
 
@@ -32,6 +34,49 @@ function makeCodeTexture(): CanvasTexture {
       g.fillStyle = colors[(i * 3) % colors.length] ?? '#7dd3fc';
       g.fillRect(12 + indent, 24 + i * 11, len, 5);
     }
+  }
+  const tex = new CanvasTexture(c);
+  tex.colorSpace = SRGBColorSpace;
+  return tex;
+}
+
+/** 7 poster slogan thương hiệu EIU trên cửa sổ phía Bắc — vẽ 1 lần bằng canvas. */
+function makePostersTexture(): CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 1024;
+  c.height = 384;
+  const g = c.getContext('2d');
+  if (g) {
+    const w = 1024 / 7;
+    const posters = [
+      { bg: '#581c87', title: 'EIU', lines: ['Turning IDEAS', 'into REALITY'] },
+      { bg: '#15803d', title: 'EIU', lines: ['Design FUTURE', 'with EXCELLENCE'] },
+      { bg: '#b91c1c', title: 'EIU', lines: ['CREATE, ENHANCE,', 'and SUSTAIN'] },
+      { bg: '#ea580c', title: 'EIU', lines: ['Making it', 'HAPPEN'] },
+      { bg: '#172554', title: 'EIU', lines: ['ĐẠI HỌC QUỐC TẾ', 'MIỀN ĐÔNG'] },
+      { bg: '#b91c1c', title: 'EIU', lines: ['DESIGN IT', 'and BUILD IT'] },
+      { bg: '#0284c7', title: 'EIU', lines: ['Applied AI', 'for Business'] },
+    ];
+    posters.forEach((p, idx) => {
+      const x = idx * w;
+      g.fillStyle = p.bg;
+      g.fillRect(x + 2, 2, w - 4, 380);
+
+      g.fillStyle = '#ffffff';
+      g.font = 'bold 22px sans-serif';
+      g.textAlign = 'center';
+      g.fillText(p.title, x + w / 2, 50);
+
+      g.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      g.fillRect(x + 16, 65, w - 32, 2);
+
+      g.fillStyle = '#ffffff';
+      g.font = 'bold 15px sans-serif';
+      const startY = 140;
+      p.lines.forEach((line, lIdx) => {
+        g.fillText(line, x + w / 2, startY + lIdx * 30);
+      });
+    });
   }
   const tex = new CanvasTexture(c);
   tex.colorSpace = SRGBColorSpace;
@@ -91,8 +136,13 @@ function PlayerSeatHighlight({ u, v }: { u: number; v: number }) {
 }
 
 /**
- * Nội thất phòng 406.B11 theo `classrooms.json`: 40 bộ bàn/ghế/màn hình/bàn phím/case, bàn GV, bảng, máy chiếu,
- * đèn tấm, điều hòa. 8 instancedMesh = 8 draw call. Group xoay B11_ROTATION_Y nên con dùng thẳng (u, y, v).
+ * Nội thất phòng 406.B11 theo ảnh thật EIU phong-may-1 và phong-may-2:
+ * - 4 dãy bàn dài gỗ sáng màu hướng về phía tường Đông (TV + 2 bảng trắng).
+ * - 40 ghế gỗ sáng uốn cong, chân kim loại mảnh cố định (không bánh xe).
+ * - Màn hình Dell đen, bàn phím chuột đen, thùng máy Dell Precision đen đặt TRÊN bàn.
+ * - Trần hở lộ dầm đen, đèn LED thanh dài treo thả, máy lạnh cassette 4 hướng.
+ * - Dãy poster thương hiệu EIU trên kính cửa sổ phía Bắc.
+ * - Toàn bộ gom trong ≤ 10 draw calls nhờ instancedMesh.
  */
 export default function Classroom406() {
   const room = getClassroom('406.B11');
@@ -109,6 +159,9 @@ export default function Classroom406() {
       face: makeScreenFaceGeometry(),
       keyboard: makeKeyboardGeometry(),
       pcCase: makeCaseGeometry(),
+      pendantLight: makePendantLightGeometry(),
+      postersGeom: makePostersGeometry(),
+      postersTex: makePostersTexture(),
       unit: new BoxGeometry(1, 1, 1),
       faceColors: plan.faceBrightness.map((b) => new Color(b, b, b)),
       miscColors: plan.misc.map((m) => new Color(m.color)),
@@ -126,6 +179,9 @@ export default function Classroom406() {
       built.face.dispose();
       built.keyboard.dispose();
       built.pcCase.dispose();
+      built.pendantLight.dispose();
+      built.postersGeom.dispose();
+      built.postersTex.dispose();
       built.unit.dispose();
       built.codeTex.dispose();
     };
@@ -135,30 +191,52 @@ export default function Classroom406() {
   const { plan } = built;
   return (
     <group rotation-y={B11_ROTATION_Y}>
+      {/* 1. Bàn sinh viên gỗ sáng màu */}
       <Batch matrices={plan.desks} geometry={built.desk}>
-        <meshStandardMaterial color="#c8a67a" roughness={0.6} />
+        <meshStandardMaterial color="#dfcaa7" roughness={0.55} />
       </Batch>
+
+      {/* 2. Ghế gỗ uốn cong khung kim loại (không bánh xe) */}
       <Batch matrices={plan.chairs} geometry={built.chair}>
-        <meshStandardMaterial color="#2f3b4f" roughness={0.7} />
+        <meshStandardMaterial color="#d4b896" roughness={0.6} />
       </Batch>
+
+      {/* 3. Màn hình Dell đen */}
       <Batch matrices={plan.monitors} geometry={built.monitor}>
-        <meshStandardMaterial color="#111827" roughness={0.5} />
+        <meshStandardMaterial color="#18181b" roughness={0.5} />
       </Batch>
+
+      {/* 4. Mặt màn hình sáng hiển thị code */}
       <Batch matrices={plan.faces} geometry={built.face} colors={built.faceColors}>
         <meshBasicMaterial map={built.codeTex} toneMapped={false} />
       </Batch>
+
+      {/* 5. Bàn phím & chuột quang đen */}
       <Batch matrices={plan.keyboards} geometry={built.keyboard}>
         <meshStandardMaterial color="#1f2937" roughness={0.6} />
       </Batch>
+
+      {/* 6. Thùng máy Dell Precision đen TRÊN BÀN */}
       <Batch matrices={plan.cases} geometry={built.pcCase}>
-        <meshStandardMaterial color="#374151" roughness={0.55} />
+        <meshStandardMaterial color="#18181b" roughness={0.5} />
       </Batch>
-      <Batch matrices={plan.lights} geometry={built.unit}>
-        <meshBasicMaterial color="#fffdf0" toneMapped={false} />
+
+      {/* 7. Đèn LED treo thả phát sáng trắng cool-white */}
+      <Batch matrices={plan.lights} geometry={built.pendantLight}>
+        <meshBasicMaterial color="#ffffff" toneMapped={false} />
       </Batch>
+
+      {/* 8. Nội thất phụ: TV frame, 2 bảng trắng, bàn GV, dầm trần đen, điều hòa cassette, ốp tường bê tông */}
       <Batch matrices={built.miscMatrices} geometry={built.unit} colors={built.miscColors}>
         <meshStandardMaterial roughness={0.6} />
       </Batch>
+
+      {/* 9. Chuỗi 7 poster thương hiệu EIU trên cửa sổ kính phía Bắc */}
+      <mesh geometry={built.postersGeom}>
+        <meshBasicMaterial map={built.postersTex} toneMapped={false} />
+      </mesh>
+
+      {/* 10. Viền sáng nhấp nháy cho ghế người chơi trong pha tìm chỗ */}
       {phase === 'findSeat' && playerSeat && (
         <PlayerSeatHighlight u={playerSeat.u} v={playerSeat.v} />
       )}

@@ -13,8 +13,8 @@ import type { CharacterClip } from '../../types';
 const WALK_SPEED = 1.2; // m/s, ứng timeScale 1 của clip walk
 const ARRIVE_EPS = 0.05;
 const TURN_RATE = 6;
-// Đường vòng phía tường Tây giữa chỗ bàn và chỗ giảng, tránh đi xuyên bàn GV (u).
-const DETOUR_U = 87.95;
+// Đường vòng phía tường Đông giữa chỗ bàn và chỗ giảng, tránh đi xuyên bàn GV (u).
+const DETOUR_U = 95.8;
 
 function worldPoint(u: number, v: number): [number, number] {
   return b11ToWorld(u, v);
@@ -37,7 +37,7 @@ function TeacherBody() {
       toLecture: [worldPoint(DETOUR_U, desk.v), worldPoint(DETOUR_U, lecture.v), lectureW],
       toDesk: [worldPoint(DETOUR_U, lecture.v), worldPoint(DETOUR_U, desk.v), deskW],
       seatW: seat ? worldPoint(seat.u, seat.v) : lectureW,
-      frontYaw: localDirToYaw(1, 0), // mặt về +u (về lớp)
+      frontYaw: localDirToYaw(-1, 0), // mặt về -u (về lớp)
     };
   }, [room]);
 
