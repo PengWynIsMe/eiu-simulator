@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { BoxGeometry, CylinderGeometry, BufferGeometry } from 'three';
+import { BoxGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 interface ParkingShedProps {
@@ -26,8 +26,6 @@ export default function ParkingShed({ isHovered, isSelected }: ParkingShedProps)
     floorGeo,
     railGeo,
     bikesGeo,
-    treesWoodGeo,
-    treesLeavesGeo,
   } = useMemo(() => {
     // Tọa độ trung tâm và hướng của nhà xe sau Block 5 (nha-xe-b5)
     const cx = (152.6 + 180.8 + 186.9 + 158.7) / 4;
@@ -41,8 +39,6 @@ export default function ParkingShed({ isHovered, isSelected }: ParkingShedProps)
     const floors: BufferGeometry[] = [];
     const rails: BufferGeometry[] = [];
     const bikes: BufferGeometry[] = [];
-    const treeWoods: BufferGeometry[] = [];
-    const treeLeaves: BufferGeometry[] = [];
 
     const baseY = 0.3; // Nền bãi xe
     const slabH = 0.2;
@@ -182,25 +178,6 @@ export default function ParkingShed({ isHovered, isSelected }: ParkingShedProps)
       }
     }
 
-    // 6. Hàng cây dầu / sao đen cao vút thẳng đứng phía sau nhà xe (t093s, t097s)
-    // Dọc cạnh phía Đông (+wid/2)
-    const treeStartX = railW + 4.5;
-    for (let tz = -len * 0.45; tz <= len * 0.45; tz += 7.2) {
-      const treeH = 9.5;
-      const trunk = new CylinderGeometry(0.24, 0.32, treeH * 0.6, 6);
-      trunk.translate(treeStartX, (treeH * 0.6) * 0.5, tz);
-      trunk.rotateY(-angle);
-      trunk.translate(cx, 0, cz);
-      treeWoods.push(trunk);
-
-      // Tán cây cao hình trụ chóp nhọn thẳng đứng
-      const foliage = new CylinderGeometry(0.8, 1.8, treeH * 0.65, 8);
-      foliage.translate(treeStartX, treeH * 0.7, tz);
-      foliage.rotateY(-angle);
-      foliage.translate(cx, 0, cz);
-      treeLeaves.push(foliage);
-    }
-
     const safe = (arrGeos: BufferGeometry[]) => (arrGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(arrGeos) : null);
 
     const mergedRoof = safe(roofs);
@@ -208,16 +185,12 @@ export default function ParkingShed({ isHovered, isSelected }: ParkingShedProps)
     const mergedFloor = safe(floors);
     const mergedRail = safe(rails);
     const mergedBikes = safe(bikes);
-    const mergedTreeWoods = safe(treeWoods);
-    const mergedTreeLeaves = safe(treeLeaves);
 
     roofs.forEach((g) => g.dispose());
     posts.forEach((g) => g.dispose());
     floors.forEach((g) => g.dispose());
     rails.forEach((g) => g.dispose());
     bikes.forEach((g) => g.dispose());
-    treeWoods.forEach((g) => g.dispose());
-    treeLeaves.forEach((g) => g.dispose());
 
     return {
       roofGeo: mergedRoof,
@@ -225,8 +198,6 @@ export default function ParkingShed({ isHovered, isSelected }: ParkingShedProps)
       floorGeo: mergedFloor,
       railGeo: mergedRail,
       bikesGeo: mergedBikes,
-      treesWoodGeo: mergedTreeWoods,
-      treesLeavesGeo: mergedTreeLeaves,
     };
   }, []);
 
@@ -276,20 +247,6 @@ export default function ParkingShed({ isHovered, isSelected }: ParkingShedProps)
       {bikesGeo && (
         <mesh geometry={bikesGeo} castShadow>
           <meshStandardMaterial color="#991b1b" roughness={0.6} metalness={0.3} />
-        </mesh>
-      )}
-
-      {/* 6. Thân hàng cây cao phía sau */}
-      {treesWoodGeo && (
-        <mesh geometry={treesWoodGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#5c4033" roughness={0.9} />
-        </mesh>
-      )}
-
-      {/* 7. Tán hàng cây cao phía sau (t093s, t097s) */}
-      {treesLeavesGeo && (
-        <mesh geometry={treesLeavesGeo} castShadow>
-          <meshStandardMaterial color="#365314" roughness={0.85} />
         </mesh>
       )}
     </group>

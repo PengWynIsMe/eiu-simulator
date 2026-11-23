@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { BoxGeometry, CylinderGeometry, BufferGeometry, Float32BufferAttribute, DoubleSide, type BufferGeometry as BufferGeometryType } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { Vec2 } from '../../types';
-import { addBox, addCylinder } from '../kit/geometryHelpers';
+import { addBox } from '../kit/geometryHelpers';
 import { GRASS, INTERNAL } from '../groundLevels';
 import { getOrCreateVineTexture, getOrCreateCanopyTexture, addVineCurtain, addCanopyQuad } from './vineTexture';
 
@@ -73,19 +73,11 @@ export default function CampusGreenery() {
     roadPergolaVinesGeo,
     roadPergolaCanopyGeo,
     zebraCrossingGeo,
-    fruitTreeWoodGeo,
-    fruitTreeLeavesGeo,
-    pomeloFruitsGeo,
-    bambooStakesGeo,
     brickPathsGeo,
   } = useMemo(() => {
     const corridorLamps: BufferGeometryType[] = [];
     const roadSteels: BufferGeometryType[] = [];
     const zebras: BufferGeometryType[] = [];
-    const fruitWoods: BufferGeometryType[] = [];
-    const fruitLeaves: BufferGeometryType[] = [];
-    const pomelos: BufferGeometryType[] = [];
-    const bamboos: BufferGeometryType[] = [];
     const brickPaths: BufferGeometryType[] = [];
 
     // ==========================================
@@ -272,81 +264,21 @@ export default function CampusGreenery() {
     }
 
     // ==========================================
-    // 3. VƯỜN CÂY ĂN TRÁI & CỌC CHỐNG TRE (t021s, t025s, t029s, t033s)
+    // 3. LỐI ĐI GẠCH ĐỎ SÂN VƯỜN SINH THÁI (t029s)
+    // (Cây xanh trong vườn được chuyển sang hệ thống cây chung trong Trees.tsx)
     // ==========================================
-    // Các vị trí vườn sinh thái giữa các block (sân B8–B11 và sân B4–B3)
-    // (Đã bỏ 4 ô nằm trong footprint B11 khi gộp — cây chui vào thân tòa nhà.)
-    const orchardPlots: readonly { cx: number; cz: number; kind: 'pomelo' | 'sapodilla' }[] = [
-      { cx: 45.0, cz: -75.0, kind: 'pomelo' },
-      { cx: 52.0, cz: -78.0, kind: 'sapodilla' },
-      { cx: 38.0, cz: -72.0, kind: 'pomelo' },
-      { cx: 48.0, cz: -142.0, kind: 'pomelo' },
-      { cx: 38.0, cz: -138.0, kind: 'sapodilla' },
-      { cx: 108.0, cz: -48.0, kind: 'pomelo' },
-      { cx: 116.0, cz: -38.0, kind: 'sapodilla' },
+    const orchardPlots: readonly { cx: number; cz: number }[] = [
+      { cx: 45.0, cz: -75.0 },
+      { cx: 52.0, cz: -78.0 },
+      { cx: 38.0, cz: -72.0 },
+      { cx: 48.0, cz: -142.0 },
+      { cx: 38.0, cz: -138.0 },
+      { cx: 108.0, cz: -48.0 },
+      { cx: 116.0, cz: -38.0 },
     ];
 
-    orchardPlots.forEach((p, plotIdx) => {
-      // 1. Thân cây ăn trái
-      const trunkH = p.kind === 'pomelo' ? 2.8 : 3.2;
-      addCylinder(fruitWoods, 0.18, 0.24, trunkH, 7, p.cx, trunkH * 0.5, p.cz);
-
-      // Cành cây phân nhánh
-      addCylinder(fruitWoods, 0.08, 0.12, 1.4, 5, p.cx - 0.45, trunkH + 0.35, p.cz - 0.3, 0.4, 0.3);
-      addCylinder(fruitWoods, 0.08, 0.12, 1.5, 5, p.cx + 0.45, trunkH + 0.4, p.cz + 0.25, -0.4, -0.3);
-
-      // 2. Tán lá xum xuê
-      const crownY = trunkH + 0.8;
-      addBox(fruitLeaves, p.cx - 1.4, p.cx + 1.4, crownY - 0.6, crownY + 1.2, p.cz - 1.4, p.cz + 1.4);
-      addBox(fruitLeaves, p.cx - 1.1, p.cx + 1.1, crownY + 0.9, crownY + 1.9, p.cz - 1.1, p.cz + 1.1);
-
-      // 3. Cọc chống tre 3 chân (Tripod bamboo stakes) - đặc trưng vườn trường EIU
-      for (let leg = 0; leg < 3; leg++) {
-        const ang = (leg * 2 * Math.PI) / 3 + plotIdx;
-        const stakeBaseX = p.cx + Math.cos(ang) * 0.95;
-        const stakeBaseZ = p.cz + Math.sin(ang) * 0.95;
-        const stakeTopX = p.cx + Math.cos(ang) * 0.25;
-        const stakeTopZ = p.cz + Math.sin(ang) * 0.25;
-
-        const slen = Math.hypot(stakeBaseX - stakeTopX, stakeBaseZ - stakeTopZ, 1.8);
-        const stake = new CylinderGeometry(0.04, 0.045, slen, 5);
-        stake.rotateX(0.38);
-        stake.rotateY(-ang);
-        stake.translate((stakeBaseX + stakeTopX) * 0.5, 0.9, (stakeBaseZ + stakeTopZ) * 0.5);
-        bamboos.push(stake);
-      }
-      // Vòng đai thừng buộc ngang cọc ở độ cao 1.6m
-      addCylinder(fruitWoods, 0.30, 0.30, 0.08, 8, p.cx, 1.6, p.cz);
-
-      // 4. Trái cây trên cành:
-      if (p.kind === 'pomelo') {
-        // Quả bưởi tròn xanh trĩu cành (t029s, t033s)
-        const fruitOffsets: readonly (readonly [number, number])[] = [
-          [-0.65, 0.35],
-          [0.72, -0.25],
-          [-0.2, 0.75],
-          [0.55, 0.65],
-          [-0.8, -0.45],
-        ];
-        fruitOffsets.forEach(([fx, fz], fi) => {
-          const fy = trunkH + 0.15 + (fi % 3) * 0.35;
-          // Quả bưởi hình cầu tròn xanh
-          addCylinder(pomelos, 0.14, 0.15, 0.28, 8, p.cx + fx, fy, p.cz + fz);
-        });
-      } else {
-        // Quả hồng xiêm màu nâu trứng (t025s)
-        const fruitOffsets: readonly (readonly [number, number])[] = [
-          [-0.5, 0.4],
-          [0.6, -0.3],
-          [0.1, 0.65],
-        ];
-        fruitOffsets.forEach(([fx, fz], fi) => {
-          const fy = trunkH + 0.25 + fi * 0.35;
-          addCylinder(fruitWoods, 0.08, 0.10, 0.18, 6, p.cx + fx, fy, p.cz + fz);
-        });
-      }
-
-      // 5. Lối đi lát gạch đỏ kết nối sân vườn (t029s)
+    orchardPlots.forEach((p) => {
+      // Lối đi lát gạch đỏ kết nối sân vườn (t029s)
       const pathW = 0.9;
       const pathLen = 5.2;
       addBox(brickPaths, p.cx - pathW * 0.5, p.cx + pathW * 0.5, GRASS, GRASS + 0.02, p.cz + 1.2, p.cz + 1.2 + pathLen);
@@ -357,19 +289,11 @@ export default function CampusGreenery() {
     const mergedCorridorLamps = safe(corridorLamps);
     const mergedRoadSteels = safe(roadSteels);
     const mergedZebras = safe(zebras);
-    const mergedFruitWoods = safe(fruitWoods);
-    const mergedFruitLeaves = safe(fruitLeaves);
-    const mergedPomelos = safe(pomelos);
-    const mergedBamboos = safe(bamboos);
     const mergedBrickPaths = safe(brickPaths);
 
     corridorLamps.forEach((g) => g.dispose());
     roadSteels.forEach((g) => g.dispose());
     zebras.forEach((g) => g.dispose());
-    fruitWoods.forEach((g) => g.dispose());
-    fruitLeaves.forEach((g) => g.dispose());
-    pomelos.forEach((g) => g.dispose());
-    bamboos.forEach((g) => g.dispose());
     brickPaths.forEach((g) => g.dispose());
 
     return {
@@ -379,10 +303,6 @@ export default function CampusGreenery() {
       roadPergolaVinesGeo,
       roadPergolaCanopyGeo,
       zebraCrossingGeo: mergedZebras,
-      fruitTreeWoodGeo: mergedFruitWoods,
-      fruitTreeLeavesGeo: mergedFruitLeaves,
-      pomeloFruitsGeo: mergedPomelos,
-      bambooStakesGeo: mergedBamboos,
       brickPathsGeo: mergedBrickPaths,
     };
   }, []);
@@ -449,35 +369,7 @@ export default function CampusGreenery() {
         </mesh>
       )}
 
-      {/* 6. Thân cây ăn trái & cành */}
-      {fruitTreeWoodGeo && (
-        <mesh geometry={fruitTreeWoodGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#451a03" roughness={0.9} />
-        </mesh>
-      )}
-
-      {/* 7. Tán lá cây ăn trái */}
-      {fruitTreeLeavesGeo && (
-        <mesh geometry={fruitTreeLeavesGeo} castShadow>
-          <meshStandardMaterial color="#65a30d" roughness={0.85} />
-        </mesh>
-      )}
-
-      {/* 8. Quả bưởi tròn xanh trĩu cành (t029s, t033s) */}
-      {pomeloFruitsGeo && (
-        <mesh geometry={pomeloFruitsGeo} castShadow>
-          <meshStandardMaterial color="#84cc16" roughness={0.5} />
-        </mesh>
-      )}
-
-      {/* 9. Cọc chống tre 3 chân */}
-      {bambooStakesGeo && (
-        <mesh geometry={bambooStakesGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#d97706" roughness={0.75} />
-        </mesh>
-      )}
-
-      {/* 10. Lối đi gạch đỏ sân vườn */}
+      {/* 6. Lối đi gạch đỏ sân vườn (t029s) */}
       {brickPathsGeo && (
         <mesh geometry={brickPathsGeo} receiveShadow>
           <meshStandardMaterial color="#b91c1c" roughness={0.85} />
