@@ -46,8 +46,11 @@ export default function App() {
       <Canvas
         shadows
         dpr={[1, 2]}
-        onCreated={({ gl }) => {
-          if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__gl = gl;
+        onCreated={({ gl, scene }) => {
+          if (import.meta.env.DEV) {
+            (window as unknown as Record<string, unknown>).__gl = gl;
+            (window as unknown as Record<string, unknown>).__scene = scene;
+          }
         }}
         camera={{
           position: [OVERVIEW_CAMERA.position[0], OVERVIEW_CAMERA.position[1], OVERVIEW_CAMERA.position[2]],

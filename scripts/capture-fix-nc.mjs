@@ -1,25 +1,28 @@
 import { execSync } from 'child_process';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, unlinkSync } from 'fs';
 
 const OUT_DIR = 'docs/tasks/FIX-NC-anh';
 if (!existsSync(OUT_DIR)) {
   mkdirSync(OUT_DIR, { recursive: true });
 }
 
+// Xóa file test tạm nếu có
+for (const temp of ['test-02.png', 'test-02-newcam.png']) {
+  const p = `${OUT_DIR}/${temp}`;
+  if (existsSync(p)) {
+    try { unlinkSync(p); } catch { /* ignore */ }
+  }
+}
+
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const BASE_URL = 'http://localhost:5182';
+const PORT = process.env.PORT || '5184';
+const BASE_URL = `http://localhost:${PORT}`;
 
 const SHOTS = [
   {
-    name: '01-duong-sat-dat-bo-via.png',
-    // Đường nội bộ, bó vỉa sát đất, lối đi bộ
-    cam: '-20.0,1.5,-100.0,-36.4,1.0,-102.0',
-    snow: 0,
-  },
-  {
     name: '02-hanh-lang-day-leo.png',
-    // Rèm dây leo rủ mềm dọc hành lang mái che (t017s)
-    cam: '61.0,1.4,-118.2,75.0,1.5,-108.3',
+    // Rèm dây leo rủ mềm xanh tươi dọc hành lang mái che thoáng sáng (t017s, walk-eiu/00)
+    cam: '67.0,1.4,-114.2,84.0,1.5,-101.8',
     snow: 0,
   },
   {
@@ -29,32 +32,14 @@ const SHOTS = [
     snow: 0,
   },
   {
-    name: '04-highlands-vines.png',
-    // Highlands ki-ốt xe buýt đỏ với rèm dây leo rủ mềm (t041s, t045s)
-    cam: '138.5,2.2,-64.0,146.0,2.4,-64.0',
+    name: '08-tam-mat-bai-co.png',
+    // Tầm mắt ngang người đi bộ (y = 1.4m) trên bãi cỏ kiểm tra chân đất và near clipping plane
+    cam: '20.0,1.4,-80.0,45.0,1.4,-65.0',
     snow: 0,
-  },
-  {
-    name: '05-cau-ho-day-leo.png',
-    // Cầu đi bộ và giàn pergola rủ bên hồ nước
-    cam: '112.0,2.2,-68.0,123.0,1.8,-72.6',
-    snow: 0,
-  },
-  {
-    name: '06-he-cay-tong-quan.png',
-    // Toàn cảnh hệ cây 3 loại phân bố đều khắp khuôn viên
-    cam: '',
-    snow: 0,
-  },
-  {
-    name: '07-duong-khi-tuyet.png',
-    // Kiểm tra mặt đường và bó vỉa khi có tuyết rơi
-    cam: '-20.0,1.5,-100.0,-36.4,1.0,-102.0',
-    snow: 1,
   },
 ];
 
-console.log('Bắt đầu chụp ảnh kiểm tra FIX-NC...');
+console.log(`Bắt đầu chụp ảnh kiểm tra FIX-NC trên ${BASE_URL}...`);
 
 for (const s of SHOTS) {
   const params = [];
