@@ -93,6 +93,24 @@ export default {
       assert.equal(store.getState().seated, false);
       assert.equal(escape(true), true);
       assert.equal(escape(), false);
+
+      // When role="alertdialog" is present, handleActivityEscape must bypass
+      const prevDoc = globalThis.document;
+      globalThis.document = {
+        querySelector: (sel) => (sel === '[role="alertdialog"]' ? {} : null),
+      };
+      try {
+        store.getState().begin(activity, walk);
+        store.getState().setInRange(true);
+        store.getState().interact();
+        store.getState().setScreenOpen(true);
+        assert.equal(escape(), false);
+        assert.equal(store.getState().screenOpen, true);
+        assert.equal(store.getState().seated, true);
+      } finally {
+        if (prevDoc === undefined) delete globalThis.document;
+        else globalThis.document = prevDoc;
+      }
     } finally {
       store.getState().end();
     }
