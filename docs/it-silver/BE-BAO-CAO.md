@@ -70,3 +70,14 @@ Không tạo dữ liệu nội dung thật; test sử dụng fixture tổng hợ
 | Áp quy tắc lab/project cho cả summary và core; summary project 4–8 phút | `content.test.mjs` regression: summary lab, project durations and course lesson rules | Đạt |
 | Core project nhiều buổi, cộng phút exam vào tổng; exam 3 bước chấm điểm; id cảnh duy nhất gồm exam | `content.test.mjs` regression: project core multi sessions and exam minutes and ids | Đạt |
 | Speaker thuộc SpeakerId; answers là chuỗi; mọi file loader chạy parser; test loader tương thích thư mục có/không nội dung | `content.test.mjs` regression tests và optional loaders test | Đạt |
+
+## BE-08 — Lượt chơi
+
+| Tiêu chí / ví dụ | Test | Kết quả |
+|---|---|---|
+| matchCond seen/flag; điều kiện kép AND; resolveStep chọn variant khớp đầu và bỏ variants; fixture s1 hai trạng thái | `run.test.mjs` — conditions require both seen and flag; variants select first match | Đạt |
+| Chapter queue opening → scenes → closing → transcript tùy chọn → memory; transcript/memory 1 phút | `run.test.mjs` — chapter queue ordering and transcript memory durations | Đạt |
+| Term queue opening, duyệt meetings theo thứ tự và cảnh theo file, id/session metadata, exam theo regs, trailing scenes/closing/memory | `run.test.mjs` — term queue meets in meeting order, quick lab/theory/project and exams in registration order | Đạt |
+| Quick chọn lab khi có lab, theoryA khi không lab, project khi project | cùng test term queue | Đạt |
+| gradeStep question/order/code đúng sai, đáp án chuẩn, trim phân biệt hoa thường, output chỉ code | `run.test.mjs` — grading rules for every step type and both outcomes | Đạt |
+| typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
