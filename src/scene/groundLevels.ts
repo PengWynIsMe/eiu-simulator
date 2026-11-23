@@ -1,15 +1,16 @@
-/** Mặt cao độ của các lớp mặt đất ngoài trời (m). */
+/** Mặt cao độ của các lớp mặt đất ngoài trời (m) — chuẩn STYLE-3D sát mặt đất. */
 export const GROUND = 0;
-export const GRASS = 0.15;
-export const PARKING = 0.3;
+export const GRASS = 0.02;
+export const PARKING = 0.03;
 export const CANTEEN_PARKING_DECK = PARKING + 0.025;
-export const ROUNDABOUT_GRASS = 0.3;
-export const STREET = 0.45;
-export const ROUNDABOUT_ROAD = 0.45;
-export const INTERNAL = 0.6;
-export const POND_RIM = 0.75;
-export const FOOTWAY = 0.75;
-export const BRIDGE = 0.8;
+export const ROUNDABOUT_GRASS = 0.03;
+export const STREET = 0.035;
+export const ROUNDABOUT_ROAD = 0.035;
+export const INTERNAL = 0.04;
+export const FOOTWAY = 0.05;
+export const KERB_HEIGHT = 0.12;
+export const POND_RIM = 0.55;
+export const BRIDGE = 0.6;
 
 /** Bề rộng các dải đường khớp với buildRoadGeometry trong Ground.tsx. */
 export const ROAD_WIDTH = 7;

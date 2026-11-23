@@ -12,6 +12,7 @@ import { useFrame } from '@react-three/fiber';
 import { campus } from '../../data';
 import { BRIDGE_WIDTH, FOOTWAY_WIDTH, GRASS, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUNDABOUT_ROAD_WIDTH, STREET_LANE_WIDTH } from '../groundLevels';
 import { isPointInPond } from '../zone1/pondLayout';
+import { ZONE2_WALKWAYS } from '../zone2/Zone2Walkways';
 import { buildGrassMask, type GrassMaskRoad } from './grassMask';
 import { applyWind } from './wind';
 import { useSnowStore } from '../../store/useSnowStore';
@@ -74,13 +75,40 @@ export default function Grass() {
       else if (r.kind === 'bridge') width = BRIDGE_WIDTH;
       return { points: r.points, width };
     });
+
+    // Thêm các hành lang mái che & lối đi bê tông để khoét sạch cỏ khỏi mặt sàn
+    const walkwayRoads: GrassMaskRoad[] = ZONE2_WALKWAYS.map((w) => ({
+      points: w.points,
+      width: w.width + 0.25,
+    }));
+
+    const orchardPlots = [
+      { cx: 45.0, cz: -75.0 },
+      { cx: 52.0, cz: -78.0 },
+      { cx: 38.0, cz: -72.0 },
+      { cx: 48.0, cz: -142.0 },
+      { cx: 38.0, cz: -138.0 },
+      { cx: 108.0, cz: -48.0 },
+      { cx: 116.0, cz: -38.0 },
+    ];
+
     return buildGrassMask({
       boundary: campus.layout.boundary,
-      roads,
+      roads: [...roads, ...walkwayRoads],
       buildingOuters: campus.buildings.map((b) => b.shape.outer),
       parking: campus.layout.parking,
       roundabout: { radius: campus.layout.roundabout.radius, roadWidth: ROUNDABOUT_ROAD_WIDTH },
-      isBlocked: (x, z) => isPointInPond(x, z, 1.2),
+      isBlocked: (x, z) => {
+        // Hồ nước & bậc thềm kè hồ
+        if (isPointInPond(x, z, 2.2)) return true;
+        // Sàn gỗ cafe ngoài trời Highlands
+        if (x >= 135 && x <= 149 && z >= -70 && z <= -57) return true;
+        // Sàn Fami Pizza
+        if (x >= 84 && x <= 96 && z >= 59 && z <= 75) return true;
+        // Lối đi lát gạch đỏ vườn sinh thái
+        if (orchardPlots.some((p) => Math.abs(x - p.cx) < 0.75 && z >= p.cz + 0.9 && z <= p.cz + 6.6)) return true;
+        return false;
+      },
       roadMargin: 0.5,
       solidMargin: 0.4,
     });

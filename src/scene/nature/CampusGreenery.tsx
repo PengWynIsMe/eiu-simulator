@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
-import { BoxGeometry, CylinderGeometry, type BufferGeometry } from 'three';
+import { BoxGeometry, CylinderGeometry, BufferGeometry, Float32BufferAttribute, DoubleSide, type BufferGeometry as BufferGeometryType } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { Vec2 } from '../../types';
-import { addBox, addCylinder } from '../kit/geometryHelpers';
+import { addBox } from '../kit/geometryHelpers';
+import { GRASS, INTERNAL } from '../groundLevels';
+import { getOrCreateVineTexture, getOrCreateCanopyTexture, addVineCurtain, addPostVines, addCanopyQuad } from './vineTexture';
 
 const ALL_CORRIDORS: readonly { readonly points: readonly Vec2[]; readonly roofH: number; readonly width: number }[] = [
   // B9 ↔ B10
@@ -69,27 +71,23 @@ export default function CampusGreenery() {
     corridorLampsGeo,
     roadPergolaSteelGeo,
     roadPergolaVinesGeo,
+    roadPergolaCanopyGeo,
     zebraCrossingGeo,
-    fruitTreeWoodGeo,
-    fruitTreeLeavesGeo,
-    pomeloFruitsGeo,
-    bambooStakesGeo,
     brickPathsGeo,
   } = useMemo(() => {
-    const corridorVines: BufferGeometry[] = [];
-    const corridorLamps: BufferGeometry[] = [];
-    const roadSteels: BufferGeometry[] = [];
-    const roadVines: BufferGeometry[] = [];
-    const zebras: BufferGeometry[] = [];
-    const fruitWoods: BufferGeometry[] = [];
-    const fruitLeaves: BufferGeometry[] = [];
-    const pomelos: BufferGeometry[] = [];
-    const bamboos: BufferGeometry[] = [];
-    const brickPaths: BufferGeometry[] = [];
+    const corridorLamps: BufferGeometryType[] = [];
+    const roadSteels: BufferGeometryType[] = [];
+    const zebras: BufferGeometryType[] = [];
+    const brickPaths: BufferGeometryType[] = [];
 
     // ==========================================
-    // 1. RÈM DÂY LEO BUÔNG RỦ DỌC CÁC HÀNH LANG (t017s)
+    // 1. RÈM DÂY LEO BUÔNG RỦ DỌC CÁC HÀNH LANG (t017s) — Dải quad mỏng, texture alpha lá rủ mềm
     // ==========================================
+    const cvPos: number[] = [];
+    const cvNorm: number[] = [];
+    const cvUvs: number[] = [];
+    const cvInd: number[] = [];
+
     for (const corridor of ALL_CORRIDORS) {
       for (let s = 0; s < corridor.points.length - 1; s++) {
         const p1 = corridor.points[s];
@@ -99,50 +97,66 @@ export default function CampusGreenery() {
         const dx = p2[0] - p1[0];
         const dz = p2[1] - p1[1];
         const len = Math.hypot(dx, dz);
-        if (len < 1.0) continue;
+        if (len < 0.5) continue;
 
-        const angle = Math.atan2(dz, dx);
         const nx = -dz / len;
         const nz = dx / len;
         const halfW = corridor.width * 0.5;
 
-        // Số dải rèm dây leo dọc đoạn hành lang (mỗi 1.2m có một dải rủ)
-        const numStrands = Math.floor(len / 1.2);
-        for (let i = 0; i <= numStrands; i++) {
-          const t = i / Math.max(1, numStrands);
-          const px = p1[0] + dx * t;
-          const pz = p1[1] + dz * t;
+        // Số tấm rèm dọc mép hành lang (~1.0m mỗi tấm)
+        const numPanels = Math.max(1, Math.round(len / 1.0));
+        for (let i = 0; i < numPanels; i++) {
+          const t0 = i / numPanels;
+          const t1 = (i + 1) / numPanels;
+          const midT = (t0 + t1) * 0.5;
+          const midPx = p1[0] + dx * midT;
+          const midPz = p1[1] + dz * midT;
 
-          // Hai bên rìa mái che
+          // Hai bên mép hành lang mái che (t017s)
           for (const side of [-1, 1]) {
-            const edgeX = px + nx * (halfW * side);
-            const edgeZ = pz + nz * (halfW * side);
+            const pa: [number, number] = [
+              p1[0] + dx * t0 + nx * (halfW * side),
+              p1[1] + dz * t0 + nz * (halfW * side),
+            ];
+            const pb: [number, number] = [
+              p1[0] + dx * t1 + nx * (halfW * side),
+              p1[1] + dz * t1 + nz * (halfW * side),
+            ];
 
-            // Độ rủ biến thiên tự nhiên từ 0.7m đến 1.5m
-            const vineDrop = 0.75 + Math.sin(i * 2.7 + side * 1.5) * 0.45;
-            const topY = corridor.roofH;
-            const strandW = 0.55;
+            // Rèm buông rủ tha thướt tự nhiên từ 1.0m tới 1.9m (ngang tầm mắt người đi bộ theo t017s)
+            const drop1 = 1.45 + Math.sin(i * 1.8 + side * 1.3) * 0.45;
+            addVineCurtain(cvPos, cvNorm, cvUvs, cvInd, pa, pb, corridor.roofH, drop1, nx * side, nz * side, 0);
 
-            const vineBox = new BoxGeometry(strandW, vineDrop, 0.12);
-            vineBox.rotateY(-angle);
-            vineBox.translate(edgeX, topY - vineDrop * 0.5, edgeZ);
-            corridorVines.push(vineBox);
+            // Dải rèm so le thứ hai lệch nhẹ 6cm vào trong để tạo độ dày 3D rực rỡ
+            const drop2 = 1.25 + Math.cos(i * 1.5 + side * 0.7) * 0.35;
+            addVineCurtain(cvPos, cvNorm, cvUvs, cvInd, pa, pb, corridor.roofH, drop2, nx * side, nz * side, -0.06);
+
+            // Dây leo quấn bám dọc thân cột thép tại mỗi nhịp
+            if (i % 4 === 0) {
+              addPostVines(cvPos, cvNorm, cvUvs, cvInd, [pa[0], pa[1]], corridor.roofH, 0.45, 0.12);
+            }
           }
 
-          // Đèn thả trần ở tim hành lang (mỗi 4m)
+          // Đèn thả trần ở tim hành lang (mỗi ~3.5m)
           if (i % 3 === 0) {
             const lampY = corridor.roofH - 0.35;
             const wire = new CylinderGeometry(0.015, 0.015, 0.35, 4);
-            wire.translate(px, corridor.roofH - 0.175, pz);
+            wire.translate(midPx, corridor.roofH - 0.175, midPz);
             corridorLamps.push(wire);
 
             const shade = new CylinderGeometry(0.14, 0.18, 0.08, 8);
-            shade.translate(px, lampY, pz);
+            shade.translate(midPx, lampY, midPz);
             corridorLamps.push(shade);
           }
         }
       }
     }
+
+    const corridorVinesGeo = new BufferGeometry();
+    corridorVinesGeo.setAttribute('position', new Float32BufferAttribute(cvPos, 3));
+    corridorVinesGeo.setAttribute('normal', new Float32BufferAttribute(cvNorm, 3));
+    corridorVinesGeo.setAttribute('uv', new Float32BufferAttribute(cvUvs, 2));
+    corridorVinesGeo.setIndex(cvInd);
 
     // ==========================================
     // 2. GIÀN VÒM DÂY LEO VẮT NGANG ĐƯỜNG NỘI BỘ (t037s)
@@ -155,11 +169,17 @@ export default function CampusGreenery() {
     const archDepth = 4.5;
     const roadAngle = Math.atan2(-5.0, 30.8); // hướng tim đường
 
+    const cosR = Math.cos(roadAngle);
+    const sinR = Math.sin(roadAngle);
+    // Vector dọc trục giàn ngang đường (vuông góc với tim đường)
+    const spanDirX = Math.cos(roadAngle + Math.PI / 2);
+    const spanDirZ = Math.sin(roadAngle + Math.PI / 2);
+
     // Cột thép 2 bên vỉa hè
-    const pLeftX = archCenterX - Math.cos(roadAngle + Math.PI / 2) * (archSpan * 0.5);
-    const pLeftZ = archCenterZ - Math.sin(roadAngle + Math.PI / 2) * (archSpan * 0.5);
-    const pRightX = archCenterX + Math.cos(roadAngle + Math.PI / 2) * (archSpan * 0.5);
-    const pRightZ = archCenterZ + Math.sin(roadAngle + Math.PI / 2) * (archSpan * 0.5);
+    const pLeftX = archCenterX - spanDirX * (archSpan * 0.5);
+    const pLeftZ = archCenterZ - spanDirZ * (archSpan * 0.5);
+    const pRightX = archCenterX + spanDirX * (archSpan * 0.5);
+    const pRightZ = archCenterZ + spanDirZ * (archSpan * 0.5);
 
     const archCols: readonly (readonly [number, number])[] = [
       [pLeftX - 1.2, pLeftZ],
@@ -179,28 +199,62 @@ export default function CampusGreenery() {
     topTruss.translate(archCenterX, archH + 0.15, archCenterZ);
     roadSteels.push(topTruss);
 
-    // Mảng tán dây leo xanh phủ kín nóc giàn
-    const roofVines = new BoxGeometry(archSpan + 1.6, 0.65, archDepth + 0.8);
-    roofVines.rotateY(-roadAngle);
-    roofVines.translate(archCenterX, archH + 0.55, archCenterZ);
-    roadVines.push(roofVines);
+    // Tán lá xanh & rèm buông rủ qua đường (t037s)
+    const rvPos: number[] = [];
+    const rvNorm: number[] = [];
+    const rvUvs: number[] = [];
+    const rvInd: number[] = [];
 
-    // Dây leo rủ xuống từ mép xà giàn qua đường (t037s)
-    for (let d = -archSpan * 0.45; d <= archSpan * 0.45; d += 0.8) {
-      const vx = archCenterX + Math.sin(roadAngle) * d;
-      const vz = archCenterZ - Math.cos(roadAngle) * d;
-      const vLen = 0.9 + Math.sin(d * 2.1) * 0.45;
+    const canPos: number[] = [];
+    const canNorm: number[] = [];
+    const canUvs: number[] = [];
+    const canInd: number[] = [];
 
-      const drape1 = new BoxGeometry(0.65, vLen, 0.18);
-      drape1.rotateY(-roadAngle);
-      drape1.translate(vx, archH - vLen * 0.5, vz - archDepth * 0.45);
-      roadVines.push(drape1);
+    // 4 góc của nóc giàn pergola
+    const halfD = archDepth * 0.5;
+    const fLeft: [number, number] = [pLeftX - cosR * halfD, pLeftZ - sinR * halfD];
+    const fRight: [number, number] = [pRightX - cosR * halfD, pRightZ - sinR * halfD];
+    const bRight: [number, number] = [pRightX + cosR * halfD, pRightZ + sinR * halfD];
+    const bLeft: [number, number] = [pLeftX + cosR * halfD, pLeftZ + sinR * halfD];
 
-      const drape2 = new BoxGeometry(0.65, vLen, 0.18);
-      drape2.rotateY(-roadAngle);
-      drape2.translate(vx, archH - vLen * 0.5, vz + archDepth * 0.45);
-      roadVines.push(drape2);
+    // Mặt phẳng tán lá che phủ nóc giàn (2 lớp đan xen)
+    addCanopyQuad(canPos, canNorm, canUvs, canInd, [fLeft, fRight, bRight, bLeft], archH + 0.22);
+    addCanopyQuad(canPos, canNorm, canUvs, canInd, [fLeft, fRight, bRight, bLeft], archH + 0.38);
+
+    // Rèm dây leo rủ buông từ xà trước & xà sau bắc ngang qua đường (t037s)
+    const numDrapes = 12;
+    for (let k = 0; k < numDrapes; k++) {
+      const u0 = k / numDrapes;
+      const u1 = (k + 1) / numDrapes;
+
+      // Xà trước
+      const fa: [number, number] = [fLeft[0] + (fRight[0] - fLeft[0]) * u0, fLeft[1] + (fRight[1] - fLeft[1]) * u0];
+      const fb: [number, number] = [fLeft[0] + (fRight[0] - fLeft[0]) * u1, fLeft[1] + (fRight[1] - fLeft[1]) * u1];
+      const dropF = 1.1 + Math.sin(k * 2.1) * 0.55 + Math.cos(k * 1.3) * 0.35;
+      addVineCurtain(rvPos, rvNorm, rvUvs, rvInd, fa, fb, archH + 0.2, dropF, -cosR, -sinR, 0);
+
+      // Xà sau
+      const ba: [number, number] = [bRight[0] + (bLeft[0] - bRight[0]) * u0, bRight[1] + (bLeft[1] - bRight[1]) * u0];
+      const bb: [number, number] = [bRight[0] + (bLeft[0] - bRight[0]) * u1, bRight[1] + (bLeft[1] - bRight[1]) * u1];
+      const dropB = 1.1 + Math.cos(k * 2.1) * 0.55 + Math.sin(k * 1.3) * 0.35;
+      addVineCurtain(rvPos, rvNorm, rvUvs, rvInd, ba, bb, archH + 0.2, dropB, cosR, sinR, 0);
     }
+
+    // Hai bên sườn giàn
+    addVineCurtain(rvPos, rvNorm, rvUvs, rvInd, fLeft, bLeft, archH + 0.2, 1.4, -spanDirX, -spanDirZ, 0);
+    addVineCurtain(rvPos, rvNorm, rvUvs, rvInd, bRight, fRight, archH + 0.2, 1.4, spanDirX, spanDirZ, 0);
+
+    const roadPergolaVinesGeo = new BufferGeometry();
+    roadPergolaVinesGeo.setAttribute('position', new Float32BufferAttribute(rvPos, 3));
+    roadPergolaVinesGeo.setAttribute('normal', new Float32BufferAttribute(rvNorm, 3));
+    roadPergolaVinesGeo.setAttribute('uv', new Float32BufferAttribute(rvUvs, 2));
+    roadPergolaVinesGeo.setIndex(rvInd);
+
+    const roadPergolaCanopyGeo = new BufferGeometry();
+    roadPergolaCanopyGeo.setAttribute('position', new Float32BufferAttribute(canPos, 3));
+    roadPergolaCanopyGeo.setAttribute('normal', new Float32BufferAttribute(canNorm, 3));
+    roadPergolaCanopyGeo.setAttribute('uv', new Float32BufferAttribute(canUvs, 2));
+    roadPergolaCanopyGeo.setIndex(canInd);
 
     // Vạch sang đường cho người đi bộ (Zebra crossing) dưới giàn vòm
     const numStripes = 8;
@@ -208,137 +262,75 @@ export default function CampusGreenery() {
       const offset = (i - (numStripes - 1) * 0.5) * 0.95;
       const zx = archCenterX + Math.sin(roadAngle) * offset;
       const zz = archCenterZ - Math.cos(roadAngle) * offset;
-      const stripe = new BoxGeometry(3.6, 0.02, 0.45);
+      const stripe = new BoxGeometry(3.6, 0.01, 0.45);
       stripe.rotateY(-roadAngle);
-      stripe.translate(zx, 0.17, zz);
+      stripe.translate(zx, INTERNAL + 0.005, zz);
       zebras.push(stripe);
     }
 
     // ==========================================
-    // 3. VƯỜN CÂY ĂN TRÁI & CỌC CHỐNG TRE (t021s, t025s, t029s, t033s)
+    // 3. LỐI ĐI GẠCH ĐỎ SÂN VƯỜN SINH THÁI (t029s)
+    // (Cây xanh trong vườn được chuyển sang hệ thống cây chung trong Trees.tsx)
     // ==========================================
-    // Các vị trí vườn sinh thái giữa các block (sân B8–B11 và sân B4–B3)
-    // (Đã bỏ 4 ô nằm trong footprint B11 khi gộp — cây chui vào thân tòa nhà.)
-    const orchardPlots: readonly { cx: number; cz: number; kind: 'pomelo' | 'sapodilla' }[] = [
-      { cx: 45.0, cz: -75.0, kind: 'pomelo' },
-      { cx: 52.0, cz: -78.0, kind: 'sapodilla' },
-      { cx: 38.0, cz: -72.0, kind: 'pomelo' },
-      { cx: 48.0, cz: -142.0, kind: 'pomelo' },
-      { cx: 38.0, cz: -138.0, kind: 'sapodilla' },
-      { cx: 108.0, cz: -48.0, kind: 'pomelo' },
-      { cx: 116.0, cz: -38.0, kind: 'sapodilla' },
+    const orchardPlots: readonly { cx: number; cz: number }[] = [
+      { cx: 45.0, cz: -75.0 },
+      { cx: 52.0, cz: -78.0 },
+      { cx: 38.0, cz: -72.0 },
+      { cx: 48.0, cz: -142.0 },
+      { cx: 38.0, cz: -138.0 },
+      { cx: 108.0, cz: -48.0 },
+      { cx: 116.0, cz: -38.0 },
     ];
 
-    orchardPlots.forEach((p, plotIdx) => {
-      // 1. Thân cây ăn trái
-      const trunkH = p.kind === 'pomelo' ? 2.8 : 3.2;
-      addCylinder(fruitWoods, 0.18, 0.24, trunkH, 7, p.cx, trunkH * 0.5, p.cz);
-
-      // Cành cây phân nhánh
-      addCylinder(fruitWoods, 0.08, 0.12, 1.4, 5, p.cx - 0.45, trunkH + 0.35, p.cz - 0.3, 0.4, 0.3);
-      addCylinder(fruitWoods, 0.08, 0.12, 1.5, 5, p.cx + 0.45, trunkH + 0.4, p.cz + 0.25, -0.4, -0.3);
-
-      // 2. Tán lá xum xuê
-      const crownY = trunkH + 0.8;
-      addBox(fruitLeaves, p.cx - 1.4, p.cx + 1.4, crownY - 0.6, crownY + 1.2, p.cz - 1.4, p.cz + 1.4);
-      addBox(fruitLeaves, p.cx - 1.1, p.cx + 1.1, crownY + 0.9, crownY + 1.9, p.cz - 1.1, p.cz + 1.1);
-
-      // 3. Cọc chống tre 3 chân (Tripod bamboo stakes) - đặc trưng vườn trường EIU
-      for (let leg = 0; leg < 3; leg++) {
-        const ang = (leg * 2 * Math.PI) / 3 + plotIdx;
-        const stakeBaseX = p.cx + Math.cos(ang) * 0.95;
-        const stakeBaseZ = p.cz + Math.sin(ang) * 0.95;
-        const stakeTopX = p.cx + Math.cos(ang) * 0.25;
-        const stakeTopZ = p.cz + Math.sin(ang) * 0.25;
-
-        const slen = Math.hypot(stakeBaseX - stakeTopX, stakeBaseZ - stakeTopZ, 1.8);
-        const stake = new CylinderGeometry(0.04, 0.045, slen, 5);
-        stake.rotateX(0.38);
-        stake.rotateY(-ang);
-        stake.translate((stakeBaseX + stakeTopX) * 0.5, 0.9, (stakeBaseZ + stakeTopZ) * 0.5);
-        bamboos.push(stake);
-      }
-      // Vòng đai thừng buộc ngang cọc ở độ cao 1.6m
-      addCylinder(fruitWoods, 0.30, 0.30, 0.08, 8, p.cx, 1.6, p.cz);
-
-      // 4. Trái cây trên cành:
-      if (p.kind === 'pomelo') {
-        // Quả bưởi tròn xanh trĩu cành (t029s, t033s)
-        const fruitOffsets: readonly (readonly [number, number])[] = [
-          [-0.65, 0.35],
-          [0.72, -0.25],
-          [-0.2, 0.75],
-          [0.55, 0.65],
-          [-0.8, -0.45],
-        ];
-        fruitOffsets.forEach(([fx, fz], fi) => {
-          const fy = trunkH + 0.15 + (fi % 3) * 0.35;
-          // Quả bưởi hình cầu tròn xanh
-          addCylinder(pomelos, 0.14, 0.15, 0.28, 8, p.cx + fx, fy, p.cz + fz);
-        });
-      } else {
-        // Quả hồng xiêm màu nâu trứng (t025s)
-        const fruitOffsets: readonly (readonly [number, number])[] = [
-          [-0.5, 0.4],
-          [0.6, -0.3],
-          [0.1, 0.65],
-        ];
-        fruitOffsets.forEach(([fx, fz], fi) => {
-          const fy = trunkH + 0.25 + fi * 0.35;
-          addCylinder(fruitWoods, 0.08, 0.10, 0.18, 6, p.cx + fx, fy, p.cz + fz);
-        });
-      }
-
-      // 5. Lối đi lát gạch đỏ kết nối sân vườn (t029s)
+    orchardPlots.forEach((p) => {
+      // Lối đi lát gạch đỏ kết nối sân vườn (t029s)
       const pathW = 0.9;
       const pathLen = 5.2;
-      addBox(brickPaths, p.cx - pathW * 0.5, p.cx + pathW * 0.5, 0.15, 0.18, p.cz + 1.2, p.cz + 1.2 + pathLen);
+      addBox(brickPaths, p.cx - pathW * 0.5, p.cx + pathW * 0.5, GRASS, GRASS + 0.02, p.cz + 1.2, p.cz + 1.2 + pathLen);
     });
 
     const safe = (arrGeos: BufferGeometry[]) => (arrGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(arrGeos) : null);
 
-    const mergedCorridorVines = safe(corridorVines);
     const mergedCorridorLamps = safe(corridorLamps);
     const mergedRoadSteels = safe(roadSteels);
-    const mergedRoadVines = safe(roadVines);
     const mergedZebras = safe(zebras);
-    const mergedFruitWoods = safe(fruitWoods);
-    const mergedFruitLeaves = safe(fruitLeaves);
-    const mergedPomelos = safe(pomelos);
-    const mergedBamboos = safe(bamboos);
     const mergedBrickPaths = safe(brickPaths);
 
-    corridorVines.forEach((g) => g.dispose());
     corridorLamps.forEach((g) => g.dispose());
     roadSteels.forEach((g) => g.dispose());
-    roadVines.forEach((g) => g.dispose());
     zebras.forEach((g) => g.dispose());
-    fruitWoods.forEach((g) => g.dispose());
-    fruitLeaves.forEach((g) => g.dispose());
-    pomelos.forEach((g) => g.dispose());
-    bamboos.forEach((g) => g.dispose());
     brickPaths.forEach((g) => g.dispose());
 
     return {
-      corridorVinesGeo: mergedCorridorVines,
+      corridorVinesGeo,
       corridorLampsGeo: mergedCorridorLamps,
       roadPergolaSteelGeo: mergedRoadSteels,
-      roadPergolaVinesGeo: mergedRoadVines,
+      roadPergolaVinesGeo,
+      roadPergolaCanopyGeo,
       zebraCrossingGeo: mergedZebras,
-      fruitTreeWoodGeo: mergedFruitWoods,
-      fruitTreeLeavesGeo: mergedFruitLeaves,
-      pomeloFruitsGeo: mergedPomelos,
-      bambooStakesGeo: mergedBamboos,
       brickPathsGeo: mergedBrickPaths,
     };
   }, []);
 
+  const vineTexture = useMemo(() => getOrCreateVineTexture(), []);
+  const canopyTexture = useMemo(() => getOrCreateCanopyTexture(), []);
+
   return (
     <group>
-      {/* 1. Rèm dây leo rủ dọc hành lang (t017s) */}
+      {/* 1. Rèm dây leo rủ dọc hành lang (t017s, walk-eiu/00) */}
       {corridorVinesGeo && (
         <mesh geometry={corridorVinesGeo} castShadow>
-          <meshStandardMaterial color="#4d7c0f" roughness={0.88} />
+          <meshStandardMaterial
+            map={vineTexture ?? undefined}
+            transparent
+            alphaTest={0.15}
+            depthWrite
+            side={DoubleSide}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.06}
+          />
         </mesh>
       )}
 
@@ -356,10 +348,37 @@ export default function CampusGreenery() {
         </mesh>
       )}
 
-      {/* 4. Tán & rèm dây leo vắt qua đường */}
+      {/* 4. Rèm dây leo rủ buông vắt ngang đường (t037s) */}
       {roadPergolaVinesGeo && (
         <mesh geometry={roadPergolaVinesGeo} castShadow>
-          <meshStandardMaterial color="#365314" roughness={0.85} />
+          <meshStandardMaterial
+            map={vineTexture ?? undefined}
+            transparent
+            alphaTest={0.15}
+            depthWrite
+            side={DoubleSide}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.06}
+          />
+        </mesh>
+      )}
+
+      {/* 4b. Mảng tán lá đan xen phủ trên nóc giàn vòm */}
+      {roadPergolaCanopyGeo && (
+        <mesh geometry={roadPergolaCanopyGeo} castShadow receiveShadow>
+          <meshStandardMaterial
+            map={canopyTexture ?? undefined}
+            transparent
+            alphaTest={0.18}
+            depthWrite
+            side={DoubleSide}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.05}
+          />
         </mesh>
       )}
 
@@ -370,35 +389,7 @@ export default function CampusGreenery() {
         </mesh>
       )}
 
-      {/* 6. Thân cây ăn trái & cành */}
-      {fruitTreeWoodGeo && (
-        <mesh geometry={fruitTreeWoodGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#451a03" roughness={0.9} />
-        </mesh>
-      )}
-
-      {/* 7. Tán lá cây ăn trái */}
-      {fruitTreeLeavesGeo && (
-        <mesh geometry={fruitTreeLeavesGeo} castShadow>
-          <meshStandardMaterial color="#65a30d" roughness={0.85} />
-        </mesh>
-      )}
-
-      {/* 8. Quả bưởi tròn xanh trĩu cành (t029s, t033s) */}
-      {pomeloFruitsGeo && (
-        <mesh geometry={pomeloFruitsGeo} castShadow>
-          <meshStandardMaterial color="#84cc16" roughness={0.5} />
-        </mesh>
-      )}
-
-      {/* 9. Cọc chống tre 3 chân */}
-      {bambooStakesGeo && (
-        <mesh geometry={bambooStakesGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#d97706" roughness={0.75} />
-        </mesh>
-      )}
-
-      {/* 10. Lối đi gạch đỏ sân vườn */}
+      {/* 6. Lối đi gạch đỏ sân vườn (t029s) */}
       {brickPathsGeo && (
         <mesh geometry={brickPathsGeo} receiveShadow>
           <meshStandardMaterial color="#b91c1c" roughness={0.85} />

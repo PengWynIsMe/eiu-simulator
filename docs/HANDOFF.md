@@ -32,6 +32,7 @@ Kế hoạch: **`docs/PLAN-GIAI-DOAN-2.md`**. Đã trong `main` (chưa push): W0
 
 | Việc | Ai | Trạng thái |
 | --- | --- | --- |
+| FIX-NC sửa ngoại cảnh (đường, dây leo, cây, hành lang, depth) | Antigravity — Orca worktree `fix-ngoai-canh` | ✅ Xong (`docs/tasks/FIX-NC-ngoai-canh.md`), Option B chuẩn depth di động, 11 ảnh kiểm chứng |
 | T19 thang + cây B8 | Antigravity — Orca worktree `~/orca/workspaces/eiu-simulator/t19-thang-cay` (nhánh `t19-thang-cay`) | ✅ Xong (`docs/tasks/T19-bao-cao.md`) |
 | L3 + L6 phòng 406 + thầy + màn chiếu | Claude Sonnet | ✅ trong main (`docs/tasks/L36-bao-cao.md`) |
 | L4 ngồi + camera + đưa tới lớp (`WalkMode`) | Antigravity | ✅ Xong (`docs/tasks/L346-bao-cao.md`), đã test đủ luồng, chụp ảnh `docs/tasks/L346-anh/` |

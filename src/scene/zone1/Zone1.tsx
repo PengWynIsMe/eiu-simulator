@@ -58,53 +58,6 @@ export default function Zone1() {
     return merged;
   }, []);
 
-  // 3. Đoạn hành lang mái che nối hông Block 11 ↔ đầu Block 4 (campus_16–20)
-  const walkwayB11B4 = useMemo(() => {
-    // Nối từ hông B11 [43, -132] tới đầu B4 [92, -96]
-    const p1x = 43;
-    const p1z = -132;
-    const p2x = 92;
-    const p2z = -96;
-    const dx = p2x - p1x;
-    const dz = p2z - p1z;
-    const len = Math.hypot(dx, dz);
-    const angle = Math.atan2(dz, dx);
-    const midX = (p1x + p2x) / 2;
-    const midZ = (p1z + p2z) / 2;
-
-    const roofH = 3.0;
-    const roofW = 2.6;
-
-    // Mái che phủ lá xanh
-    const roof = new BoxGeometry(len, 0.2, roofW);
-    roof.rotateY(-angle);
-    roof.translate(midX, roofH, midZ);
-
-    // Cột đỡ
-    const posts: BufferGeometry[] = [roof];
-    const numPosts = Math.floor(len / 4.5);
-    const nx = -dz / len;
-    const nz = dx / len;
-
-    for (let i = 0; i <= numPosts; i++) {
-      const t = i / numPosts - 0.5;
-      const px = midX + Math.cos(angle) * (t * len);
-      const pz = midZ + Math.sin(angle) * (t * len);
-
-      const post1 = new BoxGeometry(0.12, roofH, 0.12);
-      post1.translate(px + nx * (roofW / 2), roofH / 2, pz + nz * (roofW / 2));
-      posts.push(post1);
-
-      const post2 = new BoxGeometry(0.12, roofH, 0.12);
-      post2.translate(px - nx * (roofW / 2), roofH / 2, pz - nz * (roofW / 2));
-      posts.push(post2);
-    }
-
-    const merged = BufferGeometryUtils.mergeGeometries(posts);
-    posts.forEach((p) => p.dispose());
-    return merged;
-  }, []);
-
   return (
     <group>
       {/* 3 hồ nước bậc thang */}
@@ -130,13 +83,6 @@ export default function Zone1() {
       {medianPlantersGeo && (
         <mesh geometry={medianPlantersGeo} castShadow receiveShadow>
           <meshStandardMaterial color="#475569" roughness={0.7} />
-        </mesh>
-      )}
-
-      {/* Hành lang mái che nối B11 ↔ B4 */}
-      {walkwayB11B4 && (
-        <mesh geometry={walkwayB11B4} castShadow receiveShadow>
-          <meshStandardMaterial color="#365314" roughness={0.75} />
         </mesh>
       )}
     </group>

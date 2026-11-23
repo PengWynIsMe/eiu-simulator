@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
-import { BoxGeometry, BufferGeometry } from 'three';
+import { BoxGeometry, BufferGeometry, Float32BufferAttribute, DoubleSide } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { BRIDGE } from '../groundLevels';
+import { getOrCreateVineTexture, getOrCreateCanopyTexture, addVineCurtain, addCanopyQuad } from '../nature/vineTexture';
 
 interface BridgeLine {
   start: [number, number];
@@ -15,14 +17,22 @@ const BRIDGES: BridgeLine[] = [
 ];
 
 export default function Bridges() {
-  const { deckGeo, postsGeo, roofGeo, pergolaGeo } = useMemo(() => {
+  const { deckGeo, postsGeo, roofGeo, pergolaCanopyGeo, pergolaVinesGeo } = useMemo(() => {
     const decks: BufferGeometry[] = [];
     const posts: BufferGeometry[] = [];
     const roofs: BufferGeometry[] = [];
-    const pergolas: BufferGeometry[] = [];
+    const pvPos: number[] = [];
+    const pvNorm: number[] = [];
+    const pvUvs: number[] = [];
+    const pvInd: number[] = [];
+
+    const pcPos: number[] = [];
+    const pcNorm: number[] = [];
+    const pcUvs: number[] = [];
+    const pcInd: number[] = [];
 
     const deckW = 3.2;
-    const deckY = 0.8; // Cầu nằm ngay trên mặt hồ (thành hồ 0.75m)
+    const deckY = BRIDGE; // Cầu nằm ngay trên mặt hồ (thành hồ 0.55m)
     const roofH = 3.2;
     const roofTopY = deckY + roofH;
 
@@ -72,31 +82,66 @@ export default function Bridges() {
         posts.push(beam);
       }
 
-      // 4. Giàn pergola dây leo xanh mát chạy dọc hai bên thành hồ
+      // 4. Giàn pergola dây leo rủ hai bên thành hồ
       const pergolaW = 2.4;
-      const pergLeft = new BoxGeometry(len * 0.6, 0.35, pergolaW);
-      pergLeft.rotateY(-angle);
-      pergLeft.translate(midX + nx * (deckW / 2 + 1.4), roofTopY - 0.2, midZ + nz * (deckW / 2 + 1.4));
-      pergolas.push(pergLeft);
+      const pLen = len * 0.6;
+      const cosA = Math.cos(angle);
+      const sinA = Math.sin(angle);
+      const halfL = pLen * 0.5;
+      const halfW = pergolaW * 0.5;
 
-      const pergRight = new BoxGeometry(len * 0.6, 0.35, pergolaW);
-      pergRight.rotateY(-angle);
-      pergRight.translate(midX - nx * (deckW / 2 + 1.4), roofTopY - 0.2, midZ - nz * (deckW / 2 + 1.4));
-      pergolas.push(pergRight);
+      for (const side of [1, -1]) {
+        const sideOffset = (deckW / 2 + 1.4) * side;
+        const cX = midX + nx * sideOffset;
+        const cZ = midZ + nz * sideOffset;
+
+        // 4 góc của nóc giàn
+        const pFL: [number, number] = [cX - cosA * halfL + nx * halfW * side, cZ - sinA * halfL + nz * halfW * side];
+        const pFR: [number, number] = [cX + cosA * halfL + nx * halfW * side, cZ + sinA * halfL + nz * halfW * side];
+        const pBR: [number, number] = [cX + cosA * halfL - nx * halfW * side, cZ + sinA * halfL - nz * halfW * side];
+        const pBL: [number, number] = [cX - cosA * halfL - nx * halfW * side, cZ - sinA * halfL - nz * halfW * side];
+
+        // Mảng tán lá phủ nóc giàn
+        addCanopyQuad(pcPos, pcNorm, pcUvs, pcInd, [pFL, pFR, pBR, pBL], roofTopY - 0.15);
+
+        // Rèm dây leo buông rủ 2 bên mép dài
+        const panels = 8;
+        for (let k = 0; k < panels; k++) {
+          const u0 = k / panels;
+          const u1 = (k + 1) / panels;
+          const pa: [number, number] = [pFL[0] + (pFR[0] - pFL[0]) * u0, pFL[1] + (pFR[1] - pFL[1]) * u0];
+          const pb: [number, number] = [pFL[0] + (pFR[0] - pFL[0]) * u1, pFL[1] + (pFR[1] - pFL[1]) * u1];
+          const drop = 0.85 + Math.sin(k * 2.3 + side) * 0.45;
+          addVineCurtain(pvPos, pvNorm, pvUvs, pvInd, pa, pb, roofTopY - 0.15, drop, nx * side, nz * side, 0);
+        }
+      }
     });
 
     const mergedDeck = BufferGeometryUtils.mergeGeometries(decks);
     const mergedPosts = BufferGeometryUtils.mergeGeometries(posts);
     const mergedRoof = BufferGeometryUtils.mergeGeometries(roofs);
-    const mergedPergola = BufferGeometryUtils.mergeGeometries(pergolas);
+
+    const pergolaCanopyGeo = new BufferGeometry();
+    pergolaCanopyGeo.setAttribute('position', new Float32BufferAttribute(pcPos, 3));
+    pergolaCanopyGeo.setAttribute('normal', new Float32BufferAttribute(pcNorm, 3));
+    pergolaCanopyGeo.setAttribute('uv', new Float32BufferAttribute(pcUvs, 2));
+    pergolaCanopyGeo.setIndex(pcInd);
+
+    const pergolaVinesGeo = new BufferGeometry();
+    pergolaVinesGeo.setAttribute('position', new Float32BufferAttribute(pvPos, 3));
+    pergolaVinesGeo.setAttribute('normal', new Float32BufferAttribute(pvNorm, 3));
+    pergolaVinesGeo.setAttribute('uv', new Float32BufferAttribute(pvUvs, 2));
+    pergolaVinesGeo.setIndex(pvInd);
 
     decks.forEach((g) => g.dispose());
     posts.forEach((g) => g.dispose());
     roofs.forEach((g) => g.dispose());
-    pergolas.forEach((g) => g.dispose());
 
-    return { deckGeo: mergedDeck, postsGeo: mergedPosts, roofGeo: mergedRoof, pergolaGeo: mergedPergola };
+    return { deckGeo: mergedDeck, postsGeo: mergedPosts, roofGeo: mergedRoof, pergolaCanopyGeo, pergolaVinesGeo };
   }, []);
+
+  const vineTexture = useMemo(() => getOrCreateVineTexture(), []);
+  const canopyTexture = useMemo(() => getOrCreateCanopyTexture(), []);
 
   return (
     <group>
@@ -115,10 +160,39 @@ export default function Bridges() {
         <meshStandardMaterial color="#1d70b8" metalness={0.25} roughness={0.45} />
       </mesh>
 
-      {/* Mái vòm dây leo xanh */}
-      <mesh geometry={pergolaGeo} castShadow receiveShadow>
-        <meshStandardMaterial color="#2d6a2e" roughness={0.8} />
-      </mesh>
+      {/* Mái tán lá pergola bên thành hồ */}
+      {pergolaCanopyGeo && (
+        <mesh geometry={pergolaCanopyGeo} castShadow receiveShadow>
+          <meshStandardMaterial
+            map={canopyTexture ?? undefined}
+            transparent
+            alphaTest={0.18}
+            depthWrite
+            side={DoubleSide}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.05}
+          />
+        </mesh>
+      )}
+
+      {/* Rèm dây leo buông rủ hai bên giàn hồ */}
+      {pergolaVinesGeo && (
+        <mesh geometry={pergolaVinesGeo} castShadow>
+          <meshStandardMaterial
+            map={vineTexture ?? undefined}
+            transparent
+            alphaTest={0.15}
+            depthWrite
+            side={DoubleSide}
+            roughness={0.65}
+            color="#ffffff"
+            emissive="#84cc16"
+            emissiveIntensity={0.06}
+          />
+        </mesh>
+      )}
     </group>
   );
 }
