@@ -173,13 +173,13 @@ Không có màn nào phải bỏ. Nhánh `it-silver/ui` chưa có trên origin l
 | Màn (task) | Kết luận | Lý do / việc |
 |---|---|---|
 | Khung, adapter, mock (UI-00) | **SỬA nhỏ** | thêm `presentation.ts` (một dòng `{mode:'overlay'}`); khi `world` không gọi `exitWalkMode`, không chặn phím ở màn play, nền trong suốt |
-| Home, Recap (UI-01) | **GIỮ** | phủ lên cảnh 3D; thêm chỗ cho nút "Chơi nhanh 2D" (bên mình gắn) |
+| Home, Recap (UI-01) | **GIỮ** | phủ lên cảnh 3D; thêm chỗ cho nút "Chơi nhanh 2D" (bên mình gắn lúc ghép) |
 | Play, Say, Choice, Slide (UI-02) | **GIỮ** làm bản 2D; bước **SỬA** nhẹ | mỗi bước không tự `fixed`/che toàn màn, để đặt được vào khung khác |
 | Question, Order, Code (UI-03) | **GIỮ** | `world` dùng lại Order, Question có nghe/đọc, Choice; Code dùng lại trong khung 2D, còn `world` dùng máy EIU |
 | Đăng ký, Tuần, Bảng điểm, Sổ (UI-04…07) | **GIỮ** | đúng là màn 2D |
-| Rà soát (UI-08) | **GIỮ** | kiểm bản 2D; 3D bên mình kiểm |
+| Rà soát (UI-08) | **GIỮ** | kiểm bản 2D; 3D kiểm ở 3D-08, 3D-14 |
 
-Màn chơi `world` (bên mình làm): thoại đáy màn như `DialogueBox`; slide trên TV kèm thẻ nhỏ đáy màn có nút "Phóng to"; câu hỏi/sắp câu: thẻ giữa như `QuestionCard`; nghe/đọc = tờ giấy; code = máy EIU. Tách `DialogueBox`, `SlideViewer`, `QuestionCard`, `CodeLab`, `EiuDesktop` thành view + vỏ để hai bên dùng chung (3D-06). Tin nhắn: `TIN-NHAN-UI.md`.
+Màn chơi `world` (đồng đội làm, 3D-07): thoại đáy màn như `DialogueBox`; slide trên TV kèm thẻ nhỏ đáy màn có nút "Phóng to"; câu hỏi/sắp câu: thẻ giữa như `QuestionCard`; nghe/đọc = tờ giấy; code = máy EIU. Tách `DialogueBox`, `SlideViewer`, `QuestionCard`, `CodeLab`, `EiuDesktop` thành view + vỏ để hai bên dùng chung (3D-06). Tin nhắn: `TIN-NHAN-UI.md`.
 
 ## 6. Việc
 
@@ -191,16 +191,18 @@ Màn chơi `world` (bên mình làm): thoại đáy màn như `DialogueBox`; sli
 | 2 | `3D-01-walkmode-dung-chung.md` | 4 | gpt-6.2-sol | 00 |
 | 2 | `3D-02-du-lieu-phong-b8.md` | 1,5 | gpt-6-luna | — |
 | 2 | `3D-03-dien-vien-dung-chung.md` | 3 | gpt-6.2-sol | 00 |
-| 3 | `3D-04-phong-406-b8.md` | 2,5 | gpt-6.1-terra | 02, 03 |
+| 3 | `3D-04-phong-406-b8.md` | 2,5 | **đồng đội** | 02, 03 |
 | 3 | `3D-05-dao-dien.md` | 3 | gpt-6.2-sol | 00, 02 |
-| 3 | `3D-06-view-dung-chung.md` | 2,5 | gpt-6.2-sol | — |
-| 4 | `3D-07-ui-world.md` | 3 | gpt-6.2-sol | 01, 05, 06 |
+| 3 | `3D-06-view-dung-chung.md` | 2,5 | **đồng đội** | — |
+| 4 | `3D-07-ui-world.md` | 3 | **đồng đội** | 01, 05, 06 |
 | 5 | `3D-08-nghiem-thu-dot-1.md` | 1 | gpt-6.1-terra | tất cả |
+
+**Chia việc (chủ dự án chốt):** đồng đội làm phần nhìn thấy: UI-00…08, 3D-04, 06, 07, 09, 12. Bên mình làm lõi: 3D-00, 01, 02, 03, 05, 10, 11, 13 và nghiệm thu 08, 14. 3D-06 làm ngay được (nhánh `it-silver/view` từ `origin/main`); 3D-04, 07, 09, 12 chờ bên mình báo lõi đã lên GitHub. Đợt 2, 3 chờ chủ dự án duyệt đợt 1.
 
 Chạy song song tối đa 2 agent một lúc (máy 16 GB): {01}, {02 → 04}, {03}, {06} đụng file khác nhau. 01 và 03 sửa `walk/` và `lesson|npc/` riêng.
 
-**Đợt 2 — trọn kỳ 2.2 (~11 giờ)**: `3D-09-phong-ly-thuyet.md` (4, Antigravity), `3D-10-tron-ky-2-2.md` (4, sol), `3D-11-ghep-ui-dong-doi.md` (3, sol).
-**Đợt 3 — entrance và 1.1 (~9 giờ)**: `3D-12-ngoai-troi-va-hai-phong.md` (3, terra), `3D-13-entrance-va-1-1.md` (3, sol), `3D-14-nghiem-thu-va-do.md` (3, terra).
+**Đợt 2 — trọn kỳ 2.2 (~11 giờ)**: `3D-09-phong-ly-thuyet.md` (4, **đồng đội**), `3D-10-tron-ky-2-2.md` (4, sol), `3D-11-ghep-ui-dong-doi.md` (3, sol).
+**Đợt 3 — entrance và 1.1 (~9 giờ)**: `3D-12-ngoai-troi-va-hai-phong.md` (3, **đồng đội**), `3D-13-entrance-va-1-1.md` (3, sol), `3D-14-nghiem-thu-va-do.md` (3, terra).
 
 Tổng khoảng 43 giờ agent, chưa kể duyệt. Mỗi task: 3 cổng + `test:silver`, rồi kiểm tay. Chủ dự án xem sau 3D-08 **trước khi** làm đợt 2.
 

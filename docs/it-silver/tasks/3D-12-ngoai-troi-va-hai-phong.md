@@ -3,7 +3,7 @@
 Đọc: `docs/it-silver/PLAN-3D.md` (mục 1, 4), `data/silverWorld.types.txt`, `AGENTS.md` mục 5. Không thêm thư viện, không `any`, không tạo object trong `useFrame`. Không sửa JSON nội dung, `src/types/silver.ts`, `src/store/useSilverStore.ts`, `src/silver/**`, `src/ui/silver/**`. Không commit/push khi điều phối chưa bảo.
 
 - Phụ thuộc: 3D-09
-- Người làm: Codex gpt-6.1-terra, ~3 giờ
+- Người làm: agent máy đồng đội, ~3 giờ
 - File được chạm: `src/scene/silver/**`, `src/data/silver/stages.json` (chỉnh ± 2 m)
 
 ## Làm

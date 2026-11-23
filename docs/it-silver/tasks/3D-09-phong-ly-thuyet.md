@@ -3,7 +3,7 @@
 Đọc: `docs/it-silver/PLAN-3D.md` (mục 1, 4), `data/silverWorld.types.txt`, `AGENTS.md` mục 5. Không thêm thư viện, không `any`, không tạo object trong `useFrame`. Không sửa JSON nội dung, `src/types/silver.ts`, `src/store/useSilverStore.ts`, `src/silver/**`, `src/ui/silver/**`. Không commit/push khi điều phối chưa bảo.
 
 - Phụ thuộc: 3D-02, 3D-03; chủ dự án duyệt đợt 1
-- Người làm: Antigravity (dựng theo số), ~4 giờ
+- Người làm: agent máy đồng đội, ~4 giờ
 - File được chạm: `src/scene/silver/rooms/**`, `src/data/classrooms.json`, `src/scene/interior/B8Furniture.tsx` (chỉ bỏ bàn ghế khối của bốn phòng), `src/scene/interior/layouts/b8.ts` (vật cản)
 
 ## Làm
