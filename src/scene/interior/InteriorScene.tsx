@@ -560,20 +560,20 @@ export default function InteriorScene() {
       <group>
         {/* Chiếu sáng nội thất */}
         <ambientLight intensity={isTwinWing ? 0.8 : 0.8} color="#f8fafc" />
-        {isTwinWing && <hemisphereLight args={['#e0f2fe', '#94a3b8', 0.85]} />}
+        {(isTwinWing || isB6) && <hemisphereLight args={['#e0f2fe', '#94a3b8', 0.85]} />}
 
         <directionalLight
           position={[centerPos[0] + 20, 45, centerPos[1] - 20]}
           intensity={isTwinWing ? 1.05 : 0.9}
           color="#fffbeb"
-          castShadow
+          castShadow={!isB6}
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
           shadow-bias={-0.0005}
           shadow-normalBias={0.03}
         />
 
-      <pointLight position={[centerPos[0], 3.5, centerPos[1]]} intensity={0.7} distance={35} color="#fef08a" />
+      {!isB6 && <pointLight position={[centerPos[0], 3.5, centerPos[1]]} intensity={0.7} distance={35} color="#fef08a" />}
       {isB11 ? (
         <>
           {/* Đèn dọc 2 sân trong & cầu nối B11 */}
@@ -588,14 +588,6 @@ export default function InteriorScene() {
           <pointLight position={[layout.toWorld(31.7, -188.5)[0], 3.6, layout.toWorld(31.7, -188.5)[1]]} intensity={0.65} distance={30} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(84.5, -188.0)[0], 3.6, layout.toWorld(84.5, -188.0)[1]]} intensity={0.65} distance={35} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(53.5, -188.35)[0], 3.4, layout.toWorld(53.5, -188.35)[1]]} intensity={0.7} distance={15} color="#fffbeb" />
-        </>
-      ) : isB6 ? (
-        <>
-          {/* Đèn sảnh kính thông tầng BBI & Trung tâm An ninh mạng */}
-          <pointLight position={[layout.toWorld(14, 12)[0], 3.6, layout.toWorld(14, 12)[1]]} intensity={0.8} distance={30} color="#f8fafc" />
-          <pointLight position={[layout.toWorld(14, 30)[0], 3.6, layout.toWorld(14, 30)[1]]} intensity={0.8} distance={30} color="#f8fafc" />
-          <pointLight position={[layout.toWorld(26, 10)[0], 3.5, layout.toWorld(26, 10)[1]]} intensity={0.9} distance={25} color="#e0f2fe" />
-          <pointLight position={[layout.toWorld(5, 20)[0], 3.5, layout.toWorld(5, 20)[1]]} intensity={0.7} distance={25} color="#fffbeb" />
         </>
       ) : buildingId.toLowerCase() === 'b3' ? (
         <>

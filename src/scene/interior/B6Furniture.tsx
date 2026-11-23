@@ -9,6 +9,7 @@ import {
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { Text } from "@react-three/drei";
 import BookStaircase from "./BookStaircase";
+import StaticInstances, { type StaticInstance } from '../kit/StaticInstances';
 import { FLOOR_HEIGHT } from '../../data';
 import { b6Layout, toWorld } from './layouts/b6';
 import { createInstanceMatrix } from './InteriorFurniture';
@@ -18,6 +19,15 @@ interface B6FurnitureProps {
   floor: number;
   showUpperFloors?: boolean;
 }
+
+const atriumFrames: StaticInstance[] = [
+  ...[-4.1, -2.75, 2.75, 4.1].map(x => ({ position: [x, 3.8, 0] as [number, number, number], scale: [0.08, 7.6, 0.1] as [number, number, number] })),
+  ...[3.8, 7.5].map(y => ({ position: [0, y, 0] as [number, number, number], scale: [8.2, 0.09, 0.1] as [number, number, number] })),
+];
+const atriumPanes: StaticInstance[] = [
+  ...[-3.35, 3.35].map(x => ({ position: [x, 3.8, 0] as [number, number, number], scale: [1.5, 7.4, 1] as [number, number, number] })),
+  { position: [0, 5.7, 0], scale: [5.3, 3.6, 1] },
+];
 
 /**
  * Sinh texture procedural cho Màn hình TV lớn giám sát An ninh mạng (phòng 100.B6)
@@ -755,10 +765,12 @@ export default function B6Furniture({ floor }: B6FurnitureProps) {
       </group>}
       {/* Khung tối cho hai vách kính đầu sảnh. */}
       {[0.08, 47.62].map(v => <group key={v} position={[toWorld(14, v)[0], floor === 1 ? 0 : -3.8, toWorld(14, v)[1]]} rotation-y={-b6Layout.rotationY}>
-        {[-3.35, 3.35].map(x => <mesh key={x} position={[x, 3.8, 0]}><planeGeometry args={[1.5, 7.4]} /><meshBasicMaterial color="#c9e4ee" transparent opacity={0.5} side={2} depthWrite={false} /></mesh>)}
-        <mesh position={[0, 5.7, 0]}><planeGeometry args={[5.3, 3.6]} /><meshBasicMaterial color="#c9e4ee" transparent opacity={0.5} side={2} depthWrite={false} /></mesh>
-        {[-4.1, -2.75, 2.75, 4.1].map(x => <mesh key={x} position={[x, 3.8, 0]}><boxGeometry args={[0.08, 7.6, 0.1]} /><meshStandardMaterial color="#334155" /></mesh>)}
-        {[3.8, 7.5].map(y => <mesh key={y} position={[0, y, 0]}><boxGeometry args={[8.2, 0.09, 0.1]} /><meshStandardMaterial color="#334155" /></mesh>)}
+        <StaticInstances items={atriumPanes}>
+          <planeGeometry /><meshBasicMaterial color="#c9e4ee" transparent opacity={0.5} side={2} depthWrite={false} />
+        </StaticInstances>
+        <StaticInstances items={atriumFrames}>
+          <boxGeometry /><meshStandardMaterial color="#334155" />
+        </StaticInstances>
       </group>)}
       {/* Buồng thang máy B6 inox */}
       <B6ElevatorBooth />

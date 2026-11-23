@@ -126,3 +126,20 @@ Tất cả 3 cổng kiểm tra đều sạch 100%.
 - Sửa lỗi đăng ký thay đổi nội thất trong WalkMode gây đệ quy cập nhật vị trí khi vào nhà. Ảnh v2: `02-sanh-kinh-v2.png`, `05-cau-thang-v2.png`, `06-trung-tam-v2.png`, `08-cau-thang-sanh-v2.png`.
 - Kiểm tra: `npm run typecheck`, `npm run lint`, `npm run build` thành công; console không có lỗi đỏ trong phiên kiểm tra. Thử viewport 390×844: HUD phía trên còn chồng nhau, cần xử lý riêng.
 - FPS đo bằng requestAnimationFrame trong trình duyệt nhúng Orca ở góc phòng 100.B6: 44 khung hình / 3,03 giây, khoảng **14,5 FPS**; thấp hơn mục tiêu 50 FPS, chưa xác định đóng góp của trình duyệt nhúng so với cảnh. Cần đo lại trên trình duyệt/hardware thật và tối ưu nếu còn thấp; chưa thể coi hiệu năng đã đạt.
+
+
+## Đo render và tối ưu B6
+
+Đo `gl.info.render.calls` / `triangles` của **toàn khung hình** ở chế độ nhìn thứ nhất, cùng viewport 849×822, đứng yên sau khi cảnh ổn định; ghi số khung hình chính trước lần render tiếp theo bằng một probe `useFrame` tạm và đã xóa probe. Three.js reset bộ đếm sau shadow pass, nên bảng không bao gồm chi phí vẽ shadow map; số phụ thuộc góc nhìn, frustum và nội dung đang hiện, không trực tiếp đo thời gian GPU.
+
+| Góc / vị trí | Trước: calls / triangles | Sau: calls / triangles |
+| --- | ---: | ---: |
+| 100.B6: u=20, v=3, yaw=0.65 | 26 / 6.962 | 28 / 7.034 |
+| Sảnh: u=14, v=4, yaw=1.6789 | 43 / 5.980 | 37 / 6.064 |
+| Cầu thang: u=15, v=22, yaw=2.2 | 26 / 5.668 | 21 / 5.696 |
+| 406.B11 tầng 4: u=94, v=-141, yaw=π | 65 / 127.861 | không đổi, không sửa B11 |
+| Căn tin, góc cửa nhìn vào | 13 / 7.608 | không đổi, đo nhánh căn tin `e6625ea` |
+
+So sánh 11–13 call phòng 406 trong tài liệu phong cách là ngân sách nhóm nội thất phòng, không phải số toàn khung hình; phép đo 65 ở trên bao gồm cảnh B11, nhân vật và các thành phần khác. Căn tin được đo bằng bản xuất tạm của nhánh riêng, cùng browser, viewport và probe; không gộp nhánh căn tin. B6 trước đã dùng instancedMesh tĩnh cho bàn, ghế, màn hình, case và đèn, nên không thay lại các phần đó.
+
+Đã gộp từng nhóm khung và ô kính sảnh thành instancing tĩnh, bỏ đổ shadow map và năm point light tại B6, giữ đèn LED phát sáng cùng ambient, directional và hemisphere. Các batch rộng khiến frustum culling ít chi tiết hơn: góc phòng tăng 2 call và 72 tam giác, đổi lại góc sảnh giảm 6 call, góc thang giảm 5 call; bảng không chứng minh riêng mức cải thiện thời gian render của từng thay đổi. Kiểm tra ảnh phòng và cầu thang sau thay đổi, console không báo lỗi; cần đo hiệu năng trên thiết bị thật, không suy ra FPS chỉ từ số call.
