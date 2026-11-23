@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
-    "layout": "node scripts/osm-to-layout.mjs"
+    "layout": "node scripts/osm-to-layout.mjs",
+    "test:silver": "node scripts/silver/test.mjs",
+    "check:silver": "node scripts/silver/check.mjs"
   },
   "dependencies": {
     "@react-three/drei": "9.117.3",
