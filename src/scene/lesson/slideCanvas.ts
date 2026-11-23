@@ -1,5 +1,3 @@
-import type { Slide } from '../../types';
-
 export const SLIDE_W = 1024;
 export const SLIDE_H = 768;
 
@@ -8,8 +6,24 @@ const PAD = 56;
 const SANS = '"Segoe UI", "Helvetica Neue", Arial, sans-serif';
 const MONO = '"SF Mono", Menlo, Consolas, "Courier New", monospace';
 
-/** Slide bìa hiện ngoài pha lecture. */
-export const COVER = { title: 'Nhập môn lập trình', subtitle: 'Buổi 1' } as const;
+export interface SlideCover {
+  title: string;
+  subtitle: string;
+}
+
+/** Slide bìa mặc định khi không có thông tin từ signal. */
+export const COVER: SlideCover = { title: 'Nhập môn lập trình', subtitle: 'Buổi 1' } as const;
+
+export interface SlideDrawContent {
+  title: string;
+  body: string;
+  code?: string;
+}
+
+export interface SlideDrawTarget {
+  slide: SlideDrawContent | null;
+  cover?: SlideCover;
+}
 
 /** Tự xuống dòng theo bề rộng; trả về số dòng đã vẽ. */
 function wrapText(g: CanvasRenderingContext2D, text: string, x: number, y: number, maxW: number, lineH: number, maxLines: number): number {
@@ -33,8 +47,15 @@ function wrapText(g: CanvasRenderingContext2D, text: string, x: number, y: numbe
   return n;
 }
 
-/** Vẽ 1 slide (hoặc bìa khi `slide` = null) lên canvas 1024 × 768. Chỉ gọi khi slide đổi. */
-export function drawSlide(g: CanvasRenderingContext2D, slide: Slide | null): void {
+/**
+ * Vẽ 1 slide (hoặc bìa khi `slide` = null) lên canvas 1024 × 768.
+ * Nhận { slide, cover } từ ClassSignal hoặc slide trực tiếp.
+ */
+export function drawSlide(g: CanvasRenderingContext2D, target: SlideDrawTarget | SlideDrawContent | null): void {
+  const isTargetObj = target !== null && typeof target === 'object' && ('slide' in target || 'cover' in target);
+  const slide = isTargetObj ? (target as SlideDrawTarget).slide : (target as SlideDrawContent | null);
+  const cover = (isTargetObj && (target as SlideDrawTarget).cover) || COVER;
+
   g.fillStyle = '#ffffff';
   g.fillRect(0, 0, SLIDE_W, SLIDE_H);
   g.fillStyle = TITLE_COLOR;
@@ -44,10 +65,10 @@ export function drawSlide(g: CanvasRenderingContext2D, slide: Slide | null): voi
   if (!slide) {
     g.fillStyle = TITLE_COLOR;
     g.font = `bold 78px ${SANS}`;
-    g.fillText(COVER.title, PAD, 270);
+    g.fillText(cover.title, PAD, 270);
     g.fillStyle = '#475569';
     g.font = `52px ${SANS}`;
-    g.fillText(COVER.subtitle, PAD, 380);
+    g.fillText(cover.subtitle, PAD, 380);
     g.fillStyle = TITLE_COLOR;
     g.fillRect(PAD, 360, 180, 6);
     return;
