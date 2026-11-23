@@ -12,6 +12,7 @@ import SnowIntroOverlay from './ui/snow/SnowIntroOverlay';
 import { useWalkStore } from './store/useWalkStore';
 import { useReviewStore } from './store/useReviewStore';
 import { useSnowStore } from './store/useSnowStore';
+import { useCampusStore } from './store/useCampusStore';
 
 export default function App() {
   const reviewMode = useReviewStore((s) => s.reviewMode);
@@ -25,6 +26,14 @@ export default function App() {
     const savedReviewMode = sessionStorage.getItem('campussim.reviewMode');
     if (savedReviewMode === 'true' && !useReviewStore.getState().reviewMode) {
       useReviewStore.getState().toggleReviewMode();
+    }
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const bId = params.get('building');
+      if (bId) {
+        setTimeout(() => useCampusStore.getState().selectBuilding(bId), 600);
+      }
     }
   }, []);
 
