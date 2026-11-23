@@ -16,10 +16,10 @@ const yaw = Math.atan2(-axis.vz, -axis.vx);
 const entrance = { id: 'canteen-door', buildingId: 'can-tin', worldPos: outside, radius: 4, label: 'Vào căn tin', spawnInsideWorld: inside, spawnInsideYaw: yaw, spawnOutsideWorld: outside, spawnOutsideYaw: yaw + Math.PI };
 const walls: WallSegment[] = [
   { u1: 0, v1: 0, u2: canteenWidth, v2: 0, thickness: 0.2 },
-  { u1: 0, v1: 0, u2: 0, v2: canteenDepth, thickness: 0.2 },
-  { u1: canteenWidth, v1: 0, u2: canteenWidth, v2: canteenDepth, thickness: 0.2 },
-  { u1: 0, v1: canteenDepth, u2: canteenWidth / 2 - 3, v2: canteenDepth, thickness: 0.2 },
-  { u1: canteenWidth / 2 + 3, v1: canteenDepth, u2: canteenWidth, v2: canteenDepth, thickness: 0.2 },
+  { u1: 0, v1: 0, u2: 0, v2: canteenDepth, thickness: 0.2, isGlass: true },
+  { u1: canteenWidth, v1: 0, u2: canteenWidth, v2: canteenDepth, thickness: 0.2, isGlass: true },
+  { u1: 0, v1: canteenDepth, u2: canteenWidth / 2 - 3, v2: canteenDepth, thickness: 0.2, isGlass: true },
+  { u1: canteenWidth / 2 + 3, v1: canteenDepth, u2: canteenWidth, v2: canteenDepth, thickness: 0.2, isGlass: true },
 ];
 export const tableCenters: [number, number][] = [];
 for (let u = 6; u < canteenWidth - 4; u += 5.2) {
