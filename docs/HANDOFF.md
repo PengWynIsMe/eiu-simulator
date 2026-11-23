@@ -1,5 +1,7 @@
 # HANDOFF — bàn giao cho đồng nghiệp
 
+> 🎓 Kế hoạch "Cuộc sống IT Silver" (2026-11-23, chưa code): `docs/it-silver/PLAN.md`. Agent UI bắt đầu ở `docs/it-silver/BAT-DAU-UI.md`.
+
 ## 🧪 TONG-HOP-2 (2026-11-23) — nhánh `PengWynIsMe/tong-hop-2`, dev cổng 5181
 
 Gộp fix-noi-that + fix-ngoai-canh (không xung đột) + cảnh tuyết mở đầu chỉ chạy lần đầu/phiên. Báo cáo + danh sách thử: **`docs/tasks/TONG-HOP-2-bao-cao.md`**. Chưa push/PR/main.
