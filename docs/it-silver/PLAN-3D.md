@@ -1,6 +1,6 @@
 # PLAN-3D — IT Silver chơi trong khuôn viên, kiểu `nmlt-01`
 
-Trạng thái: chờ chủ dự án xem, chưa push. Bổ sung cho `PLAN.md`; chỗ nào trái nhau về màn chơi thì theo file này.
+Trạng thái: chủ dự án đã duyệt 24/11/2026. Bổ sung cho `PLAN.md`; chỗ nào trái nhau về màn chơi thì theo file này.
 
 > Mỗi kỳ 1–2 môn có gameplay "(dạng style giống với cái có sẵn nhập môn lập trình ấy) nhưng sẽ dài từ 3-4 bài học và có thể có thi cuối kỳ". Đã chốt thêm: **"đi tới phòng, gặp bạn/thầy"**.
 
