@@ -191,14 +191,14 @@ export default function Classroom406() {
   const { plan } = built;
   return (
     <group rotation-y={B11_ROTATION_Y}>
-      {/* 1. Bàn sinh viên gỗ sáng màu */}
+      {/* 1. Bàn sinh viên gỗ sáng màu (be gỗ sồi) */}
       <Batch matrices={plan.desks} geometry={built.desk}>
-        <meshStandardMaterial color="#dfcaa7" roughness={0.55} />
+        <meshStandardMaterial color="#edd9bf" roughness={0.45} />
       </Batch>
 
-      {/* 2. Ghế gỗ uốn cong khung kim loại (không bánh xe) */}
+      {/* 2. Ghế gỗ uốn cong khung kim loại sáng (không bánh xe) */}
       <Batch matrices={plan.chairs} geometry={built.chair}>
-        <meshStandardMaterial color="#d4b896" roughness={0.6} />
+        <meshStandardMaterial color="#ebd8be" roughness={0.5} />
       </Batch>
 
       {/* 3. Màn hình Dell đen */}
@@ -221,9 +221,15 @@ export default function Classroom406() {
         <meshStandardMaterial color="#18181b" roughness={0.5} />
       </Batch>
 
-      {/* 7. Đèn LED treo thả phát sáng trắng cool-white */}
+      {/* 7. Đèn LED treo thả phát sáng trắng cool-white (emissive) */}
       <Batch matrices={plan.lights} geometry={built.pendantLight}>
-        <meshBasicMaterial color="#ffffff" toneMapped={false} />
+        <meshStandardMaterial
+          color="#ffffff"
+          emissive="#ffffff"
+          emissiveIntensity={2.5}
+          roughness={0.2}
+          toneMapped={false}
+        />
       </Batch>
 
       {/* 8. Nội thất phụ: TV frame, 2 bảng trắng, bàn GV, dầm trần đen, điều hòa cassette, ốp tường bê tông */}

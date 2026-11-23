@@ -100,3 +100,23 @@ npm run build       # vite build -> thành công, 738 modules trong 2.31 s
   - Tường cửa sổ phía Bắc khung đen đón sáng tự nhiên: ✅ Khớp.
   - Hàng poster slogan EIU ("CREATE, ENHANCE, and SUSTAIN", "Making it HAPPEN", "EIU TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG", "DESIGN IT and BUILD IT", "Turning IDEAS into REALITY", "Design FUTURE with EXCELLENCE"): ✅ Đã tái hiện đầy đủ trên các ô kính phía Bắc.
   - Ghế ngồi gỗ sáng uốn cong, chân kim loại không bánh xe: ✅ Khớp.
+
+---
+
+## 7. Cập nhật tinh chỉnh màu sắc & ánh sáng theo ảnh thực tế (Follow-up)
+
+1. **Tường xám nhạt vân bê tông**:
+   - Khắc phục hiện tượng tường nâu đen tối màu do thừa hưởng vật liệu chung của tòa nhà.
+   - Thêm lớp ốp tường bê tông xám nhạt hiện đại `CONCRETE_LIGHT_GRAY = '#abaaa5'` (trong dải `#9a9a96`–`#b5b4ae`) cho tường trước, tường sau, tường hành lang và bậu cửa sổ.
+2. **Tăng cường ánh sáng nội thất**:
+   - Bổ sung nguồn sáng nội thất riêng cho phòng 406.B11 tầng 4: `ambientLight` cường độ `1.5` màu trắng sáng `#ffffff` và `directionalLight` góc xiên trần `0.9` màu `#fffcf5`.
+   - Dải đèn LED treo thả trần được cấu hình phát quang `emissive="#ffffff"`, `emissiveIntensity={2.5}` và `toneMapped={false}` tạo cảm giác bóng tuýp LED sáng rõ như ảnh thật mà không cần thêm shadow realtime.
+3. **Bảng trắng sáng tinh khiết**:
+   - Mặt bảng trắng chuyển sang màu `#ffffff` phẳng mịn, khung viền nhôm mảnh sáng `#cbd5e1`.
+4. **Mặt bàn và ghế gỗ sáng hơn**:
+   - Mặt bàn sinh viên chuyển sang màu be gỗ sồi `#edd9bf` với độ nhám `0.45`.
+   - Ghế ngồi gỗ chuyển sang màu be sáng `#ebd8be` đồng bộ.
+5. **Hiệu năng & Luồng buổi học**:
+   - Giữ nguyên số lượng draw calls (11–13 calls) và tốc độ 60 FPS mượt mà.
+   - Toàn bộ 8 ảnh nghiệm thu đã được chụp lại và cập nhật vào `docs/tasks/PHONG-MAY-anh/`.
+

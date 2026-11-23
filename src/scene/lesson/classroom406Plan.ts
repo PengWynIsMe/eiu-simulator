@@ -196,12 +196,13 @@ export interface Classroom406Plan {
   misc: MiscBox[];
 }
 
-const WOOD_LIGHT = '#e2caa8';
-const METAL_FRAME = '#94a3b8';
+const WOOD_LIGHT = '#edd9bf';
+const METAL_FRAME = '#cbd5e1';
 const BEAM_BLACK = '#18181b';
-const WHITEBOARD_SURFACE = '#f8fafc';
+const WHITEBOARD_SURFACE = '#ffffff';
 const TV_FRAME = '#0f172a';
-const AC_WHITE = '#f1f5f9';
+const AC_WHITE = '#f8fafc';
+const CONCRETE_LIGHT_GRAY = '#abaaa5'; // trong khoảng #9a9a96–#b5b4ae
 
 export function buildClassroom406Plan(room: Classroom): Classroom406Plan {
   const { desk } = room;
@@ -261,12 +262,12 @@ export function buildClassroom406Plan(room: Classroom): Classroom406Plan {
 
   for (const wb of [wbLeft, wbRight]) {
     const wby = wb.bottom + wb.height / 2;
-    // Khung nhôm
-    box(wb.u + 0.015, wby, wb.v, 0.03, wb.height + 0.06, wb.width + 0.06, METAL_FRAME);
-    // Mặt bảng trắng
-    box(wb.u, wby, wb.v, 0.02, wb.height, wb.width, WHITEBOARD_SURFACE);
+    // Khung nhôm mảnh
+    box(wb.u + 0.015, wby, wb.v, 0.02, wb.height + 0.04, wb.width + 0.04, METAL_FRAME);
+    // Mặt bảng trắng tinh khiết
+    box(wb.u, wby, wb.v, 0.015, wb.height, wb.width, WHITEBOARD_SURFACE);
     // Máng đựng bút / khăn lau ở đáy bảng
-    box(wb.u - 0.04, wb.bottom - 0.02, wb.v, 0.08, 0.03, wb.width - 0.2, METAL_FRAME);
+    box(wb.u - 0.03, wb.bottom - 0.015, wb.v, 0.06, 0.02, wb.width - 0.1, METAL_FRAME);
   }
 
   // 2. Bàn giáo viên (đặt tại tường trước, phía Nam của TV, mặt quay về phía -u)
@@ -305,15 +306,16 @@ export function buildClassroom406Plan(room: Classroom): Classroom406Plan {
     box(ac.u, ac.y - 0.09, ac.v, 0.5, 0.02, 0.5, '#64748b');
   }
 
-  // 5. Ốp tường bê tông xám hiện đại bên trong phòng 406
-  const CONCRETE_GRAY = '#a1a1aa';
+  // 5. Ốp tường bê tông xám nhạt hiện đại bên trong phòng 406 (màu #abaaa5 trong khoảng #9a9a96–#b5b4ae)
   // Tường trước (Đông)
-  box(96.58, 1.9, -142.05, 0.04, 3.8, 12.0, CONCRETE_GRAY);
+  box(96.47, 1.9, -142.05, 0.02, 3.8, 12.1, CONCRETE_LIGHT_GRAY);
   // Tường sau (Tây)
-  box(87.26, 1.9, -142.05, 0.04, 3.8, 12.0, CONCRETE_GRAY);
+  box(87.37, 1.9, -142.05, 0.02, 3.8, 12.1, CONCRETE_LIGHT_GRAY);
   // Tường hành lang (Nam, chừa cửa tại u=89.44)
-  box(88.35, 1.9, -136.02, 2.2, 3.8, 0.04, CONCRETE_GRAY);
-  box(93.10, 1.9, -136.02, 6.9, 3.8, 0.04, CONCRETE_GRAY);
+  box(88.04, 1.9, -136.12, 1.6, 3.8, 0.02, CONCRETE_LIGHT_GRAY);
+  box(93.325, 1.9, -136.12, 6.57, 3.8, 0.02, CONCRETE_LIGHT_GRAY);
+  // Tường Bắc (dưới bậu cửa sổ)
+  box(91.925, 0.425, -147.88, 9.37, 0.85, 0.06, CONCRETE_LIGHT_GRAY);
 
   // 6. Khung cửa sổ nhôm đen & kính đón sáng phía Bắc (v = -147.88)
   const WINDOW_FRAME_COLOR = '#18181b';

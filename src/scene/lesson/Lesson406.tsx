@@ -9,6 +9,9 @@ export default function Lesson406() {
   if (!active) return null;
   return (
     <>
+      {/* Chiếu sáng tự nhiên phòng máy 406: sáng sủa, trắng tự nhiên như ảnh thật EIU */}
+      <ambientLight intensity={1.5} color="#ffffff" />
+      <directionalLight position={[92.0, 3.7, -142.0]} intensity={0.9} color="#fffcf5" />
       <Classroom406 />
       <ProjectorScreen />
       <Teacher />
