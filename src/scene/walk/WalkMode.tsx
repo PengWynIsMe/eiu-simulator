@@ -230,6 +230,9 @@ export default function WalkMode() {
       if (custom.detail.pitch !== undefined) {
         cameraPitch.current = custom.detail.pitch;
       }
+      wallCollisionHoldTimer.current = 0;
+      wallCollisionHoldDist.current = 4.0;
+      indoorActualDistance.current = 4.0;
     };
     const onStairMove = (event: Event) => {
       const custom = event as CustomEvent<{ stairCode: string; floor: number }>;
