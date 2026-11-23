@@ -8,6 +8,7 @@ import LangToggle from '../major/LangToggle';
 import MuteButton from '../lesson/MuteButton';
 import ConfirmDialog from '../silver/parts/ConfirmDialog';
 import { LABEL_BY_SPEAKER, STYLE_BY_SPEAKER } from '../silver/parts/Avatar';
+import { ST } from '../silver/text';
 import DialogueView from '../lesson/views/DialogueView';
 import SlideView from '../lesson/views/SlideView';
 import Question from '../silver/steps/Question';
@@ -27,6 +28,8 @@ export default function WorldLayer() {
   const { mode } = useSilverPresentation();
   const screen = useSilver((s) => s.screen);
   const play = useSilver((s) => s.play);
+  const week = useSilver((s) => s.week);
+  const openWeek = useSilver((s) => s.openWeek);
   const nextStep = useSilver((s) => s.nextStep);
   const skipItem = useSilver((s) => s.skipItem);
   const exitRun = useSilver((s) => s.exitRun);
@@ -122,6 +125,19 @@ export default function WorldLayer() {
             >
               <span>{tr(ST_W.standUp)}</span>
               <span className="hidden text-[10px] text-slate-400 sm:inline">(Esc)</span>
+            </button>
+          )}
+
+          {week && play.item.meeting && (
+            <button
+              type="button"
+              data-silver-open-week="true"
+              onClick={openWeek}
+              className="inline-flex min-h-[30px] items-center gap-0.5 rounded-lg border border-slate-300 bg-white/90 px-1.5 text-[10px] font-medium text-slate-700 shadow hover:bg-slate-50 active:scale-95 sm:min-h-[36px] sm:gap-1 sm:px-2.5 sm:text-xs"
+              title={tr(ST.weekTitle)}
+            >
+              <span aria-hidden="true">📅</span>
+              <span className="hidden sm:inline">{tr(ST.weekTitle)}</span>
             </button>
           )}
 
