@@ -196,13 +196,16 @@ export interface Classroom406Plan {
   misc: MiscBox[];
 }
 
-const WOOD_LIGHT = '#edd9bf';
-const METAL_FRAME = '#cbd5e1';
-const BEAM_BLACK = '#18181b';
-const WHITEBOARD_SURFACE = '#ffffff';
-const TV_FRAME = '#0f172a';
-const AC_WHITE = '#f8fafc';
-const CONCRETE_LIGHT_GRAY = '#abaaa5'; // trong khoảng #9a9a96–#b5b4ae
+export const WOOD_LIGHT = '#edd9bf';
+export const CHAIR_WOOD = '#ebd8be';
+export const METAL_FRAME = '#cbd5e1';
+export const BEAM_BLACK = '#18181b';
+export const WHITEBOARD_SURFACE = '#ffffff';
+export const TV_FRAME = '#0f172a';
+export const AC_WHITE = '#f8fafc';
+export const AC_GRILL = '#64748b';
+export const CONCRETE_LIGHT_GRAY = '#abaaa5'; // trong khoảng #9a9a96–#b5b4ae
+export const WINDOW_GLASS_BLUE = '#bae6fd';
 
 export function buildClassroom406Plan(room: Classroom): Classroom406Plan {
   const { desk } = room;

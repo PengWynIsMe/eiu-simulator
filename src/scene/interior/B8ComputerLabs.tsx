@@ -23,6 +23,16 @@ import {
   makeMonitorGeometry,
   makePendantLightGeometry,
   makeScreenFaceGeometry,
+  WOOD_LIGHT,
+  CHAIR_WOOD,
+  METAL_FRAME,
+  BEAM_BLACK,
+  WHITEBOARD_SURFACE,
+  TV_FRAME,
+  AC_WHITE,
+  AC_GRILL,
+  CONCRETE_LIGHT_GRAY,
+  WINDOW_GLASS_BLUE,
 } from '../lesson/classroom406Plan';
 
 /** Danh sách 10 phòng học cánh Bắc tầng 4 Block 8 (dãy nhìn ra nhà xe cạnh Căn tin). */
@@ -150,6 +160,8 @@ function Batch({ matrices, geometry, children }: BatchProps) {
     m.instanceMatrix.needsUpdate = true;
   }, [matrices]);
 
+  if (matrices.length === 0) return null;
+
   return (
     <instancedMesh ref={ref} args={[geometry, undefined, matrices.length]} frustumCulled={false}>
       {children}
@@ -159,17 +171,20 @@ function Batch({ matrices, geometry, children }: BatchProps) {
 
 /**
  * Hệ thống 10 phòng máy tính tầng 4 Block 8 (dãy cánh Bắc sát nhà xe).
- * Dựng đồng bộ theo chuẩn phòng mẫu 406.B11:
+ * Dựng đồng bộ theo chuẩn phòng mẫu 406.B11 hoàn thiện trên main:
+ * - Tường xám nhạt vân bê tông mộc (#abaaa5) cho tường trước, tường sau, tường hành lang và bậu cửa sổ.
+ * - Trần bê tông xám nhạt (#abaaa5) phẳng sạch + 2 máy lạnh cassette âm trần 4 hướng (#f8fafc + #64748b).
  * - Bàn dài gỗ sáng sồi (#edd9bf), chân khung kim loại mảnh (#cbd5e1).
+ * - Ghế gỗ uốn cong sồi (#ebd8be) chân kim loại cố định.
  * - Màn hình Dell viền mỏng (#18181b) + mặt màn hình hiển thị code (makeCodeTexture).
  * - Bàn phím & chuột quang (#1f2937).
  * - Thùng máy Dell Precision đứng TRÊN BÀN (#18181b) theo từng cặp.
- * - Ghế gỗ uốn cong chân kim loại (#ebd8be).
- * - Tường trước (tường Đông): TV lớn chính giữa + 2 bảng trắng hai bên + bàn GV.
- * - Trần hở: dầm đen công nghiệp (#18181b) + đèn LED thanh thả y = 3.15 m.
- * - Cửa sổ phía Bắc: chuỗi 7 poster thương hiệu EIU nhìn ra nhà xe.
+ * - Tường trước (tường Đông): TV lớn trung tâm + 2 bảng trắng sáng khung nhôm + bàn GV gỗ sồi sáng.
+ * - Hệ dầm trần đen công nghiệp (#18181b) + đèn LED thanh thả y = 3.15 m phát sáng trắng (emissive).
+ * - Cửa sổ phía Bắc: chuỗi 7 poster thương hiệu EIU nhìn ra nhà xe + kính xanh sáng đón nắng.
  * - Tường hành lang: biển số phòng mica song ngữ (chuẩn EIU 3 dải màu) theo useLangStore.
- * Toàn bộ 320 máy tính và 10 phòng gộp chung vào ≤ 15 draw calls.
+ * - Ambient sáng tự nhiên làm bừng sáng toàn bộ không gian phòng máy.
+ * Toàn bộ 320 máy tính và 10 phòng gộp chung vào ≤ 18 draw calls.
  */
 export default function B8ComputerLabs() {
   const lang = useLangStore((s) => s.lang);
@@ -183,7 +198,7 @@ export default function B8ComputerLabs() {
     [room406Data]
   );
 
-  // 1. Tạo các hình học và texture
+  // 1. Tạo các hình học và texture dùng lại từ 406
   const deskGeom = useMemo(() => makeDeskGeometry(roomSpec as never), [roomSpec]);
   const chairGeom = useMemo(() => makeChairGeometry(roomSpec as never), [roomSpec]);
   const monitorGeom = useMemo(() => makeMonitorGeometry(), []);
@@ -235,10 +250,15 @@ export default function B8ComputerLabs() {
     const cases: Matrix4[] = [];
     const lights: Matrix4[] = [];
     const beams: Matrix4[] = [];
-    const tvFrames: Matrix4[] = [];
-    const tvScreens: Matrix4[] = [];
-    const whiteboards: Matrix4[] = [];
-    const teacherDesks: Matrix4[] = [];
+    const concreteSurfaces: Matrix4[] = []; // Trần và 4 mảng tường ốp bê tông xám nhạt #abaaa5
+    const acCases: Matrix4[] = []; // Vỏ ngoài máy lạnh cassette trắng #f8fafc
+    const acGrilles: Matrix4[] = []; // Lưới hút gió cassette xám chìm #64748b
+    const tvFrames: Matrix4[] = []; // Khung viền TV đen
+    const tvScreens: Matrix4[] = []; // Màn hình TV slide
+    const whiteboards: Matrix4[] = []; // Mặt bảng trắng tinh khiết
+    const metalFrames: Matrix4[] = []; // Khung nhôm bảng trắng, máng bút, chân bàn GV, đố cửa sổ
+    const teacherDesks: Matrix4[] = []; // Mặt bàn giáo viên gỗ sồi sáng
+    const windowGlass: Matrix4[] = []; // Kính đón sáng xanh nhạt phía Bắc
     const posters: Matrix4[] = [];
 
     // Tọa độ biển số phòng ngoài hành lang
@@ -247,6 +267,9 @@ export default function B8ComputerLabs() {
 
     for (const r of B8_COMPUTER_LAB_ROOMS) {
       const vCenter = -205.1;
+      const roomDepth = 10.1; // từ v = -210.15 đến -200.05
+      const roomWidth = r.maxU - r.minU;
+      const roomMidU = (r.minU + r.maxU) * 0.5;
       const frontU = r.maxU - 0.05;
 
       // --- Biển phòng ngoài hành lang (gắn sát tường bên cạnh cửa phòng) ---
@@ -258,25 +281,85 @@ export default function B8ComputerLabs() {
         yaw: signYaw,
       });
 
-      // --- Tường trước (Tường Đông): TV + 2 Bảng trắng + Bàn giáo viên ---
-      // Khung TV & Màn hình TV
+      // --- 1. ỐP TƯỜNG & TRẦN BÊ TÔNG XÁM NHẠT (#abaaa5) THEO CHUẨN 406.B11 ---
+      // A. Trần bê tông xám nhạt (y = 3.79 m, phủ toàn bộ phòng)
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, roomMidU, vCenter, 3.79, 0, roomWidth - 0.04, 0.02, roomDepth)
+      );
+
+      // B. Tường trước (Tường Đông, u = r.maxU): Ốp bê tông xám nhạt
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, r.maxU - 0.02, vCenter, 1.89, 0, 0.02, 3.78, roomDepth)
+      );
+
+      // C. Tường sau (Tây, u = r.minU): Ốp bê tông xám nhạt
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, r.minU + 0.02, vCenter, 1.89, 0, 0.02, 3.78, roomDepth)
+      );
+
+      // D. Tường hành lang phía Nam (v = -200.05): Ốp bê tông xám nhạt trong phòng, chừa cửa
+      // Đoạn Tây cửa 1 (u = r.minU .. r.minU + 0.6)
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, r.minU + 0.3, -200.05, 1.89, 0, 0.6, 3.78, 0.02)
+      );
+      // Đoạn giữa 2 cửa (u = r.minU + 1.6 .. r.maxU - 1.6)
+      const midWallLen = Math.max(0.1, roomWidth - 3.2);
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, roomMidU, -200.05, 1.89, 0, midWallLen, 3.78, 0.02)
+      );
+      // Đoạn Đông cửa 2 (u = r.maxU - 0.6 .. r.maxU)
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, r.maxU - 0.3, -200.05, 1.89, 0, 0.6, 3.78, 0.02)
+      );
+      // Lanh-tô trên 2 cửa (y = 2.4 .. 3.78, cao 1.38, tâm 3.09)
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, r.minU + 1.1, -200.05, 3.09, 0, 1.0, 1.38, 0.02)
+      );
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, r.maxU - 1.1, -200.05, 3.09, 0, 1.0, 1.38, 0.02)
+      );
+
+      // E. Tường Bắc dưới bậu cửa sổ (v = -210.15, cao 0.85 m, tâm 0.425)
+      concreteSurfaces.push(
+        createInstanceMatrix(toWorld, roomMidU, -210.15, 0.425, 0, roomWidth - 0.04, 0.85, 0.06)
+      );
+
+      // --- 2. MÁY LẠNH ÂM TRẦN CASSETTE 4 HƯỚNG THỔI (CEILING CASSETTE AC) ---
+      // 2 máy lạnh mỗi phòng bố trí cân đối hai bên
+      for (const acU of [r.minU + roomWidth * 0.33, r.minU + roomWidth * 0.67]) {
+        // Vỏ ngoài cassette trắng AC_WHITE
+        acCases.push(createInstanceMatrix(toWorld, acU, vCenter, 3.68, 0, 0.9, 0.18, 0.9));
+        // Lưới hút gió vuông chìm ở giữa
+        acGrilles.push(createInstanceMatrix(toWorld, acU, vCenter, 3.58, 0, 0.5, 0.02, 0.5));
+      }
+
+      // --- 3. TƯỜNG TRƯỚC (TƯỜNG ĐÔNG): TV + 2 BẢNG TRẮNG SÁNG KHUNG NHÔM + BÀN GV ---
+      // Khung viền TV đen & Màn hình TV
       tvFrames.push(createInstanceMatrix(toWorld, frontU, vCenter, 2.15, 0, 0.05, 1.3, 2.2));
       tvScreens.push(createInstanceMatrix(toWorld, frontU - 0.03, vCenter, 2.15, 0, 0.02, 1.2, 2.1));
 
-      // 2 Bảng trắng hai bên TV
-      whiteboards.push(createInstanceMatrix(toWorld, frontU, -207.8, 1.7, 0, 0.03, 1.2, 2.2));
-      whiteboards.push(createInstanceMatrix(toWorld, frontU, -202.4, 1.7, 0, 0.03, 1.2, 2.2));
+      // 2 Bảng trắng sáng hai bên TV (Left & Right Whiteboard)
+      for (const wbV of [-207.8, -202.4]) {
+        // Mặt bảng trắng tinh khiết
+        whiteboards.push(createInstanceMatrix(toWorld, frontU - 0.045, wbV, 1.7, 0, 0.015, 1.2, 2.2));
+        // Khung nhôm viền ngoài
+        metalFrames.push(createInstanceMatrix(toWorld, frontU - 0.035, wbV, 1.7, 0, 0.02, 1.24, 2.24));
+        // Máng đựng bút / khăn lau ở đáy bảng
+        metalFrames.push(createInstanceMatrix(toWorld, frontU - 0.07, wbV, 1.08, 0, 0.06, 0.02, 2.1));
+      }
 
-      // Bàn giáo viên & ghế & màn hình
-      teacherDesks.push(createInstanceMatrix(toWorld, r.maxU - 1.5, -203.2, 0.375, 0, 0.7, 0.75, 1.4));
+      // Bàn giáo viên gỗ sồi sáng & khung chân kim loại
+      teacherDesks.push(createInstanceMatrix(toWorld, r.maxU - 1.5, -203.2, 0.73, 0, 0.7, 0.04, 1.4));
+      metalFrames.push(createInstanceMatrix(toWorld, r.maxU - 1.5, -203.2 + 0.67, 0.35, 0, 0.6, 0.7, 0.03));
+      metalFrames.push(createInstanceMatrix(toWorld, r.maxU - 1.5, -203.2 - 0.67, 0.35, 0, 0.6, 0.7, 0.03));
       chairs.push(createInstanceMatrix(toWorld, r.maxU - 0.95, -203.2, 0, 0, 1, 1, 1));
       monitors.push(createInstanceMatrix(toWorld, r.maxU - 1.4, -203.2, 0.75, 0, 1, 1, 1));
 
-      // --- Dầm trần đen công nghiệp (trục V) ---
+      // --- 4. HỆ DẦM TRẦN ĐEN CÔNG NGHIỆP (INDUSTRIAL EXPOSED BLACK BEAMS) ---
       beams.push(createInstanceMatrix(toWorld, r.minU + 2.6, vCenter, 3.65, 0, 0.32, 0.28, 9.6));
       beams.push(createInstanceMatrix(toWorld, r.minU + 6.6, vCenter, 3.65, 0, 0.32, 0.28, 9.6));
 
-      // --- 4 Dãy bàn sinh viên (4 hàng × 8 chỗ = 32 máy/phòng) ---
+      // --- 5. 4 DÃY BÀN SINH VIÊN (4 hàng × 8 chỗ = 32 máy/phòng) ---
       const rowUs = [r.maxU - 2.8, r.maxU - 4.4, r.maxU - 6.0, r.maxU - 7.6];
       // 2 khối ghế: 4 ghế khối Bắc (v = -208.8..-205.8) và 4 ghế khối Nam (v = -204.2..-201.2)
       const seatVs = [-208.8, -207.8, -206.8, -205.8, -204.2, -203.2, -202.2, -201.2];
@@ -290,13 +373,13 @@ export default function B8ComputerLabs() {
           const sv = seatVs[col];
           if (sv === undefined) continue;
 
-          // Bàn học (gốc tại mặt sàn)
+          // Bàn học gỗ sáng sồi
           desks.push(createInstanceMatrix(toWorld, ru, sv, 0, 0, 1, 1, 1));
 
-          // Ghế học sinh đặt phía sau (-u), mặt hướng về phía bảng (+u)
+          // Ghế học sinh gỗ uốn cong chân kim loại
           chairs.push(createInstanceMatrix(toWorld, ru - 0.42, sv, 0, 0, 1, 1, 1));
 
-          // Màn hình Dell trên bàn (y = 0.75), mặt quay về phía ghế (-u)
+          // Màn hình Dell trên bàn
           monitors.push(createInstanceMatrix(toWorld, ru + 0.15, sv, 0.75, 0, 1, 1, 1));
 
           // Mặt sáng màn hình hiển thị code
@@ -312,9 +395,16 @@ export default function B8ComputerLabs() {
         }
       }
 
-      // --- Cụm poster EIU trên cửa sổ kính hướng Bắc (nhìn ra nhà xe) ---
-      const midU = (r.minU + r.maxU) * 0.5;
-      posters.push(createInstanceMatrix(toWorld, midU, -210.12, 2.95, 0, 1, 1, 1));
+      // --- 6. CỬA SỔ PHÍA BẮC & CHUỖI 7 POSTER EIU ---
+      // Khung bậu cửa sổ, đố ngang và đố đứng
+      metalFrames.push(createInstanceMatrix(toWorld, roomMidU, -210.15, 0.85, 0, roomWidth, 0.06, 0.06));
+      metalFrames.push(createInstanceMatrix(toWorld, roomMidU, -210.15, 2.60, 0, roomWidth, 0.06, 0.06));
+      metalFrames.push(createInstanceMatrix(toWorld, roomMidU, -210.15, 3.55, 0, roomWidth, 0.06, 0.06));
+      // Kính cửa sổ xanh đón sáng tự nhiên
+      windowGlass.push(createInstanceMatrix(toWorld, roomMidU, -210.16, 1.725, 0, roomWidth - 0.1, 1.68, 0.02));
+
+      // Dãy poster slogan EIU
+      posters.push(createInstanceMatrix(toWorld, roomMidU, -210.12, 2.95, 0, 1, 1, 1));
     }
 
     return {
@@ -326,10 +416,15 @@ export default function B8ComputerLabs() {
       cases,
       lights,
       beams,
+      concreteSurfaces,
+      acCases,
+      acGrilles,
       tvFrames,
       tvScreens,
       whiteboards,
+      metalFrames,
       teacherDesks,
+      windowGlass,
       posters,
       signs,
     };
@@ -337,19 +432,22 @@ export default function B8ComputerLabs() {
 
   return (
     <group>
+      {/* Nguồn sáng ambient trắng giúp phòng máy sáng bừng, tôn vẻ đẹp bê tông xám nhạt và gỗ sồi */}
+      <ambientLight intensity={0.4} color="#ffffff" />
+
       {/* 1. Bàn sinh viên gỗ sáng sồi */}
       <Batch matrices={batches.desks} geometry={deskGeom}>
-        <meshStandardMaterial color="#edd9bf" roughness={0.45} />
+        <meshStandardMaterial color={WOOD_LIGHT} roughness={0.45} />
       </Batch>
 
-      {/* 2. Ghế gỗ uốn cong khung kim loại */}
+      {/* 2. Ghế gỗ uốn cong khung kim loại sáng */}
       <Batch matrices={batches.chairs} geometry={chairGeom}>
-        <meshStandardMaterial color="#ebd8be" roughness={0.5} />
+        <meshStandardMaterial color={CHAIR_WOOD} roughness={0.5} />
       </Batch>
 
       {/* 3. Màn hình Dell đen */}
       <Batch matrices={batches.monitors} geometry={monitorGeom}>
-        <meshStandardMaterial color="#18181b" roughness={0.5} />
+        <meshStandardMaterial color={BEAM_BLACK} roughness={0.5} />
       </Batch>
 
       {/* 4. Mặt sáng màn hình hiển thị code */}
@@ -364,15 +462,15 @@ export default function B8ComputerLabs() {
 
       {/* 6. Thùng máy Dell Precision trên bàn */}
       <Batch matrices={batches.cases} geometry={pcCaseGeom}>
-        <meshStandardMaterial color="#18181b" roughness={0.5} />
+        <meshStandardMaterial color={BEAM_BLACK} roughness={0.5} />
       </Batch>
 
-      {/* 7. Đèn LED treo thả phát sáng */}
+      {/* 7. Đèn LED treo thả phát sáng trắng cool-white (emissive) */}
       <Batch matrices={batches.lights} geometry={pendantLightGeom}>
         <meshStandardMaterial
           color="#ffffff"
           emissive="#ffffff"
-          emissiveIntensity={2.5}
+          emissiveIntensity={3.0}
           roughness={0.2}
           toneMapped={false}
         />
@@ -380,35 +478,60 @@ export default function B8ComputerLabs() {
 
       {/* 8. Dầm trần đen công nghiệp */}
       <Batch matrices={batches.beams} geometry={unitBoxGeom}>
-        <meshStandardMaterial color="#18181b" roughness={0.8} />
+        <meshStandardMaterial color={BEAM_BLACK} roughness={0.8} />
       </Batch>
 
-      {/* 9. Khung TV tường trước */}
+      {/* 9. Tường & trần bê tông xám nhạt (#abaaa5) mộc chuẩn 406.B11 */}
+      <Batch matrices={batches.concreteSurfaces} geometry={unitBoxGeom}>
+        <meshStandardMaterial color={CONCRETE_LIGHT_GRAY} roughness={0.85} />
+      </Batch>
+
+      {/* 10. Vỏ ngoài máy lạnh cassette 4 hướng màu trắng sạch */}
+      <Batch matrices={batches.acCases} geometry={unitBoxGeom}>
+        <meshStandardMaterial color={AC_WHITE} roughness={0.3} />
+      </Batch>
+
+      {/* 11. Lưới hút gió máy lạnh cassette xám chìm */}
+      <Batch matrices={batches.acGrilles} geometry={unitBoxGeom}>
+        <meshStandardMaterial color={AC_GRILL} roughness={0.6} />
+      </Batch>
+
+      {/* 12. Mặt bảng trắng sáng tinh khiết */}
+      <Batch matrices={batches.whiteboards} geometry={unitBoxGeom}>
+        <meshStandardMaterial color={WHITEBOARD_SURFACE} roughness={0.15} />
+      </Batch>
+
+      {/* 13. Khung nhôm bảng trắng, máng bút, chân bàn GV, đố cửa sổ */}
+      <Batch matrices={batches.metalFrames} geometry={unitBoxGeom}>
+        <meshStandardMaterial color={METAL_FRAME} roughness={0.3} metalness={0.25} />
+      </Batch>
+
+      {/* 14. Khung TV tường trước */}
       <Batch matrices={batches.tvFrames} geometry={unitBoxGeom}>
-        <meshStandardMaterial color="#0f172a" roughness={0.3} />
+        <meshStandardMaterial color={TV_FRAME} roughness={0.3} />
       </Batch>
 
-      {/* 10. Màn hình TV trung tâm */}
+      {/* 15. Màn hình TV trung tâm */}
       <Batch matrices={batches.tvScreens} geometry={unitBoxGeom}>
         <meshStandardMaterial color="#1e3a8a" emissive="#1e3a8a" emissiveIntensity={0.6} roughness={0.2} />
       </Batch>
 
-      {/* 11. Bảng trắng hai bên TV */}
-      <Batch matrices={batches.whiteboards} geometry={unitBoxGeom}>
-        <meshStandardMaterial color="#ffffff" roughness={0.2} />
-      </Batch>
-
-      {/* 12. Bàn giáo viên */}
+      {/* 16. Bàn giáo viên gỗ sáng sồi */}
       <Batch matrices={batches.teacherDesks} geometry={unitBoxGeom}>
-        <meshStandardMaterial color="#edd9bf" roughness={0.45} />
+        <meshStandardMaterial color={WOOD_LIGHT} roughness={0.45} />
       </Batch>
 
-      {/* 13. Poster thương hiệu EIU trên cửa sổ phía Bắc */}
+      {/* 17. Kính cửa sổ xanh đón sáng phía Bắc */}
+      <Batch matrices={batches.windowGlass} geometry={unitBoxGeom}>
+        <meshStandardMaterial color={WINDOW_GLASS_BLUE} roughness={0.1} metalness={0.1} transparent opacity={0.65} />
+      </Batch>
+
+      {/* 18. Poster thương hiệu EIU trên cửa sổ phía Bắc */}
       <Batch matrices={batches.posters} geometry={unitPostersGeom}>
         <meshBasicMaterial map={postersTex} side={DoubleSide} />
       </Batch>
 
-      {/* 14. Biển số phòng mica 3 dải màu chuẩn EIU gắn tường hành lang (song ngữ tự động đổi theo useLangStore) */}
+      {/* 19. Biển số phòng mica 3 dải màu chuẩn EIU gắn tường hành lang (song ngữ tự động đổi theo useLangStore) */}
       {batches.signs.map((sign) => (
         <group key={sign.code} position={[sign.worldX, 1.9, sign.worldZ]} rotation-y={sign.yaw}>
           {/* Dải 1: Xanh lá EIU */}

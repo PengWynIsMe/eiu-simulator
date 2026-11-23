@@ -4,7 +4,7 @@
 
 Báo cáo đầy đủ: **`docs/tasks/FIX-NT-sua-thang-phong-may-b8.md`**.
 1. **Sửa cầu thang B3/B8/B11 (Commit `4ead561`)**: Khắc phục lỗi sàn `INTERIOR_FLOOR_POLYGON_OFFSET = -1` trong `InteriorScene.tsx` che mất chân bậc thang và gây z-fighting với sàn hành lang; khôi phục màu nền trời `#8cc8f5` cho `isTwinWing` (B8/B11); reset camera va chạm tường trong `WalkMode.tsx`. Giữ nguyên cầu thang gáy sách B6.
-2. **Hệ thống phòng máy tầng 4 Block 8 (Commit mục 2)**: 10 phòng cánh Bắc sát nhà xe (402, 404, 406, 408, 410, 412, 414, 416, 418, 420.B8) theo chuẩn phòng 406.B11 (320 máy trạm, bàn gỗ sáng, ghế gỗ chân kim loại, màn Dell có texture code, case trên bàn, 2 bảng trắng + TV, dầm đen trần + đèn LED thả, poster EIU cửa sổ Bắc, biển số phòng mica song ngữ EIU tự đổi theo `useLangStore`). Toàn bộ 10 phòng gộp chung ~15 draw call instanced mesh.
+2. **Hệ thống phòng máy tầng 4 Block 8 (Commit mục 2)**: 10 phòng cánh Bắc sát nhà xe (402, 404, 406, 408, 410, 412, 414, 416, 418, 420.B8) theo chuẩn hoàn thiện của 406.B11 (tường & trần xám nhạt bê tông `#abaaa5`, máy lạnh cassette âm trần, bảng trắng sáng khung nhôm viền mỏng, bàn ghế gỗ sồi sáng, 320 máy trạm Dell có code texture, dầm trần đen + đèn LED emissive và ambient sáng, poster EIU cửa sổ Bắc, biển số phòng mica song ngữ EIU tự đổi theo `useLangStore`). Toàn bộ 10 phòng gộp chung ~17 draw call instanced mesh.
 - **Trạng thái**: Đã xong cả 2 mục, kiểm tra 3 cổng (typecheck, lint, build) đạt 100%.
 - **Việc tiếp theo**: Claude review diff và merge vào `main` khi chủ dự án duyệt.
 

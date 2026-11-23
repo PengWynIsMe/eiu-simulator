@@ -14,6 +14,9 @@ import {
   makePendantLightGeometry,
   makePostersGeometry,
   makeScreenFaceGeometry,
+  WOOD_LIGHT,
+  CHAIR_WOOD,
+  BEAM_BLACK,
 } from './classroom406Plan';
 
 /** Texture code giả (dùng chung cho 40 màn) — vẽ 1 lần bằng canvas. */
@@ -193,17 +196,17 @@ export default function Classroom406() {
     <group rotation-y={B11_ROTATION_Y}>
       {/* 1. Bàn sinh viên gỗ sáng màu (be gỗ sồi) */}
       <Batch matrices={plan.desks} geometry={built.desk}>
-        <meshStandardMaterial color="#edd9bf" roughness={0.45} />
+        <meshStandardMaterial color={WOOD_LIGHT} roughness={0.45} />
       </Batch>
 
       {/* 2. Ghế gỗ uốn cong khung kim loại sáng (không bánh xe) */}
       <Batch matrices={plan.chairs} geometry={built.chair}>
-        <meshStandardMaterial color="#ebd8be" roughness={0.5} />
+        <meshStandardMaterial color={CHAIR_WOOD} roughness={0.5} />
       </Batch>
 
       {/* 3. Màn hình Dell đen */}
       <Batch matrices={plan.monitors} geometry={built.monitor}>
-        <meshStandardMaterial color="#18181b" roughness={0.5} />
+        <meshStandardMaterial color={BEAM_BLACK} roughness={0.5} />
       </Batch>
 
       {/* 4. Mặt màn hình sáng hiển thị code */}

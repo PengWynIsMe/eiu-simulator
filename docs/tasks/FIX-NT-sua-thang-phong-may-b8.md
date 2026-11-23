@@ -82,17 +82,21 @@ Qua so sánh mã nguồn và chụp ảnh trực quan 7 góc thang giữa bản 
 ### Mục 2: Hệ thống phòng máy tầng 4 Block 8
 - **Tập tin tạo mới / sửa đổi**:
   - `src/scene/interior/B8ComputerLabs.tsx` (tạo mới): Dựng toàn bộ 10 phòng máy cánh Bắc (402, 404, 406, 408, 410, 412, 414, 416, 418, 420.B8).
-    - 320 máy trạm (32 máy/phòng: 4 dãy × 8 chỗ với lối đi giữa).
-    - Tái sử dụng geometry phòng 406: bàn gỗ sáng, ghế gỗ chân kim loại uốn, màn hình Dell + texture code màn hình, thùng máy đứng trên mặt bàn, bàn giáo viên.
-    - Tường trước: TV 75 inch + 2 bảng trắng viền nhôm.
-    - Trần: 2 dầm thép đen công nghiệp + 8 đèn LED thả mỗi phòng.
-    - Cửa sổ phía Bắc: Poster nhận diện thương hiệu EIU.
-    - Biển số phòng: Biển mica gắn tường hành lang với 3 dải màu EIU, hiển thị mã phòng và tên song ngữ (`Phòng máy tính` / `Computer Lab`), tự động cập nhật khi đổi ngôn ngữ qua `useLangStore`.
-    - Tối ưu hóa: Toàn bộ 10 phòng được batch vào chung 1 nhóm InstancedMesh (~15 draw calls). Tổng số draw calls khi đứng ở hành lang tầng 4 chỉ 81 calls (ngân sách < 100).
+    - Đồng bộ chuẩn phòng 406.B11 hoàn thiện trên main:
+      - Tái sử dụng trực tiếp các hằng số màu/vật liệu dùng chung từ `classroom406Plan.ts`: `WOOD_LIGHT`, `CHAIR_WOOD`, `METAL_FRAME`, `BEAM_BLACK`, `WHITEBOARD_SURFACE`, `TV_FRAME`, `AC_WHITE`, `AC_GRILL`, `CONCRETE_LIGHT_GRAY`, `WINDOW_GLASS_BLUE`.
+      - Ốp tường & trần bê tông xám nhạt hiện đại `CONCRETE_LIGHT_GRAY = '#abaaa5'` cho tường trước, tường sau, tường hành lang phía trong, bậu cửa sổ và trần phẳng sạch (khắc phục hoàn toàn tình trạng tường nâu đen và trần tối ban đầu).
+      - Trang bị 2 máy lạnh cassette âm trần 4 hướng (`AC_WHITE = '#f8fafc'` + lưới xám `#64748b`) mỗi phòng.
+      - Bảng trắng sáng tinh khiết (`WHITEBOARD_SURFACE = '#ffffff'`) có khung viền nhôm và máng bút kim loại (`METAL_FRAME = '#cbd5e1'`).
+      - Bàn ghế gỗ sồi sáng (`WOOD_LIGHT = '#edd9bf'`, `CHAIR_WOOD = '#ebd8be'`), 320 máy trạm Dell + case trên bàn.
+      - Hệ dầm trần đen công nghiệp + đèn LED treo thả phát sáng trắng cool-white (`emissiveIntensity = 3.0`) + nguồn ambient trắng dịu giúp phòng máy sáng bừng tự nhiên.
+      - Cửa sổ phía Bắc: Poster nhận diện thương hiệu EIU + kính xanh sáng đón nắng.
+      - Biển số phòng: Biển mica gắn tường hành lang với 3 dải màu EIU, hiển thị mã phòng và tên song ngữ (`Phòng máy tính` / `Computer Lab`), tự động cập nhật khi đổi ngôn ngữ qua `useLangStore`.
+      - Tối ưu hóa: Toàn bộ 10 phòng được batch vào chung 1 nhóm InstancedMesh (~17 draw calls). Tổng số draw calls khi đứng ở hành lang tầng 4 chỉ ~83 calls (ngân sách < 100).
   - `src/scene/interior/B8Furniture.tsx`: Tích hợp `<B8ComputerLabs />` khi `floor === 4`, đồng thời bỏ sinh bàn ghế lý thuyết generic cho các phòng cánh Bắc ở tầng 4.
+  - `src/scene/lesson/classroom406Plan.ts` & `Classroom406.tsx`: Xuất và dùng chung các hằng số vật liệu chuẩn cho toàn bộ hệ thống phòng máy.
 - **Ảnh kiểm chứng**:
   - `docs/tasks/FIX-NT-anh/b8-t4-hanh-lang-406.png`: Góc nhìn từ hành lang tầng 4 nhìn qua cửa kính vào phòng 406.B8.
-  - `docs/tasks/FIX-NT-anh/b8-t4-phong-may-406-dong.png`: Góc nhìn bên trong phòng máy nhìn về các dãy máy tính và bàn giáo viên.
-  - `docs/tasks/FIX-NT-anh/b8-t4-phong-may-406-bac.png`: Góc nhìn cận cảnh các hàng máy tính, dầm trần đen, đèn LED thả và poster cửa sổ.
+  - `docs/tasks/FIX-NT-anh/b8-t4-phong-may-406-dong.png`: Góc nhìn bên trong phòng máy nhìn về các dãy máy tính, bảng trắng sáng khung nhôm, TV và bàn giáo viên (tường xám nhạt #abaaa5).
+  - `docs/tasks/FIX-NT-anh/b8-t4-phong-may-406-bac.png`: Góc nhìn cận cảnh các hàng máy tính, trần xám phẳng, máy lạnh cassette, dầm trần đen, đèn LED thả và poster cửa sổ.
   - `docs/tasks/FIX-NT-anh/b8-t4-bien-phong-406.png`: Biển số phòng tiếng Việt (`406.B8 - Phòng máy tính`).
   - `docs/tasks/FIX-NT-anh/b8-t4-bien-phong-406-en.png`: Biển số phòng tiếng Anh (`406.B8 - Computer Lab`).
