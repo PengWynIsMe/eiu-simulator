@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "code": "COMS 101",
+  "tier": "summary",
+  "status": "da-duyet",
+  "basis": {
+    "pdfPages": "21",
+    "note": {
+      "vi": "Đây là mô phỏng ngắn của môn học.",
+      "en": "This is a short simulation of the course."
+    }
+  },
+  "summary": {
+    "vi": "Bạn luyện cách lắng nghe, phản hồi và mở đầu một bài thuyết trình ngắn.",
+    "en": "Practise listening, responding and opening a short presentation."
+  },
+  "sessions": [
+    {
+      "slot": "theoryA",
+      "scene": {
+        "id": "COMS 101/theory-a",
+        "title": {
+          "vi": "Nghe rồi phản hồi",
+          "en": "Listening and responding"
+        },
+        "place": "b8",
+        "minutes": 1.75,
+        "steps": [
+          {
+            "id": "han-mo-bai",
+            "type": "say",
+            "speaker": "han",
+            "text": {
+              "vi": "Bài nói của nhóm mình hơi nhiều ý. Mình muốn người nghe dễ theo dõi hơn.",
+              "en": "Our talk covers quite a lot. I’d like to make it easier to follow."
+            }
+          },
+          {
+            "id": "hai-cach-phan-hoi",
+            "type": "slide",
+            "title": {
+              "vi": "Nhắc lại hoặc hỏi rõ",
+              "en": "Reflect back or ask a question"
+            },
+            "body": {
+              "vi": "Bạn có thể nhắc lại điều vừa nghe để xác nhận mình hiểu đúng, hoặc hỏi một câu để hiểu rõ hơn.",
+              "en": "You can sum up what you heard to check your understanding, or ask a question to learn more."
+            }
+          },
+          {
+            "id": "dap-loi-han",
+            "type": "choice",
+            "speaker": "han",
+            "text": {
+              "vi": "Bạn giúp mình xem nên sửa gì được không?",
+              "en": "Can you help me figure out what to change?"
+            },
+            "options": [
+              {
+                "id": "xac-nhan",
+                "text": {
+                  "vi": "Ý bạn là nhóm nên làm rõ ý chính, đúng không?",
+                  "en": "Do you mean we should make our main point clearer?"
+                },
+                "reply": {
+                  "vi": "Ừ, mình muốn ai nghe xong cũng nhớ được ý chính.",
+                  "en": "Yes, I want people to leave remembering the main point."
+                }
+              },
+              {
+                "id": "hoi-ro",
+                "text": {
+                  "vi": "Bạn thấy chỗ nào đang khó theo dõi nhất?",
+                  "en": "Which part do you think is hardest to follow?"
+                },
+                "reply": {
+                  "vi": "Đoạn chuyển sang ví dụ ấy. Mình xem lại chỗ đó nhé.",
+                  "en": "The transition into the example. Let’s go over that bit."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slot": "theoryB",
+      "scene": {
+        "id": "COMS 101/theory-b",
+        "title": {
+          "vi": "Mở đầu bài thuyết trình",
+          "en": "Opening a presentation"
+        },
+        "place": "b8",
+        "minutes": 1.75,
+        "steps": [
+          {
+            "id": "trinh-tu-mo-bai",
+            "type": "slide",
+            "title": {
+              "vi": "Ba câu mở đầu",
+              "en": "An opening in three sentences"
+            },
+            "body": {
+              "vi": "Với bài nói này, nhóm sẽ chào người nghe, giới thiệu chủ đề rồi báo trước các phần chính.",
+              "en": "For this talk, the group will greet the audience, introduce the topic and then preview the main points."
+            }
+          },
+          {
+            "id": "xep-loi-mo-dau",
+            "type": "order",
+            "prompt": {
+              "vi": "Xếp ba câu theo thứ tự nhóm vừa thống nhất.",
+              "en": "Put the three sentences in the order the group agreed on."
+            },
+            "items": [
+              {
+                "id": "bao-truoc",
+                "text": {
+                  "vi": "Trước hết, nhóm sẽ giới thiệu bố cục, sau đó sẽ xem một ví dụ.",
+                  "en": "We’ll start with the layout and then look at an example."
+                }
+              },
+              {
+                "id": "chao",
+                "text": {
+                  "vi": "Chào các bạn!",
+                  "en": "Hi, everyone!"
+                }
+              },
+              {
+                "id": "neu-chu-de",
+                "text": {
+                  "vi": "Hôm nay nhóm mình nói về cách làm một tấm áp phích dễ đọc.",
+                  "en": "Today we’ll talk about how to make a poster that’s easy to read."
+                }
+              }
+            ],
+            "answer": [
+              "chao",
+              "neu-chu-de",
+              "bao-truoc"
+            ],
+            "explainCorrect": {
+              "vi": "Lời chào mở đầu, câu sau nêu chủ đề áp phích và câu cuối cho biết bài nói sẽ đi qua những phần nào.",
+              "en": "The greeting comes first, then the poster topic. The last sentence tells listeners what the talk will cover."
+            },
+            "explainWrong": {
+              "vi": "Tìm câu chào trước. Người nghe cần biết chủ đề áp phích rồi mới nghe nhóm giới thiệu các phần.",
+              "en": "Find the greeting first. Introduce the poster topic before outlining the talk."
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "closing": {
+    "vi": "Một câu hỏi có thể giúp bạn hiểu người nói hơn, và một lời mở đầu rõ ràng giúp người nghe theo kịp.",
+    "en": "A question can help you understand the speaker, and a clear opening helps your audience follow along."
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "code": "MATH 112",
+  "tier": "summary",
+  "status": "da-duyet",
+  "basis": {
+    "pdfPages": "15",
+    "note": {
+      "vi": "Đây là mô phỏng ngắn của môn học.",
+      "en": "This is a short simulation of the course."
+    }
+  },
+  "summary": {
+    "vi": "Bạn làm quen với phép tính vectơ và nhận ra quy luật của một chuỗi số.",
+    "en": "Practise adding vectors and spotting patterns in a series."
+  },
+  "sessions": [
+    {
+      "slot": "theoryA",
+      "scene": {
+        "id": "MATH 112/theory-a",
+        "title": {
+          "vi": "Cộng hai vectơ",
+          "en": "Adding two vectors"
+        },
+        "place": "b8",
+        "minutes": 1.75,
+        "steps": [
+          {
+            "id": "han-mo-bai",
+            "type": "say",
+            "speaker": "han",
+            "text": {
+              "vi": "Mình vẽ hai vectơ thành mũi tên rồi. Bạn thử cộng tọa độ của chúng nhé.",
+              "en": "I’ve drawn the two vectors as arrows. Want to try adding their coordinates?"
+            }
+          },
+          {
+            "id": "cong-thanh-phan",
+            "type": "slide",
+            "title": {
+              "vi": "Cộng theo từng tọa độ",
+              "en": "Add matching coordinates"
+            },
+            "body": {
+              "vi": "Để cộng hai vectơ, cộng hai tọa độ x với nhau rồi cộng hai tọa độ y với nhau.",
+              "en": "To add two vectors, add their x coordinates together and do the same with their y coordinates."
+            }
+          },
+          {
+            "id": "tinh-tong",
+            "type": "question",
+            "prompt": {
+              "vi": "Tổng của (2, −1) và (−3, 4) là vectơ nào?",
+              "en": "What is the sum of (2, −1) and (−3, 4)?"
+            },
+            "options": [
+              {
+                "id": "bo-dau-am",
+                "text": {
+                  "vi": "(−1, −5)",
+                  "en": "(−1, −5)"
+                }
+              },
+              {
+                "id": "cong-dung",
+                "text": {
+                  "vi": "(−1, 3)",
+                  "en": "(−1, 3)"
+                }
+              },
+              {
+                "id": "lay-hieu",
+                "text": {
+                  "vi": "(5, −5)",
+                  "en": "(5, −5)"
+                }
+              }
+            ],
+            "answerId": "cong-dung",
+            "explainCorrect": {
+              "vi": "Tọa độ x là 2 + (−3) = −1. Tọa độ y là −1 + 4 = 3.",
+              "en": "The x coordinate is 2 + (−3) = −1. The y coordinate is −1 + 4 = 3."
+            },
+            "explainWrong": {
+              "vi": "Giữ nguyên dấu của mỗi số khi cộng. Tính riêng 2 + (−3) và −1 + 4.",
+              "en": "Keep each number’s sign as you add. Work out 2 + (−3) and −1 + 4 separately."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "slot": "theoryB",
+      "scene": {
+        "id": "MATH 112/theory-b",
+        "title": {
+          "vi": "Từ dãy số đến chuỗi số",
+          "en": "From sequences to series"
+        },
+        "place": "b8",
+        "minutes": 1.75,
+        "steps": [
+          {
+            "id": "day-va-chuoi",
+            "type": "slide",
+            "title": {
+              "vi": "Số hạng và công bội",
+              "en": "Terms and the common ratio"
+            },
+            "body": {
+              "vi": "Dãy liệt kê các số hạng. Chuỗi cộng các số hạng đó. Trong chuỗi hình học, mỗi số hạng sau bằng số hạng trước nhân với cùng một công bội.",
+              "en": "A sequence lists terms. A series adds them. In a geometric series, each term after the first is the previous term multiplied by the same ratio."
+            }
+          },
+          {
+            "id": "nhan-ra-chuoi",
+            "type": "question",
+            "prompt": {
+              "vi": "Trong chuỗi 1/2 + 1/4 + 1/8 + …, mỗi số hạng sau bằng một nửa số hạng trước. Đây là loại chuỗi nào?",
+              "en": "In the series 1/2 + 1/4 + 1/8 + …, each term is half the previous one. What kind of series is it?"
+            },
+            "options": [
+              {
+                "id": "cong-boi-hai",
+                "text": {
+                  "vi": "Chuỗi hình học có công bội 2.",
+                  "en": "A geometric series with a ratio of 2."
+                }
+              },
+              {
+                "id": "hieu-co-dinh",
+                "text": {
+                  "vi": "Chuỗi có hiệu giữa hai số hạng liên tiếp luôn bằng nhau.",
+                  "en": "A series with a constant difference between consecutive terms."
+                }
+              },
+              {
+                "id": "cong-boi-mot-nua",
+                "text": {
+                  "vi": "Chuỗi hình học có công bội 1/2.",
+                  "en": "A geometric series with a ratio of 1/2."
+                }
+              }
+            ],
+            "answerId": "cong-boi-mot-nua",
+            "explainCorrect": {
+              "vi": "Chia số hạng sau cho số hạng trước luôn được 1/2. Đó là công bội của chuỗi hình học.",
+              "en": "Dividing each term by the previous one always gives 1/2. That’s the common ratio."
+            },
+            "explainWrong": {
+              "vi": "Thử lấy (1/4) ÷ (1/2) rồi (1/8) ÷ (1/4). Cả hai phép chia phải cho cùng công bội.",
+              "en": "Try (1/4) ÷ (1/2) and then (1/8) ÷ (1/4). Both divisions should give you the same ratio."
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "closing": {
+    "vi": "Bạn vừa cộng hai vectơ theo từng tọa độ và tìm công bội của một chuỗi hình học.",
+    "en": "You’ve added two vectors coordinate by coordinate and found the common ratio of a geometric series."
+  }
+}
