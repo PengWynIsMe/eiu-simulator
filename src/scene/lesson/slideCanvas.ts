@@ -11,9 +11,6 @@ export interface SlideCover {
   subtitle: string;
 }
 
-/** Slide bìa mặc định khi không có thông tin từ signal. */
-export const COVER: SlideCover = { title: 'Nhập môn lập trình', subtitle: 'Buổi 1' } as const;
-
 export interface SlideDrawContent {
   title: string;
   body: string;
@@ -22,7 +19,7 @@ export interface SlideDrawContent {
 
 export interface SlideDrawTarget {
   slide: SlideDrawContent | null;
-  cover?: SlideCover;
+  cover: SlideCover;
 }
 
 /** Tự xuống dòng theo bề rộng; trả về số dòng đã vẽ. */
@@ -49,13 +46,9 @@ function wrapText(g: CanvasRenderingContext2D, text: string, x: number, y: numbe
 
 /**
  * Vẽ 1 slide (hoặc bìa khi `slide` = null) lên canvas 1024 × 768.
- * Nhận { slide, cover } từ ClassSignal hoặc slide trực tiếp.
+ * Chỉ nhận { slide, cover } (cover bắt buộc).
  */
-export function drawSlide(g: CanvasRenderingContext2D, target: SlideDrawTarget | SlideDrawContent | null): void {
-  const isTargetObj = target !== null && typeof target === 'object' && ('slide' in target || 'cover' in target);
-  const slide = isTargetObj ? (target as SlideDrawTarget).slide : (target as SlideDrawContent | null);
-  const cover = (isTargetObj && (target as SlideDrawTarget).cover) || COVER;
-
+export function drawSlide(g: CanvasRenderingContext2D, { slide, cover }: SlideDrawTarget): void {
   g.fillStyle = '#ffffff';
   g.fillRect(0, 0, SLIDE_W, SLIDE_H);
   g.fillStyle = TITLE_COLOR;

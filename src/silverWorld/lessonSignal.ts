@@ -2,16 +2,28 @@ import { getCurrentStep, useLessonStore } from '../store/useLessonStore';
 import type { SpeakerId } from '../types/silver';
 import type { ClassSignal } from '../types/silverWorld';
 
+const COVER: { readonly title: string; readonly subtitle: string } = Object.freeze({
+  title: 'Nhập môn lập trình',
+  subtitle: 'Buổi 1',
+});
+
+let cachedState: unknown = null;
+let cachedSignal: ClassSignal | null = null;
 let resultCounter = 0;
 let prevLastResult: unknown = null;
+let cachedResult: ClassSignal['result'] = null;
 
 /**
  * Trả về ClassSignal hiện tại từ useLessonStore.
- * Dịch các pha của buổi học sang mode của diễn viên chung:
- * dialogue -> talk, lecture -> slide, question -> question, exercise -> exercise, summary -> end.
+ * Cache snapshot: cùng state của useLessonStore thì trả cùng một object tham chiếu,
+ * tránh cấp phát object mới trong useFrame.
  */
 export function getLessonSignal(): ClassSignal {
   const s = useLessonStore.getState();
+  if (s === cachedState && cachedSignal) {
+    return cachedSignal;
+  }
+
   const step = getCurrentStep(s);
 
   let mode: ClassSignal['mode'] = 'idle';
@@ -56,25 +68,27 @@ export function getLessonSignal(): ClassSignal {
     }
   }
 
-  const cover = { title: 'Nhập môn lập trình', subtitle: 'Buổi 1' };
-
   if (s.lastResult !== prevLastResult) {
     prevLastResult = s.lastResult;
     if (s.lastResult !== null) {
       resultCounter++;
+      cachedResult = { id: resultCounter, correct: s.lastResult.correct };
+    } else {
+      cachedResult = null;
     }
   }
 
-  const result = s.lastResult !== null ? { id: resultCounter, correct: s.lastResult.correct } : null;
-
-  return {
+  cachedState = s;
+  cachedSignal = {
     mode,
     stepKey,
     speaker,
     slide,
-    cover,
-    result,
+    cover: COVER,
+    result: cachedResult,
   };
+
+  return cachedSignal;
 }
 
 export function subscribeLessonSignal(listener: () => void): () => void {
@@ -82,18 +96,3 @@ export function subscribeLessonSignal(listener: () => void): () => void {
     listener();
   });
 }
-
-/**
- * Tạo bộ điều khiển ClassSignal từ useLessonStore cho các diễn viên chung.
- */
-export function createLessonSignal(): {
-  getSignal: () => ClassSignal;
-  subscribe: (listener: () => void) => () => void;
-} {
-  return {
-    getSignal: getLessonSignal,
-    subscribe: subscribeLessonSignal,
-  };
-}
-
-export const lessonSignal = createLessonSignal;
