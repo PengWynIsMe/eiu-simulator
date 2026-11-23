@@ -9,6 +9,8 @@ import PrimaryButton from './parts/PrimaryButton';
 import SecondaryButton from './parts/SecondaryButton';
 import WarningBar from './parts/WarningBar';
 import EmptyView from './parts/EmptyView';
+import Home from './screens/Home';
+import Recap from './screens/Recap';
 
 function SilverOverlay() {
   const tr = useT();
@@ -132,7 +134,13 @@ function SilverOverlay() {
             </Panel>
           )}
 
-          {status === 'ready' && <EmptyView showHomeButton={screen !== 'home'} />}
+          {status === 'ready' && (
+            <>
+              {screen === 'home' && <Home />}
+              {screen === 'recap' && <Recap />}
+              {screen !== 'home' && screen !== 'recap' && <EmptyView />}
+            </>
+          )}
         </div>
       </main>
     </div>
