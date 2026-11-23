@@ -62,7 +62,7 @@ export default function TopBar() {
             <button
               type="button"
               onClick={startCinematic}
-              className="hidden md:flex items-center gap-1 rounded-lg bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-800 border border-sky-300 shadow backdrop-blur-sm hover:bg-sky-100 transition-all"
+              className="hidden lg:flex items-center gap-1 rounded-lg bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-800 border border-sky-300 shadow backdrop-blur-sm hover:bg-sky-100 transition-all"
               title={tr(UI_TEXT.replayIntro)}
             >
               <span>🎬</span>

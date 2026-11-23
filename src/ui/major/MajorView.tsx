@@ -32,7 +32,7 @@ export default function MajorView({ major }: { major: Major }) {
     <div className="space-y-3">
       <MajorHeader major={major} />
 
-      <div className="-mx-4 flex gap-1 overflow-x-auto border-b border-white/10 px-4" role="tablist">
+      <div className="-mx-4 flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-white/10 px-4" role="tablist">
         {tabs.map((x) => (
           <button
             key={x.id}

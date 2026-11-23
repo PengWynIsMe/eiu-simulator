@@ -43,10 +43,10 @@
       }
     },
     {
-      "code": "CSW 430",
+      "code": "CSW 304",
       "why": {
-        "vi": "Phát triển ứng dụng di động đa nền tảng với giao diện người dùng mượt mà và tối ưu.",
-        "en": "Develop cross-platform mobile applications with responsive and optimized user interfaces."
+        "vi": "Xây dựng giao diện người dùng web hiện đại, mượt và tối ưu trải nghiệm.",
+        "en": "Build modern, responsive web user interfaces with an optimized user experience."
       }
     }
   ],

@@ -15,7 +15,7 @@ export default function MajorPicker({ majors, selectedId, onSelect }: Props) {
   const grouped = faculties.length >= 2;
 
   const chips = (list: Major[]) => (
-    <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1">
+    <div className="-mx-4 flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-4 pb-1">
       {list.map((m) => (
         <button
           key={m.id}

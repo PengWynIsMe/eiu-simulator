@@ -57,7 +57,7 @@ export default function MajorCourses({ major, year, specId, otherGroups, onYear,
         </p>
       )}
 
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4" role="tablist">
+      <div className="-mx-4 flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-4" role="tablist">
         {YEARS.map((y) => (
           <button key={y} type="button" role="tab" aria-selected={y === year} onClick={() => onYear(y)} className={chipClass(y === year)}>
             {tr(UI_TEXT.yearN, { n: y })}
@@ -66,7 +66,7 @@ export default function MajorCourses({ major, year, specId, otherGroups, onYear,
       </div>
 
       {cur.specializations.length > 0 && (
-        <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4">
+        <div className="-mx-4 flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-4">
           <button type="button" aria-pressed={specId === null} onClick={() => onSpec(null)} className={chipClass(specId === null)}>
             {tr(UI_TEXT.commonTrack)}
           </button>

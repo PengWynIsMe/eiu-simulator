@@ -218,15 +218,12 @@ export default function CampusGreenery() {
     // 3. VƯỜN CÂY ĂN TRÁI & CỌC CHỐNG TRE (t021s, t025s, t029s, t033s)
     // ==========================================
     // Các vị trí vườn sinh thái giữa các block (sân B8–B11 và sân B4–B3)
+    // (Đã bỏ 4 ô nằm trong footprint B11 khi gộp — cây chui vào thân tòa nhà.)
     const orchardPlots: readonly { cx: number; cz: number; kind: 'pomelo' | 'sapodilla' }[] = [
       { cx: 45.0, cz: -75.0, kind: 'pomelo' },
       { cx: 52.0, cz: -78.0, kind: 'sapodilla' },
       { cx: 38.0, cz: -72.0, kind: 'pomelo' },
-      { cx: 25.0, cz: -120.0, kind: 'pomelo' },
-      { cx: 32.0, cz: -124.0, kind: 'pomelo' },
-      { cx: 18.0, cz: -116.0, kind: 'sapodilla' },
       { cx: 48.0, cz: -142.0, kind: 'pomelo' },
-      { cx: 58.0, cz: -150.0, kind: 'pomelo' },
       { cx: 38.0, cz: -138.0, kind: 'sapodilla' },
       { cx: 108.0, cz: -48.0, kind: 'pomelo' },
       { cx: 116.0, cz: -38.0, kind: 'sapodilla' },
