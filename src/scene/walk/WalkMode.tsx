@@ -548,12 +548,12 @@ export default function WalkMode() {
         const deltaY = event.clientY - previousPointerY.current;
         previousPointerX.current = event.clientX;
         previousPointerY.current = event.clientY;
-        cameraYaw.current -= deltaX * 0.0022;
+        cameraYaw.current += deltaX * 0.0022;
         cameraPitch.current = Math.max(-1.396, Math.min(1.396, cameraPitch.current - deltaY * 0.0022));
         return;
       }
       if (viewMode.current === 1 && document.pointerLockElement === gl.domElement) {
-        cameraYaw.current -= event.movementX * 0.0022;
+        cameraYaw.current += event.movementX * 0.0022;
         cameraPitch.current = Math.max(-1.396, Math.min(1.396, cameraPitch.current - event.movementY * 0.0022));
         return;
       }

@@ -12,6 +12,9 @@ import { useWalkStore } from '../../store/useWalkStore';
 import { FLOOR_HEIGHT } from '../../data';
 import type { Vec2 } from '../../types';
 import { getInteriorLayout } from './layouts';
+
+/** Ưu tiên bề mặt sàn nội thất khi trùng cao độ với nền toàn cục (y = 0). */
+const INTERIOR_FLOOR_POLYGON_OFFSET = -1;
 import { b3Layout } from './layouts/b3';
 import { B11_BOUNDS } from './layouts/b11';
 import { getFloorDoors } from './layouts/b8';
@@ -595,7 +598,14 @@ export default function InteriorScene() {
       {/* 1. Mặt sàn thế giới */}
       {floorGeometry && (
         <mesh geometry={floorGeometry} receiveShadow>
-          <meshStandardMaterial color={floorColor} roughness={0.45} metalness={0.05} />
+          <meshStandardMaterial
+            color={floorColor}
+            roughness={0.45}
+            metalness={0.05}
+            polygonOffset
+            polygonOffsetFactor={INTERIOR_FLOOR_POLYGON_OFFSET}
+            polygonOffsetUnits={INTERIOR_FLOOR_POLYGON_OFFSET}
+          />
         </mesh>
       )}
 
