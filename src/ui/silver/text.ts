@@ -61,6 +61,22 @@ export const ST = {
     en: 'You jumped straight in, so earlier milestones count as done.',
   },
 
+  // UI-02 — Play, Say, Choice, Slide
+  next: { vi: 'Tiếp', en: 'Next' },
+  finish: { vi: 'Xong cảnh', en: 'Finish scene' },
+  skipScene: { vi: 'Bỏ qua cảnh', en: 'Skip scene' },
+  sceneN: { vi: 'Cảnh {i}/{n}', en: 'Scene {i}/{n}' },
+  stepN: { vi: 'Bước {i}/{n}', en: 'Step {i}/{n}' },
+  confirmSkip: {
+    vi: 'Bỏ qua cảnh này? Câu chuyện vẫn đi tiếp, nhưng các bạn sẽ không nhắc lại cảnh này.',
+    en: 'Skip this scene? The story goes on, but your friends will not mention it later.',
+  },
+  confirmExit: {
+    vi: 'Thoát về danh sách chương? Lần sau bạn bắt đầu lại từ đầu cảnh này.',
+    en: 'Go back to the chapters? Next time you start from the beginning of this scene.',
+  },
+  tapReveal: { vi: 'Bấm để hiện hết', en: 'Tap to show all' },
+
   // Tiêu đề các màn chưa dựng xong (sẽ cập nhật đúng bảng ST ở UI-02..07)
   screenRegistration: { vi: 'Đăng ký môn', en: 'Course registration' },
   screenWeek: { vi: 'Tuần học', en: 'Your week' },

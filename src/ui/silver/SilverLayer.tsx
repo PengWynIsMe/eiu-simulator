@@ -11,6 +11,7 @@ import WarningBar from './parts/WarningBar';
 import EmptyView from './parts/EmptyView';
 import Home from './screens/Home';
 import Recap from './screens/Recap';
+import Play from './screens/Play';
 
 function SilverOverlay() {
   const tr = useT();
@@ -24,6 +25,7 @@ function SilverOverlay() {
   const [warnDismissed, setWarnDismissed] = useState(false);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const headingRef = useRef<HTMLHeadingElement | null>(null);
+  const exitHandlerRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     void load();
@@ -59,6 +61,8 @@ function SilverOverlay() {
   const handleExitClick = () => {
     if (isTopLevel) {
       close();
+    } else if (exitHandlerRef.current) {
+      exitHandlerRef.current();
     } else {
       exitRun();
     }
@@ -138,7 +142,8 @@ function SilverOverlay() {
             <>
               {screen === 'home' && <Home />}
               {screen === 'recap' && <Recap />}
-              {screen !== 'home' && screen !== 'recap' && <EmptyView />}
+              {screen === 'play' && <Play exitHandlerRef={exitHandlerRef} />}
+              {screen !== 'home' && screen !== 'recap' && screen !== 'play' && <EmptyView />}
             </>
           )}
         </div>
