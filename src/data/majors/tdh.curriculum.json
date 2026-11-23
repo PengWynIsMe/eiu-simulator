@@ -1,0 +1,780 @@
+{
+  "majorId": "tdh",
+  "programCode": "7520216",
+  "totalCredits": 186,
+  "yearsInferred": false,
+  "years": [
+    {
+      "year": 1,
+      "courses": [
+        {
+          "code": "LAWS 122",
+          "name": {
+            "vi": "Lý luận nhà nước và pháp luật",
+            "en": "General Theory of Law and State"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 133",
+          "name": {
+            "vi": "Triết học Mác-Lênin",
+            "en": "Philosophy of Marxism and Leninism"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 111",
+          "name": {
+            "vi": "Giải tích I",
+            "en": "Calculus I"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "PHYS 101",
+          "name": {
+            "vi": "Vật lý I",
+            "en": "Physics I"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 134",
+          "name": {
+            "vi": "Kinh tế chính trị Mác- Lênin",
+            "en": "Political Economics of Marxism and Leninism"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 100",
+          "name": {
+            "vi": "Nhập môn Kỹ thuật Điện - Điện tử",
+            "en": "Exploring Electrical & Electronic Engineering"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 112",
+          "name": {
+            "vi": "Giải tích II",
+            "en": "Calculus II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "PHYS 102",
+          "name": {
+            "vi": "Vật lý II",
+            "en": "Physics II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 135",
+          "name": {
+            "vi": "Chủ nghĩa xã hội khoa học",
+            "en": "Scientific socialism"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 105",
+          "name": {
+            "vi": "Thiết kế kỹ thuật",
+            "en": "Engineering Design"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 113",
+          "name": {
+            "vi": "Giải tích III",
+            "en": "Calculus III"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "PHYS 103",
+          "name": {
+            "vi": "Vật lý III",
+            "en": "Physics III"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 110",
+          "name": {
+            "vi": "Thực tập cơ sở",
+            "en": "Freshman Practicum"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "lt": 0,
+          "th": 2,
+          "year": 1,
+          "semester": 4,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 2,
+      "courses": [
+        {
+          "code": "POLS 132",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Ho Chi Minh's Ideology"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 103",
+          "name": {
+            "vi": "Đại số tuyến tính",
+            "en": "Linear Algebra"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 122",
+          "name": {
+            "vi": "Phương trình vi phân",
+            "en": "Differential Equations"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 201",
+          "name": {
+            "vi": "Mạch điện 1",
+            "en": "Electric Circuits 1"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 106",
+          "name": {
+            "vi": "Nhập môn Lập trình",
+            "en": "Introduction to Programming"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 136",
+          "name": {
+            "vi": "Lịch sử Đảng Cộng sản Việt Nam",
+            "en": "History of Vietnamese Communist Party"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "WRT 230",
+          "name": {
+            "vi": "Viết kỹ thuật và thuyết trình",
+            "en": "Technical Writing and Presentation"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 207",
+          "name": {
+            "vi": "Kỹ thuật số",
+            "en": "Digital Circuits"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 202",
+          "name": {
+            "vi": "Mạch điện 2",
+            "en": "Electric Circuits 2"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 114",
+          "name": {
+            "vi": "Giải tích IV",
+            "en": "Calculus IV"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 305",
+          "name": {
+            "vi": "Vi xử lý",
+            "en": "Microprocessor"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 205",
+          "name": {
+            "vi": "Tín hiệu và hệ thống 1",
+            "en": "Signals & Systems 1"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 211",
+          "name": {
+            "vi": "Mạch điện tử 1",
+            "en": "Electronics 1"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 311",
+          "name": {
+            "vi": "Vẽ kỹ thuật điện",
+            "en": "Electrical Engineering Drawing"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 3,
+      "courses": [
+        {
+          "code": "ECE 212",
+          "name": {
+            "vi": "Mạch điện tử 2",
+            "en": "Electronics 2"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 206",
+          "name": {
+            "vi": "Tín hiệu và hệ thống 2",
+            "en": "Signals & Systems 2"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 306",
+          "name": {
+            "vi": "Hệ thống điều khiển hồi tiếp",
+            "en": "Feedback Control Systems"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 303",
+          "name": {
+            "vi": "Bộ điều khiển PLC",
+            "en": "Programmable Logic Controllers"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 391",
+          "name": {
+            "vi": "Đồ án Kỹ thuật điều khiển và tự động hóa 1",
+            "en": "Automation And Control Enginering Project 1"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "STAT 101",
+          "name": {
+            "vi": "Xác suất thống kê I",
+            "en": "Probability and Statistics I"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 304",
+          "name": {
+            "vi": "Đo lường và thiết bị đo",
+            "en": "Measurement and Instrumentation"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ECE 300",
+          "name": {
+            "vi": "Trường điện từ",
+            "en": "Electromagnetics"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 327",
+          "name": {
+            "vi": "Thiết bị điều khiển thủy khí",
+            "en": "Device of Pneumatics and Hydraulics"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "lt": 0,
+          "th": 2,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 331",
+          "name": {
+            "vi": "Nhập môn Robot",
+            "en": "Introduction to Robotics"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CHEM 100",
+          "name": {
+            "vi": "Hóa đại cương",
+            "en": "General Chemistry"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 301",
+          "name": {
+            "vi": "Máy điện và khí cụ điện",
+            "en": "Electrical Machines & Apparatus"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 392",
+          "name": {
+            "vi": "Đồ án Kỹ thuật điều khiển và tự động hóa 2",
+            "en": "Automation And Control Enginering Project 2"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 393",
+          "name": {
+            "vi": "Thực tập tốt nghiệp Kỹ thuật điều khiển và tự động hóa",
+            "en": "Automation and Control Engineering Internship"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "lt": 0,
+          "th": 2,
+          "year": 3,
+          "semester": 4,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [
+        {
+          "code": "EE 302",
+          "name": {
+            "vi": "Điện tử công suất",
+            "en": "Power Electronics"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 491",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Kỹ thuật điều khiển và tự động hóa 1",
+            "en": "Automation and Control Engineering Capstone Project 1"
+          },
+          "credits": 1,
+          "block": "tot-nghiep",
+          "lt": 0,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 492",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Kỹ thuật điều khiển và tự động hóa 2",
+            "en": "Automation and Control Engineering Capstone Project 2"
+          },
+          "credits": 2,
+          "block": "tot-nghiep",
+          "lt": 0,
+          "th": 2,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 493",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Kỹ thuật điều khiển và tự động hóa 3",
+            "en": "Automation and Control Engineering Capstone Project 3"
+          },
+          "credits": 4,
+          "block": "tot-nghiep",
+          "lt": 0,
+          "th": 4,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "khoa-hoc-xa-hoi-va-hanh-vi-4-1",
+          "credits": 8,
+          "semester": 1
+        },
+        {
+          "groupId": "giao-tiep-ngon-ngu-nghe-4-2",
+          "credits": 12,
+          "semester": 2
+        }
+      ]
+    }
+  ],
+  "electiveGroups": [
+    {
+      "id": "khoa-hoc-xa-hoi-va-hanh-vi-4-1",
+      "title": {
+        "vi": "Khoa học xã hội và hành vi",
+        "en": "Social & Behavioral"
+      },
+      "minCredits": 8,
+      "courses": []
+    },
+    {
+      "id": "giao-tiep-ngon-ngu-nghe-4-2",
+      "title": {
+        "vi": "Giao tiếp, ngôn ngữ & nghệ",
+        "en": "Communications,"
+      },
+      "minCredits": 12,
+      "courses": []
+    }
+  ],
+  "specializations": [
+    {
+      "id": "tu-dong-hoa-cong-nghiep",
+      "name": {
+        "vi": "Tự động hóa công nghiệp",
+        "en": "Industrial Automation"
+      },
+      "requiredCourses": [
+        {
+          "code": "ACE 406",
+          "name": {
+            "vi": "Hệ thống tự động hóa sản xuất",
+            "en": "Manufacturing Automation Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 404",
+          "name": {
+            "vi": "Hệ thống DCS & SCADA",
+            "en": "DCS & SCADA"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "he-thong-dieu-khien",
+      "name": {
+        "vi": "Hệ thống điều khiển",
+        "en": "Control Systems"
+      },
+      "requiredCourses": [
+        {
+          "code": "ACE 408",
+          "name": {
+            "vi": "Hệ thống điều khiển số",
+            "en": "Digital Control Systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 409",
+          "name": {
+            "vi": "Điều khiển thông minh",
+            "en": "Intelligent Control"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": [
+        "khoa-hoc-xa-hoi-va-hanh-vi-4-1"
+      ]
+    }
+  ],
+  "source": {
+    "file": "ACE.pdf",
+    "kind": "bm08",
+    "year": 2026,
+    "pages": "8–73, 83–84"
+  },
+  "generatedAt": "2026-11-23"
+}

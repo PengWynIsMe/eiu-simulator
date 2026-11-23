@@ -1,0 +1,807 @@
+{
+  "majorId": "mmt",
+  "programCode": "7480102",
+  "totalCredits": 180,
+  "yearsInferred": false,
+  "years": [
+    {
+      "year": 1,
+      "courses": [
+        {
+          "code": "POLS 133",
+          "name": {
+            "vi": "Triết học Mác – Lênin",
+            "en": "Philosophy of Marxism and Leninism"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "LAWS 122",
+          "name": {
+            "vi": "Lý luận nhà nước và pháp luật",
+            "en": "General Theory of Law and State"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 111",
+          "name": {
+            "vi": "Giải tích I",
+            "en": "Calculus I"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 134",
+          "name": {
+            "vi": "Kinh tế và chính trị Mác- Lênin",
+            "en": "Political Economics of Marxism and Leninism"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 112",
+          "name": {
+            "vi": "Giải tích II",
+            "en": "Calculus II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 103",
+          "name": {
+            "vi": "Đại số tuyến tính",
+            "en": "Linear Algebra"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 100",
+          "name": {
+            "vi": "Nhập môn Công nghệ thông tin",
+            "en": "Introduction to Computing"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 1,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 135",
+          "name": {
+            "vi": "Chủ nghĩa xã hội khoa học",
+            "en": "Scientific Socialism"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "STAT 101",
+          "name": {
+            "vi": "Xác suất và thống kê",
+            "en": "Probability and Statistics"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 106",
+          "name": {
+            "vi": "Toán rời rạc I",
+            "en": "Discrete Mathematics I"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "tu-chon-gddc-1-1-1",
+          "credits": 4,
+          "semester": 1
+        },
+        {
+          "groupId": "tu-chon-gddc-2-1-3",
+          "credits": 4,
+          "semester": 3
+        }
+      ]
+    },
+    {
+      "year": 2,
+      "courses": [
+        {
+          "code": "POLS 132",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Ho Chi Minh Ideology"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "COMS 101",
+          "name": {
+            "vi": "Kỹ năng giao tiếp",
+            "en": "Communication Skills"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 204",
+          "name": {
+            "vi": "Mạng máy tính",
+            "en": "Computer Networks"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "POLS 136",
+          "name": {
+            "vi": "Lịch Sử Đảng Cộng Sản Việt Nam",
+            "en": "History of Vietnamese Communist Party"
+          },
+          "credits": 3,
+          "block": "nganh",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 103",
+          "name": {
+            "vi": "Lập trình và giải quyết vấn đề I",
+            "en": "Programming and Problem Solving I"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 205",
+          "name": {
+            "vi": "Mạng và truyền thông dữ liệu",
+            "en": "Network and Data Communications"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "PHYS 100",
+          "name": {
+            "vi": "Vật lý đại cương",
+            "en": "General Physics"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 104",
+          "name": {
+            "vi": "Lập trình và giải quyết vấn đề II",
+            "en": "Programming and Problem Solving II"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 206",
+          "name": {
+            "vi": "Kiến trúc và cấu tạo máy tính",
+            "en": "Computer Architecture and Organization"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "tu-chon-gddc-3-2-1",
+          "credits": 4,
+          "semester": 1
+        },
+        {
+          "groupId": "tu-chon-gddc-4-2-2",
+          "credits": 4,
+          "semester": 2
+        },
+        {
+          "groupId": "tu-chon-gddc-5-2-3",
+          "credits": 4,
+          "semester": 3
+        }
+      ]
+    },
+    {
+      "year": 3,
+      "courses": [
+        {
+          "code": "CSE 201",
+          "name": {
+            "vi": "Cấu trúc dữ liệu và giải thuật",
+            "en": "Data Structures and Algorithms"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 302",
+          "name": {
+            "vi": "Hệ điều hành",
+            "en": "Operating System"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 301",
+          "name": {
+            "vi": "Phân tích và thiết kế hệ thống mạng",
+            "en": "Network Analysis and Design"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 303",
+          "name": {
+            "vi": "Nhập môn an ninh mạng",
+            "en": "Introduction to Cyber Security"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 305",
+          "name": {
+            "vi": "Điện toán đám mây",
+            "en": "Cloud Computing"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 203",
+          "name": {
+            "vi": "Lập trình hướng đối tượng",
+            "en": "Object-Oriented Development"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSE 301",
+          "name": {
+            "vi": "Nhập môn cơ sở dữ liệu",
+            "en": "Introduction to Databases"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 304",
+          "name": {
+            "vi": "Bảo mật máy tính",
+            "en": "Computer Security"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 306",
+          "name": {
+            "vi": "Quản trị hệ thống mạng",
+            "en": "System Administration"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 304",
+          "name": {
+            "vi": "Lập trình Front-end",
+            "en": "Front-end Development"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 340",
+          "name": {
+            "vi": "Đồ án MMT&TTDL",
+            "en": "CNDC Project"
+          },
+          "credits": 2,
+          "block": "nganh",
+          "lt": 0,
+          "th": 2,
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 341",
+          "name": {
+            "vi": "Thực tập tốt nghiệp",
+            "en": "Internship"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 0,
+          "th": 4,
+          "year": 3,
+          "semester": 4,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": []
+    },
+    {
+      "year": 4,
+      "courses": [
+        {
+          "code": "CSN 401",
+          "name": {
+            "vi": "Bảo mật mạng",
+            "en": "Network Security"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 494",
+          "name": {
+            "vi": "Đồ án tôt nghiệp",
+            "en": "MMT&TTDL I CNDC Capstone Project I"
+          },
+          "credits": 2,
+          "block": "tot-nghiep",
+          "lt": 0,
+          "th": 2,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 435",
+          "name": {
+            "vi": "Quản lý dự án",
+            "en": "Project Management"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 495",
+          "name": {
+            "vi": "Đồ án tốt nghiệp",
+            "en": "MMT&TTDL II CNDC Capstone Project II"
+          },
+          "credits": 4,
+          "block": "tot-nghiep",
+          "lt": 0,
+          "th": 4,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 496",
+          "name": {
+            "vi": "Đồ án tốt nghiệp",
+            "en": "MMT&TTDL III CNDC Capstone Project III"
+          },
+          "credits": 4,
+          "block": "tot-nghiep",
+          "lt": 0,
+          "th": 4,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveSlots": [
+        {
+          "groupId": "tu-chon-chuyen-nganh-4-1",
+          "credits": 4,
+          "semester": 1
+        },
+        {
+          "groupId": "tu-chon-4-2",
+          "credits": 4,
+          "semester": 2
+        },
+        {
+          "groupId": "tu-chon-chuyen-nganh-4-3",
+          "credits": 4,
+          "semester": 3
+        }
+      ]
+    }
+  ],
+  "electiveGroups": [
+    {
+      "id": "tu-chon-gddc-1-1-1",
+      "title": {
+        "vi": "Tự chọn GDĐC 1",
+        "en": "Elective General"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-gddc-2-1-3",
+      "title": {
+        "vi": "Tự chọn GDĐC 2",
+        "en": "Elective General"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-gddc-3-2-1",
+      "title": {
+        "vi": "Tự chọn GDĐC 3",
+        "en": "Elective General"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-gddc-4-2-2",
+      "title": {
+        "vi": "Tự chọn GDĐC 4",
+        "en": "Elective General"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-gddc-5-2-3",
+      "title": {
+        "vi": "Tự chọn GDĐC 5",
+        "en": "Elective General"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-chuyen-nganh-4-1",
+      "title": {
+        "vi": "Tự chọn chuyên ngành",
+        "en": "Elective"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-4-2",
+      "title": {
+        "vi": "Tự chọn",
+        "en": "Tự chọn"
+      },
+      "minCredits": 4,
+      "courses": []
+    },
+    {
+      "id": "tu-chon-chuyen-nganh-4-3",
+      "title": {
+        "vi": "Tự chọn chuyên ngành",
+        "en": "Elective"
+      },
+      "minCredits": 4,
+      "courses": [
+        {
+          "code": "CSN 403",
+          "name": {
+            "vi": "Bảo mật mạng nâng cao",
+            "en": "Advanced Network Security"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSW 303",
+          "name": {
+            "vi": "Kỹ thuật phần mềm",
+            "en": "Software Engineering"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        }
+      ]
+    }
+  ],
+  "specializations": [
+    {
+      "id": "quan-tri-mang",
+      "name": {
+        "vi": "Quản trị mạng máy tính và truyền thông",
+        "en": "Computer Network and Communications Administration"
+      },
+      "requiredCourses": [
+        {
+          "code": "CSN 404",
+          "name": {
+            "vi": "Quản trị và định tuyến mạng",
+            "en": "Administration and Network Routing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 406",
+          "name": {
+            "vi": "Quản trị hệ thống mạng nâng cao",
+            "en": "Advanced System Administration"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": []
+    },
+    {
+      "id": "an-ninh-mang",
+      "name": {
+        "vi": "An ninh mạng",
+        "en": "Cybersecurity"
+      },
+      "requiredCourses": [
+        {
+          "code": "CSN 405",
+          "name": {
+            "vi": "Lập trình mạng",
+            "en": "Network Programming"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 402",
+          "name": {
+            "vi": "Bảo mật web",
+            "en": "Web Security"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": [
+        "tu-chon-chuyen-nganh-4-1"
+      ]
+    },
+    {
+      "id": "iot",
+      "name": {
+        "vi": "Internet of Things",
+        "en": "Internet of Things"
+      },
+      "requiredCourses": [
+        {
+          "code": "CSW 330",
+          "name": {
+            "vi": "Trí tuệ nhân tạo",
+            "en": "Artificial Intelligence"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "CSN 407",
+          "name": {
+            "vi": "Mạng cảm biến không dây",
+            "en": "Wireless Sensor Network"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        }
+      ],
+      "electiveGroupIds": []
+    }
+  ],
+  "source": {
+    "file": "CNDC.pdf",
+    "kind": "bm08",
+    "year": 2026,
+    "pages": "7–55, 66–67"
+  },
+  "generatedAt": "2026-11-23"
+}
