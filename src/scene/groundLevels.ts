@@ -2,6 +2,7 @@
 export const GROUND = 0;
 export const GRASS = 0.15;
 export const PARKING = 0.3;
+export const CANTEEN_PARKING_DECK = PARKING + 0.025;
 export const ROUNDABOUT_GRASS = 0.3;
 export const STREET = 0.45;
 export const ROUNDABOUT_ROAD = 0.45;
