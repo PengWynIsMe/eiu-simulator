@@ -1,43 +1,78 @@
 export default {
-  'SilverClassroomNpcs excludes playerSeat, companionSeat and story character models': async ({ assert, load }) => {
+  'stageFiltering pure functions filter background models and exclude actor seats': async ({ assert, load }) => {
     const { getClassroom, characterConfig } = await load('/src/data/index.ts');
+    const { getStage } = await load('/src/data/silver/stages.ts');
     const { buildClassroomPlan } = await load('/src/scene/npc/classroomPlan.ts');
+    const {
+      filterBackgroundModels,
+      filterClassroomNpcSeats,
+      createSafeClassroomForStage,
+    } = await load('/src/scene/silver/stageFiltering.ts');
 
     const room = getClassroom('406.B8');
     assert.ok(room, 'Phòng 406.B8 phải tồn tại');
 
-    // 1. Kiểm tra loại bỏ companionSeat (Han) và playerSeat (người chơi) khỏi npcSeats
-    const excludedSeats = new Set();
-    if (room.playerSeat) excludedSeats.add(room.playerSeat);
-    if (room.companionSeat) excludedSeats.add(room.companionSeat);
-
-    const filteredNpcSeats = room.npcSeats.filter((seatId) => !excludedSeats.has(seatId));
-    assert.ok(!filteredNpcSeats.includes(room.playerSeat), 'npcSeats không được chứa playerSeat');
-    assert.ok(!filteredNpcSeats.includes(room.companionSeat), 'npcSeats không được chứa companionSeat');
-
-    const safeRoom = {
-      ...room,
-      npcSeats: filteredNpcSeats,
-    };
-    const plan = buildClassroomPlan(safeRoom, 12);
-    assert.equal(plan.length, 12, 'Phòng 406.B8 có đúng 12 bạn học nền');
-    for (const student of plan) {
-      assert.notEqual(student.seatId, room.playerSeat, `Bạn nền không được ngồi ghế playerSeat ${room.playerSeat}`);
-      assert.notEqual(student.seatId, room.companionSeat, `Bạn nền không được ngồi ghế companionSeat ${room.companionSeat}`);
-    }
-
-    // 2. Kiểm tra lọc bỏ model của người trong truyện (Han: female-c, Thành: male-e, Quyền: male-g)
-    const rawStudents = characterConfig.roles.students;
-    const storyModels = new Set(Object.values(characterConfig.story ?? {}));
-    const filteredModels = rawStudents.filter((url) => !storyModels.has(url));
-
+    // 1. Kiểm tra filterBackgroundModels:
+    const filteredModels = filterBackgroundModels(characterConfig.roles.students, characterConfig.story);
     assert.equal(filteredModels.length, 5, 'Sau khi lọc 3 nhân vật truyện, còn đúng 5 model cho sinh viên nền');
     assert.ok(!filteredModels.some((m) => m.includes('character-female-c')), 'Model sinh viên nền không được chứa Han (female-c)');
     assert.ok(!filteredModels.some((m) => m.includes('character-male-e')), 'Model sinh viên nền không được chứa Thành (male-e)');
     assert.ok(!filteredModels.some((m) => m.includes('character-male-g')), 'Model sinh viên nền không được chứa Quyền (male-g)');
+    assert.equal(characterConfig.roles.students.length, 8, 'roles.students gốc không bị mutate, vẫn giữ 8 model cho 406.B11');
 
-    // 3. Đảm bảo 406.B11 giữ nguyên bộ 8 model
-    assert.equal(rawStudents.length, 8, 'roles.students gốc vẫn giữ 8 model cho 406.B11');
+    // 2. Kiểm tra cả 5 cảnh của 406.B8:
+    // Cảnh 1: CSE 103/lab-1 (crowd 12, actors: teacher, han tại 406-r2-s6)
+    const stageLab1 = getStage('CSE 103/lab-1');
+    assert.ok(stageLab1, 'Stage CSE 103/lab-1 phải tồn tại');
+    assert.equal(stageLab1.crowd, 12);
+    const seatsLab1 = filterClassroomNpcSeats(room, stageLab1);
+    assert.ok(!seatsLab1.includes(room.playerSeat), 'CSE 103/lab-1: seats không được chứa playerSeat');
+    assert.ok(!seatsLab1.includes('406-r2-s6'), 'CSE 103/lab-1: seats không được chứa ghế của Han');
+    const safeLab1 = createSafeClassroomForStage(room, stageLab1);
+    const planLab1 = buildClassroomPlan(safeLab1, stageLab1.crowd);
+    assert.equal(planLab1.length, 12, 'CSE 103/lab-1 có 12 bạn học nền');
+    assert.ok(!planLab1.some((s) => s.seatId === room.playerSeat || s.seatId === '406-r2-s6'));
+
+    // Cảnh 2: CSE 103/lab-2 (crowd 12, actors: teacher, han tại 406-r2-s6)
+    const stageLab2 = getStage('CSE 103/lab-2');
+    assert.ok(stageLab2, 'Stage CSE 103/lab-2 phải tồn tại');
+    assert.equal(stageLab2.crowd, 12);
+    const safeLab2 = createSafeClassroomForStage(room, stageLab2);
+    const planLab2 = buildClassroomPlan(safeLab2, stageLab2.crowd);
+    assert.equal(planLab2.length, 12, 'CSE 103/lab-2 có 12 bạn học nền');
+    assert.ok(!planLab2.some((s) => s.seatId === room.playerSeat || s.seatId === '406-r2-s6'));
+
+    // Cảnh 3: CSE 103/exam (crowd 12, actors: teacher, han tại 406-r2-s6)
+    const stageExam = getStage('CSE 103/exam');
+    assert.ok(stageExam, 'Stage CSE 103/exam phải tồn tại');
+    assert.equal(stageExam.crowd, 12);
+    const safeExam = createSafeClassroomForStage(room, stageExam);
+    const planExam = buildClassroomPlan(safeExam, stageExam.crowd);
+    assert.equal(planExam.length, 12, 'CSE 103/exam có 12 bạn học nền');
+    assert.ok(!planExam.some((s) => s.seatId === room.playerSeat || s.seatId === '406-r2-s6'));
+
+    // Cảnh 4: CSE 204/lab-1 (crowd 8, actors: teacher, quyen tại 406-r1-s2)
+    const stage204 = getStage('CSE 204/lab-1');
+    assert.ok(stage204, 'Stage CSE 204/lab-1 phải tồn tại');
+    assert.equal(stage204.crowd, 8);
+    const seats204 = filterClassroomNpcSeats(room, stage204);
+    assert.ok(!seats204.includes(room.playerSeat), 'CSE 204/lab-1: seats không được chứa playerSeat');
+    assert.ok(!seats204.includes('406-r1-s2'), 'CSE 204/lab-1: seats không được chứa ghế của Quyền');
+    const safe204 = createSafeClassroomForStage(room, stage204);
+    const plan204 = buildClassroomPlan(safe204, stage204.crowd);
+    assert.equal(plan204.length, 8, 'CSE 204/lab-1 có 8 bạn học nền');
+    assert.ok(!plan204.some((s) => s.seatId === room.playerSeat || s.seatId === '406-r1-s2'));
+
+    // Cảnh 5: 2.2/closing (crowd 0, actors: han & quyen đứng spot, KHÔNG có teacher)
+    const stageClosing = getStage('2.2/closing');
+    assert.ok(stageClosing, 'Stage 2.2/closing phải tồn tại');
+    assert.equal(stageClosing.crowd, 0);
+    assert.equal(stageClosing.trigger, 'talk');
+    assert.ok(!stageClosing.actors.some((a) => a.speaker === 'teacher'), '2.2/closing không có teacher');
+    assert.ok(stageClosing.actors.every((a) => a.spot && !a.seatId), '2.2/closing diễn viên đứng ở spot, không ngồi ghế');
+    const safeClosing = createSafeClassroomForStage(room, stageClosing);
+    const planClosing = buildClassroomPlan(safeClosing, stageClosing.crowd);
+    assert.equal(planClosing.length, 0, '2.2/closing crowd 0 có đúng 0 bạn học nền');
   },
 
   'SeatHighlight calculates exact world position for playerSeat and screen overlay': async ({ assert, load }) => {
