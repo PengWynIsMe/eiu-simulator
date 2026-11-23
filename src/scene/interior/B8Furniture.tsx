@@ -11,6 +11,9 @@ import {
   type InstancedMesh,
 } from 'three';
 import { FLOOR_HEIGHT } from '../../data';
+import { getStage } from '../../data/silver/stages';
+import { useActivityStore } from '../../store/useActivityStore';
+import { useSilverStore } from '../../store/useSilverStore';
 import type { Vec2 } from '../../types';
 import { createInstanceMatrix, getLocalFacingYaw } from './InteriorFurniture';
 import {
@@ -268,6 +271,12 @@ export default function B8Furniture({
   floor: number;
   showUpperFloors?: boolean;
 }) {
+  const isSilverActive = useActivityStore((s) => s.activity?.source === 'silver');
+  const stageRoomCode = useSilverStore((s) => {
+    const item = s.play?.item;
+    return item?.scene?.id ? getStage(item.scene.id)?.roomCode : null;
+  });
+
   const sharedGeos = useMemo(() => {
     const box = new BoxGeometry(1, 1, 1);
     const cyl = new CylinderGeometry(0.5, 0.5, 1, 12);
@@ -454,6 +463,9 @@ export default function B8Furniture({
 
     for (const room of rooms) {
       if (!room.code.includes('.B8') || room.code.includes('102') || room.code.startsWith('WC')) continue;
+
+      // Khi phòng là sân khấu Silver đang hoạt động thì không vẽ bàn khối cùng phòng
+      if (isSilverActive && stageRoomCode === room.code) continue;
 
       const vCenter = (room.minV + room.maxV) / 2;
       const isNorth = room.maxV <= -200.0;
@@ -667,7 +679,7 @@ export default function B8Furniture({
       stairSoffits,
       stairRails,
     };
-  }, [floor, showUpperFloors]);
+  }, [floor, showUpperFloors, isSilverActive, stageRoomCode]);
 
   return (
     <group key={floor}>

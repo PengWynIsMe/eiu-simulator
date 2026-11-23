@@ -6,11 +6,14 @@ import { useLangStore } from '../../store/useLangStore';
 import { useSilverStore } from '../../store/useSilverStore';
 import { useWalkStore } from '../../store/useWalkStore';
 import { createSilverSignal, type SilverSignalHandle, type SubscribablePlayStore } from '../../silverWorld/silverSignal';
+import { isComputerLabRoom } from '../../silverWorld/seatAnchor';
 import ClassroomNpcs from '../npc/ClassroomNpcs';
 import ProjectorScreen from '../lesson/ProjectorScreen';
 import Teacher from '../lesson/Teacher';
 import SeatHighlight from './SeatHighlight';
 import StoryActors from './StoryActors';
+import TheoryRoom from './rooms/TheoryRoom';
+import Room208 from './rooms/Room208';
 import { createSafeClassroomForStage, filterBackgroundModels } from './stageFiltering';
 import type { Classroom } from '../../types';
 import type { StageSpec } from '../../types/silverWorld';
@@ -91,6 +94,9 @@ function SilverStageContent({ stage, room, sitYOffset }: SilverStageContentProps
 
   return (
     <>
+      {/* 0. Phòng lý thuyết (bàn học, ghế, bàn GV, bảng, khung TV) khi không phải phòng máy */}
+      {!isComputerLabRoom(room) && <TheoryRoom room={room} />}
+
       {/* 1. Màn TV slide trên tường trước (không thêm đèn vào scene) */}
       <ProjectorScreen room={room} getSignal={handle.getSignal} subscribe={handle.subscribe} />
 
@@ -156,6 +162,16 @@ export default function SilverStage({ sitYOffset = 0.4, stageSpec }: SilverStage
     if (!stage?.roomCode) return null;
     return getClassroom(stage.roomCode) ?? null;
   }, [stage]);
+
+  // Phòng 208.B8 (thi vấn đáp 1-1, không có trong classrooms.json)
+  if (
+    isSilverActive
+    && stage?.roomCode === '208.B8'
+    && interior?.buildingId.toLowerCase() === 'b8'
+    && interior?.floor === 2
+  ) {
+    return <Room208 />;
+  }
 
   // Điều kiện mount: chỉ mount khi ở đúng tòa nhà và tầng của phòng (không viết cứng b8/4)
   if (!isSilverActive || !stage || !room || !interior) {
