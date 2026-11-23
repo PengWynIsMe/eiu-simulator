@@ -740,13 +740,13 @@ export default {
       const originalWarn = console.warn;
       console.warn = (...args) => warnings.push(args.join(' '));
 
-      // Room 207.B8 is NOT provided by getClassroom in đợt 1
+      // Giả lập phòng vắng qua getClassroom tiêm vào (207.B8 đã có trong classrooms.json từ 3D-09)
       const stopDirector = startDirector({
         silver: fakeSilverStore,
         activity: fakeActivityStore,
         walk: fakeWalkStore,
         toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
-        getClassroom, // standard classrooms without 207.B8
+        getClassroom: (code) => (code === '207.B8' ? undefined : getClassroom(code)),
       });
 
       try {
@@ -844,7 +844,7 @@ export default {
         activity: fakeActivityStore,
         walk: fakeWalkStore,
         toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
-        getClassroom,
+        getClassroom: (code) => (code === '207.B8' ? undefined : getClassroom(code)),
       });
 
       try {

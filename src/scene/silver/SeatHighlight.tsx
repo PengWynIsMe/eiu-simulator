@@ -1,9 +1,10 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { BoxGeometry, MeshStandardMaterial, PlaneGeometry } from 'three';
 import { toWorld, yawOf } from './frame';
 import type { Classroom } from '../../types';
 import type { Activity } from '../../types/silverWorld';
+import { isComputerLabRoom } from '../../silverWorld/seatAnchor';
 
 export interface SeatHighlightProps {
   room: Classroom;
@@ -14,7 +15,8 @@ export interface SeatHighlightProps {
 /**
  * Viền ghế người chơi và màn hình máy tính nổi bật của người chơi:
  * - Viền ghế vàng nhấp nháy (pulsate wireframe) theo vị trí ghế người chơi (room.playerSeat) khi chưa ngồi.
- * - Màn hình máy người chơi sáng hơn các máy khác nhờ một mặt phẳng phủ (screen overlay) mỏng, không z-fighting.
+ * - Màn hình máy người chơi sáng hơn các máy khác nhờ một mặt phẳng phủ (screen overlay) mỏng,
+ *   chỉ hiển thị khi phòng là phòng máy tính (isComputerLabRoom). Ở phòng lý thuyết không có máy tính.
  */
 export default function SeatHighlight({ room, activity, seated = false }: SeatHighlightProps) {
   const wireMatRef = useRef<MeshStandardMaterial>(null);
@@ -64,6 +66,13 @@ export default function SeatHighlight({ room, activity, seated = false }: SeatHi
   const seatBoxGeom = useMemo(() => new BoxGeometry(0.5, 0.08, 0.5), []);
   const screenOverlayGeom = useMemo(() => new PlaneGeometry(0.5, 0.3), []);
 
+  useEffect(() => {
+    return () => {
+      seatBoxGeom.dispose();
+      screenOverlayGeom.dispose();
+    };
+  }, [seatBoxGeom, screenOverlayGeom]);
+
   if (!seatData) return null;
 
   // Hiển thị viền ghế khi chưa ngồi và hoạt động có trigger === 'sit'
@@ -88,20 +97,22 @@ export default function SeatHighlight({ room, activity, seated = false }: SeatHi
         </group>
       )}
 
-      {/* 2. Mặt phẳng phủ sáng màn hình máy người chơi (glowing screen overlay) */}
-      <group position={seatData.screenPos} rotation={[0, seatData.screenYaw, 0]}>
-        <mesh geometry={screenOverlayGeom}>
-          <meshBasicMaterial
-            color="#e0f2fe"
-            transparent
-            opacity={0.4}
-            depthWrite={false}
-            polygonOffset
-            polygonOffsetFactor={-1}
-            polygonOffsetUnits={-2}
-          />
-        </mesh>
-      </group>
+      {/* 2. Mặt phẳng phủ sáng màn hình máy người chơi (glowing screen overlay) - CHỈ hiển thị ở phòng máy */}
+      {isComputerLabRoom(room) && (
+        <group position={seatData.screenPos} rotation={[0, seatData.screenYaw, 0]}>
+          <mesh geometry={screenOverlayGeom}>
+            <meshBasicMaterial
+              color="#e0f2fe"
+              transparent
+              opacity={0.4}
+              depthWrite={false}
+              polygonOffset
+              polygonOffsetFactor={-1}
+              polygonOffsetUnits={-2}
+            />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 }
