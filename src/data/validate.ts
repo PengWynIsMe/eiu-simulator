@@ -1,5 +1,5 @@
 // Hàm kiểm tra dữ liệu dùng chung: JSON sai thì báo lỗi rõ ràng ("Dữ liệu sai ở ...").
-import type { Vec2 } from '../types';
+import type { LocalizedText, Vec2 } from '../types';
 
 export class DataError extends Error {}
 
@@ -47,4 +47,10 @@ export function oneOf<T extends string>(v: unknown, options: readonly T[], path:
   const found = options.find((o) => o === v);
   if (found === undefined) fail(path, options.join(' | '));
   return found;
+}
+
+/** Chuỗi song ngữ: cả `vi` và `en` đều là chuỗi khác rỗng. */
+export function loc(v: unknown, path: string): LocalizedText {
+  const o = obj(v, path);
+  return { vi: str(o.vi, `${path}.vi`), en: str(o.en, `${path}.en`) };
 }

@@ -1,10 +1,12 @@
-import { TEXT } from './text';
+import { TEXT, UI_TEXT, useT } from './text';
+import LangToggle from './major/LangToggle';
 import { useReviewStore } from '../store/useReviewStore';
 import { useWalkStore } from '../store/useWalkStore';
 import { useLessonStore } from '../store/useLessonStore';
 import { useLessonUi } from './lesson/lessonUi';
 
 export default function TopBar() {
+  const tr = useT();
   const reviewMode = useReviewStore((s) => s.reviewMode);
   const toggleReviewMode = useReviewStore((s) => s.toggleReviewMode);
   const openCount = useReviewStore(
@@ -22,10 +24,11 @@ export default function TopBar() {
     <>
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex flex-wrap items-center justify-between gap-2 p-3 sm:p-4">
         <h1 className="pointer-events-auto rounded-lg bg-white/85 px-3 py-1.5 text-base font-semibold text-slate-800 shadow backdrop-blur-sm sm:text-lg">
-          {TEXT.appTitle}
+          {tr(UI_TEXT.appTitle)}
         </h1>
 
-        <div className="pointer-events-auto flex items-center gap-2">
+        <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-2">
+          <LangToggle />
           {/* Nút Đi bộ */}
           <button
             type="button"
@@ -35,7 +38,7 @@ export default function TopBar() {
                 ? 'bg-emerald-600 text-white ring-2 ring-emerald-400'
                 : 'bg-white/85 text-slate-700 hover:bg-white hover:text-slate-900 backdrop-blur-sm'
             }`}
-            title={walkMode ? TEXT.walkBtnActiveTip : TEXT.walkBtnTip}
+            title={walkMode ? tr(UI_TEXT.walkBtnActiveTip) : tr(UI_TEXT.walkBtnTip)}
           >
             <svg
               className="h-4 w-4"
@@ -51,7 +54,7 @@ export default function TopBar() {
               <path d="m6 8 6 2 6-2" />
               <path d="M12 10v4" />
             </svg>
-            <span>{walkMode ? TEXT.walkBtnActive : TEXT.walkBtn}</span>
+            <span>{walkMode ? tr(UI_TEXT.walkBtnActive) : tr(UI_TEXT.walkBtn)}</span>
           </button>
 
           {/* Nút Buổi học */}
@@ -64,9 +67,9 @@ export default function TopBar() {
                   ? 'bg-[#0b3d91] text-white ring-2 ring-sky-300'
                   : 'bg-white/85 text-slate-700 hover:bg-white hover:text-slate-900 backdrop-blur-sm'
               }`}
-              title={TEXT.lessonOpenBtn}
+              title={tr(UI_TEXT.lessonOpenBtn)}
             >
-              <span>{TEXT.lessonOpenBtn}</span>
+              <span>{tr(UI_TEXT.lessonOpenBtn)}</span>
             </button>
           )}
 
@@ -79,7 +82,7 @@ export default function TopBar() {
                 ? 'border-2 border-amber-500 bg-amber-50 text-amber-900 ring-2 ring-amber-300'
                 : 'bg-white/85 text-slate-700 hover:bg-white hover:text-slate-900 backdrop-blur-sm'
             }`}
-            title={TEXT.reviewBtnTip}
+            title={tr(UI_TEXT.reviewBtnTip)}
           >
             <svg
               className={`h-4 w-4 ${reviewMode ? 'text-amber-600' : 'text-slate-500'}`}
@@ -92,10 +95,10 @@ export default function TopBar() {
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
-            <span>{TEXT.reviewBtn}</span>
+            <span>{tr(UI_TEXT.reviewBtn)}</span>
             {reviewMode && (
               <span className="rounded bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider">
-                {TEXT.reviewBadgeActive}
+                {tr(UI_TEXT.reviewBadgeActive)}
               </span>
             )}
             {openCount > 0 && (

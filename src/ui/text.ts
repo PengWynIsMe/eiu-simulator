@@ -1,4 +1,8 @@
-// Chuỗi giao diện tiếng Việt. Nội dung ngành học KHÔNG để ở đây (nằm trong campus.json).
+import { useCallback } from 'react';
+import type { Lang, LocalizedText } from '../types';
+import { useLangStore } from '../store/useLangStore';
+
+// Chuỗi giao diện tiếng Việt (TEXT cũ). Chuỗi MỚI phải song ngữ trong UI_TEXT bên dưới. Nội dung ngành học KHÔNG để ở đây (nằm trong campus.json).
 export const TEXT = {
   appTitle: 'Khám phá EIU',
   osmCredit: 'Bản đồ nền © OpenStreetMap contributors',
@@ -115,16 +119,84 @@ export const TEXT = {
   codeBlankLabel: 'Chỗ trống cần điền',
 } as const;
 
+/** Lấy chuỗi theo ngôn ngữ; thiếu bản en thì dùng vi. vars thay {ten} trong chuỗi. */
+export function t(text: LocalizedText, lang: Lang, vars?: Record<string, string | number>): string {
+  const s = text[lang] || text.vi;
+  return vars ? s.replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m)) : s;
+}
 
-export const BUILDING_PANEL_TEXT = {
-  close: 'Đóng',
-  backToOverview: 'Về tổng quan',
-  zonePrefix: 'Khu vực',
-  floorsUnit: 'tầng',
-  heightPrefix: 'Cao',
-  structureTitle: 'Cấu trúc kiến trúc',
-  floorsTitle: 'Phân chia tầng & bố trí phòng',
-  genericHint: 'Chọn một tòa nhà hoặc dùng nút Về tổng quan để tiếp tục tham quan khuôn viên.',
-  verifiedSource: 'Nguồn đã xác minh',
-  unverifiedSource: 'Chưa xác minh',
-} as const;
+/** Hook cho component: const tr = useT(); tr(UI_TEXT.close). Tự vẽ lại khi đổi ngôn ngữ. */
+export function useT() {
+  const lang = useLangStore((s) => s.lang); // giá trị nguyên thủy — tránh vẽ lại vô hạn
+  return useCallback((text: LocalizedText, vars?: Record<string, string | number>) => t(text, lang, vars), [lang]);
+}
+
+/** Chuỗi giao diện song ngữ (TopBar, panel tòa nhà, panel ngành). */
+export const UI_TEXT = {
+  // TopBar
+  appTitle: { vi: 'Khám phá EIU', en: 'Explore EIU' },
+  walkBtn: { vi: 'Đi bộ', en: 'Walk' },
+  walkBtnActive: { vi: 'Đang đi bộ', en: 'Walking' },
+  walkBtnTip: { vi: 'Bật chế độ đi bộ tham quan', en: 'Turn on walking tour mode' },
+  walkBtnActiveTip: { vi: 'Thoát chế độ đi bộ', en: 'Exit walking mode' },
+  reviewBtn: { vi: 'Chế độ góp ý', en: 'Feedback mode' },
+  reviewBadgeActive: { vi: 'Đang bật', en: 'On' },
+  reviewBtnTip: { vi: 'Bật/tắt chế độ để lại ghi chú góp ý', en: 'Toggle feedback note mode' },
+  lessonOpenBtn: { vi: '📚 Buổi học', en: '📚 Lessons' },
+  langSwitch: { vi: 'Đổi ngôn ngữ (Tiếng Việt / English)', en: 'Switch language (Tiếng Việt / English)' },
+
+  // Panel tòa nhà (chuyển từ BUILDING_PANEL_TEXT cũ)
+  close: { vi: 'Đóng', en: 'Close' },
+  backToOverview: { vi: 'Về tổng quan', en: 'Back to overview' },
+  zonePrefix: { vi: 'Khu vực', en: 'Zone' },
+  floorsUnit: { vi: 'tầng', en: 'floors' },
+  heightPrefix: { vi: 'Cao', en: 'Height' },
+  structureTitle: { vi: 'Cấu trúc kiến trúc', en: 'Architecture' },
+  floorsTitle: { vi: 'Phân chia tầng & bố trí phòng', en: 'Floors & room layout' },
+  genericHint: {
+    vi: 'Chọn một tòa nhà hoặc dùng nút Về tổng quan để tiếp tục tham quan khuôn viên.',
+    en: 'Select a building or use Back to overview to keep exploring the campus.',
+  },
+  verifiedSource: { vi: 'Nguồn đã xác minh', en: 'Verified source' },
+  unverifiedSource: { vi: 'Chưa xác minh', en: 'Unverified' },
+  floorN: { vi: 'Tầng {n}', en: 'Floor {n}' },
+  viOnlyNote: { vi: 'Thông tin tòa nhà hiện chỉ có tiếng Việt', en: 'Building details are in Vietnamese only for now' },
+
+  // Tab + panel ngành
+  majorsTab: { vi: 'Ngành học ({n})', en: 'Programs ({n})' },
+  buildingTab: { vi: 'Tòa nhà', en: 'Building' },
+  overview: { vi: 'Tổng quan', en: 'Overview' },
+  courses: { vi: 'Môn học', en: 'Courses' },
+  specializations: { vi: 'Chuyên ngành', en: 'Specializations' },
+  yearN: { vi: 'Năm {n}', en: 'Year {n}' },
+  commonTrack: { vi: 'Chung', en: 'Core' },
+  credits: { vi: '{n} TC', en: '{n} cr' },
+  totalCredits: { vi: 'Tổng {n} TC', en: '{n} credits total' },
+  programCode: { vi: 'Mã ngành {code}', en: 'Program code {code}' },
+  highlights: { vi: 'Môn nổi bật', en: 'Key courses' },
+  skills: { vi: 'Kỹ năng', en: 'Skills' },
+  careers: { vi: 'Nghề nghiệp', en: 'Careers' },
+  dayInLife: { vi: 'Một ngày của sinh viên', en: 'A day in the life' },
+  illustrative: { vi: 'minh họa', en: 'illustrative' },
+  semesterN: { vi: 'HK{n}', en: 'Sem {n}' },
+  electiveSlot: { vi: 'Tự chọn: {group} — {n} TC', en: 'Elective: {group} — {n} cr' },
+  chooseCredits: { vi: 'Chọn ≥ {n} TC trong {m} môn', en: 'Choose ≥ {n} cr from {m} courses' },
+  chooseCourses: { vi: 'Chọn {n} trong {m} môn', en: 'Choose {n} of {m} courses' },
+  otherElectives: { vi: 'Tự chọn khác', en: 'Other electives' },
+  requiredCourses: { vi: 'Môn bắt buộc', en: 'Required courses' },
+  electiveGroups: { vi: 'Nhóm tự chọn', en: 'Elective groups' },
+  noCourses: { vi: 'Chưa có môn nào trong năm này', en: 'No courses listed for this year' },
+  yearsInferredNote: {
+    vi: 'Năm học suy từ mã môn (bản khung không chia theo năm)',
+    en: 'Years are inferred from course codes (the framework does not split by year)',
+  },
+  yearFromCodeMark: { vi: '* năm suy từ mã môn', en: '* year inferred from course code' },
+  source: { vi: 'Nguồn: {file} · CTĐT {year}', en: 'Source: {file} · Curriculum {year}' },
+  sourceNoYear: { vi: 'Nguồn: {file} · khung CTĐT (chưa rõ năm)', en: 'Source: {file} · curriculum framework (year unknown)' },
+  contentDraft: { vi: 'Chưa duyệt', en: 'Draft — not yet reviewed' },
+  facultyCntt: { vi: 'Khoa Công nghệ thông tin', en: 'Faculty of Information Technology' },
+  facultyKyThuat: { vi: 'Khoa Kỹ thuật', en: 'Faculty of Engineering' },
+  facultyKinhTe: { vi: 'Khoa Kinh tế', en: 'Faculty of Business & Economics' },
+  expandSheet: { vi: 'Mở rộng bảng thông tin', en: 'Expand panel' },
+  collapseSheet: { vi: 'Thu gọn bảng thông tin', en: 'Collapse panel' },
+} as const satisfies Record<string, LocalizedText>;

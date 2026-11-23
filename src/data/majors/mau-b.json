@@ -1,0 +1,115 @@
+{
+  "id": "mau-b",
+  "facultyId": "ky-thuat",
+  "name": {
+    "vi": "Ngành mẫu B (dữ liệu mẫu)",
+    "en": "Sample Program B (sample data)"
+  },
+  "degree": {
+    "vi": "Kỹ sư Ngành mẫu B",
+    "en": "Bachelor of Sample Program B"
+  },
+  "summary": {
+    "vi": "Mô tả mẫu cho ngành thuộc Khoa Kỹ thuật, dùng bản khung chương trình không chia năm.",
+    "en": "Sample description for an Engineering program that uses a framework curriculum without year split."
+  },
+  "highlights": [
+    {
+      "code": "MAU 101",
+      "why": {
+        "vi": "Làm quen với tư duy kỹ sư (mẫu).",
+        "en": "Introduces engineering thinking (sample)."
+      }
+    },
+    {
+      "code": "MAU 301",
+      "why": {
+        "vi": "Môn trọng tâm về điều khiển (mẫu).",
+        "en": "Key control-systems course (sample)."
+      }
+    },
+    {
+      "code": "MAU 401",
+      "why": {
+        "vi": "Đồ án tổng hợp cuối khóa (mẫu).",
+        "en": "Final integrated project (sample)."
+      }
+    }
+  ],
+  "skills": [
+    {
+      "vi": "Thiết kế hệ thống (mẫu)",
+      "en": "System design (sample)"
+    },
+    {
+      "vi": "Đọc bản vẽ kỹ thuật (mẫu)",
+      "en": "Reading technical drawings (sample)"
+    },
+    {
+      "vi": "Làm thí nghiệm (mẫu)",
+      "en": "Lab experimentation (sample)"
+    },
+    {
+      "vi": "Giải quyết vấn đề (mẫu)",
+      "en": "Problem solving (sample)"
+    }
+  ],
+  "careers": [
+    {
+      "vi": "Kỹ sư thiết kế (mẫu)",
+      "en": "Design engineer (sample)"
+    },
+    {
+      "vi": "Kỹ sư vận hành (mẫu)",
+      "en": "Operations engineer (sample)"
+    },
+    {
+      "vi": "Kỹ sư dự án (mẫu)",
+      "en": "Project engineer (sample)"
+    },
+    {
+      "vi": "Nghiên cứu viên (mẫu)",
+      "en": "Researcher (sample)"
+    }
+  ],
+  "dayInLife": [
+    {
+      "time": "08:00",
+      "text": {
+        "vi": "Học trên lớp (minh họa).",
+        "en": "Class (illustrative)."
+      }
+    },
+    {
+      "time": "10:00",
+      "text": {
+        "vi": "Thí nghiệm trong phòng lab (minh họa).",
+        "en": "Lab experiment (illustrative)."
+      }
+    },
+    {
+      "time": "13:30",
+      "text": {
+        "vi": "Làm đồ án nhóm (minh họa).",
+        "en": "Group project (illustrative)."
+      }
+    },
+    {
+      "time": "16:30",
+      "text": {
+        "vi": "Ôn bài ở thư viện (minh họa).",
+        "en": "Study at the library (illustrative)."
+      }
+    },
+    {
+      "time": "18:00",
+      "text": {
+        "vi": "Ra về (minh họa).",
+        "en": "Head home (illustrative)."
+      }
+    }
+  ],
+  "contentBasis": "bang-mon",
+  "contentStatus": "chua-duyet",
+  "updatedAt": "2026-11-23"
+}
