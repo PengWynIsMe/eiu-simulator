@@ -69,19 +69,29 @@ Khắc phục 3 vấn đề ngoại cảnh còn tồn đọng sau bản test g�
   - **Lỗi 3 (Dây leo thưa/đen, làm lại rèm xanh tươi phủ dày)**: Commit `7cd44d7` — *feat(scene): lam lai rem day leo xanh tuoi ruc ro, tang mat do va phu day hai ben hanh lang (Muc 3)*
 - **Đợt 3 (Sửa 2 việc nhỏ theo nhận xét sau kiểm tra hành lang)**:
   - **Mục 1 (Loại bỏ cỏ mọc xuyên sàn hành lang & các mặt lát)**: Commit `5f3df30` — *fix(scene): loai bo co khoi san be tong hanh lang va cac be mat lat (Muc 1)* (đưa `ZONE2_WALKWAYS` vào mask rải cỏ, mở rộng vùng cấm kè hồ, sàn gỗ cafe, pizza, vườn).
-  - **Mục 2 (Chống z-fighting bằng logarithmicDepthBuffer)**: Commit `8b5b792` — *fix(scene): bat logarithmicDepthBuffer triet tieu z-fighting o moi cu ly camera (Muc 2)* (bật `logarithmicDepthBuffer: true` trên Canvas).
+  - **Mục 2 (Đánh giá giải pháp độ sâu: Lựa chọn Option B)**: Commit `af7976f` — *fix(scene): lua chon Option B bo log depth, dung near 0.35m va polygonOffset chuan cho mobile*.
+    - **Lý do chọn Option B thay vì (A)**:
+      1. *Tối ưu hóa GPU di động (Early-Z)*: Bỏ `logarithmicDepthBuffer` giúp tránh việc fragment shader ghi đè `gl_FragDepth` trên toàn bộ vật liệu, giữ nguyên tính năng Early-Z / Tile-Based Occlusion Culling của chip Apple/Mali/Adreno, giảm tải overdraw và tiết kiệm pin.
+      2. *Nhất quán ShaderMaterial*: Hạt tuyết (`SnowParticles.tsx`) và lá rơi (`FallingLeaves.tsx`) dùng shader custom hoàn toàn đồng bộ độ sâu với vật liệu chuẩn mà không cần chèn các chunk `#include <logdepthbuf_...>` rủi ro.
+      3. *Triệt tiêu z-fighting*: Thiết lập `near: 0.35m`, `far: 2000m` kết hợp cùng hệ thống phân tầng `polygonOffsetFactor` (-1 đến -5) trong `Ground.tsx` và nội thất triệt tiêu hoàn toàn z-fighting giữa các lớp đồng phẳng.
 
 ### 2. Kết quả đo lường hiệu năng WebGL
-- **Draw calls toàn cảnh tổng quan**: `179` draw calls (toàn bộ ~1,100 cây trên khuôn viên trường chỉ tiêu tốn đúng 5 draw calls).
-- **Số lượng tam giác toàn cảnh**: `382,832` triangles (giảm mạnh và ổn định so với phiên bản chứa các cây chi tiết lẻ tẻ).
+- **Draw calls toàn cảnh tổng quan (Desktop)**: `179` draw calls (toàn bộ ~1,100 cây trên khuôn viên trường chỉ tiêu tốn đúng 5 draw calls).
+- **Số lượng tam giác toàn cảnh (Desktop)**: `382,832` triangles (giảm mạnh và ổn định so với phiên bản chứa các cây chi tiết lẻ tẻ).
+- **Mô phỏng Mobile (390×844, DPR 2)**:
+  - Trước (log depth): 88 draw calls, 262,976 triangles, 1,800 snow points, frame time trung bình 16.67 ms.
+  - Sau (Option B): 88 draw calls, 262,976 triangles, 1,800 snow points, frame time trung bình 16.66 ms (~60.0 FPS ổn định, bảo toàn early-z).
 
 ### 3. Danh sách ảnh kiểm chứng (`docs/tasks/FIX-NC-anh/`)
 1. `01-duong-sat-dat-bo-via.png`: Góc nhìn cận cảnh mặt đường nhựa, lối đi bộ và chân bó vỉa cắm chặt xuống nền cỏ, không có khe hở.
-2. `02-hanh-lang-day-leo.png`: Hành lang mái che phẳng mỏng khung thép đen thoáng sáng, trần ghi sáng hắt sáng tốt, sàn bê tông mài phẳng lì, rèm dây leo Cúc Tần xanh tươi rực rỡ buông rủ tha thướt hai bên và bám quanh cột thép theo ảnh thật t017s và walk-eiu/00.
+2. `02-hanh-lang-day-leo.png`: Hành lang mái che phẳng mỏng khung thép đen thoáng sáng, trần ghi sáng hắt sáng tốt, sàn bê tông mài phẳng lì không còn cỏ mọc xuyên, rèm dây leo Cúc Tần xanh tươi rực rỡ buông rủ tha thướt hai bên và bám quanh cột thép theo ảnh thật t017s và walk-eiu/00.
 3. `03-gian-leo-duong-noi-bo.png`: Giàn leo vòm qua đường nội bộ với mặt tán phía trên và các dải rèm rủ hai bên.
 4. `04-highlands-vines.png`: Mặt tiền Highlands Coffee với rèm dây leo mỏng nhẹ thay cho các khối hộp xanh cũ.
 5. `05-cau-ho-day-leo.png`: Giàn leo bên hồ và cầu nước với lá leo alpha buông rủ soi bóng nước.
 6. `06-he-cay-tong-quan.png`: Toàn cảnh phân bố cây 3 loại (tán tròn lớn, thân cao dọc đường, cây bụi) đồng đều khắp khuôn viên.
 7. `07-duong-khi-tuyet.png`: Kiểm tra mặt đường và bó vỉa khi chế độ tuyết được kích hoạt.
 8. `08-tam-mat-bai-co.png`: Góc nhìn ngang tầm mắt người đi bộ (y = 1.4m) trên bãi cỏ xác nhận chân đất tiếp xúc mượt mà, không còn dải clipping plane cắt ngang.
+9. `09-tuyet-roi-toa-nha.png`: Tuyết rơi trước mặt tiền Block 3, các hạt tuyết phía trước hiển thị rõ ràng, hạt phía sau bị occlusion culling đúng độ sâu.
+10. `10-tuyet-roi-mat-dat.png`: Tuyết rơi trên mặt đất và bãi cỏ ở tầm nhìn thấp, hạt tuyết tiếp xúc mượt mà với mặt đất, không bị lặn mất.
+11. `11-la-roi.png`: Lá rơi chao liệng quanh khu vực hành lang và cây xanh khi tắt tuyết (`snow=0`), độ sâu đồng nhất với cây cối và nền đất.
 
