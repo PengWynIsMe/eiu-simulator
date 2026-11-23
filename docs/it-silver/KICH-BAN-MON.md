@@ -283,3 +283,265 @@ For this talk, the group will greet the audience, introduce the topic and then p
 **Feedback on retry** · Find the greeting first. Introduce the poster topic before outlining the talk.
 
 **Closing line** · A question can help you understand the speaker, and a clear opening helps your audience follow along.
+
+## CSE 204 · Mạng máy tính / Computer Networks
+
+### Tiếng Việt
+
+**Giới thiệu** · Bạn tìm hiểu dữ liệu đi qua các tầng mạng như thế nào và thử nối hai mạng LAN trên sơ đồ.
+
+**Ghi chú** · Đây là mô phỏng ngắn của môn học.
+
+**Căn cứ** · BSE.pdf, trang PDF 32.
+
+#### Lý thuyết A · Bốn tầng của TCP/IP (1,5 phút)
+
+**Quyền** · Một tin nhắn ngắn cũng phải đi qua mấy tầng. Bạn thử lần theo đường gửi nhé.
+
+**Slide · Từ ứng dụng ra mạng**
+
+Dữ liệu bắt đầu ở tầng ứng dụng. Tầng giao vận chuyển dữ liệu giữa các ứng dụng. Tầng Internet xử lý địa chỉ IP. Tầng liên kết gửi dữ liệu qua kết nối cục bộ.
+
+**Sắp xếp** · Xếp bốn tầng TCP/IP theo đường dữ liệu đi từ ứng dụng xuống mạng.
+
+- A. Internet
+- B. Liên kết
+- C. Ứng dụng
+- D. Giao vận
+
+**Đáp án** · C → D → A → B
+
+**Phản hồi khi đúng** · Dữ liệu đi từ tầng ứng dụng xuống giao vận, Internet rồi liên kết.
+
+**Phản hồi khi cần thử lại** · Bắt đầu ở ứng dụng. Tầng dùng địa chỉ IP đứng ngay trước tầng gửi dữ liệu qua kết nối cục bộ.
+
+#### Lý thuyết B · Địa chỉ IP và mạng con (1,5 phút)
+
+**Slide · Phần địa chỉ chung**
+
+Trong IPv4, /24 lấy 24 bit đầu làm phần mạng. Với /24, hai địa chỉ cùng mạng con khi ba số đầu giống nhau.
+
+**Câu hỏi** · Máy A dùng 192.0.2.10/24. Địa chỉ của máy nào cùng mạng con với A?
+
+- A. 198.51.100.10/24
+- B. 192.0.2.30/24
+- C. 198.51.100.30/24
+
+**Đáp án** · B
+
+**Phản hồi khi đúng** · Cả hai địa chỉ đều bắt đầu bằng 192.0.2, nên cùng mạng con /24.
+
+**Phản hồi khi cần thử lại** · So ba số đầu với 192.0.2. Số cuối dùng để phân biệt các máy trong mạng con này.
+
+#### Thực hành · Nối hai LAN (2 phút)
+
+**Quyền** · Mình thử nối LAN A với LAN B trên sơ đồ nhé.
+
+**Slide · Hai mạng con**
+
+Mỗi LAN có một switch và một mạng con riêng. Bộ định tuyến (router) chuyển gói tin giữa các mạng con.
+
+**Câu hỏi** · Thiết bị nào nối hai switch để gói tin qua được hai mạng con?
+
+- A. Switch lớp 2
+- B. Hub
+- C. Router
+
+**Đáp án** · C
+
+**Phản hồi khi đúng** · Router chuyển gói tin từ mạng con này sang mạng con kia.
+
+**Phản hồi khi cần thử lại** · Switch lớp 2 và hub chỉ nối thiết bị trong LAN.
+
+**Sắp xếp** · Xếp đường đi của gói tin từ máy A ở LAN A đến máy B ở LAN B.
+
+- A. Switch của LAN B
+- B. Router
+- C. Switch của LAN A
+
+**Đáp án** · C → B → A
+
+**Phản hồi khi đúng** · Gói tin qua switch A, router rồi switch B.
+
+**Phản hồi khi cần thử lại** · Router đứng giữa hai switch trên đường từ A đến B.
+
+**Lời kết** · Bạn đã lần theo dữ liệu qua các tầng và tìm được đường cho gói tin đi giữa hai LAN.
+
+### English
+
+**Overview** · Explore how data moves through network layers and connect two LANs in a diagram.
+
+**Note** · This is a short simulation of the course.
+
+**Source** · BSE.pdf, PDF page 32.
+
+#### Theory A · The four TCP/IP layers (1.5 minutes)
+
+**Quyền** · Even a short message goes through several layers. Let’s trace how it gets sent.
+
+**Slide · From the app to the network**
+
+Data starts at the application layer. The transport layer carries data between applications. The internet layer handles IP addresses. The link layer sends data over a local connection.
+
+**Ordering exercise** · Put the four TCP/IP layers in order, following data from the app down to the network.
+
+- A. Internet
+- B. Link
+- C. Application
+- D. Transport
+
+**Answer** · C → D → A → B
+
+**Feedback on a correct answer** · Data moves down from application to transport, then internet and link.
+
+**Feedback on retry** · Start with the application layer. The layer that uses IP addresses comes right before the one that sends data over the local connection.
+
+#### Theory B · IP addresses and subnets (1.5 minutes)
+
+**Slide · The shared network prefix**
+
+In IPv4, /24 uses the first 24 bits for the network. Two /24 addresses share a subnet when their first three numbers match.
+
+**Question** · Computer A uses 192.0.2.10/24. Which address is on the same subnet?
+
+- A. 198.51.100.10/24
+- B. 192.0.2.30/24
+- C. 198.51.100.30/24
+
+**Answer** · B
+
+**Feedback on a correct answer** · Both addresses start with 192.0.2, so they share the same /24 subnet.
+
+**Feedback on retry** · Compare the first three numbers with 192.0.2. The last number identifies the computer within this subnet.
+
+#### Lab · Connecting two LANs (2 minutes)
+
+**Quyền** · Let’s connect LAN A to LAN B on the diagram.
+
+**Slide · Two subnets**
+
+Each LAN has a switch and its own IP subnet. A router forwards packets between subnets.
+
+**Question** · Which device links the two switches so packets can travel between subnets?
+
+- A. Layer 2 switch
+- B. Hub
+- C. Router
+
+**Answer** · C
+
+**Feedback on a correct answer** · The router forwards packets from one subnet to the other.
+
+**Feedback on retry** · A Layer 2 switch and a hub connect devices within a LAN.
+
+**Ordering exercise** · Order the devices along the packet’s path from computer A on LAN A to computer B on LAN B.
+
+- A. LAN B switch
+- B. Router
+- C. LAN A switch
+
+**Answer** · C → B → A
+
+**Feedback on a correct answer** · The packet passes through switch A, the router and then switch B.
+
+**Feedback on retry** · The router sits between the two switches on the path from A to B.
+
+**Closing line** · You’ve traced data through the layers and found a path for a packet between two LANs.
+
+## STAT 101 · Xác suất thống kê / Statistics and Probability
+
+### Tiếng Việt
+
+**Giới thiệu** · Bạn tính xác suất từ các kết quả đồng khả năng và tính trung bình của một biến ngẫu nhiên.
+
+**Ghi chú** · Đây là mô phỏng ngắn của môn học.
+
+**Căn cứ** · BSE.pdf, trang PDF 17.
+
+#### Lý thuyết A · Xác suất của một lần rút thẻ (1,75 phút)
+
+**Han** · Mình trộn thẻ xanh dương với thẻ vàng trong túi. Bạn thử tính cơ hội rút thẻ xanh nhé.
+
+**Slide · Đếm các kết quả đồng khả năng**
+
+Khi mọi kết quả có cơ hội như nhau, xác suất của một biến cố bằng số kết quả thỏa điều kiện chia cho tổng số kết quả.
+
+**Câu hỏi** · Túi có 4 thẻ xanh và 2 thẻ vàng. Mỗi thẻ có cơ hội được rút như nhau. Xác suất rút một thẻ xanh là bao nhiêu?
+
+- A. 1/6
+- B. 1/3
+- C. 2/3
+
+**Đáp án** · C
+
+**Phản hồi khi đúng** · Có 4 thẻ xanh trong 6 thẻ, nên xác suất là 4/6 = 2/3.
+
+**Phản hồi khi cần thử lại** · Tử số đếm thẻ xanh. Mẫu số đếm tất cả thẻ trong túi.
+
+#### Lý thuyết B · Trung bình của biến ngẫu nhiên (1,75 phút)
+
+**Slide · Trung bình theo xác suất**
+
+Biến ngẫu nhiên gán một giá trị số cho mỗi kết quả. Để tính trung bình, nhân mỗi giá trị với xác suất tương ứng, rồi cộng các tích.
+
+**Câu hỏi** · Gọi X là số ghi trên thẻ bạn rút. X bằng 0 với xác suất 3/4 và bằng 4 với xác suất 1/4. Trung bình của X là bao nhiêu?
+
+- A. 2
+- B. 1
+- C. 3
+
+**Đáp án** · B
+
+**Phản hồi khi đúng** · Trung bình là 0 × 3/4 + 4 × 1/4 = 1.
+
+**Phản hồi khi cần thử lại** · Ghép 0 với xác suất 3/4 và 4 với xác suất 1/4. Nhân từng cặp rồi cộng hai tích.
+
+**Lời kết** · Hôm nay bạn đã tính cơ hội rút được thẻ xanh và tìm trung bình từ hai giá trị có xác suất khác nhau.
+
+### English
+
+**Overview** · Calculate probability from equally likely outcomes and find the mean of a random variable.
+
+**Note** · This is a short simulation of the course.
+
+**Source** · BSE.pdf, PDF page 17.
+
+#### Theory A · The probability of a card draw (1.75 minutes)
+
+**Han** · I’ve mixed blue and yellow cards in a bag. Can you work out the chance of drawing a blue one?
+
+**Slide · Counting equally likely outcomes**
+
+When all outcomes are equally likely, divide the number of outcomes that satisfy the condition by the total number of outcomes.
+
+**Question** · There are four blue cards and two yellow cards in the bag. Each card is equally likely to be drawn. What’s the probability of drawing a blue card?
+
+- A. 1/6
+- B. 1/3
+- C. 2/3
+
+**Answer** · C
+
+**Feedback on a correct answer** · Four of the six cards are blue, so the probability is 4/6 = 2/3.
+
+**Feedback on retry** · Count the blue cards for the numerator and all the cards in the bag for the denominator.
+
+#### Theory B · The mean of a random variable (1.75 minutes)
+
+**Slide · A probability-weighted mean**
+
+A random variable assigns a number to each outcome. To find its mean, multiply each possible value by its probability, then add the products.
+
+**Question** · A card drawn at random shows a number X. X is 0 with probability 3/4 and 4 with probability 1/4. What is the mean of X?
+
+- A. 2
+- B. 1
+- C. 3
+
+**Answer** · B
+
+**Feedback on a correct answer** · The mean is 0 × 3/4 + 4 × 1/4 = 1.
+
+**Feedback on retry** · Pair 0 with 3/4 and 4 with 1/4. Multiply each pair, then add the two products.
+
+**Closing line** · Today you worked out the chance of drawing a blue card and found a mean for two values with different probabilities.

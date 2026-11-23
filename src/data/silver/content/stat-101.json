@@ -1,0 +1,164 @@
+{
+  "version": 1,
+  "code": "STAT 101",
+  "tier": "summary",
+  "status": "nhap",
+  "basis": {
+    "pdfPages": "17",
+    "note": {
+      "vi": "Đây là mô phỏng ngắn của môn học.",
+      "en": "This is a short simulation of the course."
+    }
+  },
+  "summary": {
+    "vi": "Bạn tính xác suất từ các kết quả đồng khả năng và tính trung bình của một biến ngẫu nhiên.",
+    "en": "Calculate probability from equally likely outcomes and find the mean of a random variable."
+  },
+  "sessions": [
+    {
+      "slot": "theoryA",
+      "scene": {
+        "id": "STAT 101/theory-a",
+        "title": {
+          "vi": "Xác suất của một lần rút thẻ",
+          "en": "The probability of a card draw"
+        },
+        "place": "b8",
+        "minutes": 1.75,
+        "steps": [
+          {
+            "id": "han-mo-bai",
+            "type": "say",
+            "speaker": "han",
+            "text": {
+              "vi": "Mình trộn thẻ xanh dương với thẻ vàng trong túi. Bạn thử tính cơ hội rút thẻ xanh nhé.",
+              "en": "I’ve mixed blue and yellow cards in a bag. Can you work out the chance of drawing a blue one?"
+            }
+          },
+          {
+            "id": "dem-ket-qua",
+            "type": "slide",
+            "title": {
+              "vi": "Đếm các kết quả đồng khả năng",
+              "en": "Counting equally likely outcomes"
+            },
+            "body": {
+              "vi": "Khi mọi kết quả có cơ hội như nhau, xác suất của một biến cố bằng số kết quả thỏa điều kiện chia cho tổng số kết quả.",
+              "en": "When all outcomes are equally likely, divide the number of outcomes that satisfy the condition by the total number of outcomes."
+            }
+          },
+          {
+            "id": "rut-the-xanh",
+            "type": "question",
+            "prompt": {
+              "vi": "Túi có 4 thẻ xanh và 2 thẻ vàng. Mỗi thẻ có cơ hội được rút như nhau. Xác suất rút một thẻ xanh là bao nhiêu?",
+              "en": "There are four blue cards and two yellow cards in the bag. Each card is equally likely to be drawn. What’s the probability of drawing a blue card?"
+            },
+            "options": [
+              {
+                "id": "mot-phan-sau",
+                "text": {
+                  "vi": "1/6",
+                  "en": "1/6"
+                }
+              },
+              {
+                "id": "mot-phan-ba",
+                "text": {
+                  "vi": "1/3",
+                  "en": "1/3"
+                }
+              },
+              {
+                "id": "hai-phan-ba",
+                "text": {
+                  "vi": "2/3",
+                  "en": "2/3"
+                }
+              }
+            ],
+            "answerId": "hai-phan-ba",
+            "explainCorrect": {
+              "vi": "Có 4 thẻ xanh trong 6 thẻ, nên xác suất là 4/6 = 2/3.",
+              "en": "Four of the six cards are blue, so the probability is 4/6 = 2/3."
+            },
+            "explainWrong": {
+              "vi": "Tử số đếm thẻ xanh. Mẫu số đếm tất cả thẻ trong túi.",
+              "en": "Count the blue cards for the numerator and all the cards in the bag for the denominator."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "slot": "theoryB",
+      "scene": {
+        "id": "STAT 101/theory-b",
+        "title": {
+          "vi": "Trung bình của biến ngẫu nhiên",
+          "en": "The mean of a random variable"
+        },
+        "place": "b8",
+        "minutes": 1.75,
+        "steps": [
+          {
+            "id": "trung-binh-co-trong-so",
+            "type": "slide",
+            "title": {
+              "vi": "Trung bình theo xác suất",
+              "en": "A probability-weighted mean"
+            },
+            "body": {
+              "vi": "Biến ngẫu nhiên gán một giá trị số cho mỗi kết quả. Để tính trung bình, nhân mỗi giá trị với xác suất tương ứng, rồi cộng các tích.",
+              "en": "A random variable assigns a number to each outcome. To find its mean, multiply each possible value by its probability, then add the products."
+            }
+          },
+          {
+            "id": "tinh-trung-binh",
+            "type": "question",
+            "prompt": {
+              "vi": "Gọi X là số ghi trên thẻ bạn rút. X bằng 0 với xác suất 3/4 và bằng 4 với xác suất 1/4. Trung bình của X là bao nhiêu?",
+              "en": "A card drawn at random shows a number X. X is 0 with probability 3/4 and 4 with probability 1/4. What is the mean of X?"
+            },
+            "options": [
+              {
+                "id": "hai",
+                "text": {
+                  "vi": "2",
+                  "en": "2"
+                }
+              },
+              {
+                "id": "mot",
+                "text": {
+                  "vi": "1",
+                  "en": "1"
+                }
+              },
+              {
+                "id": "ba",
+                "text": {
+                  "vi": "3",
+                  "en": "3"
+                }
+              }
+            ],
+            "answerId": "mot",
+            "explainCorrect": {
+              "vi": "Trung bình là 0 × 3/4 + 4 × 1/4 = 1.",
+              "en": "The mean is 0 × 3/4 + 4 × 1/4 = 1."
+            },
+            "explainWrong": {
+              "vi": "Ghép 0 với xác suất 3/4 và 4 với xác suất 1/4. Nhân từng cặp rồi cộng hai tích.",
+              "en": "Pair 0 with 3/4 and 4 with 1/4. Multiply each pair, then add the two products."
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "closing": {
+    "vi": "Hôm nay bạn đã tính cơ hội rút được thẻ xanh và tìm trung bình từ hai giá trị có xác suất khác nhau.",
+    "en": "Today you worked out the chance of drawing a blue card and found a mean for two values with different probabilities."
+  }
+}

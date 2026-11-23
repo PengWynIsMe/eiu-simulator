@@ -31,6 +31,36 @@ Ba file mới trong `src/data/silver/content/`. Số trang lấy theo thứ tự
 - **COMS 101 A** · Nhắc lại ý của Han giúp xác nhận mục tiêu. Hỏi chỗ khó theo dõi giúp tìm được đoạn chuyển sang ví dụ cần xem lại.
 - **COMS 101 B** · Chào người nghe → nêu chủ đề áp phích → báo trước bố cục và ví dụ. Đây là trình tự nhóm đã thống nhất trong slide.
 
-### Kiểm tra trên nhánh nội dung
+## ND-05 · Các môn để đổi hoặc thêm
 
-`npm run typecheck`, `npm run lint` và `npm run build` đều thoát 0. Nhánh từ `origin/main` chưa có `check:silver`, nên dùng kiểm tra JSON, kiểu và tham chiếu bằng script tạm ngoài repo. Máy có JDK 25.0.3. Phạm vi ND-04 gồm các bài đọc, hội thoại và bài tập không có đoạn Java cần chạy. Việc chơi thử và đo thời lượng thực tế chờ bản ghép với BE/UI.
+Hai file mới trong `src/data/silver/content/`. CSE 204 dùng mô hình TCP/IP bốn tầng và một bài thực hành trên sơ đồ hai LAN.
+
+| File | Trang PDF | Phút A + B + lab | Số từ VI A / B / lab |
+|---|---:|---:|---:|
+| `cse-204.json` | 32 | 1,5 + 1,5 + 2 | 119 / 83 / 128 |
+| `stat-101.json` | 17 | 1,75 + 1,75 | 118 / 104 |
+
+### Tiêu chí xong
+
+| Tiêu chí | Kết quả | Bằng chứng |
+|---|---|---|
+| Hai JSON đúng kiểu, đủ VI/EN và ở trạng thái nháp | Đạt | Parse JSON và kiểm hai file theo `CourseContent` bằng TypeScript strict. |
+| Tương tác và thời lượng đúng từng môn | Đạt | CSE 204 có 2 buổi lý thuyết và 1 lab, tổng 5 phút. STAT 101 có 2 buổi lý thuyết, tổng 3,5 phút. Các buổi tại B8. |
+| Đúng giới hạn chữ | Đạt | Từng buổi lý thuyết ≤ 130 từ VI. Lab có 128 từ VI (giới hạn 200). Giới thiệu và lời kết ≤ 25 từ mỗi ngôn ngữ. |
+| Căn cứ PDF, mã và tham chiếu hợp lệ | Đạt | Đối chiếu trực tiếp trang 32 và 17. `basis` có chú thích mô phỏng ngắn. Mã khớp danh mục, ID cảnh, ID bước, ID đáp án và thứ tự đều hợp lệ. |
+| Giải lại câu hỏi và kiểm bản đọc | Đạt | Kiểm cả đáp án đúng duy nhất và thứ tự xếp. Bản đọc khớp với hai file JSON. |
+| Dữ liệu đủ để thử đổi, thêm và hai lab trong tuần 2.2 | Đạt | Theo lịch game, CSE 100 có trước 2.2. STAT 101 dùng mặc định Q5, cần cả MATH 111 và MATH 103, đều có trước 2.2. Thêm cả hai vào bốn môn gợi ý cho sáu môn và hai lab CSE 103, CSE 204. |
+
+### Đối chiếu câu hỏi
+
+- **CSE 204 A** · Từ phía gửi, dữ liệu đi từ ứng dụng xuống giao vận, Internet rồi liên kết.
+- **CSE 204 B** · `192.0.2.10/24` và `192.0.2.30/24` đều thuộc `192.0.2.0/24`. Hai địa chỉ bắt đầu bằng `198.51.100` thuộc `198.51.100.0/24`.
+- **CSE 204 lab** · Router là lựa chọn định tuyến giữa hai mạng con. Các thiết bị trung gian theo chiều A sang B là switch LAN A → router → switch LAN B.
+- **STAT 101 A** · Có bốn thẻ xanh trong sáu thẻ đồng khả năng, nên xác suất là `4/(4+2) = 2/3`.
+- **STAT 101 B** · Hai xác suất cộng thành 1. Trung bình theo trọng số là `0 × 3/4 + 4 × 1/4 = 1`.
+
+## Kiểm tra trên nhánh nội dung
+
+`npm run typecheck`, `npm run lint` và `npm run build` đều thoát 0 cho cả hai task. Nhánh từ `origin/main` chưa có `check:silver`, nên dùng script tạm ngoài repo để kiểm JSON, kiểu và tham chiếu, đối chiếu lại 10 đáp án có chấm và so khớp bản đọc. Các cảnh dùng tham chiếu bài tập nội bộ và mã tòa `b8`, độc lập với trạng thái đã lưu của chương.
+
+Máy có JDK 25.0.3. Năm môn trong hai task dùng bài đọc, hội thoại, câu hỏi và sắp xếp, nên mục chạy Java không áp dụng. Việc chơi thử đổi/thêm môn và đo thời lượng thực tế chờ bản ghép BE/UI.

@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "code": "CSE 204",
+  "tier": "summary",
+  "status": "nhap",
+  "basis": {
+    "pdfPages": "32",
+    "note": {
+      "vi": "Đây là mô phỏng ngắn của môn học.",
+      "en": "This is a short simulation of the course."
+    }
+  },
+  "summary": {
+    "vi": "Bạn tìm hiểu dữ liệu đi qua các tầng mạng như thế nào và thử nối hai mạng LAN trên sơ đồ.",
+    "en": "Explore how data moves through network layers and connect two LANs in a diagram."
+  },
+  "sessions": [
+    {
+      "slot": "theoryA",
+      "scene": {
+        "id": "CSE 204/theory-a",
+        "title": {
+          "vi": "Bốn tầng của TCP/IP",
+          "en": "The four TCP/IP layers"
+        },
+        "place": "b8",
+        "minutes": 1.5,
+        "steps": [
+          {
+            "id": "quyen-mo-bai",
+            "type": "say",
+            "speaker": "quyen",
+            "text": {
+              "vi": "Một tin nhắn ngắn cũng phải đi qua mấy tầng. Bạn thử lần theo đường gửi nhé.",
+              "en": "Even a short message goes through several layers. Let’s trace how it gets sent."
+            }
+          },
+          {
+            "id": "vai-tro-cac-tang",
+            "type": "slide",
+            "title": {
+              "vi": "Từ ứng dụng ra mạng",
+              "en": "From the app to the network"
+            },
+            "body": {
+              "vi": "Dữ liệu bắt đầu ở tầng ứng dụng. Tầng giao vận chuyển dữ liệu giữa các ứng dụng. Tầng Internet xử lý địa chỉ IP. Tầng liên kết gửi dữ liệu qua kết nối cục bộ.",
+              "en": "Data starts at the application layer. The transport layer carries data between applications. The internet layer handles IP addresses. The link layer sends data over a local connection."
+            }
+          },
+          {
+            "id": "xep-tang",
+            "type": "order",
+            "prompt": {
+              "vi": "Xếp bốn tầng TCP/IP theo đường dữ liệu đi từ ứng dụng xuống mạng.",
+              "en": "Put the four TCP/IP layers in order, following data from the app down to the network."
+            },
+            "items": [
+              {
+                "id": "internet",
+                "text": {
+                  "vi": "Internet",
+                  "en": "Internet"
+                }
+              },
+              {
+                "id": "lien-ket",
+                "text": {
+                  "vi": "Liên kết",
+                  "en": "Link"
+                }
+              },
+              {
+                "id": "ung-dung",
+                "text": {
+                  "vi": "Ứng dụng",
+                  "en": "Application"
+                }
+              },
+              {
+                "id": "giao-van",
+                "text": {
+                  "vi": "Giao vận",
+                  "en": "Transport"
+                }
+              }
+            ],
+            "answer": [
+              "ung-dung",
+              "giao-van",
+              "internet",
+              "lien-ket"
+            ],
+            "explainCorrect": {
+              "vi": "Dữ liệu đi từ tầng ứng dụng xuống giao vận, Internet rồi liên kết.",
+              "en": "Data moves down from application to transport, then internet and link."
+            },
+            "explainWrong": {
+              "vi": "Bắt đầu ở ứng dụng. Tầng dùng địa chỉ IP đứng ngay trước tầng gửi dữ liệu qua kết nối cục bộ.",
+              "en": "Start with the application layer. The layer that uses IP addresses comes right before the one that sends data over the local connection."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "slot": "theoryB",
+      "scene": {
+        "id": "CSE 204/theory-b",
+        "title": {
+          "vi": "Địa chỉ IP và mạng con",
+          "en": "IP addresses and subnets"
+        },
+        "place": "b8",
+        "minutes": 1.5,
+        "steps": [
+          {
+            "id": "tien-to-mang",
+            "type": "slide",
+            "title": {
+              "vi": "Phần địa chỉ chung",
+              "en": "The shared network prefix"
+            },
+            "body": {
+              "vi": "Trong IPv4, /24 lấy 24 bit đầu làm phần mạng. Với /24, hai địa chỉ cùng mạng con khi ba số đầu giống nhau.",
+              "en": "In IPv4, /24 uses the first 24 bits for the network. Two /24 addresses share a subnet when their first three numbers match."
+            }
+          },
+          {
+            "id": "tim-mang-con",
+            "type": "question",
+            "prompt": {
+              "vi": "Máy A dùng 192.0.2.10/24. Địa chỉ của máy nào cùng mạng con với A?",
+              "en": "Computer A uses 192.0.2.10/24. Which address is on the same subnet?"
+            },
+            "options": [
+              {
+                "id": "mang-khac-cung-so-cuoi",
+                "text": {
+                  "vi": "198.51.100.10/24",
+                  "en": "198.51.100.10/24"
+                }
+              },
+              {
+                "id": "cung-mang",
+                "text": {
+                  "vi": "192.0.2.30/24",
+                  "en": "192.0.2.30/24"
+                }
+              },
+              {
+                "id": "mang-khac",
+                "text": {
+                  "vi": "198.51.100.30/24",
+                  "en": "198.51.100.30/24"
+                }
+              }
+            ],
+            "answerId": "cung-mang",
+            "explainCorrect": {
+              "vi": "Cả hai địa chỉ đều bắt đầu bằng 192.0.2, nên cùng mạng con /24.",
+              "en": "Both addresses start with 192.0.2, so they share the same /24 subnet."
+            },
+            "explainWrong": {
+              "vi": "So ba số đầu với 192.0.2. Số cuối dùng để phân biệt các máy trong mạng con này.",
+              "en": "Compare the first three numbers with 192.0.2. The last number identifies the computer within this subnet."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "slot": "lab",
+      "scene": {
+        "id": "CSE 204/lab-1",
+        "title": {
+            "vi": "Nối hai LAN",
+            "en": "Connecting two LANs"
+        },
+        "place": "b8",
+        "minutes": 2,
+        "steps": [
+          {
+            "id": "quyen-mo-so-do",
+            "type": "say",
+            "speaker": "quyen",
+            "text": {
+              "vi": "Mình thử nối LAN A với LAN B trên sơ đồ nhé.",
+              "en": "Let’s connect LAN A to LAN B on the diagram."
+            }
+          },
+          {
+            "id": "doc-so-do",
+            "type": "slide",
+            "title": {
+              "vi": "Hai mạng con",
+              "en": "Two subnets"
+            },
+            "body": {
+              "vi": "Mỗi LAN có một switch và một mạng con riêng. Bộ định tuyến (router) chuyển gói tin giữa các mạng con.",
+              "en": "Each LAN has a switch and its own IP subnet. A router forwards packets between subnets."
+            }
+          },
+          {
+            "id": "chon-thiet-bi",
+            "type": "question",
+            "prompt": {
+              "vi": "Thiết bị nào nối hai switch để gói tin qua được hai mạng con?",
+              "en": "Which device links the two switches so packets can travel between subnets?"
+            },
+            "options": [
+              {
+                "id": "switch",
+                "text": {
+                  "vi": "Switch lớp 2",
+                  "en": "Layer 2 switch"
+                }
+              },
+              {
+                "id": "hub",
+                "text": {
+                  "vi": "Hub",
+                  "en": "Hub"
+                }
+              },
+              {
+                "id": "router",
+                "text": {
+                  "vi": "Router",
+                  "en": "Router"
+                }
+              }
+            ],
+            "answerId": "router",
+            "explainCorrect": {
+              "vi": "Router chuyển gói tin từ mạng con này sang mạng con kia.",
+              "en": "The router forwards packets from one subnet to the other."
+            },
+            "explainWrong": {
+              "vi": "Switch lớp 2 và hub chỉ nối thiết bị trong LAN.",
+              "en": "A Layer 2 switch and a hub connect devices within a LAN."
+            }
+          },
+          {
+            "id": "xep-duong-di",
+            "type": "order",
+            "prompt": {
+              "vi": "Xếp đường đi của gói tin từ máy A ở LAN A đến máy B ở LAN B.",
+              "en": "Order the devices along the packet’s path from computer A on LAN A to computer B on LAN B."
+            },
+            "items": [
+              {
+                "id": "switch-b",
+                "text": {
+                  "vi": "Switch của LAN B",
+                  "en": "LAN B switch"
+                }
+              },
+              {
+                "id": "router",
+                "text": {
+                  "vi": "Router",
+                  "en": "Router"
+                }
+              },
+              {
+                "id": "switch-a",
+                "text": {
+                  "vi": "Switch của LAN A",
+                  "en": "LAN A switch"
+                }
+              }
+            ],
+            "answer": [
+              "switch-a",
+              "router",
+              "switch-b"
+            ],
+            "explainCorrect": {
+              "vi": "Gói tin qua switch A, router rồi switch B.",
+              "en": "The packet passes through switch A, the router and then switch B."
+            },
+            "explainWrong": {
+              "vi": "Router đứng giữa hai switch trên đường từ A đến B.",
+              "en": "The router sits between the two switches on the path from A to B."
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "closing": {
+    "vi": "Bạn đã lần theo dữ liệu qua các tầng và tìm được đường cho gói tin đi giữa hai LAN.",
+    "en": "You’ve traced data through the layers and found a path for a packet between two LANs."
+  }
+}
