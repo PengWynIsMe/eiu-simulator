@@ -1,0 +1,300 @@
+{
+ "version": 1,
+ "majorId": "ktpm",
+ "official": false,
+ "terms": [
+  {
+   "term": "1.1",
+   "kind": "english",
+   "core": [],
+   "courses": [
+    "POLS 133"
+   ],
+   "electives": [],
+   "credits": 4
+  },
+  {
+   "term": "1.2",
+   "kind": "english",
+   "core": [],
+   "courses": [
+    "MATH 103",
+    "LAWS 122"
+   ],
+   "electives": [],
+   "credits": 8
+  },
+  {
+   "term": "1.3",
+   "kind": "english",
+   "core": [],
+   "courses": [
+    "MATH 111",
+    "POLS 134"
+   ],
+   "electives": [],
+   "credits": 7
+  },
+  {
+   "term": "1.4",
+   "kind": "english",
+   "core": [],
+   "courses": [],
+   "electives": [],
+   "credits": 0
+  },
+  {
+   "term": "2.1",
+   "kind": "english",
+   "core": [],
+   "courses": [
+    "CSE 100",
+    "CSE 106"
+   ],
+   "electives": [],
+   "credits": 8
+  },
+  {
+   "term": "2.2",
+   "kind": "registration",
+   "core": [
+    "CSE 103"
+   ],
+   "courses": [
+    "CSE 103",
+    "MATH 112",
+    "POLS 135"
+   ],
+   "electives": [
+    {
+     "group": "gtnn",
+     "default": "COMS 101"
+    }
+   ],
+   "credits": 15
+  },
+  {
+   "term": "2.3",
+   "kind": "registration",
+   "core": [
+    "CSE 104"
+   ],
+   "courses": [
+    "CSE 104",
+    "MATH 113",
+    "CSE 204",
+    "POLS 132"
+   ],
+   "electives": [],
+   "credits": 15
+  },
+  {
+   "term": "2.4",
+   "kind": "registration",
+   "core": [
+    "CSE 203"
+   ],
+   "courses": [
+    "CSE 203"
+   ],
+   "electives": [
+    {
+     "group": "cns",
+     "default": "INFO 106"
+    }
+   ],
+   "credits": 8
+  },
+  {
+   "term": "3.1",
+   "kind": "registration",
+   "core": [
+    "CSE 201"
+   ],
+   "courses": [
+    "CSE 201",
+    "CSE 206",
+    "MATH 122",
+    "POLS 136"
+   ],
+   "electives": [],
+   "credits": 15
+  },
+  {
+   "term": "3.2",
+   "kind": "registration",
+   "core": [
+    "CSE 301"
+   ],
+   "courses": [
+    "CSE 301",
+    "CSE 202",
+    "STAT 101",
+    "PHYS 101"
+   ],
+   "electives": [],
+   "credits": 16
+  },
+  {
+   "term": "3.3",
+   "kind": "registration",
+   "core": [
+    "CSW 303"
+   ],
+   "courses": [
+    "CSW 303",
+    "CSN 302",
+    "PHYS 102"
+   ],
+   "electives": [
+    {
+     "group": "khxh",
+     "default": "PSYC 154"
+    }
+   ],
+   "credits": 16
+  },
+  {
+   "term": "3.4",
+   "kind": "registration",
+   "core": [
+    "CSW 304"
+   ],
+   "courses": [
+    "CSW 304"
+   ],
+   "electives": [
+    {
+     "group": "cdnc",
+     "default": "UNIV 111"
+    }
+   ],
+   "credits": 8
+  },
+  {
+   "term": "4.1",
+   "kind": "registration",
+   "core": [
+    "CSW 306"
+   ],
+   "courses": [
+    "CSW 306",
+    "CSW 406"
+   ],
+   "electives": [
+    {
+     "group": "khtn",
+     "default": "STAT 202"
+    }
+   ],
+   "credits": 11
+  },
+  {
+   "term": "4.2",
+   "kind": "registration",
+   "core": [
+    "CSW 307"
+   ],
+   "courses": [
+    "CSW 307"
+   ],
+   "electives": [
+    {
+     "group": "cn-2",
+     "default": "CSW 437"
+    },
+    {
+     "group": "khtn",
+     "default": "MATH 114"
+    }
+   ],
+   "credits": 11
+  },
+  {
+   "term": "4.3",
+   "kind": "registration",
+   "core": [
+    "CSW 309"
+   ],
+   "courses": [
+    "CSW 309",
+    "CSW 315"
+   ],
+   "electives": [
+    {
+     "group": "cn-2",
+     "default": "CSW 433"
+    }
+   ],
+   "credits": 12
+  },
+  {
+   "term": "4.4",
+   "kind": "registration",
+   "core": [
+    "CSW 400"
+   ],
+   "courses": [
+    "CSW 400"
+   ],
+   "electives": [],
+   "credits": 4
+  },
+  {
+   "term": "5.1",
+   "kind": "registration",
+   "core": [
+    "CSW 405",
+    "CSW 480"
+   ],
+   "courses": [
+    "CSW 405",
+    "CSW 480"
+   ],
+   "electives": [
+    {
+     "group": "cn-4",
+     "default": "CSW 435"
+    }
+   ],
+   "credits": 10
+  },
+  {
+   "term": "5.2",
+   "kind": "registration",
+   "core": [
+    "CSW 481"
+   ],
+   "courses": [
+    "CSW 481"
+   ],
+   "electives": [
+    {
+     "group": "cn-4",
+     "default": "CSW 438"
+    }
+   ],
+   "credits": 8
+  },
+  {
+   "term": "5.3",
+   "kind": "registration",
+   "core": [
+    "CSW 482"
+   ],
+   "courses": [
+    "CSW 482"
+   ],
+   "electives": [],
+   "credits": 4
+  },
+  {
+   "term": "5.4",
+   "kind": "graduation",
+   "core": [],
+   "courses": [],
+   "electives": [],
+   "credits": 0
+  }
+ ]
+}
