@@ -1,6 +1,6 @@
 import { getClassroom } from '../../data';
-import { b11ToWorld } from '../interior/layouts/b11';
-import { localDirToYaw } from './sitPose';
+import type { Classroom } from '../../types';
+import { toWorld, yawOf } from '../silver/frame';
 
 /** Khoảng lùi (m) từ ghế ra khe sau lưng ghế (khe giữa lưng ghế hàng này và bàn hàng sau, rộng ~0.6 m). */
 const BACK_OFFSET_U = 0.5;
@@ -28,25 +28,36 @@ export interface StudentSpec {
   cheerer: boolean;
 }
 
-export function buildClassroomPlan(): StudentSpec[] {
-  const room = getClassroom('406.B11');
+export function buildClassroomPlan(roomInput?: Classroom | null, crowd?: number): StudentSpec[] {
+  const room = roomInput ?? getClassroom('406.B11');
   if (!room) return [];
-  const yaw = localDirToYaw(room.studentFacing[0], room.studentFacing[1]);
+  const frame = room.frame;
+  const yaw = yawOf(frame, room.studentFacing[0], room.studentFacing[1]);
   const aisleV = (room.aisle.minV + room.aisle.maxV) / 2;
   const player = room.seats.find((s) => s.id === room.playerSeat);
 
-  const students: StudentSpec[] = room.npcSeats.map((id, index) => {
+  const seatsToUse = typeof crowd === 'number' ? room.npcSeats.slice(0, crowd) : room.npcSeats;
+
+  // Lùi phía sau lưng ghế: ngược hướng studentFacing
+  const backOffsetU = room.studentFacing[0] * BACK_OFFSET_U;
+  const backOffsetV = room.studentFacing[1] * BACK_OFFSET_U;
+
+  const students: StudentSpec[] = seatsToUse.map((id, index) => {
     const seat = room.seats.find((s) => s.id === id);
     if (!seat) throw new Error(`Không thấy ghế ${id}`);
+
+    const backU = seat.u - backOffsetU;
+    const backV = seat.v - backOffsetV;
+
     const uv: number[] = [
-      seat.u - BACK_OFFSET_U, seat.v,
-      seat.u - BACK_OFFSET_U, aisleV,
+      backU, backV,
+      backU, aisleV,
       room.door.u, aisleV,
       room.door.u, room.door.v,
     ];
     const path = new Float64Array(uv.length);
     for (let i = 0; i < uv.length; i += 2) {
-      const [x, z] = b11ToWorld(at(uv, i), at(uv, i + 1));
+      const [x, z] = toWorld(frame, at(uv, i), at(uv, i + 1));
       path[i] = x;
       path[i + 1] = z;
     }
@@ -54,20 +65,33 @@ export function buildClassroomPlan(): StudentSpec[] {
     for (let i = 1; i < cum.length; i++) {
       cum[i] = at(cum, i - 1) + Math.hypot(at(path, i * 2) - at(path, i * 2 - 2), at(path, i * 2 + 1) - at(path, i * 2 - 1));
     }
-    const [seatX, seatZ] = b11ToWorld(seat.u, seat.v);
+    const [seatX, seatZ] = toWorld(frame, seat.u, seat.v);
     return {
-      index, seatId: id, seatX, seatZ, backX: at(path, 0), backZ: at(path, 1), yaw,
-      path, cum, total: at(cum, cum.length - 1), exitRank: 0, raiser: false, cheerer: false,
+      index,
+      seatId: id,
+      seatX,
+      seatZ,
+      backX: at(path, 0),
+      backZ: at(path, 1),
+      yaw,
+      path,
+      cum,
+      total: at(cum, cum.length - 1),
+      exitRank: 0,
+      raiser: false,
+      cheerer: false,
     };
   });
 
   [...students].sort((a, b) => a.total - b.total).forEach((s, rank) => { s.exitRank = rank; });
-  // 2 bạn giơ tay cố định, rải trong danh sách ghế.
+
+  // 2 bạn giơ tay cố định, rải trong danh sách ghế
   for (const f of RAISE_COUNT_FRACTIONS) {
     const s = students[Math.floor(students.length * f)];
     if (s) s.raiser = true;
   }
-  // 3 bạn gần ghế người chơi nhất (không trùng người giơ tay) hoan hô khi làm đúng.
+
+  // 3 bạn gần ghế người chơi nhất (không trùng người giơ tay) hoan hô khi làm đúng
   if (player) {
     const dist = (s: StudentSpec) => {
       const seat = room.seats.find((q) => q.id === s.seatId);
@@ -79,6 +103,7 @@ export function buildClassroomPlan(): StudentSpec[] {
       .slice(0, CHEER_COUNT)
       .forEach((s) => { s.cheerer = true; });
   }
+
   return students;
 }
 
