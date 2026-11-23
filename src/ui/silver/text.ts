@@ -77,6 +77,29 @@ export const ST = {
   },
   tapReveal: { vi: 'Bấm để hiện hết', en: 'Tap to show all' },
 
+  // UI-03 — Question, Order, Code
+  retry: { vi: 'Thử lại', en: 'Try again' },
+  reveal: { vi: 'Xem lời giải', en: 'Show answer' },
+  correct: { vi: 'Đúng rồi', en: 'Correct' },
+  wrong: { vi: 'Chưa đúng', en: 'Not yet' },
+  revealed: { vi: 'Lời giải', en: 'Answer' },
+  listen: { vi: 'Nghe', en: 'Listen' },
+  listenAgain: { vi: 'Nghe lại', en: 'Listen again' },
+  captions: { vi: 'Phụ đề', en: 'Captions' },
+  noAudio: {
+    vi: 'Máy không phát được giọng đọc hoặc đang tắt tiếng, nên phụ đề được bật.',
+    en: 'No voice available or sound is off, so captions are on.',
+  },
+  simListen: { vi: 'Bài nghe mô phỏng ngắn', en: 'Short simulated listening' },
+  check: { vi: 'Kiểm tra', en: 'Check' },
+  up: { vi: 'Chuyển lên', en: 'Move up' },
+  down: { vi: 'Chuyển xuống', en: 'Move down' },
+  run: { vi: 'Chạy', en: 'Run' },
+  output: { vi: 'Kết quả', en: 'Output' },
+  hint: { vi: 'Gợi ý', en: 'Hint' },
+  blank: { vi: 'Chỗ cần điền', en: 'Blank to fill in' },
+  simCode: { vi: 'Mô phỏng, không chạy code thật', en: 'Simulated, no real code runs' },
+
   // Tiêu đề các màn chưa dựng xong (sẽ cập nhật đúng bảng ST ở UI-02..07)
   screenRegistration: { vi: 'Đăng ký môn', en: 'Course registration' },
   screenWeek: { vi: 'Tuần học', en: 'Your week' },

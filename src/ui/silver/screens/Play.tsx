@@ -11,6 +11,9 @@ import Stepper from '../parts/Stepper';
 import Say from '../steps/Say';
 import Choice from '../steps/Choice';
 import Slide from '../steps/Slide';
+import Question from '../steps/Question';
+import Order from '../steps/Order';
+import Code from '../steps/Code';
 
 interface PlayProps {
   exitHandlerRef: MutableRefObject<(() => void) | null>;
@@ -141,10 +144,12 @@ export default function Play({ exitHandlerRef }: PlayProps) {
         )}
         {play.step.type === 'choice' && <Choice step={play.step} feedback={play.feedback} />}
         {play.step.type === 'slide' && <Slide step={play.step} />}
-        {play.step.type !== 'say' && play.step.type !== 'choice' && play.step.type !== 'slide' && (
-          <Panel className="mx-auto max-w-2xl text-center">
-            <p className="text-[15px] text-slate-600">{play.step.type}</p>
-          </Panel>
+        {play.step.type === 'question' && (
+          <Question step={play.step} feedback={play.feedback} />
+        )}
+        {play.step.type === 'order' && <Order step={play.step} feedback={play.feedback} />}
+        {play.step.type === 'code' && (
+          <Code step={play.step} feedback={play.feedback} hint={play.hint} />
         )}
       </div>
 
