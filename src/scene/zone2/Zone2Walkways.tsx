@@ -3,6 +3,7 @@ import { BoxGeometry, type BufferGeometry } from 'three';
 import type { Vec2 } from '../../types';
 import { safeMerge } from '../kit/geometryHelpers';
 import Block11Details from './Block11Details';
+import CampusGreenery from '../nature/CampusGreenery';
 
 const ZONE2_WALKWAYS: readonly { readonly points: readonly Vec2[]; readonly roofH: number; readonly width: number }[] = [
   // Hành lang mái che B9 ↔ B10 (theo đường footway OSM)
@@ -118,6 +119,7 @@ export default function Zone2Walkways() {
         </mesh>
       )}
       <Block11Details />
+      <CampusGreenery />
     </group>
   );
 }

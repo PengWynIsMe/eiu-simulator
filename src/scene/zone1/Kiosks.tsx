@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import type { BufferGeometry } from 'three';
 import type { Building } from '../../types';
-import { addBox, addCylinder, safeMerge } from './../kit/geometryHelpers';
+import { addBox, addCylinder, safeMerge } from '../kit/geometryHelpers';
+import { add3DTextAlongZ } from '../kit/blockText';
 
 interface KioskProps {
   building: Building;
@@ -15,8 +16,9 @@ function getBboxCenter(building: Building): { cx: number; cz: number } {
 }
 
 /**
- * Highlands Coffee — Ki-ốt xe buýt đỏ đặc trưng cạnh hồ nước và Block 4.
- * Dựa theo ảnh trong Sổ tay Sinh viên EIU 2026–2027 trang 27.
+ * Highlands Coffee — Ki-ốt kiểu toa tàu bo góc màu đỏ đặc trưng,
+ * chữ 3D "HIGHLANDS" trắng trên nóc, sàn gỗ đỏ ngoài trời, khu bàn ghế cafe laptop,
+ * rèm dây leo rủ và vách gạch hoa gió (đối chiếu clip t041s, t045s, t049s).
  */
 export function HighlandsKiosk({ building, isHovered, isSelected }: KioskProps) {
   const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
@@ -24,85 +26,308 @@ export function HighlandsKiosk({ building, isHovered, isSelected }: KioskProps) 
 
   const { cx, cz } = getBboxCenter(building);
 
-  const { deckGeo, busBodyGeo, glassGeo, trimGeo, darkGeo } = useMemo(() => {
+  const {
+    deckGeo,
+    kioskRedGeo,
+    kioskWhiteGeo,
+    glassGeo,
+    interiorGeo,
+    menuGeo,
+    seatingGeo,
+    steelGeo,
+    vinesGeo,
+    screenGeo,
+  } = useMemo(() => {
     const decks: BufferGeometry[] = [];
-    const bodies: BufferGeometry[] = [];
+    const reds: BufferGeometry[] = [];
+    const whites: BufferGeometry[] = [];
     const glass: BufferGeometry[] = [];
-    const trims: BufferGeometry[] = [];
-    const darks: BufferGeometry[] = [];
+    const interiors: BufferGeometry[] = [];
+    const menus: BufferGeometry[] = [];
+    const seatings: BufferGeometry[] = [];
+    const steels: BufferGeometry[] = [];
+    const vines: BufferGeometry[] = [];
+    const screens: BufferGeometry[] = [];
 
-    // Nền patio lát gạch & bệ xe
-    addBox(decks, -5.8, 5.8, 0.0, 0.18, -3.8, 3.8);
+    // ==========================================
+    // 1. SÀN GỖ ĐỎ NGOÀI TRỜI (TIMBER DECKING)
+    // ==========================================
+    // Sàn nâng cao 0.20m, kích thước 10.4m x 9.2m
+    const deckMinX = -5.6;
+    const deckMaxX = 4.8;
+    const deckMinZ = -4.6;
+    const deckMaxZ = 4.6;
+    const deckH = 0.20;
 
-    // 4 bánh xe đen gầm xe buýt
-    for (const bx of [-2.4, 2.2]) {
-      for (const bz of [-1.25, 1.25]) {
-        addCylinder(darks, 0.42, 0.42, 0.28, 12, bx, 0.42, bz, Math.PI / 2);
+    addBox(decks, deckMinX, deckMaxX, 0.0, deckH, deckMinZ, deckMaxZ);
+    // Bậc tam cấp bước lên sàn ở hướng Tây (-X) và Nam (+Z)
+    addBox(decks, deckMinX - 0.45, deckMinX, 0.0, deckH * 0.5, deckMinZ + 0.6, deckMaxZ - 0.6);
+    addBox(decks, deckMinX + 0.6, deckMaxX - 0.6, 0.0, deckH * 0.5, deckMaxZ, deckMaxZ + 0.45);
+
+    // ==========================================
+    // 2. THÂN KI-ỐT TOA TÀU ĐỎ HIGHLANDS
+    // ==========================================
+    // Thân ki-ốt đặt tại X in [1.2, 4.4], Z in [-3.8, 3.8] (dài 7.6m, rộng 3.2m, cao 3.5m)
+    const kMinX = 1.2;
+    const kMaxX = 4.4;
+    const kMinZ = -3.8;
+    const kMaxZ = 3.8;
+    const kBaseY = deckH;
+    const kRoofY = kBaseY + 3.3;
+
+    // Nửa dưới màu đỏ mận đặc trưng Highlands (Y: deckH -> 1.35)
+    addBox(reds, kMinX, kMaxX, kBaseY, kBaseY + 1.15, kMinZ, kMaxZ);
+
+    // Tường sau (+X) và 2 tường hồi (Z = -3.8 và Z = +3.8) sơn đỏ
+    addBox(reds, kMaxX - 0.25, kMaxX, kBaseY + 1.15, kRoofY - 0.35, kMinZ, kMaxZ);
+    addBox(reds, kMinX, kMaxX, kBaseY + 1.15, kRoofY - 0.35, kMinZ, kMinZ + 0.4);
+    addBox(reds, kMinX, kMaxX, kBaseY + 1.15, kRoofY - 0.35, kMaxZ - 0.4, kMaxZ);
+
+    // Khe hút gió/lam đen chân ki-ốt
+    addBox(steels, kMinX - 0.02, kMinX + 0.02, kBaseY + 0.08, kBaseY + 0.32, kMinZ + 0.5, kMaxZ - 0.5);
+
+    const corners: readonly (readonly [number, number])[] = [
+      [kMinX + 0.35, kMinZ + 0.35],
+      [kMaxX - 0.35, kMinZ + 0.35],
+      [kMinX + 0.35, kMaxZ - 0.35],
+      [kMaxX - 0.35, kMaxZ - 0.35],
+    ];
+    for (const [bx, bz] of corners) {
+      addCylinder(reds, 0.35, 0.35, 2.6, 12, bx, kBaseY + 1.3, bz);
+    }
+
+    // Biển logo tròn đỏ bên hông phía Bắc (Z = kMinZ - 0.02)
+    addCylinder(reds, 0.46, 0.46, 0.06, 16, (kMinX + kMaxX) * 0.5, kBaseY + 1.9, kMinZ - 0.02, Math.PI / 2);
+    addCylinder(whites, 0.42, 0.42, 0.08, 16, (kMinX + kMaxX) * 0.5, kBaseY + 1.9, kMinZ - 0.02, Math.PI / 2);
+    addCylinder(reds, 0.36, 0.36, 0.10, 16, (kMinX + kMaxX) * 0.5, kBaseY + 1.9, kMinZ - 0.02, Math.PI / 2);
+
+    // ==========================================
+    // 3. MÁI BO CONG & CHỮ NỔI 3D "HIGHLANDS"
+    // ==========================================
+    // Fascia màu đỏ toa tàu để làm nền nổi bật cho chữ HIGHLANDS trắng
+    addBox(reds, kMinX - 0.08, kMaxX + 0.08, kRoofY - 0.4, kRoofY + 0.10, kMinZ - 0.08, kMaxZ + 0.08);
+    // Viền mép trên nóc màu trắng kem / bạc sáng
+    addBox(whites, kMinX - 0.1, kMaxX + 0.1, kRoofY + 0.10, kRoofY + 0.16, kMinZ - 0.1, kMaxZ + 0.1);
+    // Bo vòm nóc phía trên
+    addBox(whites, kMinX + 0.2, kMaxX - 0.2, kRoofY + 0.16, kRoofY + 0.36, kMinZ + 0.2, kMaxZ - 0.2);
+
+    // Chữ 3D "HIGHLANDS" màu trắng nổi trên fascia mặt tiền (hướng -X nhìn ra hồ)
+    add3DTextAlongZ(
+      whites,
+      'HIGHLANDS',
+      kMinX - 0.12,
+      kRoofY - 0.32,
+      -2.4,
+      0.46,
+      0.44,
+      0.08,
+      0.14,
+      1
+    );
+
+    // ==========================================
+    // 4. CỬA KÍNH PANORAMA & NỘI THẤT QUẦY BAR
+    // ==========================================
+    // Mặt kính trong suốt phục vụ
+    addBox(glass, kMinX - 0.02, kMinX + 0.04, kBaseY + 1.15, kRoofY - 0.4, kMinZ + 0.4, kMaxZ - 0.4);
+    // Khung kính chia ô
+    for (let i = 0; i <= 3; i++) {
+      const z = kMinZ + 0.4 + (i / 3) * (kMaxZ - kMinZ - 0.8);
+      addBox(steels, kMinX - 0.04, kMinX + 0.06, kBaseY + 1.15, kRoofY - 0.4, z - 0.03, z + 0.03);
+    }
+    // Gờ bệ quầy bar
+    addBox(steels, kMinX - 0.18, kMinX + 0.25, kBaseY + 1.12, kBaseY + 1.20, kMinZ + 0.4, kMaxZ - 0.4);
+
+    // Bên trong: quầy pha chế + máy pha cafe
+    addBox(interiors, kMinX + 0.35, kMinX + 1.15, kBaseY, kBaseY + 1.05, kMinZ + 0.5, kMaxZ - 0.5);
+    // Kệ đồ uống phía sau
+    addBox(interiors, kMaxX - 0.45, kMaxX - 0.05, kBaseY + 0.6, kRoofY - 0.6, kMinZ + 0.5, kMaxZ - 0.5);
+    // Bảng menu màu xanh lá sáng đèn (Green menu board)
+    addBox(menus, kMinX + 0.15, kMinX + 0.22, kRoofY - 0.95, kRoofY - 0.45, kMinZ + 0.6, kMaxZ - 0.6);
+
+    // Máy pha espresso trên quầy
+    addBox(steels, kMinX + 0.45, kMinX + 0.95, kBaseY + 1.05, kBaseY + 1.45, -0.6, 0.4);
+
+    // ==========================================
+    // 5. KHU BÀN GHẾ CAFE NGOÀI TRỜI (LAPTOP & COFFEE)
+    // ==========================================
+    // 4 bàn cafe chữ nhật gỗ tối + khung kim loại
+    const tablePositions = [
+      { x: -1.2, z: -2.2 },
+      { x: -1.2, z: 1.8 },
+      { x: -3.6, z: -2.2 },
+      { x: -3.6, z: 1.8 },
+    ];
+
+    tablePositions.forEach((tp) => {
+      // Mặt bàn chữ nhật
+      addBox(seatings, tp.x - 0.7, tp.x + 0.7, kBaseY + 0.68, kBaseY + 0.73, tp.z - 0.45, tp.z + 0.45);
+      // Chân bàn thép đen
+      addBox(steels, tp.x - 0.04, tp.x + 0.04, kBaseY, kBaseY + 0.68, tp.z - 0.04, tp.z + 0.04);
+      addBox(steels, tp.x - 0.35, tp.x + 0.35, kBaseY, kBaseY + 0.03, tp.z - 0.35, tp.z + 0.35);
+
+      // 4 ghế tựa nan sắt quanh bàn
+      for (const dz of [-0.65, 0.65]) {
+        for (const dx of [-0.35, 0.35]) {
+          const gx = tp.x + dx;
+          const gz = tp.z + dz;
+          // Mặt ngồi
+          addBox(steels, gx - 0.2, gx + 0.2, kBaseY + 0.42, kBaseY + 0.45, gz - 0.2, gz + 0.2);
+          // Chân ghế
+          addCylinder(steels, 0.015, 0.015, 0.42, 6, gx - 0.16, kBaseY + 0.21, gz - 0.16);
+          addCylinder(steels, 0.015, 0.015, 0.42, 6, gx + 0.16, kBaseY + 0.21, gz - 0.16);
+          addCylinder(steels, 0.015, 0.015, 0.42, 6, gx - 0.16, kBaseY + 0.21, gz + 0.16);
+          addCylinder(steels, 0.015, 0.015, 0.42, 6, gx + 0.16, kBaseY + 0.21, gz + 0.16);
+          // Lưng tựa nan ngang
+          const backZ = gz + (dz > 0 ? 0.18 : -0.18);
+          addBox(steels, gx - 0.2, gx + 0.2, kBaseY + 0.45, kBaseY + 0.85, backZ - 0.02, backZ + 0.02);
+        }
       }
+
+      // Laptop bạc & ly cafe trên bàn
+      addBox(whites, tp.x - 0.35, tp.x - 0.05, kBaseY + 0.73, kBaseY + 0.74, tp.z - 0.2, tp.z + 0.05);
+      addBox(whites, tp.x - 0.35, tp.x - 0.05, kBaseY + 0.74, kBaseY + 0.94, tp.z - 0.2, tp.z - 0.18);
+      addCylinder(whites, 0.04, 0.03, 0.10, 8, tp.x + 0.25, kBaseY + 0.78, tp.z + 0.15);
+    });
+
+    // ==========================================
+    // 6. KHUNG PERGOLA THÉP ĐEN & RÈM DÂY LEO RỦ
+    // ==========================================
+    // Cột thép đen đỡ mái hiên ngoài trời
+    const pergolaH = 3.2;
+    for (const pz of [-4.2, 0.0, 4.2]) {
+      addBox(steels, deckMinX + 0.1, deckMinX + 0.26, kBaseY, kBaseY + pergolaH, pz - 0.08, pz + 0.08);
+      // Xà ngang nối từ cột tới nóc ki-ốt
+      addBox(steels, deckMinX + 0.1, kMinX + 0.1, kBaseY + pergolaH - 0.12, kBaseY + pergolaH, pz - 0.06, pz + 0.06);
+    }
+    // Dầm dọc chạy dọc mép hiên
+    addBox(steels, deckMinX + 0.08, deckMinX + 0.28, kBaseY + pergolaH - 0.12, kBaseY + pergolaH, deckMinZ + 0.2, deckMaxZ - 0.2);
+
+    // Mái kính / lam che nắng phía trên
+    addBox(glass, deckMinX + 0.1, kMinX + 0.1, kBaseY + pergolaH, kBaseY + pergolaH + 0.05, deckMinZ + 0.3, deckMaxZ - 0.3);
+
+    // Rèm dây leo buông rủ (hanging vines) từ xà mép hiên xuống (t041s, t045s)
+    const numVineStrands = 28;
+    for (let v = 0; v < numVineStrands; v++) {
+      const vz = deckMinZ + 0.5 + (v / (numVineStrands - 1)) * (deckMaxZ - deckMinZ - 1.0);
+      // Chiều dài rủ ngẫu nhiên từ 0.7m đến 1.8m
+      const vineLen = 0.7 + Math.sin(v * 1.7) * 0.45 + Math.cos(v * 0.9) * 0.25;
+      const topY = kBaseY + pergolaH;
+      const vx = deckMinX + 0.18 + Math.sin(v * 2.3) * 0.08;
+
+      // Dải dây leo rủ
+      addBox(vines, vx - 0.06, vx + 0.06, topY - vineLen, topY, vz - 0.08, vz + 0.08);
+      // Điểm xuyết chồi lá nhô ra
+      addBox(vines, vx - 0.12, vx + 0.12, topY - vineLen * 0.6, topY - vineLen * 0.2, vz - 0.12, vz + 0.12);
     }
 
-    // Thân xe buýt đỏ Highlands (lùi nhẹ về rìa Đông để chừa sân ngồi phía hồ Tây)
-    addBox(bodies, -2.5, 4.6, 0.45, 3.35, -1.65, 1.65);
-    // Đầu mũi xe bo nhẹ ở phía Bắc (-z)
-    addBox(bodies, -2.3, 4.4, 0.45, 2.55, -2.1, -1.65);
-
-    // Cửa kính phục vụ quầy bar & kính lái
-    addBox(glass, -2.58, -2.42, 1.35, 2.65, -1.25, 1.25);
-    addBox(glass, 4.52, 4.66, 1.45, 2.65, -1.25, 1.25);
-    addBox(glass, -2.15, 4.25, 1.55, 2.55, -2.14, -2.02);
-    addBox(glass, -1.8, 3.8, 1.45, 2.55, 1.6, 1.72);
-
-    // Viền bảng hiệu & mái hiên trắng chữ "HIGHLANDS" quay ra quảng trường hồ nước
-    addBox(trims, -3.6, -2.45, 2.7, 3.05, -1.75, 1.75);
-    addBox(trims, -2.6, 4.7, 3.35, 3.55, -1.75, 1.75);
-    addBox(trims, -0.5, 2.5, 3.55, 3.9, -0.9, 0.9); // Cụm điều hòa nóc xe
-
-    // 3 bộ bàn ghế & dù che ngoài trời phía Tây quay ra hồ
-    for (const tz of [-2.2, 0.0, 2.2]) {
-      addCylinder(darks, 0.05, 0.05, 2.35, 6, -4.2, 1.35, tz);
-      addCylinder(trims, 0.55, 0.55, 0.06, 8, -4.2, 0.92, tz);
-      addCylinder(bodies, 0.25, 1.05, 0.42, 8, -4.2, 2.62, tz);
+    // Thêm hàng rèm dây leo buông rủ rủ xuống phía trước bàn cafe (t041s, t045s)
+    for (let v = 0; v < 18; v++) {
+      const vz = -3.2 + (v / 17) * 6.4;
+      const vLen = 0.65 + Math.sin(v * 2.5) * 0.35;
+      const topY = kBaseY + pergolaH;
+      const vx = -1.6 + Math.sin(v * 3.1) * 0.08;
+      addBox(vines, vx - 0.05, vx + 0.05, topY - vLen, topY, vz - 0.06, vz + 0.06);
     }
+
+    // ==========================================
+    // 7. VÁCH GẠCH HOA GIÓ (BREEZE BLOCK SCREEN)
+    // ==========================================
+    // Vách ngăn trang trí ở cạnh Nam (Z = deckMaxZ - 0.3)
+    const screenZ = deckMaxZ - 0.35;
+    const screenW = 3.6;
+    const screenH = 2.2;
+    addBox(screens, deckMinX + 0.6, deckMinX + 0.6 + screenW, kBaseY, kBaseY + screenH, screenZ - 0.08, screenZ + 0.08);
 
     return {
       deckGeo: safeMerge(decks),
-      busBodyGeo: safeMerge(bodies),
+      kioskRedGeo: safeMerge(reds),
+      kioskWhiteGeo: safeMerge(whites),
       glassGeo: safeMerge(glass),
-      trimGeo: safeMerge(trims),
-      darkGeo: safeMerge(darks),
+      interiorGeo: safeMerge(interiors),
+      menuGeo: safeMerge(menus),
+      seatingGeo: safeMerge(seatings),
+      steelGeo: safeMerge(steels),
+      vinesGeo: safeMerge(vines),
+      screenGeo: safeMerge(screens),
     };
   }, []);
 
   return (
     <group position={[cx, 0, cz]}>
+      {/* 1. Sàn gỗ decking màu nâu đỏ ấm */}
       {deckGeo && (
         <mesh geometry={deckGeo} receiveShadow>
-          <meshStandardMaterial color="#d6d3d1" roughness={0.88} />
+          <meshStandardMaterial color="#853826" roughness={0.82} />
         </mesh>
       )}
-      {busBodyGeo && (
-        <mesh geometry={busBodyGeo} castShadow receiveShadow>
+
+      {/* 2. Thân toa tàu đỏ mận Highlands */}
+      {kioskRedGeo && (
+        <mesh geometry={kioskRedGeo} castShadow receiveShadow>
           <meshStandardMaterial
-            color={building.color}
-            roughness={0.55}
+            color="#a81d22"
+            roughness={0.48}
+            metalness={0.12}
             emissive={emissiveColor}
             emissiveIntensity={emissiveIntensity}
           />
         </mesh>
       )}
+
+      {/* 3. Fascia nóc trắng & chữ 3D HIGHLANDS */}
+      {kioskWhiteGeo && (
+        <mesh geometry={kioskWhiteGeo} castShadow receiveShadow>
+          <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.25} roughness={0.3} />
+        </mesh>
+      )}
+
+      {/* 4. Cửa kính panorama & mái kính */}
       {glassGeo && (
         <mesh geometry={glassGeo}>
-          <meshStandardMaterial color="#1e293b" roughness={0.2} metalness={0.55} />
+          <meshStandardMaterial color="#38bdf8" transparent opacity={0.45} roughness={0.1} metalness={0.8} />
         </mesh>
       )}
-      {trimGeo && (
-        <mesh geometry={trimGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#f1f5f9" roughness={0.5} />
+
+      {/* 5. Nội thất quầy bar gỗ & kệ */}
+      {interiorGeo && (
+        <mesh geometry={interiorGeo} receiveShadow>
+          <meshStandardMaterial color="#b45309" roughness={0.7} />
         </mesh>
       )}
-      {darkGeo && (
-        <mesh geometry={darkGeo} castShadow>
-          <meshStandardMaterial color="#1f2937" roughness={0.75} />
+
+      {/* 6. Bảng menu xanh lá sáng đèn */}
+      {menuGeo && (
+        <mesh geometry={menuGeo}>
+          <meshStandardMaterial color="#15803d" emissive="#16a34a" emissiveIntensity={0.5} roughness={0.4} />
+        </mesh>
+      )}
+
+      {/* 7. Bàn cafe gỗ xám tối */}
+      {seatingGeo && (
+        <mesh geometry={seatingGeo} castShadow receiveShadow>
+          <meshStandardMaterial color="#334155" roughness={0.75} />
+        </mesh>
+      )}
+
+      {/* 8. Khung thép hộp & ghế nan kim loại đen */}
+      {steelGeo && (
+        <mesh geometry={steelGeo} castShadow receiveShadow>
+          <meshStandardMaterial color="#1e293b" roughness={0.55} metalness={0.65} />
+        </mesh>
+      )}
+
+      {/* 9. Rèm dây leo buông rủ xanh mướt */}
+      {vinesGeo && (
+        <mesh geometry={vinesGeo} castShadow>
+          <meshStandardMaterial color="#3f6212" roughness={0.85} />
+        </mesh>
+      )}
+
+      {/* 10. Vách gạch hoa gió */}
+      {screenGeo && (
+        <mesh geometry={screenGeo} castShadow receiveShadow>
+          <meshStandardMaterial color="#cbd5e1" roughness={0.9} />
         </mesh>
       )}
     </group>

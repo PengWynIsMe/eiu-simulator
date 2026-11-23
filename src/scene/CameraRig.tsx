@@ -88,6 +88,8 @@ export default function CameraRig() {
   const sizeRef = useRef(size);
   sizeRef.current = size;
 
+  const hasCustomCam = typeof window !== 'undefined' && Boolean(new URLSearchParams(window.location.search).get('cam'));
+
   const selectedBuildingId = useCampusStore((s) => s.selectedBuildingId);
   const reviewMode = useReviewStore((s) => s.reviewMode);
   const cameraRequest = useReviewStore((s) => s.cameraRequest);
@@ -99,6 +101,37 @@ export default function CameraRig() {
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return;
+
+    const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const camStr = params?.get('cam');
+    if (camStr) {
+      const n = camStr.split(',').map(Number);
+      const [px, py, pz, tx, ty, tz] = n;
+      if (
+        px !== undefined &&
+        py !== undefined &&
+        pz !== undefined &&
+        tx !== undefined &&
+        ty !== undefined &&
+        tz !== undefined &&
+        !isNaN(px) &&
+        !isNaN(py) &&
+        !isNaN(pz) &&
+        !isNaN(tx) &&
+        !isNaN(ty) &&
+        !isNaN(tz)
+      ) {
+        controls.minDistance = 0.5;
+        controls.maxPolarAngle = Math.PI * 0.495;
+        controls.setLookAt(px, py, pz, tx, ty, tz, false);
+        const boundaryBox = new Box3(
+          new Vector3(-450, 0, -450),
+          new Vector3(450, 300, 450),
+        );
+        controls.setBoundary(boundaryBox);
+        return;
+      }
+    }
 
     controls.setLookAt(
       OVERVIEW_CAMERA.position[0],
@@ -182,9 +215,9 @@ export default function CameraRig() {
     <CameraControls
       ref={controlsRef}
       makeDefault
-      minDistance={30}
+      minDistance={hasCustomCam ? 0.5 : 30}
       maxDistance={700}
-      maxPolarAngle={1.35}
+      maxPolarAngle={hasCustomCam ? Math.PI * 0.495 : 1.35}
     />
   );
 }
