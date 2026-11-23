@@ -9,7 +9,7 @@ export function activityRadius(activity: Activity): number {
 
 export function syncActivityRange(state: ActivityState, interior: Interior, x: number, z: number): boolean {
   const { activity, phase } = state;
-  const spot = activity?.seat?.spot ?? activity?.target;
+  const spot = activity?.trigger === 'sit' ? activity.seat?.spot : activity?.target;
   const inRange = Boolean(activity && activity.trigger !== 'none' && phase !== 'engaged' && spot
     && spot.buildingId === (interior?.buildingId ?? null) && spot.floor === (interior?.floor ?? null)
     && Math.hypot(x - spot.x, z - spot.z) <= activityRadius(activity));

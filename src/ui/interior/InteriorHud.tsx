@@ -3,15 +3,10 @@ import { useWalkStore } from '../../store/useWalkStore';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useLangStore } from '../../store/useLangStore';
 import { getBuilding, getBuildingDetail } from '../../data';
-import { getInteriorLayout } from '../../scene/interior/layouts';
+import { getInteriorLayout, type InteractivePoint } from '../../scene/interior/layouts';
 
 interface ProximityState {
-  interactive: {
-    id: string;
-    type: 'exterior-door' | 'interior-door' | 'elevator' | 'activity';
-    label: string;
-    buildingId?: string;
-  } | null;
+  interactive: Pick<InteractivePoint, 'id' | 'type' | 'label' | 'buildingId'> | null;
   activeRoom: {
     code: string;
     name: string;
@@ -199,6 +194,9 @@ export default function InteriorHud() {
 
   if (!walkMode) return null;
 
+  const interactive = proximity.interactive;
+  const isActivity = interactive?.type === 'activity';
+
   return (
     <>
       {/* 1. Màn mờ đen chuyển cảnh (Fade Transition) */}
@@ -232,19 +230,21 @@ export default function InteriorHud() {
       )}
 
       {/* 3. Nút / Gợi ý tương tác (Nhấn [E] hoặc Chạm nút) */}
-      {proximity.interactive && (
-        <div className="fixed bottom-24 left-1/2 z-40 -translate-x-1/2 select-none md:bottom-20">
+      {interactive && (!isActivity || activity?.key === interactive.id) && (
+        <div className={`fixed bottom-24 z-40 select-none md:bottom-20 ${isActivity
+          ? 'right-6 md:right-auto md:left-1/2 md:-translate-x-1/2'
+          : 'left-1/2 -translate-x-1/2'}`}>
           <button
             type="button"
             onClick={handleActionClick}
             className="flex items-center gap-2.5 rounded-full border border-sky-300/60 bg-sky-950/85 px-5 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
           >
-            {proximity.interactive.type !== 'activity' && (
+            {!isActivity && (
               <span className="hidden rounded bg-sky-500 px-2 py-0.5 text-xs font-bold text-white shadow md:inline-block">
                 E
               </span>
             )}
-            <span>{proximity.interactive.type === 'activity' ? activity?.prompt[lang] : proximity.interactive.label}</span>
+            <span>{isActivity ? activity?.prompt[lang] : interactive.label}</span>
           </button>
         </div>
       )}

@@ -201,7 +201,8 @@ export default function WalkMode() {
   const activity = useActivityStore((state) => state.activity);
   const activityPoint = useMemo<InteractivePoint | null>(() => {
     if (!activity || activity.trigger === 'none') return null;
-    const spot = activity.seat?.spot ?? activity.target;
+    const spot = activity.trigger === 'sit' ? activity.seat?.spot : activity.target;
+    if (!spot) return null;
     return {
       id: activity.key,
       type: 'activity',
@@ -295,6 +296,7 @@ export default function WalkMode() {
       wallCollisionHoldTimer.current = 0;
       indoorActualDistance.current = indoorDesiredDistance.current;
       keys.current.clear();
+      isDragging.current = false;
       currentInteractive.current = null;
       lastInteractiveId.current = undefined;
     };
@@ -439,10 +441,10 @@ export default function WalkMode() {
       keys.current.add(key);
 
       const activityState = useActivityStore.getState();
-      if (activityState.seated || focusActivity(activityState)) return;
+      if (focusActivity(activityState)) return;
 
       // Phím E ưu tiên hoạt động đang trong tầm.
-      if (key === 'e' && !event.repeat) {
+      if (key === 'e' && !event.repeat && !activityState.seated) {
         const interior = useWalkStore.getState().interior;
         if (syncActivityRange(activityState, interior, player.current[0], player.current[2])) {
           event.preventDefault();
@@ -599,7 +601,7 @@ export default function WalkMode() {
 
     const inRange = syncActivityRange(state, interiorState, player.current[0], player.current[2]);
     if (locked) interactive = null;
-    else if (inRange) interactive = activityPoint;
+    else if (inRange) interactive = activityPoint?.id === state.activity?.key ? activityPoint : null;
     currentInteractive.current = interactive;
     currentActiveRoom.current = activeRoom;
 

@@ -39,6 +39,63 @@ async function loadLesson(load) {
 }
 
 export default {
+  'walk interaction uses the activity radius and requires the same building and floor': async ({ assert, load }) => {
+    const store = await loadActivity(load);
+    const { syncActivityRange, focusActivity } = await load('/src/scene/walk/activityControl.ts');
+    const interior = { buildingId: 'b8', floor: 4 };
+    const check = (where, x, z) => syncActivityRange(store.getState(), where, x, z);
+    try {
+      store.getState().begin(activity, walk);
+      assert.equal(check(interior, 10, 21.21), false);
+      assert.equal(check({ ...interior, floor: 3 }, 10, 20), false);
+      assert.equal(check({ ...interior, buildingId: 'b11' }, 10, 20), false);
+      assert.equal(check(interior, 10, 21.19), true);
+      assert.equal(check(interior, 10, 21.21), false);
+      assert.equal(store.getState().phase, 'travel');
+
+      const target = { ...spot(0, 0), buildingId: null, floor: null };
+      for (const trigger of ['talk', 'look']) {
+        const interaction = { ...activity, trigger, target, seat: null };
+        store.getState().begin(interaction, walk);
+        assert.equal(check(interior, 0, 0), false);
+        assert.equal(check(null, 1.81, 0), false);
+        assert.equal(check(null, 1.8, 0), true);
+        store.getState().interact();
+        assert.equal(focusActivity(store.getState()), interaction);
+        assert.equal(check(null, 1.8, 0), false);
+        assert.equal(store.getState().phase, 'engaged');
+      }
+    } finally {
+      store.getState().end();
+    }
+  },
+  'Escape closes the desktop before standing and leaves other Escape handlers available when walking': async ({ assert, load }) => {
+    const store = await loadActivity(load);
+    const { handleActivityEscape } = await load('/src/scene/walk/activityControl.ts');
+    const escape = (repeat = false) => {
+      let stopped = false;
+      handleActivityEscape({
+        key: 'Escape', repeat, preventDefault() {},
+        stopImmediatePropagation() { stopped = true; },
+      });
+      return stopped;
+    };
+    try {
+      store.getState().begin(activity, walk);
+      store.getState().setInRange(true);
+      store.getState().interact();
+      store.getState().setScreenOpen(true);
+      assert.equal(escape(), true);
+      assert.equal(store.getState().screenOpen, false);
+      assert.equal(escape(true), true);
+      assert.equal(store.getState().seated, true);
+      assert.equal(escape(), true);
+      assert.equal(store.getState().seated, false);
+      assert.equal(escape(), false);
+    } finally {
+      store.getState().end();
+    }
+  },
   'walk, approach, sit, close the desktop on standing and sit again without redundant updates': async ({ assert, load }) => {
     const store = await loadActivity(load);
     const actions = store.getState();
