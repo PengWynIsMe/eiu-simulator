@@ -167,6 +167,7 @@ export default function InteriorScene() {
   const layout = useMemo(() => getInteriorLayout(buildingId) ?? b3Layout, [buildingId]);
   const isB8 = buildingId.toLowerCase() === 'b8';
   const isB11 = buildingId.toLowerCase() === 'b11';
+  const isB4 = buildingId.toLowerCase() === 'b4';
   const isTwinWing = isB8 || isB11;
 
   // 1. Sàn tầng hiện tại (y = -0.15 .. 0)
@@ -530,18 +531,20 @@ export default function InteriorScene() {
   // Tọa độ tâm tòa nhà để bố trí nguồn sáng
   const centerPos = useMemo(() => {
     if (isB11) return layout.toWorld(65.8, -125.8);
-    return isB8 ? layout.toWorld(64.7, -188.1) : layout.toWorld(0, 20.0);
-  }, [layout, isB8, isB11]);
+    if (isB8) return layout.toWorld(64.7, -188.1);
+    if (isB4) return layout.toWorld(33.5, 14.0);
+    return layout.toWorld(0, 20.0);
+  }, [layout, isB8, isB11, isB4]);
 
   // Màu tường và sàn theo tài liệu thực tế của từng tòa
   const wallColor = isTwinWing ? '#42322c' : '#f8fafc'; // B8 & B11: nâu sẫm, B3: trắng sáng
   const baseboardColor = isTwinWing ? '#261e1b' : '#334155';
-  const floorColor = isTwinWing ? '#cbd5e1' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng
+  const floorColor = isB4 ? '#a8a29e' : isTwinWing ? '#cbd5e1' : '#f1f5f9'; // B4: thảm be-xám, B8 & B11: gạch xám, B3: terrazzo sáng
 
   return (
     <>
-      <color attach="background" args={[isTwinWing ? '#8cc8f5' : '#0f172a']} />
-      {isTwinWing && (
+      <color attach="background" args={[isTwinWing || isB4 ? '#8cc8f5' : '#0f172a']} />
+      {(isTwinWing || isB4) && (
         <Sky
           distance={2000}
           sunPosition={[180, 160, 100]}
@@ -583,6 +586,12 @@ export default function InteriorScene() {
           <pointLight position={[layout.toWorld(31.7, -188.5)[0], 3.6, layout.toWorld(31.7, -188.5)[1]]} intensity={0.65} distance={30} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(84.5, -188.0)[0], 3.6, layout.toWorld(84.5, -188.0)[1]]} intensity={0.65} distance={35} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(53.5, -188.35)[0], 3.4, layout.toWorld(53.5, -188.35)[1]]} intensity={0.7} distance={15} color="#fffbeb" />
+        </>
+      ) : isB4 ? (
+        <>
+          <pointLight position={[layout.toWorld(16, 14)[0], 3.4, layout.toWorld(16, 14)[1]]} intensity={0.7} distance={30} color="#fffbeb" />
+          <pointLight position={[layout.toWorld(33.5, 14)[0], 3.4, layout.toWorld(33.5, 14)[1]]} intensity={0.75} distance={30} color="#ffffff" />
+          <pointLight position={[layout.toWorld(52, 14)[0], 3.4, layout.toWorld(52, 14)[1]]} intensity={0.7} distance={30} color="#e0f2fe" />
         </>
       ) : buildingId.toLowerCase() === 'b3' ? (
         <>

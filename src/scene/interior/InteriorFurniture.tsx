@@ -5,6 +5,7 @@ import type { Vec2 } from '../../types';
 import { b3Layout } from './layouts/b3';
 import B8Furniture from './B8Furniture';
 import B11Furniture from './B11Furniture';
+import B4Furniture from './B4Furniture';
 
 interface FurnitureProps {
   buildingId: string;
@@ -55,6 +56,9 @@ export default function InteriorFurniture({
   }
   if (id === 'b11') {
     return <B11Furniture floor={floor} showUpperFloors={showUpperFloors} />;
+  }
+  if (id === 'b4') {
+    return <B4Furniture floor={floor} showUpperFloors={showUpperFloors} />;
   }
   if (id === 'b3') {
     return <B3Furniture floor={floor} />;
