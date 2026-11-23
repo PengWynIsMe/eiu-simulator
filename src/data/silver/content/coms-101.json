@@ -50,10 +50,10 @@
           {
             "id": "dap-loi-han",
             "type": "choice",
-            "speaker": "narrator",
+            "speaker": "han",
             "text": {
-              "vi": "Bạn muốn đáp lại Han thế nào?",
-              "en": "How would you respond to Han?"
+              "vi": "Bạn giúp mình xem nên sửa gì được không?",
+              "en": "Can you help me figure out what to change?"
             },
             "options": [
               {
@@ -63,8 +63,8 @@
                   "en": "Do you mean we should make our main point clearer?"
                 },
                 "reply": {
-                  "vi": "Han đáp: “Ừ, mình muốn ai nghe xong cũng nhớ được ý chính.”",
-                  "en": "Han says, “Yes, I want people to leave remembering the main point.”"
+                  "vi": "Ừ, mình muốn ai nghe xong cũng nhớ được ý chính.",
+                  "en": "Yes, I want people to leave remembering the main point."
                 }
               },
               {
@@ -74,8 +74,8 @@
                   "en": "Which part do you think is hardest to follow?"
                 },
                 "reply": {
-                  "vi": "Han đáp: “Đoạn chuyển sang ví dụ ấy. Mình xem lại chỗ đó nhé.”",
-                  "en": "Han says, “The transition into the example. Let’s go over that bit.”"
+                  "vi": "Đoạn chuyển sang ví dụ ấy. Mình xem lại chỗ đó nhé.",
+                  "en": "The transition into the example. Let’s go over that bit."
                 }
               }
             ]

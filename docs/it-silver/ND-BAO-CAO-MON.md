@@ -10,7 +10,9 @@ Ba file mới trong `src/data/silver/content/`. Số trang lấy theo thứ tự
 |---|---:|---:|---:|
 | `math-112.json` | 15 | 1,75 + 1,75 | 94 / 128 |
 | `pols-135.json` | 8–9 | 1,75 + 1,75 | 127 / 109 |
-| `coms-101.json` | 21 | 1,75 + 1,75 | 101 / 114 |
+| `coms-101.json` | 21 | 1,75 + 1,75 | 99 / 114 |
+
+Lời kết MATH 112 có 18 từ VI và 16 từ EN. Trong COMS 101 A, Han trực tiếp xin góp ý và đáp lại theo lựa chọn của người chơi.
 
 ### Tiêu chí xong
 

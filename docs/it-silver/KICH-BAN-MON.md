@@ -50,7 +50,7 @@ Dãy liệt kê các số hạng. Chuỗi cộng các số hạng đó. Trong ch
 
 **Phản hồi khi cần thử lại** · Thử lấy (1/4) ÷ (1/2) rồi (1/8) ÷ (1/4). Cả hai phép chia phải cho cùng công bội.
 
-**Lời kết** · Hôm nay, hai phép cộng cho ta một vectơ mới, còn một phép chia giúp ta nhận ra chuỗi hình học.
+**Lời kết** · Bạn vừa cộng hai vectơ theo từng tọa độ và tìm công bội của một chuỗi hình học.
 
 ### English
 
@@ -98,7 +98,7 @@ A sequence lists terms. A series adds them. In a geometric series, each term aft
 
 **Feedback on retry** · Try (1/4) ÷ (1/2) and then (1/8) ÷ (1/4). Both divisions should give you the same ratio.
 
-**Closing line** · Today, two additions gave us a new vector, and division helped us recognise a geometric series.
+**Closing line** · You’ve added two vectors coordinate by coordinate and found the common ratio of a geometric series.
 
 ## POLS 135 · Chủ nghĩa xã hội khoa học / Scientific Socialism
 
@@ -214,12 +214,12 @@ The course also covers family during the transition to socialism. Your group wil
 
 Bạn có thể nhắc lại điều vừa nghe để xác nhận mình hiểu đúng, hoặc hỏi một câu để hiểu rõ hơn.
 
-**Lựa chọn · Dẫn chuyện** · Bạn muốn đáp lại Han thế nào?
+**Lựa chọn · Han** · Bạn giúp mình xem nên sửa gì được không?
 
 - Ý bạn là nhóm nên làm rõ ý chính, đúng không?
-  - Han đáp: “Ừ, mình muốn ai nghe xong cũng nhớ được ý chính.”
+  - Ừ, mình muốn ai nghe xong cũng nhớ được ý chính.
 - Bạn thấy chỗ nào đang khó theo dõi nhất?
-  - Han đáp: “Đoạn chuyển sang ví dụ ấy. Mình xem lại chỗ đó nhé.”
+  - Đoạn chuyển sang ví dụ ấy. Mình xem lại chỗ đó nhé.
 
 #### Lý thuyết B · Mở đầu bài thuyết trình (1,75 phút)
 
@@ -257,12 +257,12 @@ Với bài nói này, nhóm sẽ chào người nghe, giới thiệu chủ đề
 
 You can sum up what you heard to check your understanding, or ask a question to learn more.
 
-**Choice · Narrator** · How would you respond to Han?
+**Choice · Han** · Can you help me figure out what to change?
 
 - Do you mean we should make our main point clearer?
-  - Han says, “Yes, I want people to leave remembering the main point.”
+  - Yes, I want people to leave remembering the main point.
 - Which part do you think is hardest to follow?
-  - Han says, “The transition into the example. Let’s go over that bit.”
+  - The transition into the example. Let’s go over that bit.
 
 #### Theory B · Opening a presentation (1.75 minutes)
 

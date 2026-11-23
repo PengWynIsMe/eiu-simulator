@@ -158,7 +158,7 @@
     }
   ],
   "closing": {
-    "vi": "Hôm nay, hai phép cộng cho ta một vectơ mới, còn một phép chia giúp ta nhận ra chuỗi hình học.",
-    "en": "Today, two additions gave us a new vector, and division helped us recognise a geometric series."
+    "vi": "Bạn vừa cộng hai vectơ theo từng tọa độ và tìm công bội của một chuỗi hình học.",
+    "en": "You’ve added two vectors coordinate by coordinate and found the common ratio of a geometric series."
   }
 }
