@@ -66,3 +66,33 @@ Qua so sánh mã nguồn và chụp ảnh trực quan 7 góc thang giữa bản 
   - Chạy `npm run typecheck`, `npm run lint`, `npm run build`.
   - Thực hiện Git commit riêng cho Mục 2: `feat(interior): them he thong phong may tinh tang 4 Block 8 theo chuan phong 406`.
 - **Bước 3**: Dọn dẹp worktree tạm, dừng các tiến trình nền và báo cáo hoàn thành bằng tiếng Việt.
+
+---
+
+## 4. Kết quả thực hiện & Báo cáo
+
+### Mục 1: Phục hồi cầu thang B3, B8, B11
+- **Commit**: `4ead561` (`fix(interior): phuc hoi cau thang B3/B8/B11, bo polygonOffset san va sua mau nen troi`)
+- **Tập tin sửa đổi**:
+  - `src/scene/interior/InteriorScene.tsx`: Bỏ `INTERIOR_FLOOR_POLYGON_OFFSET = -1` và thuộc tính `polygonOffset` trên `floorGeometry`; phục hồi màu nền trời `#8cc8f5` cho `isTwinWing` (B8/B11).
+  - `src/scene/walk/WalkMode.tsx`: Reset khoảng cách camera va chạm tường (`wallCollisionHoldDist = 4.0`, `indoorActualDistance = 4.0`) khi chuyển vị trí / tầng, tránh bị zoom cận cảnh khi đổi phòng/tầng.
+- **Ảnh kiểm chứng**:
+  - `docs/tasks/FIX-NT-anh/before-24483be/` vs `docs/tasks/FIX-NT-anh/after-b90da88/` vs `docs/tasks/FIX-NT-anh/fixed-5180/`: Các góc thang B8 T1, B8 T2, B11 T1, B3 T1 đều hiển thị rõ nét bậc chân thang, không còn bị sàn nuốt bậc, ánh sáng giếng trời trong sáng, không ảnh hưởng cầu thang gáy sách B6.
+
+### Mục 2: Hệ thống phòng máy tầng 4 Block 8
+- **Tập tin tạo mới / sửa đổi**:
+  - `src/scene/interior/B8ComputerLabs.tsx` (tạo mới): Dựng toàn bộ 10 phòng máy cánh Bắc (402, 404, 406, 408, 410, 412, 414, 416, 418, 420.B8).
+    - 320 máy trạm (32 máy/phòng: 4 dãy × 8 chỗ với lối đi giữa).
+    - Tái sử dụng geometry phòng 406: bàn gỗ sáng, ghế gỗ chân kim loại uốn, màn hình Dell + texture code màn hình, thùng máy đứng trên mặt bàn, bàn giáo viên.
+    - Tường trước: TV 75 inch + 2 bảng trắng viền nhôm.
+    - Trần: 2 dầm thép đen công nghiệp + 8 đèn LED thả mỗi phòng.
+    - Cửa sổ phía Bắc: Poster nhận diện thương hiệu EIU.
+    - Biển số phòng: Biển mica gắn tường hành lang với 3 dải màu EIU, hiển thị mã phòng và tên song ngữ (`Phòng máy tính` / `Computer Lab`), tự động cập nhật khi đổi ngôn ngữ qua `useLangStore`.
+    - Tối ưu hóa: Toàn bộ 10 phòng được batch vào chung 1 nhóm InstancedMesh (~15 draw calls). Tổng số draw calls khi đứng ở hành lang tầng 4 chỉ 81 calls (ngân sách < 100).
+  - `src/scene/interior/B8Furniture.tsx`: Tích hợp `<B8ComputerLabs />` khi `floor === 4`, đồng thời bỏ sinh bàn ghế lý thuyết generic cho các phòng cánh Bắc ở tầng 4.
+- **Ảnh kiểm chứng**:
+  - `docs/tasks/FIX-NT-anh/b8-t4-hanh-lang-406.png`: Góc nhìn từ hành lang tầng 4 nhìn qua cửa kính vào phòng 406.B8.
+  - `docs/tasks/FIX-NT-anh/b8-t4-phong-may-406-dong.png`: Góc nhìn bên trong phòng máy nhìn về các dãy máy tính và bàn giáo viên.
+  - `docs/tasks/FIX-NT-anh/b8-t4-phong-may-406-bac.png`: Góc nhìn cận cảnh các hàng máy tính, dầm trần đen, đèn LED thả và poster cửa sổ.
+  - `docs/tasks/FIX-NT-anh/b8-t4-bien-phong-406.png`: Biển số phòng tiếng Việt (`406.B8 - Phòng máy tính`).
+  - `docs/tasks/FIX-NT-anh/b8-t4-bien-phong-406-en.png`: Biển số phòng tiếng Anh (`406.B8 - Computer Lab`).

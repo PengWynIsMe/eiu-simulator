@@ -28,6 +28,7 @@ import {
 } from './layouts/b8';
 import { addSwitchbackFlight, makeRampSlabMatrix } from './stairMesh';
 import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
+import B8ComputerLabs from './B8ComputerLabs';
 
 const UP_VEC = new Vector3(0, 1, 0);
 const LOCAL_X_VEC = new Vector3(1, 0, 0);
@@ -456,6 +457,7 @@ export default function B8Furniture({
 
       const vCenter = (room.minV + room.maxV) / 2;
       const isNorth = room.maxV <= -200.0;
+      if (floor === 4 && isNorth) continue;
 
       boardsGreen.push(createInstanceMatrix(toWorld, room.minU + 0.05, vCenter, 1.5, 0, 0.06, 1.2, 3.5));
       teacherDesks.push(createInstanceMatrix(toWorld, room.minU + 1.2, vCenter, 0.375, 0, 0.7, 0.75, 1.4));
@@ -744,6 +746,8 @@ export default function B8Furniture({
       <InstancedBatch batchKey="b8-step" matrices={data.stairSteps} geometry={sharedGeos.box} color="#1e293b" metalness={0.4} roughness={0.45} />
       <InstancedBatch batchKey="b8-soffit" matrices={data.stairSoffits} geometry={sharedGeos.box} color="#d6cec2" roughness={0.78} />
       <InstancedBatch batchKey="b8-srail" matrices={data.stairRails} geometry={sharedGeos.box} color="#d8dde3" metalness={0.35} roughness={0.3} />
+
+      {floor === 4 && <B8ComputerLabs />}
 
       {[1, 2, 3, 4].map((boothFloor) => {
         if (!showUpperFloors && boothFloor > floor) return null;
