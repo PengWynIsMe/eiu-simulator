@@ -46,4 +46,4 @@ export default function Avatar({ speaker, className = '' }: AvatarProps) {
   );
 }
 
-export { LABEL_BY_SPEAKER };
+export { LABEL_BY_SPEAKER, STYLE_BY_SPEAKER };

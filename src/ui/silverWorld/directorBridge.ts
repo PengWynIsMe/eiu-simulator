@@ -25,6 +25,7 @@ export function isSubscribableSilver(store: unknown): store is SubscribableSilve
  * - Trong môi trường SSR test (typeof window === 'undefined'), trả về false.
  */
 export function isWorldActive(screen?: string | null, _sceneId?: string | null): boolean {
+  void _sceneId;
   if (typeof window === 'undefined') return false;
   if (!screen || screen === 'closed') return false;
   if (getSilverUserMode() === 'overlay') return false;

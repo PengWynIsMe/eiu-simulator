@@ -47,4 +47,21 @@ export const ST_W = {
   sceneN: { vi: 'Cảnh {i}/{n}', en: 'Scene {i}/{n}' },
   modeFast2D: { vi: 'Chơi nhanh 2D', en: 'Play 2D' },
   mode3D: { vi: 'Chơi 3D', en: 'Play 3D' },
+
+  // Nhãn màn hình Desktop và CodeLab theo ngôn ngữ đang chọn
+  loginStudentId: { vi: 'Mã số sinh viên', en: 'Student ID' },
+  loginPassword: { vi: 'Mật khẩu', en: 'Password' },
+  loginBtn: { vi: 'Đăng nhập', en: 'Log in' },
+  loggingIn: { vi: 'Đang vào…', en: 'Logging in…' },
+  studentName: { vi: 'Sinh viên EIU', en: 'EIU Student' },
+  slidesApp: { vi: 'Bài giảng', en: 'Slides' },
+  trashApp: { vi: 'Thùng rác', en: 'Trash' },
+  trashEmpty: { vi: 'Thùng rác trống', en: 'Trash is empty' },
+  noLecture: { vi: 'Chưa có slide', en: 'No slides' },
+  close: { vi: 'Đóng', en: 'Close' },
+  hideTip: { vi: 'Thu máy (Esc)', en: 'Minimize (Esc)' },
+  blankLabel: { vi: 'Điền code', en: 'Fill code' },
+  outputTitle: { vi: 'Kết quả', en: 'Output' },
+  compiling: { vi: 'Đang chạy…', en: 'Running…' },
+  outputEmpty: { vi: 'Chưa chạy lệnh', en: 'No output yet' },
 } as const satisfies Record<string, LocalizedText>;

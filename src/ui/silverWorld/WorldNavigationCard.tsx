@@ -5,6 +5,7 @@ import { useActivityStore } from '../../store/useActivityStore';
 import { useWalkStore } from '../../store/useWalkStore';
 import { useLangStore } from '../../store/useLangStore';
 import { nextWaypoint } from '../../silverWorld/waypoint';
+import { getStage } from '../../data/silver/stages';
 import { getSilverWaypointLayoutMap } from './layoutMap';
 import { fmt, ST_W } from './text';
 
@@ -61,7 +62,9 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
   const dz = (wp?.z ?? activity.target.z) - playerPos.z;
   const distance = Math.round(Math.hypot(dx, dz));
 
-  const placeTitle = play.item.scene ? tr(play.item.scene.title) : tr(activity.prompt);
+  const sceneId = play.item.scene?.id ?? play.item.id;
+  const stage = getStage(sceneId);
+  const placeTitle = stage?.place ? tr(stage.place) : (play.item.scene ? tr(play.item.scene.title) : tr(activity.prompt));
   const targetPlace = fmt(tr(ST_W.goTo), { place: placeTitle });
 
   // Xác định câu hướng dẫn chặng
