@@ -1,6 +1,6 @@
 # Báo cáo nội dung môn IT Silver
 
-Các môn ở trạng thái `nhap` để chủ dự án duyệt. Bản đọc VI/EN có đầy đủ lời thoại, slide, câu hỏi, lựa chọn, đáp án và phản hồi. [Kịch bản môn học](KICH-BAN-MON.md)
+Nội dung đã duyệt 24/11/2026. Bản đọc VI/EN có đầy đủ lời thoại, slide, câu hỏi, lựa chọn, đáp án và phản hồi. [Kịch bản môn học](KICH-BAN-MON.md)
 
 ## ND-04 · Các môn tóm gọn
 
@@ -18,7 +18,7 @@ Lời kết MATH 112 có 18 từ VI và 16 từ EN. Trong COMS 101 A, Han trực
 
 | Tiêu chí | Kết quả | Bằng chứng |
 |---|---|---|
-| Ba JSON đúng kiểu, đủ VI/EN và ở trạng thái nháp | Đạt | Parse JSON và kiểm từng object theo `CourseContent` bằng TypeScript với `--strict` và `--noUncheckedIndexedAccess`. |
+| Ba JSON đúng kiểu, đủ VI/EN và ở trạng thái `da-duyet` | Đạt | Parse JSON và kiểm từng object theo `CourseContent` bằng TypeScript với `--strict` và `--noUncheckedIndexedAccess`. |
 | Hai buổi tại B8, mỗi buổi có tương tác, đúng thời lượng và giới hạn chữ | Đạt | 3,5 phút mỗi môn. Từng buổi ≤ 130 từ VI, giới thiệu và lời kết ≤ 25 từ mỗi ngôn ngữ. |
 | ID và tham chiếu hợp lệ | Đạt | Mã khớp danh mục, `b8` có trong dữ liệu khuôn viên, ID cảnh và ID bước duy nhất trong phạm vi tương ứng. Đáp án trỏ tới lựa chọn có thật, thứ tự là hoán vị đầy đủ của các mục. Các cảnh tự đủ ngữ cảnh khi vào thẳng kỳ 2.2. |
 | Có Han hoặc Quyền, lựa chọn hội thoại đều có phản hồi | Đạt | Han mở bài vectơ và trao đổi về bài nói. Quyền hỏi cách chia việc nhóm. Mỗi nhánh hội thoại có lời đáp phù hợp với cách người chơi chọn. |
@@ -46,7 +46,7 @@ Hai file mới trong `src/data/silver/content/`. CSE 204 dùng mô hình TCP/IP 
 
 | Tiêu chí | Kết quả | Bằng chứng |
 |---|---|---|
-| Hai JSON đúng kiểu, đủ VI/EN và ở trạng thái nháp | Đạt | Parse JSON và kiểm hai file theo `CourseContent` bằng TypeScript strict. |
+| Hai JSON đúng kiểu, đủ VI/EN và ở trạng thái `da-duyet` | Đạt | Parse JSON và kiểm hai file theo `CourseContent` bằng TypeScript strict. |
 | Tương tác và thời lượng đúng từng môn | Đạt | CSE 204 có 2 buổi lý thuyết và 1 lab, tổng 5 phút. STAT 101 có 2 buổi lý thuyết, tổng 3,5 phút. Các buổi tại B8. |
 | Đúng giới hạn chữ | Đạt | Từng buổi lý thuyết ≤ 130 từ VI. Lab có 128 từ VI (giới hạn 200). Giới thiệu và lời kết ≤ 25 từ mỗi ngôn ngữ. |
 | Căn cứ PDF, mã và tham chiếu hợp lệ | Đạt | Đối chiếu trực tiếp trang 32 và 17. `basis` có chú thích mô phỏng ngắn. Mã khớp danh mục, ID cảnh, ID bước, ID đáp án và thứ tự đều hợp lệ. |

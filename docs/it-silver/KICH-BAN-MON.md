@@ -1,6 +1,6 @@
 # Kịch bản môn học IT Silver
 
-Bản đọc để duyệt nội dung. Trong mỗi môn, phần tiếng Việt đứng trước phần tiếng Anh. Mọi buổi diễn ra tại B8 trong game. Thời lượng ghi bên cạnh từng buổi là ước tính.
+Nội dung đã duyệt 24/11/2026. Trong mỗi môn, phần tiếng Việt đứng trước phần tiếng Anh. Mọi buổi diễn ra tại B8 trong game. Thời lượng ghi bên cạnh từng buổi là ước tính.
 
 ## MATH 112 · Giải tích II / Calculus II
 
