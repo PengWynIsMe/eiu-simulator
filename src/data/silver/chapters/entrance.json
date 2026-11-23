@@ -1,0 +1,588 @@
+{
+  "version": 1,
+  "id": "entrance",
+  "title": {
+    "vi": "Ngày kiểm tra đầu vào",
+    "en": "Placement test day"
+  },
+  "subtitle": {
+    "vi": "Trước ngày nhập học",
+    "en": "Before the first term"
+  },
+  "recap": {
+    "vi": "Trước khi nhập học, bạn cùng các bạn mới làm bài kiểm tra xếp lớp Anh văn ở B8. Đây là mô phỏng ngắn cho câu chuyện, không phải đề thi thật.",
+    "en": "Before term starts, you and the other new students take the English placement test at B8. This is a short simulation for the story, not the real test."
+  },
+  "opening": [
+    {
+      "id": "entrance/meet-thanh",
+      "title": {
+        "vi": "Trước cửa B8",
+        "en": "In front of B8"
+      },
+      "place": "b8",
+      "minutes": 1.5,
+      "steps": [
+        {
+          "id": "open",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Sáng ngày kiểm tra đầu vào. Trước cửa B8, một tờ hướng dẫn dán trên bảng, vài bạn mới đứng xúm lại đọc. Bạn hít một hơi rồi bước tới.",
+            "en": "Placement test morning. A guide sheet is pinned up in front of B8, and a few new students crowd around it. You take a breath and step closer."
+          }
+        },
+        {
+          "id": "ask",
+          "type": "choice",
+          "speaker": "thanh",
+          "text": {
+            "vi": "Xin lỗi, bạn cho mình hỏi phòng thi nghe ở đâu vậy? Tờ này nhiều mũi tên quá, mình nhìn hoài vẫn chưa ra.",
+            "en": "Excuse me, do you know where the listening test is? There are so many arrows on this sheet that I still can't work it out."
+          },
+          "options": [
+            {
+              "id": "warm",
+              "text": {
+                "vi": "Mình cũng đang tìm. Đi chung nhé?",
+                "en": "I'm looking for it too. Want to go together?"
+              },
+              "reply": {
+                "vi": "Hay quá, đi chung cho đỡ lạc!",
+                "en": "Great, let's go together so we don't get lost!"
+              }
+            },
+            {
+              "id": "brief",
+              "text": {
+                "vi": "Cứ theo mũi tên trên tờ là tới. Chúc bạn thi tốt!",
+                "en": "Just follow the arrows on the sheet. Good luck!"
+              },
+              "reply": {
+                "vi": "Ừ, cảm ơn bạn nhé. Bạn cũng thi tốt!",
+                "en": "Okay, thanks. Good luck to you too!"
+              }
+            }
+          ],
+          "flag": "entrance/greet"
+        },
+        {
+          "id": "intro",
+          "type": "say",
+          "speaker": "thanh",
+          "text": {
+            "vi": "Mình là Thành. Hồi hộp ghê, đây là lần đầu mình thi xếp lớp. Còn bạn?",
+            "en": "I'm Thành. I'm so nervous, this is my first placement test. How about you?"
+          }
+        },
+        {
+          "id": "go",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Loa gọi từng nhóm vào phòng. Bạn xếp bút và thẻ sinh viên vào túi rồi bước vào.",
+            "en": "The speaker calls the groups in one by one. You tuck your pen and student card into your bag and go in."
+          }
+        }
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "entrance/listening",
+      "title": {
+        "vi": "Phần nghe",
+        "en": "Listening"
+      },
+      "place": "b8",
+      "minutes": 1.5,
+      "steps": [
+        {
+          "id": "rules",
+          "type": "say",
+          "speaker": "examiner",
+          "text": {
+            "vi": "Phần nghe: bạn sẽ nghe hai đoạn hội thoại ngắn về lịch học rồi chọn đáp án trên tờ đề. Bạn nghe lại được và bật phụ đề tùy ý. Đây chỉ là bài mô phỏng ngắn, không phải đề thi thật.",
+            "en": "Listening: you will hear two short conversations about class schedules, then choose answers on the paper. You can replay them and turn subtitles on. This is a short simulation, not the real test."
+          }
+        },
+        {
+          "id": "l1",
+          "type": "question",
+          "prompt": {
+            "vi": "Lớp đầu tiên của người B bắt đầu lúc mấy giờ?",
+            "en": "What time does speaker B's first class start?"
+          },
+          "passage": {
+            "vi": "A: Do you have class on Monday?  B: Yes, my first class starts at nine o'clock.",
+            "en": "A: Do you have class on Monday?  B: Yes, my first class starts at nine o'clock."
+          },
+          "passageKind": "listening",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "8:00",
+                "en": "8:00"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "9:00",
+                "en": "9:00"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "10:00",
+                "en": "10:00"
+              }
+            }
+          ],
+          "answerId": "b",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Người B nói lớp bắt đầu lúc chín giờ.",
+            "en": "That's right. B says the class starts at nine."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Nghe lại câu trả lời của người B: lớp bắt đầu lúc chín giờ.",
+            "en": "Not quite. Listen to B's answer again: the class starts at nine."
+          }
+        },
+        {
+          "id": "l2",
+          "type": "question",
+          "prompt": {
+            "vi": "Thứ Tư người B học vào lúc nào?",
+            "en": "When does speaker B have class on Wednesday?"
+          },
+          "passage": {
+            "vi": "A: What about Wednesday?  B: Wednesday is easy. I only have class in the afternoon.",
+            "en": "A: What about Wednesday?  B: Wednesday is easy. I only have class in the afternoon."
+          },
+          "passageKind": "listening",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "Buổi sáng",
+                "en": "In the morning"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "Buổi chiều",
+                "en": "In the afternoon"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "Cả ngày",
+                "en": "All day"
+              }
+            }
+          ],
+          "answerId": "b",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Thứ Tư người B chỉ học buổi chiều.",
+            "en": "That's right. On Wednesday B only has class in the afternoon."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Người B nói thứ Tư chỉ học buổi chiều.",
+            "en": "Not quite. B says that on Wednesday there is only class in the afternoon."
+          }
+        }
+      ]
+    },
+    {
+      "id": "entrance/reading",
+      "title": {
+        "vi": "Phần đọc",
+        "en": "Reading"
+      },
+      "place": "b8",
+      "minutes": 1.5,
+      "steps": [
+        {
+          "id": "r1",
+          "type": "question",
+          "prompt": {
+            "vi": "Thông báo bên dưới là bản mô phỏng, không phải quy định thư viện thật. Thư viện đóng cửa vào ngày nào?",
+            "en": "The notice below is a simulation, not a real library rule. On which day is the library closed?"
+          },
+          "passage": {
+            "vi": "Library notice. Open: Monday to Saturday, 8 a.m. to 5 p.m. Closed on Sunday. Please keep your phone on silent.",
+            "en": "Library notice. Open: Monday to Saturday, 8 a.m. to 5 p.m. Closed on Sunday. Please keep your phone on silent."
+          },
+          "passageKind": "reading",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "Thứ Bảy",
+                "en": "Saturday"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "Chủ nhật",
+                "en": "Sunday"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "Thứ Hai",
+                "en": "Monday"
+              }
+            }
+          ],
+          "answerId": "b",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Thông báo ghi thư viện nghỉ Chủ nhật.",
+            "en": "That's right. The notice says the library is closed on Sunday."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Đọc lại dòng đầu: mở cửa từ thứ Hai đến thứ Bảy, nghỉ Chủ nhật.",
+            "en": "Not quite. Re-read the first line: open Monday to Saturday, closed on Sunday."
+          }
+        },
+        {
+          "id": "r2",
+          "type": "question",
+          "prompt": {
+            "vi": "Theo thông báo, bạn nên làm gì với điện thoại trong thư viện?",
+            "en": "According to the notice, what should you do with your phone in the library?"
+          },
+          "passage": {
+            "vi": "Library notice. Open: Monday to Saturday, 8 a.m. to 5 p.m. Closed on Sunday. Please keep your phone on silent.",
+            "en": "Library notice. Open: Monday to Saturday, 8 a.m. to 5 p.m. Closed on Sunday. Please keep your phone on silent."
+          },
+          "passageKind": "reading",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "Để chế độ im lặng",
+                "en": "Keep it on silent"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "Tắt nguồn hẳn",
+                "en": "Switch it off completely"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "Gửi ở quầy",
+                "en": "Leave it at the desk"
+              }
+            }
+          ],
+          "answerId": "a",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Thông báo chỉ nhắc để điện thoại ở chế độ im lặng.",
+            "en": "That's right. The notice only asks you to keep your phone on silent."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Câu cuối của thông báo: giữ điện thoại ở chế độ im lặng.",
+            "en": "Not quite. The last sentence says to keep your phone on silent."
+          }
+        }
+      ]
+    },
+    {
+      "id": "entrance/writing",
+      "title": {
+        "vi": "Phần viết",
+        "en": "Writing"
+      },
+      "place": "b8",
+      "minutes": 1,
+      "steps": [
+        {
+          "id": "w1",
+          "type": "order",
+          "prompt": {
+            "vi": "Sắp các câu sau thành đoạn tự giới thiệu ngắn, theo thứ tự hợp lý.",
+            "en": "Put these sentences in a sensible order to make a short self-introduction."
+          },
+          "items": [
+            {
+              "id": "i3",
+              "text": {
+                "vi": "I like music.",
+                "en": "I like music."
+              }
+            },
+            {
+              "id": "i1",
+              "text": {
+                "vi": "Hello, everyone.",
+                "en": "Hello, everyone."
+              }
+            },
+            {
+              "id": "i4",
+              "text": {
+                "vi": "Nice to meet you.",
+                "en": "Nice to meet you."
+              }
+            },
+            {
+              "id": "i2",
+              "text": {
+                "vi": "I am a new student.",
+                "en": "I am a new student."
+              }
+            }
+          ],
+          "answer": [
+            "i1",
+            "i2",
+            "i3",
+            "i4"
+          ],
+          "explainCorrect": {
+            "vi": "Đúng rồi: chào, nói mình là ai, nói một điều mình thích, rồi kết bằng câu làm quen.",
+            "en": "That's right: greet, say who you are, share something you like, then close with a friendly line."
+          },
+          "explainWrong": {
+            "vi": "Gần rồi. Thử theo trình tự một lời tự giới thiệu: chào, nói mình là ai, nói điều mình thích, rồi câu làm quen ở cuối.",
+            "en": "Almost. Follow the flow of an introduction: greeting, who you are, something you like, then the friendly line at the end."
+          }
+        }
+      ]
+    },
+    {
+      "id": "entrance/speaking",
+      "title": {
+        "vi": "Phần nói",
+        "en": "Speaking"
+      },
+      "place": "b8",
+      "minutes": 1,
+      "steps": [
+        {
+          "id": "q1",
+          "type": "choice",
+          "speaker": "examiner",
+          "text": {
+            "vi": "Chào bạn. Bạn vui lòng cho mình biết tên của bạn nhé?",
+            "en": "Hello. Could you tell me your name, please?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "My name is [tên của bạn].",
+                "en": "My name is [your name]."
+              },
+              "reply": {
+                "vi": "Cảm ơn bạn.",
+                "en": "Thank you."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "I'm [tên của bạn]. Nice to meet you.",
+                "en": "I'm [your name]. Nice to meet you."
+              },
+              "reply": {
+                "vi": "Rất vui được gặp bạn.",
+                "en": "Nice to meet you too."
+              }
+            }
+          ]
+        },
+        {
+          "id": "q2",
+          "type": "choice",
+          "speaker": "examiner",
+          "text": {
+            "vi": "Bạn thích làm gì lúc rảnh?",
+            "en": "What do you like to do in your free time?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "I like listening to music.",
+                "en": "I like listening to music."
+              },
+              "reply": {
+                "vi": "Nghe hay đó.",
+                "en": "That sounds nice."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "I like playing games.",
+                "en": "I like playing games."
+              },
+              "reply": {
+                "vi": "Nghe vui đó.",
+                "en": "That sounds fun."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "I like reading.",
+                "en": "I like reading."
+              },
+              "reply": {
+                "vi": "Nghe hay đó.",
+                "en": "That sounds nice."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "closing": [
+    {
+      "id": "entrance/result",
+      "title": {
+        "vi": "Bảng kết quả",
+        "en": "The results board"
+      },
+      "place": "b8",
+      "minutes": 1.5,
+      "steps": [
+        {
+          "id": "board",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Ít hôm sau, bảng kết quả xếp lớp được dán trước B8. Bạn len vào giữa đám đông, tìm tên mình.",
+            "en": "A few days later the placement results are pinned up in front of B8. You squeeze through the crowd to look for your name."
+          }
+        },
+        {
+          "id": "list",
+          "type": "slide",
+          "title": {
+            "vi": "Kết quả xếp lớp (mô phỏng)",
+            "en": "Placement results (simulation)"
+          },
+          "body": {
+            "vi": "Bạn — Level 1\nThành — Level 2\nQuyền — Level 3\n\nKết quả trong câu chuyện là cố định, không được chấm từ câu trả lời của bạn.",
+            "en": "You — Level 1\nThành — Level 2\nQuyền — Level 3\n\nResults in this story are fixed. They are not graded from your answers."
+          }
+        },
+        {
+          "id": "quyen",
+          "type": "say",
+          "speaker": "quyen",
+          "text": {
+            "vi": "Mình là Quyền. Mình thấy bạn cũng học Kỹ thuật phần mềm, cùng ngành đó. Chắc còn gặp nhau nhiều.",
+            "en": "I'm Quyền. I saw you're also in Software Engineering, same major. We'll probably run into each other a lot."
+          }
+        },
+        {
+          "id": "thanh",
+          "type": "say",
+          "speaker": "thanh",
+          "text": {
+            "vi": "Mình khác lớp rồi, nhưng giờ nghỉ vẫn gặp nhau nhé.",
+            "en": "Different classes now, but let's still meet at break."
+          }
+        },
+        {
+          "id": "end",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Bạn mở thời khóa biểu Level 1 trên điện thoại và đọc lại một lượt. Năm học bắt đầu thật rồi.",
+            "en": "You open the Level 1 timetable on your phone and read through it once more. The school year really begins now."
+          }
+        }
+      ]
+    }
+  ],
+  "memory": {
+    "stamp": {
+      "vi": "Ngày kiểm tra đầu vào",
+      "en": "Placement test day"
+    },
+    "photos": [
+      {
+        "id": "gate-thanh",
+        "when": {
+          "flag": {
+            "key": "entrance/greet",
+            "is": "warm"
+          }
+        },
+        "caption": {
+          "vi": "Trước cửa B8, đi chung với Thành",
+          "en": "In front of B8, walking in with Thành"
+        }
+      },
+      {
+        "id": "gate",
+        "caption": {
+          "vi": "Tờ hướng dẫn trước cửa B8",
+          "en": "The guide sheet in front of B8"
+        }
+      }
+    ],
+    "lines": [
+      {
+        "id": "warm",
+        "when": {
+          "flag": {
+            "key": "entrance/greet",
+            "is": "warm"
+          }
+        },
+        "text": {
+          "vi": "Mình chỉ định hỏi đường, ai ngờ có thêm một người bạn đi cùng.",
+          "en": "I only meant to find the room, and I got a friend to walk in with."
+        }
+      },
+      {
+        "id": "brief",
+        "when": {
+          "flag": {
+            "key": "entrance/greet",
+            "is": "brief"
+          }
+        },
+        "text": {
+          "vi": "Chỉ vài câu ngắn trước cửa B8, vậy mà mình nhớ mãi tên Thành.",
+          "en": "Just a few short words in front of B8, and I still remember Thành's name."
+        }
+      },
+      {
+        "id": "default",
+        "text": {
+          "vi": "Ngày đầu tiên run run, nhưng tới cuối buổi mình đã thấy B8 bớt xa lạ.",
+          "en": "A nervous first day, but by the end B8 felt a little less strange."
+        }
+      }
+    ],
+    "activities": [
+      {
+        "vi": "Kiểm tra đầu vào: nghe, đọc, viết, nói",
+        "en": "Placement test: listening, reading, writing, speaking"
+      },
+      {
+        "vi": "Làm quen Thành và Quyền",
+        "en": "Meeting Thành and Quyền"
+      }
+    ]
+  }
+}
