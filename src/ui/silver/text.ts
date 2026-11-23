@@ -181,10 +181,33 @@ export const ST = {
     en: "This is the character's result in the story, not a measure of your own English. Up to two Ds is a pass.",
   },
 
-  // Tiêu đề các màn chưa dựng xong (sẽ cập nhật đúng bảng ST ở UI-06..07)
+  // UI-07 — Trang kỷ niệm & sổ
+  memTitle: { vi: 'Trang kỷ niệm', en: 'Memory page' },
+  saveMem: { vi: 'Lưu vào sổ', en: 'Save to book' },
+  keepOld: { vi: 'Giữ trang cũ', en: 'Keep old page' },
+  replaceMem: { vi: 'Thay bằng trang mới', en: 'Use new page' },
+  memAsk: {
+    vi: 'Chương này đã có một trang. Bạn muốn giữ trang nào?',
+    en: 'This chapter already has a page. Which one do you want to keep?',
+  },
+  memExit: {
+    vi: 'Thoát mà chưa lưu trang này? Vào lại chương bạn sẽ thấy trang này lần nữa.',
+    en: 'Leave without saving? You will see this page again when you resume.',
+  },
+  pickPhoto: { vi: 'Chọn ảnh giữ lại', en: 'Choose a photo to keep' },
+  memCourses: { vi: 'Môn', en: 'Courses' },
+  memActs: { vi: 'Hoạt động', en: 'Activities' },
+  nbTitle: { vi: 'Sổ kỷ niệm', en: 'Memory book' },
+  nbCount: { vi: '{n} trang', en: '{n} pages' },
+  nbEmpty: {
+    vi: 'Chưa có trang nào. Chơi xong một chương, trang đầu tiên sẽ ở đây.',
+    en: 'No pages yet. Finish a chapter and your first page will appear here.',
+  },
+  savedOn: { vi: 'Lưu ngày {d}', en: 'Saved {d}' },
+
+  // Tiêu đề các màn dùng tên riêng trong bảng chuỗi
   screenPlay: { vi: 'Cảnh truyện', en: 'Story scene' },
   screenTranscript: { vi: 'Bảng điểm', en: 'Transcript' },
-  screenMemory: { vi: 'Trang kỷ niệm', en: 'Memory page' },
 
   // Tên nhân vật (UI-02)
   speakerPlayer: { vi: 'Bạn', en: 'You' },
@@ -208,6 +231,6 @@ export const SCREEN_TITLES: Record<Exclude<SilverScreen, 'closed'>, LocalizedTex
   week: ST.weekTitle,
   play: ST.screenPlay,
   transcript: ST.screenTranscript,
-  memory: ST.screenMemory,
-  notebook: ST.notebook,
+  memory: ST.memTitle,
+  notebook: ST.nbTitle,
 };

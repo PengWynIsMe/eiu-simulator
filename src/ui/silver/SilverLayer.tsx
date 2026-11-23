@@ -8,13 +8,14 @@ import Panel from './parts/Panel';
 import PrimaryButton from './parts/PrimaryButton';
 import SecondaryButton from './parts/SecondaryButton';
 import WarningBar from './parts/WarningBar';
-import EmptyView from './parts/EmptyView';
 import Home from './screens/Home';
 import Recap from './screens/Recap';
 import Registration from './screens/Registration';
 import Week from './screens/Week';
 import Play from './screens/Play';
 import Transcript from './screens/Transcript';
+import Memory from './screens/Memory';
+import Notebook from './screens/Notebook';
 
 function SilverOverlay() {
   const tr = useT();
@@ -150,12 +151,8 @@ function SilverOverlay() {
               {screen === 'week' && <Week exitHandlerRef={exitHandlerRef} />}
               {screen === 'play' && <Play exitHandlerRef={exitHandlerRef} />}
               {screen === 'transcript' && <Transcript exitHandlerRef={exitHandlerRef} />}
-              {screen !== 'home' &&
-                screen !== 'recap' &&
-                screen !== 'registration' &&
-                screen !== 'week' &&
-                screen !== 'play' &&
-                screen !== 'transcript' && <EmptyView />}
+              {screen === 'memory' && <Memory exitHandlerRef={exitHandlerRef} />}
+              {screen === 'notebook' && <Notebook />}
             </>
           )}
         </div>
