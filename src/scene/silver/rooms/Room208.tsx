@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { BoxGeometry, type InstancedMesh, type Matrix4 } from 'three';
+import { type InstancedMesh, type Matrix4 } from 'three';
 import { createInstanceMatrix } from '../../interior/InteriorFurniture';
 import { toWorld } from '../../interior/layouts/b8';
-import { makeTheoryChairGeometry } from './TheoryRoom';
+import { makeTheoryChairGeometry, makeTheoryDeskGeometry } from './theoryGeometries';
 
 /**
  * Phòng thi vấn đáp 208.B8 (nói 1-1 theo PLAN-3D mục 3):
- * - 1 bàn phỏng vấn (77.2; -205.1), kích thước 0.7 m (u) x 1.2 m (v) x 0.75 m (cao).
+ * - 1 bàn phỏng vấn (77.2; -205.1), kích thước 0.7 m (u) x 1.2 m (v) x 0.75 m (cao),
+ *   thiết kế mặt mỏng (~0.04m) + 4 chân rỗng không tấm chắn để cả 2 người ngồi không bị cấn chân.
  * - 2 ghế chính: Giám khảo (76.4; -205.1) nhìn +u; Người chơi (77.95; -205.1) nhìn -u.
  * - 3 ghế chờ dọc tường (v = -201.2) tại u = 79.5, 80.2, 80.9.
  * - Không có TV, không bảng, không bạn học nền.
@@ -14,7 +15,7 @@ import { makeTheoryChairGeometry } from './TheoryRoom';
  */
 export default function Room208() {
   const chairGeom = useMemo(() => makeTheoryChairGeometry(), []);
-  const deskGeom = useMemo(() => new BoxGeometry(0.7, 0.75, 1.2), []);
+  const deskGeom = useMemo(() => makeTheoryDeskGeometry(0.7, 0.75, 1.2, 'none'), []);
 
   useEffect(() => {
     return () => {
@@ -24,9 +25,9 @@ export default function Room208() {
   }, [chairGeom, deskGeom]);
 
   const { deskMatrices, chairMatrices } = useMemo(() => {
-    // 1 bàn phỏng vấn
+    // 1 bàn phỏng vấn (base tại y = 0)
     const desks: Matrix4[] = [
-      createInstanceMatrix(toWorld, 77.2, -205.1, 0.375, 0, 1, 1, 1),
+      createInstanceMatrix(toWorld, 77.2, -205.1, 0, 0, 1, 1, 1),
     ];
 
     // 5 ghế: giám khảo, người chơi, 3 ghế chờ

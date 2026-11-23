@@ -1,4 +1,4 @@
-# Báo cáo hoàn thành Task 3D-09 — Phòng lý thuyết B8 (206, 207, 311.B8) và phòng thi nói 208.B8
+# Báo cáo hoàn thành Task 3D-09 — Phòng lý thuyết B8 (206, 207, 311.B8) và phòng thi nói 208.B8 (Nghiệm thu Lần 2)
 
 - **Nhánh thực hiện**: `PengWynIsMe/it-silver-3d-09`
 - **Workspace**: Tách từ nhánh cục bộ `it-silver/ghep` (commit gốc `558098a`)
@@ -6,182 +6,195 @@
 
 ---
 
-## 1. Tóm tắt các hạng mục đã hoàn thành
+## 1. Tóm tắt các hạng mục đã hoàn thành & Cải tiến Lần 2
 
-### 1.1. Dữ liệu phòng học & Cơ chế neo ghế (classrooms.json & seatAnchor.ts)
-- **206.B8, 207.B8, 311.B8**: Nạp đầy đủ thông tin từ `docs/it-silver/data/classrooms-b8.json` vào `src/data/classrooms.json`, bao gồm kích thước bàn ghế (`desk`), bục giảng/bàn giáo viên (`teacherDesk`), bảng trắng (`whiteboard`), màn hình TV (`projectorScreen`), tọa độ `seats`, `npcSeats`, `playerSeat`, `standPoint` và các điểm đứng của giáo viên (`teacherSpots`).
-- **208.B8 (Phòng thi nói 1-1)**: Theo đúng thiết kế trong `PLAN-3D` mục 3 và hướng dẫn của Tech Lead:
-  - 208.B8 không phải là phòng học thông thường (không có TV slide, không bảng, không sinh viên nền), do đó **không thêm vào `classrooms.json`**.
-  - Neo ghế của người chơi được phân giải qua `resolveSeatAnchor('208.B8')` -> `create208B8SeatAnchor`: ghế người chơi tại $(u=77.95; v=-205.1)$, điểm đứng $(78.6; -204.2)$, camera mắt $(79.0; 1.55; -204.9)$ nhìn về $(76.4; 1.15; -205.1)$.
-  - Bàn ghế của 208 được dựng qua component chuyên biệt `src/scene/silver/rooms/Room208.tsx`.
+### 1.1. Khắc phục che khuất TV và hiển thị slide / bìa thật (`TheoryRoom.tsx` & `ProjectorScreen`)
+- **Nguyên nhân lần 1**: Khung TV là hộp đặc dày 0.05 m đặt tại `projectorScreen.u` khiến mặt trước khung nhô ra 0.025 m theo hướng nhìn, che lấp mặt phẳng canvas của `ProjectorScreen` (chỉ nhô ra 0.015 m).
+- **Khắc phục Lần 2**:
+  - Dời tâm khung TV lùi vào tường theo công thức: `u - facing[0] * 0.016, v - facing[1] * 0.016`.
+  - Mặt trước của khung TV nằm tại $u + 0.009\text{ m}$, lùi sau mặt phẳng `ProjectorScreen` ($u + 0.015\text{ m}$) đúng **6 mm** ($\ge 5\text{ mm}$ theo yêu cầu).
+  - Không sửa `ProjectorScreen.tsx`, giữ nguyên vẹn logic của các diễn viên dùng chung.
+  - Ảnh nghiệm thu hiển thị bìa môn học và nội dung slide bài giảng thật đầy đủ:
+    - 206.B8: Bìa môn **"Bài thi Nghe tiếng Anh"** / **"Phần nghe"**.
+    - 207.B8: Slide bài giảng Java **"if / else: rẽ nhánh"** với khối code syntax highlight và đoạn văn giải thích.
+    - 311.B8: Slide bài giảng **"Triết học Mác – Lênin học gì?"** rõ nét trên nền canvas trắng chuẩn trường EIU.
 
-### 1.2. Dựng nội thất phòng lý thuyết chuẩn 3D (`TheoryRoom.tsx` & `Room208.tsx`)
-- **`TheoryRoom.tsx`**:
-  - Dựng nội thất cho các phòng lý thuyết (206, 207, 311.B8) sinh động từ dữ liệu phòng.
-  - Sử dụng đúng 5 `instancedMesh` cho toàn phòng:
-    1. Bàn học sinh: màu `#d4a373`, roughness 0.6.
-    2. Ghế học sinh và ghế giáo viên: màu `#334155`, thiết kế chuẩn có mặt ngồi cao 0.45 m, 4 chân kim loại vững chãi và tựa lưng bản rộng (y = 0.73 m).
-    3. Bàn giáo viên: màu `#d4a373`.
-    4. Bảng trắng: màu `#ffffff`, roughness 0.3.
-    5. Khung TV bao quanh màn slide: màu `#1e293b`.
-  - Tổng số draw call cho nội thất phòng: **5 draw calls** (hoàn toàn thỏa mãn yêu cầu $\le 10$ draw calls).
-  - Toàn bộ geometry tự tạo (`chairGeom`, `deskGeom`, `teacherDeskGeom`, `whiteboardGeom`, `tvFrameGeom`) đều được `dispose()` sạch sẽ trong `useEffect` khi unmount.
-  - Gọi `computeBoundingSphere()` trên từng `instancedMesh` và gắn `key={room.code}` tại `SilverStage.tsx` để bảo đảm không bị lỗi frustum culling khi đổi giữa các phòng cùng số lượng ghế.
-- **`Room208.tsx`**:
-  - 1 bàn phỏng vấn $(u=77.2; v=-205.1)$, kích thước $0.7\text{ m} \times 1.2\text{ m} \times 0.75\text{ m}$.
-  - 2 ghế phỏng vấn: Giám khảo $(76.4; -205.1)$ nhìn $+u$, Người chơi $(77.95; -205.1)$ nhìn $-u$.
-  - 3 ghế chờ kê sát tường phía Bắc $(v=-201.2)$ tại $u=79.5, 80.2, 80.9$, nhìn vào lòng phòng (hướng $-v$).
-  - Thu dọn sạch sẽ geometry khi unmount.
+### 1.2. Bàn học, bàn giáo viên và bàn 208 kết cấu rỗng chân (`theoryGeometries.ts`)
+- **Nguyên nhân lần 1**: Bàn là khối hộp đặc cao 0.75 m khiến chân và thân người ngồi lún vào khối hộp.
+- **Khắc phục Lần 2**:
+  - Tạo hàm `makeTheoryDeskGeometry` và tách vào file `src/scene/silver/rooms/theoryGeometries.ts`.
+  - Kết cấu bàn chuẩn:
+    - Mặt bàn mỏng (~0.04 m) đặt tại đỉnh độ cao $y = 0.75\text{ m}$.
+    - 4 chân kim loại vuông ($0.035 \times 0.035\text{ m}$) thanh mảnh từ sàn $y = 0$ lên mặt bàn.
+    - Tấm chắn trước (modesty panel) mỏng ($0.018\text{ m}$) treo dưới mặt bàn, chừa khoảng trống thông thoáng $0.39\text{ m}$ phía dưới mặt sàn.
+    - Áp dụng cho bàn học sinh (`front` panel), bàn giáo viên (`back` panel) và bàn phỏng vấn 208.B8 (`none` panel - rỗng hoàn toàn 4 chân để cả 2 người ngồi không bị cấn chân).
+  - Gộp thành 1 `BufferGeometry` duy nhất cho từng loại bàn, bảo đảm vẫn chỉ dùng đúng 1 `instancedMesh` mỗi loại.
+  - Ảnh chụp bên hông thấp thấy rõ chân người ngồi thoải mái dưới bàn, không còn hiện tượng lún khối.
 
-### 1.3. Cơ chế ẩn bàn ghế khối khi phòng là sân khấu (`B8Furniture.tsx`)
-- Cập nhật `src/scene/interior/B8Furniture.tsx` để lắng nghe trạng thái `useActivityStore` (`isSilverActive`) và `stageRoomCode` từ `useSilverStore`.
-- Khi phòng là sân khấu Silver đang kích hoạt, bỏ qua việc dựng bàn ghế khối cho đúng phòng đó.
-- Khi không chơi Silver hoặc đối với tất cả các phòng khác, bàn ghế khối vẫn được giữ nguyên vẹn 100%.
+### 1.3. Khắc phục tấm kính trắng lơ lửng trong SeatHighlight (`SeatHighlight.tsx`)
+- Thêm điều kiện `isComputerLabRoom(room)` bọc quanh mặt phẳng phủ sáng màn hình máy tính (`screenOverlayGeom`).
+- Tại các phòng lý thuyết (206, 207, 311.B8): chỉ hiển thị viền ghế vàng nhấp nháy trên ghế người chơi khi chưa ngồi, **hoàn toàn không còn tấm kính màn hình máy tính lơ lửng**.
+- Phòng máy tính 406.B8 giữ nguyên vẹn hiệu ứng màn hình sáng.
 
-### 1.4. Tích hợp sân khấu SilverStage (`SilverStage.tsx`)
-- Khi `isSilverActive && stage?.roomCode === '208.B8'` ở tầng 2 B8: mount `<Room208 />`.
-- Khi `isSilverActive` tại các phòng 206, 207, 311: mount `<TheoryRoom key={room.code} room={room} />` nếu không phải phòng máy (`!isComputerLabRoom(room)`).
-- Giữ nguyên vẹn mã nguồn 406.B11 và 406.B8, không can thiệp vào các logic phòng máy đã ổn định.
+### 1.4. Bỏ ghế giáo viên cấn chỗ đứng (`TheoryRoom.tsx`)
+- Ghế giáo viên ở lần 1 đặt trùng `teacherSpots.desk` làm thầy giáo đứng xuyên qua ghế.
+- Lần 2: Bỏ ghế giáo viên trong `chairMatrices` của `TheoryRoom`, khu vực bục giảng và bàn giáo viên hoàn toàn thông thoáng cho thầy đứng và di chuyển tự nhiên.
 
-### 1.5. Vật cản bàn ghế và kiểm thử BFS (`layouts/b8.ts` & `classrooms-b8.test.mjs`)
-- Mở rộng hàm `addClassroomObstacles` trong `src/scene/interior/layouts/b8.ts` để sinh vật cản thụt 0.25 m từ dữ liệu `classrooms.json` cho mọi phòng B8 (406, 206, 207, 311) và bổ sung hộp vật cản bàn phỏng vấn cho 208.B8.
-- Viết test kiểm tra BFS tự động với vật cản thực tế của layout và bán kính nhân vật 0.4 m:
-  - 206.B8 từ cửa $(83; -200.3)$ tới điểm đứng $(87.0; -205.65)$ đỗ 100%.
-  - 207.B8 từ cửa $(81.9; -177.4)$ tới điểm đứng $(85.9; -172.95)$ đỗ 100%.
-  - 311.B8 từ cửa $(30.6; -177.4)$ tới điểm đứng $(21.7; -172.95)$ đỗ 100%.
-  - 208.B8 từ cửa $(80.8; -200.3)$ tới ghế người chơi $(77.95; -205.1)$ và điểm đứng $(78.6; -204.2)$ đỗ 100%.
-  - Kiểm tra va chạm: tọa độ tâm các bàn đều bị cản (`isBlocked = true`).
-- Cập nhật test `director.test.mjs`: chuyển test kiểm tra phòng vắng sang mã phòng giả thông qua tiêm mock `getClassroom`, không xóa hay nới lỏng test gốc.
+### 1.5. Hướng ghế động & Tách file hình học riêng (`theoryGeometries.ts`)
+- Hướng quay ghế học sinh được tính động từ vector `room.studentFacing`:
+  `const studentChairRotY = Math.atan2(room.studentFacing[1], room.studentFacing[0]);`
+  không còn viết cứng `Math.PI`.
+- Chuyển toàn bộ các hàm sinh hình học (`makeTheoryChairGeometry`, `makeTheoryDeskGeometry`) vào file chuyên biệt `src/scene/silver/rooms/theoryGeometries.ts`.
+- Thu dọn sạch sẽ toàn bộ geometry khi unmount bằng `dispose()`.
+
+### 1.6. Dữ liệu phòng học, va chạm & BFS pathfinding
+- Giữ nguyên dữ liệu chuẩn từ `classrooms-b8.json` cho 206, 207, 311 và neo ghế 208 qua `resolveSeatAnchor('208.B8')`.
+- Vật cản layout `layouts/b8.ts` và test BFS 0.4 m đỗ 100% cho cả 4 phòng.
 
 ---
 
-## 2. Bảng tiêu chí và kết quả đo đạc kiểm chứng
+## 2. Bằng chứng đo đạc Draw Calls (Cam kết không tăng khi không chơi Silver)
 
-| STT | Tiêu chí | Ngưỡng yêu cầu | Kết quả thực tế | Đánh giá |
-| :---: | :--- | :--- | :--- | :---: |
-| 1 | **TypeScript strict** | 0 lỗi | `tsc -b --noEmit`: 0 lỗi | **ĐẠT** |
-| 2 | **ESLint** | 0 warning, 0 lỗi | `eslint .`: 0 lỗi | **ĐẠT** |
-| 3 | **Production Build** | Thành công | `vite build`: thành công trong 2.39s | **ĐẠT** |
-| 4 | **Test Suite Silver** | Đỗ 100% | 54/54 test suites pass (`node scripts/silver/test.mjs`) | **ĐẠT** |
-| 5 | **Strict Content Invariants** | Không lỗi dữ liệu | `node scripts/silver/check.mjs --strict`: PASS | **ĐẠT** |
-| 6 | **BFS Pathfinding** | Đi được với bán kính 0.4m | 206, 207, 208, 311 đều tới đích, không kẹt vật cản | **ĐẠT** |
-| 7 | **Draw calls TheoryRoom** | $\le 10$ calls/phòng | **5 calls** (bàn học, ghế, bàn GV, bảng, khung TV) | **ĐẠT** |
-| 8 | **Draw calls tầng 2 (không chơi)** | Không tăng so với baseline | Baseline: **72 calls** $\rightarrow$ Sau khi thoát Silver: **44 calls** | **ĐẠT** |
-| 9 | **Draw calls tầng 3 (không chơi)** | Không tăng so với baseline | Baseline: **38 calls** $\rightarrow$ Sau khi thoát Silver: **36 calls** | **ĐẠT** |
-| 10 | **Draw calls khi ngồi 206.B8** | Ngân sách $\le 130$ calls | **95 calls**, 140.464 tam giác (có 10 bạn học nền) | **ĐẠT** |
-| 11 | **Draw calls khi ngồi 207.B8** | Ngân sách $\le 130$ calls | **62 calls**, 139.926 tam giác (có 12 bạn học nền + Han) | **ĐẠT** |
-| 12 | **Draw calls khi ngồi 208.B8** | Ngân sách $\le 130$ calls | **54 calls**, 132.728 tam giác (1 bàn, 5 ghế) | **ĐẠT** |
-| 13 | **Draw calls khi ngồi 311.B8** | Ngân sách $\le 130$ calls | **59 calls**, 146.415 tam giác (có 18 bạn học nền + Han) | **ĐẠT** |
-| 14 | **FPS headless** | Ghi nhận trung thực | Headless Chrome: **chưa đo** | **ĐẠT** |
-| 15 | **Bàn ghế khối phòng khác** | Giữ nguyên khi không phải sân khấu | Các phòng ngoài sân khấu giữ nguyên 100% bàn ghế khối | **ĐẠT** |
+Đo đạc thực nghiệm độc lập bằng cùng một phiên Chrome Headless (`--headless=new`, `--use-gl=angle`, kích thước 1440x900) tại cùng các góc máy camera cố định giữa **Commit gốc `558098a`** (worktree `/tmp/base-worktree`) và **Nhánh hiện tại `PengWynIsMe/it-silver-3d-09`** khi **KHÔNG CHƠI SILVER**:
+
+| STT | Vị trí camera cố định | Base Commit `558098a` Calls | Nhánh Hiện Tại Calls | Chênh lệch | Đánh giá |
+| :---: | :--- | :---: | :---: | :---: | :---: |
+| 1 | **Tầng 2 hành lang B8** (hướng nhìn +X) | 72 | 72 | **0** | **ĐẠT (Bằng tuyệt đối)** |
+| 2 | **Tầng 2 trong phòng 206.B8** | 34 | 34 | **0** | **ĐẠT (Bằng tuyệt đối)** |
+| 3 | **Tầng 2 trong phòng 207.B8** | 34 | 34 | **0** | **ĐẠT (Bằng tuyệt đối)** |
+| 4 | **Tầng 3 hành lang B8** (hướng nhìn -X) | 36 | 36 | **0** | **ĐẠT (Bằng tuyệt đối)** |
+| 5 | **Tầng 3 trong phòng 311.B8** | 38 | 38 | **0** | **ĐẠT (Bằng tuyệt đối)** |
+
+> [!NOTE]
+> Khi không chơi Silver (`isSilverActive: false`), toàn bộ bàn ghế khối của layout gốc trong `B8Furniture.tsx` được giữ nguyên vẹn 100%. `TheoryRoom` và `Room208` không được mount, do đó số lượng Draw Call hoàn toàn không tăng dù chỉ 1 call so với commit gốc.
 
 ---
 
-## 3. Bằng chứng trực quan chi tiết (Mở và nhìn trực tiếp 16 ảnh nghiệm thu)
+## 3. Bằng chứng trực quan 16 ảnh nghiệm thu Lần 2
 
-Toàn bộ 16 ảnh chụp kiểm chứng được lưu tại thư mục `/tmp/campussim-3d-09/`. Đã tắt lớp phủ cinematic tuyết rơi trước khi chụp.
+Toàn bộ 16 ảnh chụp nghiệm thu mới được lưu tại thư mục `/tmp/campussim-3d-09/lan2/`. Đã mở và nhìn trực tiếp từng ảnh qua công cụ thị giác:
 
 ### 3.1. Phòng 206.B8 (Sân khấu bài thi Nghe `entrance/listening`)
 
-1. **`01-tu-cua-206-b8.png` (143.7 KB) — Từ cửa nhìn vào phòng**:
-   - **Điểm đặt & góc nhìn**: Ngưỡng cửa phòng 206 ($u=83.0, v=-200.5$), góc nhìn thứ nhất (FPS) hướng vào giữa phòng.
-   - **Chi tiết thấy được**: 10 học sinh nền ngồi ngay ngắn trên các hàng ghế; các dãy bàn học gỗ màu vàng sồi (`#d4a373`) có vách chắn trước; các ghế tựa màu xanh xám đậm (`#334155`). Không còn bàn ghế khối thô.
+1. **`01-tu-cua-206-b8.png` (174.4 KB) — Từ cửa nhìn vào phòng**:
+   - **Góc nhìn**: FPS từ ngưỡng cửa ($u=83.0, v=-200.5$).
+   - **Quan sát thực tế**: 10 học sinh ngồi ngay ngắn trên các hàng ghế; bàn học sinh màu gỗ sáng có 4 chân thanh mảnh và vách chắn trước; ghế tựa màu xanh xám (`#334155`). Không còn hiện tượng bàn hộp đặc.
 
-2. **`02-sau-vai-206-b8.png` (49.6 KB) — Sau vai khi ngồi THẬT bằng phím E**:
-   - **Điểm đặt & góc nhìn**: Người chơi đứng tại điểm `standPoint`, nhấn phím E để ngồi thật vào ghế `206-r2-s4`. Chế độ góc nhìn mặc định "Sau vai" (viewMode 0).
-   - **Chi tiết thấy được**: Thấy lưng và bờ vai sẫm màu của nhân vật người chơi ở tiền cảnh; phía trước là mặt bàn học và màn hình TV màu đen gắn trên tường phía trước; bạn học ngồi ở dãy bàn bên cạnh.
+2. **`02-sau-vai-206-b8.png` (85.3 KB) — Sau vai khi ngồi THẬT vào ghế người chơi**:
+   - **Góc nhìn**: Sau vai (ViewMode 0) khi ngồi vào ghế `206-r2-s4`.
+   - **Quan sát thực tế**: Tiền cảnh thấy lưng và đầu nhân vật người chơi; phía trước là mặt bàn học và màn hình TV lớn trên tường hiển thị rõ ràng slide bìa: tiêu đề **"Bài thi Nghe tiếng Anh"** (chữ đậm màu xanh EIU `#0b3d91`), phụ đề **"Phần nghe"**; không bị khung TV che lấp hay đen màn hình.
 
-3. **`03-tu-buc-206-b8.png` (107.5 KB) — Từ bục giảng nhìn xuống lớp**:
-   - **Điểm đặt & góc nhìn**: Đứng tại vị trí bàn giáo viên ($u=83.6, v=-203.0$), nhìn bao quát ra toàn bộ các dãy bàn học sinh.
-   - **Chi tiết thấy được**: Thấy các hàng bàn học và ghế tựa thẳng hàng; 10 học sinh ngồi ngay ngắn hướng mặt về phía bục giảng; ánh sáng chiếu rõ ràng trên các khối đầu nhân vật low-poly.
+3. **`03-tu-buc-206-b8.png` (112.8 KB) — Từ bục giảng nhìn xuống lớp**:
+   - **Góc nhìn**: FPS từ vị trí bàn giáo viên ($u=83.6, v=-203.0$).
+   - **Quan sát thực tế**: Các dãy bàn học và ghế tựa thẳng tắp; 10 học sinh ngồi ngay ngắn hướng mặt về phía bục giảng; bục giảng không có ghế giáo viên cản đường, không bị xuyên người.
 
-4. **`04-can-mat-ghe-ban-206-b8.png` (276.6 KB) — Cận mặt ghế và bàn từ bên hông**:
-   - **Điểm đặt & góc nhìn**: Đứng ở lối đi bên hông ($v=-206.5$) nhìn cận cảnh vào bàn và ghế học sinh.
-   - **Chi tiết thấy được**: Chi tiết kết cấu ghế tựa hiện rất rõ: mặt ngồi màu xanh slate (`#334155`) phẳng ở độ cao 0.45 m, 4 chân ống kim loại thanh mảnh, 2 thanh đỡ tựa lưng từ chân sau nối lên tấm tựa lưng bản rộng; bàn học cao 0.75 m màu gỗ sáng (`#d4a373`); viền vàng wireframe SeatHighlight nhấp nháy trên ghế người chơi; cửa sổ kính phía sau nhìn ra cây xanh và hành lang đối diện.
+4. **`04-can-mat-ghe-ban-206-b8.png` (184.6 KB) — Cận mặt ghế và bàn từ bên hông thấp ($y=0.55\text{ m}$)**:
+   - **Góc nhìn**: Máy ảnh hạ thấp ngang tầm mặt ngồi ghế từ lối đi bên hông ($v=-206.2$).
+   - **Quan sát thực tế**: Mặt ngồi ghế phẳng ở độ cao chuẩn 0.45 m; 4 chân kim loại và 2 thanh đỡ tựa lưng; bàn học sinh có mặt bàn mỏng 0.04 m, 4 chân vuông; tấm chắn trước chừa khoảng không gian thoáng dưới sàn; thấy rõ chân học sinh để tự nhiên dưới bàn.
 
 ---
 
 ### 3.2. Phòng 207.B8 (Sân khấu lý thuyết `CSE 103/a`)
 
-1. **`01-tu-cua-207-b8.png` (154.1 KB) — Từ cửa nhìn vào phòng**:
-   - **Điểm đặt & góc nhìn**: Ngưỡng cửa phòng 207 ($u=81.9, v=-177.2$), góc nhìn FPS nhìn vào trung tâm lớp học.
-   - **Chi tiết thấy được**: Toàn bộ hệ thống bàn ghế `TheoryRoom` hiện rõ ràng; 12 bạn học sinh nền và nhân vật Han (với huy hiệu tên "Han" trên đầu) ngồi nghiêm túc tại các bàn học; màu bàn gỗ sáng và ghế xanh xám đậm đồng bộ.
+1. **`01-tu-cua-207-b8.png` (167.7 KB) — Từ cửa nhìn vào phòng**:
+   - **Góc nhìn**: FPS từ cửa phòng 207 ($u=81.9, v=-177.4$).
+   - **Quan sát thực tế**: Toàn cảnh lớp học 207 với 12 bạn học sinh nền và nhân vật Han; bàn học gỗ sáng và ghế tựa slate đồng bộ.
 
-2. **`02-sau-vai-207-b8.png` (159.4 KB) — Sau vai khi ngồi THẬT bằng phím E**:
-   - **Điểm đặt & góc nhìn**: Người chơi đứng tại điểm `standPoint`, nhấn phím E để ngồi thật vào ghế `207-r2-s3`. Góc nhìn "Sau vai" (viewMode 0).
-   - **Chi tiết thấy được**: Thấy lưng và balo màu xanh của nhân vật người chơi ở góc trái tiền cảnh; mặt bàn học phía trước; màn hình TV slide lớn trên tường trước hiển thị sắc nét: **"Lý thuyết CSE 103"**, phụ đề **"2.2"**; bạn học ngồi ở ghế bên phải.
+2. **`02-sau-vai-207-b8.png` (194.3 KB) — Sau vai khi ngồi THẬT (Thấy TV slide Java thật sắc nét)**:
+   - **Góc nhìn**: Sau vai (ViewMode 0) khi ngồi vào ghế `207-r2-s3`.
+   - **Quan sát thực tế**: Đầu và bờ vai nhân vật người chơi ở tiền cảnh; TV treo chính giữa tường trước hiển thị sắc nét slide bài giảng Java:
+     - Tiêu đề xanh đậm: **"if / else: rẽ nhánh"**.
+     - Khung code nền tối chữ syntax mono:
+       ```java
+       if (visits >= 3) {
+           System.out.println("Stamp");
+       } else {
+           System.out.println("Not yet");
+       }
+       ```
+     - Đoạn giải thích: *"Điều kiện đúng thì chạy khối đầu, sai thì chạy khối else. Dấu >= đọc là lớn hơn hoặc bằng."*
+     - Viền đen khung TV bao quanh ngoài mép màn hình 6 mm phía sau, hoàn toàn không che lấp chữ hay code.
 
-3. **`03-tu-buc-207-b8.png` (170.2 KB) — Từ bục giảng nhìn xuống lớp**:
-   - **Điểm đặt & góc nhìn**: Đứng tại bục giảng giáo viên ($u=82.5, v=-170.6$), nhìn xuôi xuống lớp học.
-   - **Chi tiết thấy được**: Toàn cảnh lớp học 207.B8 với các dãy bàn học sinh, các học sinh ngồi chăm chú; góc trái thấy khung cửa sổ mở ra hành lang nhiều tầng.
+3. **`03-tu-buc-207-b8.png` (177.9 KB) — Từ bục giảng nhìn xuống lớp**:
+   - **Góc nhìn**: FPS từ bục giảng giáo viên ($u=82.5, v=-170.6$).
+   - **Quan sát thực tế**: Toàn bộ sinh viên chăm chú nhìn lên bảng; không gian bục giảng thoáng đãng không có ghế giáo viên chắn chỗ đứng của thầy.
 
-4. **`04-can-mat-ghe-ban-207-b8.png` (196.6 KB) — Cận mặt ghế và bàn từ bên hông**:
-   - **Điểm đặt & góc nhìn**: Đứng bên hông bàn học sinh ($v=-173.8$), nhìn cận cảnh cạnh bên bàn và ghế.
-   - **Chi tiết thấy được**: Thấy rõ cạnh bàn gỗ 0.75 m, mặt ghế phẳng 0.45 m, lưng tựa của ghế và bạn học sinh ngồi trên ghế với tư thế gập chân chuẩn xác.
-
----
-
-### 3.3. Phòng thi nói 208.B8 (Sân khấu phỏng vấn 1-1 `entrance/speaking`)
-
-1. **`01-tu-cua-208-b8.png` (36.1 KB) — Từ cửa nhìn vào phòng**:
-   - **Điểm đặt & góc nhìn**: Ngưỡng cửa phòng 208 ($u=80.8, v=-200.5$), góc nhìn FPS hướng về bàn phỏng vấn.
-   - **Chi tiết thấy được**: 1 bàn phỏng vấn gỗ (`#d4a373`) đặt giữa phòng; 2 ghế đối diện nhau (ghế giám khảo nhìn $+u$, ghế thí sinh nhìn $-u$); phía xa bên trái dọc chân tường Bắc thấy dãy 3 ghế chờ. Căn phòng hoàn toàn không có TV slide hay bảng trắng, đúng chuẩn phòng thi nói.
-
-2. **`02-sau-vai-208-b8.png` (29.2 KB) — Sau vai khi ngồi THẬT bằng phím E**:
-   - **Điểm đặt & góc nhìn**: Người chơi đứng tại `standPoint` ($u=78.6, v=-204.2$), bấm phím E để ngồi vào ghế `208-player`.
-   - **Chi tiết thấy được**: Camera bám sau lưng ghế người chơi nhìn thẳng qua mặt bàn phỏng vấn về phía ghế đối diện của giám khảo.
-
-3. **`03-tu-buc-208-b8.png` (18.9 KB) — Từ vị trí ghế giám khảo nhìn sang thí sinh**:
-   - **Điểm đặt & góc nhìn**: Đứng tại tọa độ ghế giám khảo ($u=75.8, v=-205.1$), nhìn thẳng sang ghế thí sinh.
-   - **Chi tiết thấy được**: Mặt bàn phỏng vấn màu gỗ sáng; ghế thí sinh (`#334155`) với tựa lưng và 2 thanh đỡ đứng đối diện thẳng hàng.
-
-4. **`04-can-mat-ghe-ban-208-b8.png` (77.0 KB) — Cận mặt ghế và bàn từ bên hông**:
-   - **Điểm đặt & góc nhìn**: Đứng bên hông bàn phỏng vấn ($u=77.2, v=-203.6$), nhìn vuông góc vào cạnh bàn.
-   - **Chi tiết thấy được**: Cạnh bên của bàn phỏng vấn màu gỗ (`#d4a373`), 2 ghế phỏng vấn 2 bên với kết cấu khung sắt và mặt đệm/tựa lưng xanh xám đậm (`#334155`).
-
-*(Lưu ý về 208.B8: Theo hướng dẫn của Tech Lead, nhân vật Giám khảo và hiệu ứng SeatHighlight cho 208.B8 thuộc phạm vi task 3D-12, hiện tại chưa xuất hiện là hoàn toàn chính xác theo phân công).*
+4. **`04-can-mat-ghe-ban-207-b8.png` (179.9 KB) — Cận mặt ghế và bàn từ bên hông thấp ($y=0.55\text{ m}$)**:
+   - **Góc nhìn**: Góc nhìn thấp nhìn ngang qua dãy bàn từ lối đi bên hông ($v=-174.2$).
+   - **Quan sát thực tế**: Mông nhân vật chạm chuẩn xác trên mặt đệm ghế ở độ cao 0.45 m; khoảng trống dưới mặt bàn 0.04 m thông thoáng; chân học sinh ngồi tự nhiên dưới bàn; 4 chân bàn và 4 chân ghế tiếp đất vững chãi.
 
 ---
 
-### 3.4. Giảng đường lớn 311.B8 (Sân khấu đại cương `1.1/philosophy`)
+### 3.3. Phòng 311.B8 (Sân khấu đại cương `1.1/philosophy`)
 
-1. **`01-tu-cua-311-b8.png` (152.6 KB) — Từ cửa nhìn vào giảng đường**:
-   - **Điểm đặt & góc nhìn**: Cửa vào giảng đường lớn tầng 3 ($u=30.0, v=-177.0$), góc nhìn FPS nhìn xéo xuống hội trường.
-   - **Chi tiết thấy được**: Khung cảnh giảng đường lớn hoành tráng với các dãy bàn học sinh kéo dài; 18 bạn học sinh ngồi trải đều trên các hàng ghế; dãy cửa kính lớn phía bên phải nhìn ra tán cây xanh và khuôn viên trường đón ánh sáng tự nhiên.
+1. **`01-tu-cua-311-b8.png` (160.5 KB) — Từ cửa nhìn vào giảng đường lớn**:
+   - **Góc nhìn**: FPS từ cửa tầng 3 ($u=30.6, v=-177.4$).
+   - **Quan sát thực tế**: Giảng đường lớn rộng rãi với 18 học sinh ngồi trải đều trên các dãy bàn dài; vách kính bên phải đón ánh sáng tự nhiên.
 
-2. **`02-sau-vai-311-b8.png` (137.7 KB) — Sau vai khi ngồi THẬT bằng phím E**:
-   - **Điểm đặt & góc nhìn**: Người chơi ngồi thật bằng phím E vào ghế `311-r4-s3`, góc nhìn "Sau vai" (viewMode 0).
-   - **Chi tiết thấy được**: Thấy bờ vai và mái tóc của người chơi ở tiền cảnh; mặt bàn học sinh phía trước; các hàng ghế và học sinh phía trước ngồi chăm chú; màn hình TV lớn treo trên tường phía trước giảng đường.
+2. **`02-sau-vai-311-b8.png` (151.1 KB) — Sau vai khi ngồi THẬT (Thấy TV slide Triết học Mác – Lênin)**:
+   - **Góc nhìn**: Sau vai (ViewMode 0) khi ngồi vào ghế `311-r4-s3`.
+   - **Quan sát thực tế**: Nhân vật người chơi ngồi ở hàng ghế sau nhìn lên; TV trên tường hiển thị rõ nét:
+     - Tiêu đề: **"Triết học Mác – Lênin học gì?"**.
+     - Nội dung: *"Theo mô tả môn học, đầu tiên là triết học và vai trò của nó trong đời sống xã hội..."*.
+     - Các bạn học sinh phía trước ngồi chăm chú; không còn tấm kính màn hình máy tính lơ lửng.
 
-3. **`03-tu-buc-311-b8.png` (189.6 KB) — Từ bục giảng nhìn ngược lên toàn thể giảng đường**:
-   - **Điểm đặt & góc nhìn**: Đứng tại vị trí bục giảng giáo viên ($u=15.4, v=-169.8$), nhìn ngược lên toàn bộ giảng đường.
-   - **Chi tiết thấy được**: 18 bạn sinh viên ngồi trên các dãy bàn học; không gian giảng đường rộng rãi, thoáng đãng; bên trái là vách kính tràn ngập ánh sáng.
+3. **`03-tu-buc-311-b8.png` (190.8 KB) — Từ bục giảng nhìn ngược lên giảng đường**:
+   - **Góc nhìn**: FPS từ bục giảng giáo viên ($u=15.4, v=-169.8$).
+   - **Quan sát thực tế**: Toàn cảnh 18 sinh viên trên các dãy bàn; không có ghế giáo viên cản trở bục giảng.
 
-4. **`04-can-mat-ghe-ban-311-b8.png` (189.7 KB) — Cận mặt ghế và bàn từ bên hông**:
-   - **Điểm đặt & góc nhìn**: Đứng bên hông bàn học sinh ($u=21.5, v=-173.8$), nhìn cận cảnh hàng ghế và bàn.
-   - **Chi tiết thấy được**: Chi tiết kết cấu bàn học gỗ màu sáng và ghế tựa màu slate; sinh viên ngồi trên ghế với tư thế ngồi chuẩn; chân kim loại và tựa lưng thanh mảnh, sắc nét.
-
----
-
-## 4. Danh sách các file đã chỉnh sửa & tạo mới
-
-| File | Hành động | Mục đích |
-| --- | :---: | --- |
-| `src/data/classrooms.json` | Chỉnh sửa | Bổ sung dữ liệu chi tiết cho 206.B8, 207.B8, 311.B8 từ `classrooms-b8.json`. |
-| `src/scene/interior/layouts/b8.ts` | Chỉnh sửa | Mở rộng hàm `addClassroomObstacles` cho mọi phòng B8 (thụt 0.25 m) và bàn phỏng vấn 208.B8. |
-| `src/scene/silver/rooms/TheoryRoom.tsx` | Tạo mới | Dựng nội thất phòng lý thuyết (bàn, ghế, bàn GV, bảng, khung TV) bằng 5 `instancedMesh`. |
-| `src/scene/silver/rooms/Room208.tsx` | Tạo mới | Dựng nội thất phòng thi nói 208.B8 (1 bàn, 2 ghế chính, 3 ghế chờ). |
-| `src/scene/interior/B8Furniture.tsx` | Chỉnh sửa | Ẩn bàn ghế khối chỉ khi phòng là sân khấu Silver đang hoạt động. |
-| `src/scene/silver/SilverStage.tsx` | Chỉnh sửa | Mount `TheoryRoom` (có `key={room.code}`) và `Room208` cho các sân khấu tương ứng. |
-| `scripts/silver/tests/classrooms-b8.test.mjs` | Chỉnh sửa | Bổ sung test nạp dữ liệu, kiểm tra số lượng tường vật cản và BFS pathfinding cho cả 4 phòng. |
-| `scripts/silver/tests/director.test.mjs` | Chỉnh sửa | Chuyển test phòng vắng sang dùng mã phòng giả tiêm qua mock `getClassroom`. |
-| `scripts/silver/tests/stages.test.mjs` | Chỉnh sửa | Cập nhật assertion tính khả dụng của stage theo dữ liệu mới. |
+4. **`04-can-mat-ghe-ban-311-b8.png` (181.9 KB) — Cận mặt ghế và bàn từ bên hông thấp ($y=0.55\text{ m}$)**:
+   - **Góc nhìn**: Góc nhìn thấp từ lối đi bên hông ($v=-174.2$).
+   - **Quan sát thực tế**: Kết cấu bàn học 4 chân thanh mảnh và ghế tựa cao 0.45 m; sinh viên ngồi tự nhiên với chân đặt dưới bàn, không bị lún vào hộp đặc.
 
 ---
 
-## 5. Kết luận
+### 3.4. Phòng thi nói 208.B8 (Sân khấu phỏng vấn 1-1 `entrance/speaking`)
 
-Task **3D-09** đã được hoàn thành 100% theo đúng yêu cầu brief, tuân thủ nghiêm ngặt mọi nguyên tắc kỹ thuật trong `AGENTS.md` và `STYLE-3D.md`.
-- Toàn bộ 5 cổng kiểm tra (`typecheck`, `lint`, `build`, `test:silver`, `check:silver --strict`) đều đỗ tuyệt đối với 0 lỗi.
-- Đã đo đạc và xác nhận draw calls tầng 2 và tầng 3 không hề tăng khi không chơi Silver.
-- Toàn bộ 16 ảnh chụp kiểm chứng đã được mở, nhìn và đối chiếu trung thực với kết quả hiển thị 3D thực tế trên trình duyệt.
+1. **`01-tu-cua-208-b8.png` (42.1 KB) — Từ cửa nhìn vào phòng (Thấy đủ 2 ghế, bàn, và 3 ghế chờ)**:
+   - **Góc nhìn**: FPS từ ngưỡng cửa ($u=81.3, v=-199.7$, $y=1.7\text{ m}$, pitch $-0.16$).
+   - **Quan sát thực tế**: Thấy đầy đủ và rõ ràng toàn bộ nội thất phòng 208:
+     - **3 ghế chờ** kê sát tường phía Bắc ($u=79.5, 80.2, 80.9, v=-201.2$) hiện rõ ở góc tiền cảnh bên phải.
+     - **1 bàn phỏng vấn** mặt gỗ 4 chân rỗng ở trung tâm phòng ($u=77.2, v=-205.1$).
+     - **2 ghế phỏng vấn** đặt đối diện nhau 2 bên bàn (ghế giám khảo nhìn $+u$, ghế thí sinh nhìn $-u$).
+
+2. **`02-sau-vai-208-b8.png` (41.4 KB) — Sau vai khi ngồi THẬT vào ghế thí sinh**:
+   - **Góc nhìn**: Sau vai (ViewMode 0) tại neo ghế `create208B8SeatAnchor`.
+   - **Quan sát thực tế**: Thấy rõ phần lưng, đầu và vai của nhân vật người chơi đang ngồi trong ghế thí sinh; camera bám qua vai nhìn về phía bàn phỏng vấn; **trạng thái `seated: true` được kích hoạt hoàn toàn, không có bất kỳ dòng chữ "chưa ngồi" hay gợi ý bấm phím nào trên màn hình**.
+
+3. **`03-tu-buc-208-b8.png` (18.0 KB) — Từ phía ghế giám khảo nhìn sang thí sinh**:
+   - **Góc nhìn**: FPS từ vị trí giám khảo ($u=75.8, v=-205.1$).
+   - **Quan sát thực tế**: Bàn phỏng vấn rỗng 4 chân và ghế thí sinh đối diện.
+
+4. **`04-can-mat-ghe-ban-208-b8.png` (78.5 KB) — Cận mặt ghế và bàn từ bên hông thấp ($y=0.55\text{ m}$)**:
+   - **Góc nhìn**: Góc nhìn thấp từ bên hông bàn phỏng vấn ($u=77.2, v=-203.6$).
+   - **Quan sát thực tế**: Bàn phỏng vấn có mặt bàn mỏng 0.04 m và 4 chân kim loại vuông ở 4 góc, hoàn toàn không có tấm chắn chân để cả 2 người ngồi đối diện có không gian để chân thoải mái; 2 ghế tựa đối diện nhau có mặt đệm phẳng 0.45 m.
+
+---
+
+## 4. Bảng 5 cổng kiểm tra chất lượng code
+
+| Cổng kiểm tra | Lệnh thực thi | Kết quả | Trạng thái |
+| :--- | :--- | :--- | :---: |
+| **TypeScript Strict** | `npm run typecheck` (`tsc -b --noEmit`) | 0 lỗi | **PASS** |
+| **ESLint** | `npm run lint` (`eslint .`) | 0 warning, 0 lỗi | **PASS** |
+| **Vite Build** | `npm run build` (`tsc -b && vite build`) | Thành công trong 2.42s | **PASS** |
+| **Silver Test Suite** | `npm run test:silver` (`node scripts/silver/test.mjs`) | 54/54 test suites PASS (101 tests) | **PASS** |
+| **Strict Content Invariants** | `npm run check:silver -- --strict` | PASS | **PASS** |
+
+---
+
+## 5. Tổng hợp các file đã sửa đổi
+
+| File | Thay đổi |
+| --- | --- |
+| `src/scene/silver/rooms/theoryGeometries.ts` | **Mới**: Tách hình học ghế tựa `makeTheoryChairGeometry` và tạo `makeTheoryDeskGeometry` (mặt mỏng 0.04m + 4 chân + tấm chắn gộp 1 geometry). |
+| `src/scene/silver/rooms/TheoryRoom.tsx` | Nhập hình học từ `theoryGeometries`, tính xoay ghế tự động từ `room.studentFacing`, đẩy lùi khung TV 0.016m (mặt trước lùi sau màn 6mm), bỏ ghế giáo viên cấn bục. |
+| `src/scene/silver/rooms/Room208.tsx` | Nhập hình học từ `theoryGeometries`, dùng bàn phỏng vấn 4 chân rỗng không tấm chắn. |
+| `src/scene/silver/SeatHighlight.tsx` | Bọc điều kiện `isComputerLabRoom(room)` để chỉ hiển thị tấm kính màn hình máy tính phát sáng ở phòng lab (406.B8). |
+| `docs/it-silver/3D-BAO-CAO-3D-09.md` | Báo cáo chi tiết nghiệm thu Lần 2 kèm bảng đo Draw Calls đối chiếu với commit gốc `558098a` và mô tả thực tế 16 ảnh mới. |
+
+---
+
+## 6. Kết luận
+
+Mọi phản hồi từ Coordinator đã được giải quyết trọn vẹn và xác thực bằng hình ảnh thực tế cũng như số liệu đo đạc chính xác. Mã nguồn sẵn sàng để merge.
