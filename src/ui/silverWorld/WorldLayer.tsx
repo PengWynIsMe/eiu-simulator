@@ -64,6 +64,8 @@ export default function WorldLayer() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Enter' || e.repeat) return;
+      // Chỉ khi đang trò chuyện/ngồi học trong 3D: đang đi lại thì Enter không được nhảy bước
+      if (mode !== 'world' || screen !== 'play' || phase !== 'engaged' || screenOpen) return;
       if (e.defaultPrevented) return;
       // Không kích hoạt khi alertdialog đang mở
       if (typeof document !== 'undefined' && document.querySelector('[role="alertdialog"]')) return;
@@ -78,7 +80,7 @@ export default function WorldLayer() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [play?.canContinue, handleNextClick]);
+  }, [mode, screen, phase, screenOpen, play?.canContinue, handleNextClick]);
 
   // Chỉ hiển thị phần 3D Play layer khi đang ở màn chơi của chế độ 3D world
   if (screen !== 'play' || mode !== 'world' || !play) {
