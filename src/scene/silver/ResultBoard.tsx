@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   BoxGeometry,
   CanvasTexture,
   MeshStandardMaterial,
   PlaneGeometry,
   SRGBColorSpace,
-  type Mesh,
 } from 'three';
 import { useLangStore } from '../../store/useLangStore';
 import type { StageSpec } from '../../types/silverWorld';
@@ -148,40 +147,29 @@ function drawResultCanvas(canvas: HTMLCanvasElement, lang: 'vi' | 'en'): void {
  */
 export default function ResultBoard({ stage }: ResultBoardProps) {
   const lang = useLangStore((s) => s.lang);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const textureRef = useRef<CanvasTexture | null>(null);
-  const meshRef = useRef<Mesh>(null);
 
-  // Tạo và cập nhật CanvasTexture song ngữ
+  // Tạo Canvas và CanvasTexture một lần cho suốt vòng đời của bảng
+  const { canvas, texture } = useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = 1024;
+    c.height = 640;
+    const tex = new CanvasTexture(c);
+    tex.colorSpace = SRGBColorSpace;
+    return { canvas: c, texture: tex };
+  }, []);
+
+  // Vẽ lại canvas khi đổi ngôn ngữ (vi/en) và đánh dấu needsUpdate
   useEffect(() => {
-    let canvas = canvasRef.current;
-    if (!canvas) {
-      canvas = document.createElement('canvas');
-      canvas.width = 1024;
-      canvas.height = 640;
-      canvasRef.current = canvas;
-    }
-
     drawResultCanvas(canvas, lang);
+    texture.needsUpdate = true;
+  }, [canvas, texture, lang]);
 
-    let tex = textureRef.current;
-    if (!tex) {
-      tex = new CanvasTexture(canvas);
-      tex.colorSpace = SRGBColorSpace;
-      textureRef.current = tex;
-    } else {
-      tex.needsUpdate = true;
-    }
-
+  // Hủy texture khi unmount
+  useEffect(() => {
     return () => {
-      // Cleanup texture khi component unmount
-      if (textureRef.current) {
-        textureRef.current.dispose();
-        textureRef.current = null;
-      }
-      canvasRef.current = null;
+      texture.dispose();
     };
-  }, [lang]);
+  }, [texture]);
 
   // Hình học bảng và khung
   const { boardGeom, postGeom, frameMat, backMat } = useMemo(() => {
@@ -216,11 +204,9 @@ export default function ResultBoard({ stage }: ResultBoardProps) {
       <mesh geometry={boardGeom} material={backMat} position={[0, BOARD_CENTER_Y, -0.01]} rotation={[0, Math.PI, 0]} />
 
       {/* Mặt trước vẽ kết quả qua canvas */}
-      {textureRef.current && (
-        <mesh ref={meshRef} geometry={boardGeom} position={[0, BOARD_CENTER_Y, 0.005]}>
-          <meshBasicMaterial map={textureRef.current} toneMapped={false} />
-        </mesh>
-      )}
+      <mesh geometry={boardGeom} position={[0, BOARD_CENTER_Y, 0.005]}>
+        <meshBasicMaterial map={texture} toneMapped={false} />
+      </mesh>
     </group>
   );
 }
