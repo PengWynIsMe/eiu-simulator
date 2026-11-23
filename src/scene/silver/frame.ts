@@ -1,6 +1,6 @@
 import type { Vec2 } from '../../types';
 import { b11ToWorld, B11_ROTATION_Y } from '../interior/layouts/b11';
-import { toWorld as b8ToWorld, B8_ROTATION_Y } from '../interior/layouts/b8';
+import { toWorld as b8ToWorld, B8_EX } from '../interior/layouts/b8';
 
 export type FrameId = 'b11' | 'b8';
 
@@ -26,8 +26,10 @@ export function yawOf(frame: FrameId, du: number, dv: number): number {
 }
 
 /**
- * Góc quay rotation.y của khung tòa nhà so với thế giới.
+ * Góc quay rotation.y của khung tòa nhà so với thế giới trong Three.js.
+ * Three.js quay quanh trục Y góc θ: x = u*cosθ + v*sinθ, z = -u*sinθ + v*cosθ.
+ * B8 có EX = [cosθ, -sinθ] nên góc quay dương θ = Math.atan2(-B8_EX[1], B8_EX[0]) (+0.2286 rad).
  */
 export function rotationYOf(frame: FrameId): number {
-  return frame === 'b8' ? B8_ROTATION_Y : B11_ROTATION_Y;
+  return frame === 'b8' ? Math.atan2(-B8_EX[1], B8_EX[0]) : B11_ROTATION_Y;
 }
