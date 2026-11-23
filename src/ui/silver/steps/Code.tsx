@@ -6,7 +6,6 @@ import { CodeSpans, MONO } from '../../desktop/CodeBlock';
 import { useT } from '../../text';
 import { useSilver } from '../adapter';
 import { ST } from '../text';
-import Panel from '../parts/Panel';
 import PrimaryButton from '../parts/PrimaryButton';
 import SecondaryButton from '../parts/SecondaryButton';
 
@@ -56,7 +55,7 @@ export default function Code({ step, feedback, hint }: CodeProps) {
   const lines = step.template.split('\n');
 
   return (
-    <Panel className="mx-auto max-w-3xl space-y-4">
+    <div className="w-full space-y-4">
       {/* Tiêu đề & nút Gợi ý */}
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
@@ -150,10 +149,11 @@ export default function Code({ step, feedback, hint }: CodeProps) {
         <PrimaryButton
           disabled={isLocked || value.trim().length === 0}
           onClick={handleRun}
+          className="inline-flex items-center gap-1.5"
         >
-          <span aria-hidden="true" className="mr-1">
-            ▶
-          </span>
+          <svg viewBox="0 0 12 12" className="h-3 w-3 shrink-0 fill-current" aria-hidden="true">
+            <path d="M2.5 1.5l7.5 4.5-7.5 4.5z" />
+          </svg>
           {tr(ST.run)}
         </PrimaryButton>
         <span className="text-[13px] text-slate-500">{tr(ST.simCode)}</span>
@@ -208,6 +208,6 @@ export default function Code({ step, feedback, hint }: CodeProps) {
           </div>
         )}
       </div>
-    </Panel>
+    </div>
   );
 }

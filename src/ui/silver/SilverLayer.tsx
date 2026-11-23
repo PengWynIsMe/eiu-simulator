@@ -3,6 +3,7 @@ import { useT } from '../text';
 import LangToggle from '../major/LangToggle';
 import MuteButton from '../lesson/MuteButton';
 import { useSilver } from './adapter';
+import { useSilverPresentation } from './presentation';
 import { SCREEN_TITLES, ST } from './text';
 import Panel from './parts/Panel';
 import PrimaryButton from './parts/PrimaryButton';
@@ -17,7 +18,7 @@ import Transcript from './screens/Transcript';
 import Memory from './screens/Memory';
 import Notebook from './screens/Notebook';
 
-function SilverOverlay() {
+function SilverOverlay({ mode }: { mode: 'overlay' | 'world' }) {
   const tr = useT();
   const screen = useSilver((s) => s.screen);
   const status = useSilver((s) => s.status);
@@ -36,8 +37,9 @@ function SilverOverlay() {
     void load();
   }, [load]);
 
-  // Chặn phím rơi vào cảnh 3D nếu focus vô tình nằm ngoài lớp Silver.
+  // Chặn phím rơi vào cảnh 3D nếu focus vô tình nằm ngoài lớp Silver (chỉ ở chế độ overlay).
   useEffect(() => {
+    if (mode === 'world') return;
     const stopOutsideKeys = (e: KeyboardEvent) => {
       const el = overlayRef.current;
       if (!el) return;
@@ -51,7 +53,7 @@ function SilverOverlay() {
       window.removeEventListener('keydown', stopOutsideKeys, true);
       window.removeEventListener('keyup', stopOutsideKeys, true);
     };
-  }, []);
+  }, [mode]);
 
   // Đưa focus vào tiêu đề mỗi khi đổi màn hình.
   useEffect(() => {
@@ -76,19 +78,24 @@ function SilverOverlay() {
   return (
     <div
       ref={overlayRef}
+      data-silver-overlay="true"
       role="dialog"
       aria-modal="true"
       aria-labelledby="silver-screen-title"
       className="fixed inset-0 z-[60] flex h-[100dvh] flex-col bg-slate-900/70 backdrop-blur-sm"
       onKeyDown={(e) => {
-        e.stopPropagation();
+        if (mode !== 'world') {
+          e.stopPropagation();
+        }
         if (e.key === 'Escape' && !e.defaultPrevented) {
           e.preventDefault();
           handleExitClick();
         }
       }}
       onKeyUp={(e) => {
-        e.stopPropagation();
+        if (mode !== 'world') {
+          e.stopPropagation();
+        }
       }}
     >
       {/* Thanh trên cố định cao 56px */}
@@ -121,10 +128,10 @@ function SilverOverlay() {
         <WarningBar warning={saveWarning} onDismiss={() => setWarnDismissed(true)} />
       )}
 
-      <main className="flex-1 overflow-y-auto px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-6">
+      <main className="flex-1 overflow-y-auto px-3 pt-4 pb-0 sm:px-6 sm:pt-6 sm:pb-0">
         <div key={screen} className="mx-auto w-full max-w-4xl transition-opacity duration-150 motion-reduce:transition-none">
           {status === 'loading' && (
-            <Panel className="mx-auto max-w-md text-center">
+            <Panel className="mx-auto mb-4 max-w-md text-center sm:mb-6">
               <div
                 aria-hidden="true"
                 className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-[#0b3d91] motion-reduce:animate-none"
@@ -134,7 +141,7 @@ function SilverOverlay() {
           )}
 
           {status === 'error' && (
-            <Panel className="mx-auto max-w-md text-center">
+            <Panel className="mx-auto mb-4 max-w-md text-center sm:mb-6">
               <p className="text-[15px] leading-6 text-red-700">{tr(ST.error)}</p>
               <div className="mt-4 flex flex-wrap justify-center gap-2.5">
                 <SecondaryButton onClick={close}>{tr(ST.close)}</SecondaryButton>
@@ -164,17 +171,18 @@ function SilverOverlay() {
 /** Lớp phủ toàn màn hình cho chế độ kể chuyện IT Silver. */
 export default function SilverLayer() {
   const screen = useSilver((s) => s.screen);
+  const { mode } = useSilverPresentation();
   const wasOpenRef = useRef(false);
+  const showOverlay = screen !== 'closed' && !(mode === 'world' && screen === 'play');
 
   useEffect(() => {
-    const isOpen = screen !== 'closed';
-    if (wasOpenRef.current && !isOpen) {
+    if (wasOpenRef.current && !showOverlay && mode !== 'world') {
       const trigger = document.querySelector<HTMLElement>('[data-silver-trigger="true"]');
       trigger?.focus();
     }
-    wasOpenRef.current = isOpen;
-  }, [screen]);
+    wasOpenRef.current = showOverlay;
+  }, [showOverlay, mode]);
 
-  if (screen === 'closed') return null;
-  return <SilverOverlay />;
+  if (!showOverlay) return null;
+  return <SilverOverlay mode={mode} />;
 }

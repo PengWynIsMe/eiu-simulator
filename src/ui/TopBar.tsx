@@ -6,6 +6,7 @@ import { useLessonStore } from '../store/useLessonStore';
 import { useLessonUi } from './lesson/lessonUi';
 import { useSnowStore } from '../store/useSnowStore';
 import { useSilver } from './silver/adapter';
+import { useSilverPresentation } from './silver/presentation';
 import { ST } from './silver/text';
 
 /** Nút thanh trên: vuông 32 px (chỉ icon) trên điện thoại, nút có chữ từ sm. */
@@ -14,6 +15,7 @@ const BTN =
 
 export default function TopBar() {
   const tr = useT();
+  const { mode } = useSilverPresentation();
   const reviewMode = useReviewStore((s) => s.reviewMode);
   const toggleReviewMode = useReviewStore((s) => s.toggleReviewMode);
   const openCount = useReviewStore(
@@ -127,7 +129,9 @@ export default function TopBar() {
               type="button"
               data-silver-trigger="true"
               onClick={() => {
-                useWalkStore.getState().exitWalkMode();
+                if (mode !== 'world') {
+                  useWalkStore.getState().exitWalkMode();
+                }
                 useSilver.getState().openHome();
               }}
               aria-label={tr(ST.open)}

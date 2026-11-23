@@ -139,22 +139,24 @@ export default function Play({ exitHandlerRef }: PlayProps) {
         tabIndex={-1}
         className="focus:outline-none"
       >
-        {play.step.type === 'say' && (
-          <Say step={play.step} fullyShownRef={sayFullyShownRef} revealRef={revealSayRef} />
-        )}
-        {play.step.type === 'choice' && <Choice step={play.step} feedback={play.feedback} />}
-        {play.step.type === 'slide' && <Slide step={play.step} />}
-        {play.step.type === 'question' && (
-          <Question step={play.step} feedback={play.feedback} />
-        )}
-        {play.step.type === 'order' && <Order step={play.step} feedback={play.feedback} />}
-        {play.step.type === 'code' && (
-          <Code step={play.step} feedback={play.feedback} hint={play.hint} />
-        )}
+        <Panel className={play.step.type === 'slide' ? 'mx-auto max-w-2xl' : 'mx-auto max-w-3xl'}>
+          {play.step.type === 'say' && (
+            <Say step={play.step} fullyShownRef={sayFullyShownRef} revealRef={revealSayRef} />
+          )}
+          {play.step.type === 'choice' && <Choice step={play.step} feedback={play.feedback} />}
+          {play.step.type === 'slide' && <Slide step={play.step} />}
+          {play.step.type === 'question' && (
+            <Question step={play.step} feedback={play.feedback} />
+          )}
+          {play.step.type === 'order' && <Order step={play.step} feedback={play.feedback} />}
+          {play.step.type === 'code' && (
+            <Code step={play.step} feedback={play.feedback} hint={play.hint} />
+          )}
+        </Panel>
       </div>
 
       {/* Chân màn dính đáy ở điện thoại */}
-      <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white/95 p-3 shadow-lg backdrop-blur-sm sm:px-5 sm:py-3.5">
+      <div className="sticky bottom-0 z-10 flex items-center justify-between gap-3 rounded-t-2xl border border-b-0 border-slate-200/80 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg sm:px-5 sm:py-3.5">
         <SecondaryButton onClick={() => setSkipConfirmOpen(true)}>
           {tr(ST.skipScene)}
         </SecondaryButton>

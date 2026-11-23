@@ -35,32 +35,34 @@ export default function Memory({ exitHandlerRef }: MemoryProps) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
+    <div className="mx-auto mb-4 max-w-3xl space-y-4 sm:mb-6">
       <Panel className="space-y-4">
         <h2 className="text-lg font-bold text-[#0b3d91] sm:text-xl">{tr(ST.memTitle)}</h2>
         <MemoryPage page={memory} onPickPhoto={pickPhoto} />
 
-        {memory.hasOld && (
-          <p className="rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-[14px] font-medium text-amber-950">
-            {tr(ST.memAsk)}
-          </p>
-        )}
-
-        <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-end gap-2.5 border-t border-slate-200 bg-white/95 pt-3 backdrop-blur-sm sm:bg-transparent">
-          {memory.hasOld ? (
-            <>
-              <SecondaryButton onClick={() => saveMemory('keep-old')}>
-                {tr(ST.keepOld)}
-              </SecondaryButton>
-              <PrimaryButton onClick={() => saveMemory('replace')}>
-                {tr(ST.replaceMem)}
-              </PrimaryButton>
-            </>
-          ) : (
-            <PrimaryButton onClick={() => saveMemory('replace')}>
-              {tr(ST.saveMem)}
-            </PrimaryButton>
+        <div className="sticky bottom-0 z-10 -mx-4 space-y-2.5 rounded-b-2xl border-t border-slate-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 sm:-mx-6 sm:px-6 sm:pb-5">
+          {memory.hasOld && (
+            <p className="rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-[13px] font-medium text-amber-950 sm:text-[14px]">
+              {tr(ST.memAsk)}
+            </p>
           )}
+
+          <div className="flex flex-wrap items-center justify-end gap-2.5">
+            {memory.hasOld ? (
+              <>
+                <SecondaryButton onClick={() => saveMemory('keep-old')}>
+                  {tr(ST.keepOld)}
+                </SecondaryButton>
+                <PrimaryButton onClick={() => saveMemory('replace')}>
+                  {tr(ST.replaceMem)}
+                </PrimaryButton>
+              </>
+            ) : (
+              <PrimaryButton onClick={() => saveMemory('replace')}>
+                {tr(ST.saveMem)}
+              </PrimaryButton>
+            )}
+          </div>
         </div>
       </Panel>
 

@@ -27,7 +27,7 @@ export default function Notebook() {
   }
 
   return (
-    <Panel className="space-y-4">
+    <Panel className="mb-4 space-y-4 sm:mb-6">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
         <div className="flex items-center gap-2.5">
           <h2 className="text-lg font-bold text-[#0b3d91] sm:text-xl">{tr(ST.nbTitle)}</h2>

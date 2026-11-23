@@ -3,7 +3,6 @@ import type { ChoiceStep, Feedback } from '../../../types/silver';
 import { useT } from '../../text';
 import { useSilver } from '../adapter';
 import Avatar, { LABEL_BY_SPEAKER } from '../parts/Avatar';
-import Panel from '../parts/Panel';
 
 interface ChoiceProps {
   step: ChoiceStep;
@@ -20,8 +19,13 @@ export default function Choice({ step, feedback }: ChoiceProps) {
 
   useEffect(() => {
     if (chosenId !== null) return;
-    const onKeyDown = (e: KeyboardEvent) => {
+    const host: EventTarget =
+      (typeof document !== 'undefined' ? document.querySelector('[data-silver-overlay="true"]') : null) ??
+      window;
+    const onKeyDown = (ev: Event) => {
+      const e = ev as KeyboardEvent;
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (typeof document !== 'undefined' && document.querySelector('[role="alertdialog"]')) return;
       const num = Number.parseInt(e.key, 10);
       if (num >= 1 && num <= 4 && num <= step.options.length) {
         const opt = step.options[num - 1];
@@ -31,15 +35,15 @@ export default function Choice({ step, feedback }: ChoiceProps) {
         }
       }
     };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    host.addEventListener('keydown', onKeyDown);
+    return () => host.removeEventListener('keydown', onKeyDown);
   }, [chosenId, step.options, answer]);
 
   const speakerLabel = step.speaker === 'narrator' ? '' : tr(LABEL_BY_SPEAKER[step.speaker]);
   const twoColOnSm = step.options.length <= 2;
 
   return (
-    <Panel className="mx-auto max-w-3xl space-y-4">
+    <div className="w-full space-y-4">
       <div className="max-h-[42dvh] overflow-y-auto space-y-3">
         <div className="flex items-start gap-3">
           <Avatar speaker={step.speaker} />
@@ -100,6 +104,6 @@ export default function Choice({ step, feedback }: ChoiceProps) {
           </div>
         )}
       </div>
-    </Panel>
+    </div>
   );
 }

@@ -4,7 +4,6 @@ import { sfx } from '../../audio/sfx';
 import { useT } from '../../text';
 import { useSilver } from '../adapter';
 import { ST } from '../text';
-import Panel from '../parts/Panel';
 import PrimaryButton from '../parts/PrimaryButton';
 import SecondaryButton from '../parts/SecondaryButton';
 
@@ -57,7 +56,7 @@ export default function Order({ step, feedback }: OrderProps) {
   };
 
   return (
-    <Panel className="mx-auto max-w-3xl space-y-4">
+    <div className="w-full space-y-4">
       <p className="text-[15px] font-semibold leading-6 text-slate-800">{tr(step.prompt)}</p>
 
       <ol className="space-y-2.5">
@@ -161,6 +160,6 @@ export default function Order({ step, feedback }: OrderProps) {
           </div>
         )}
       </div>
-    </Panel>
+    </div>
   );
 }

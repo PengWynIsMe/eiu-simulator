@@ -5,7 +5,6 @@ import CodeBlock from '../../desktop/CodeBlock';
 import { useT } from '../../text';
 import { useSilver } from '../adapter';
 import { ST } from '../text';
-import Panel from '../parts/Panel';
 import SecondaryButton from '../parts/SecondaryButton';
 
 interface QuestionProps {
@@ -73,8 +72,13 @@ export default function Question({ step, feedback }: QuestionProps) {
 
   useEffect(() => {
     if (feedback !== null) return;
-    const onKeyDown = (e: KeyboardEvent) => {
+    const host: EventTarget =
+      (typeof document !== 'undefined' ? document.querySelector('[data-silver-overlay="true"]') : null) ??
+      window;
+    const onKeyDown = (ev: Event) => {
+      const e = ev as KeyboardEvent;
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (typeof document !== 'undefined' && document.querySelector('[role="alertdialog"]')) return;
       const num = Number.parseInt(e.key, 10);
       if (num >= 1 && num <= 4 && num <= step.options.length) {
         const opt = step.options[num - 1];
@@ -84,8 +88,8 @@ export default function Question({ step, feedback }: QuestionProps) {
         }
       }
     };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
+    host.addEventListener('keydown', onKeyDown);
+    return () => host.removeEventListener('keydown', onKeyDown);
   }, [feedback, step.options, handleChoose]);
 
   const speakPassage = () => {
@@ -107,7 +111,7 @@ export default function Question({ step, feedback }: QuestionProps) {
   const isLocked = graded !== null;
 
   return (
-    <Panel className="mx-auto max-w-3xl space-y-4">
+    <div className="w-full space-y-4">
       <div className="max-h-[46dvh] space-y-4 overflow-y-auto pr-1">
         {/* Bài đọc */}
         {step.passage && step.passageKind === 'reading' && (
@@ -124,11 +128,11 @@ export default function Question({ step, feedback }: QuestionProps) {
                 <SecondaryButton
                   disabled={audioBlocked}
                   onClick={speakPassage}
-                  className="!min-h-[38px] !px-3"
+                  className="!min-h-[38px] !px-3 inline-flex items-center gap-1.5"
                 >
-                  <span aria-hidden="true" className="mr-1">
-                    ▶
-                  </span>
+                  <svg viewBox="0 0 12 12" className="h-3 w-3 shrink-0 fill-current" aria-hidden="true">
+                    <path d="M2.5 1.5l7.5 4.5-7.5 4.5z" />
+                  </svg>
                   {hasPlayed ? tr(ST.listenAgain) : tr(ST.listen)}
                 </SecondaryButton>
 
@@ -252,6 +256,6 @@ export default function Question({ step, feedback }: QuestionProps) {
           </div>
         )}
       </div>
-    </Panel>
+    </div>
   );
 }

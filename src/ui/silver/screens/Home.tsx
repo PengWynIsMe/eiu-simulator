@@ -59,19 +59,22 @@ export default function Home() {
   };
 
   return (
-    <Panel className="space-y-5">
+    <Panel className="mb-4 space-y-5 sm:mb-6">
       {/* Đầu trang: tiêu đề, mô tả mô phỏng, nút Sổ kỷ niệm */}
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4">
         <div className="min-w-0 flex-1">
           <h2 className="text-lg font-bold text-[#0b3d91] sm:text-xl">{tr(ST.title)}</h2>
           <p className="mt-1 text-[13px] leading-5 text-slate-600">{tr(ST.sim)}</p>
         </div>
-        <SecondaryButton onClick={openNotebook} className="shrink-0">
-          <span aria-hidden="true" className="mr-1.5">
-            📖
-          </span>
-          {tr(ST.notebook)}
-        </SecondaryButton>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <div data-silver-slot="home-extra" />
+          <SecondaryButton onClick={openNotebook} className="shrink-0">
+            <span aria-hidden="true" className="mr-1.5">
+              📖
+            </span>
+            {tr(ST.notebook)}
+          </SecondaryButton>
+        </div>
       </div>
 
       {/* Dải Tiếp tục khi có chương đang dở */}

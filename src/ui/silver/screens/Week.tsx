@@ -86,17 +86,17 @@ export default function Week({ exitHandlerRef }: WeekProps) {
             </span>
             {tr(ST.sDone)}
           </span>
-          <span>
-            <span aria-hidden="true" className="mr-1 font-bold text-[#0b3d91]">
-              ▶
-            </span>
+          <span className="inline-flex items-center gap-1">
+            <svg viewBox="0 0 12 12" className="h-3 w-3 shrink-0 fill-[#0b3d91]" aria-hidden="true">
+              <path d="M2.5 1.5l7.5 4.5-7.5 4.5z" />
+            </svg>
             {tr(ST.sNow)}
           </span>
           <span>{tr(ST.sLater)}</span>
         </div>
       </Panel>
 
-      <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/80 bg-white/95 p-3 shadow-lg backdrop-blur-sm sm:px-5 sm:py-3.5">
+      <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-t-2xl border border-b-0 border-slate-200/80 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg sm:px-5 sm:py-3.5">
         <p className="min-w-0 flex-1 text-[14px] font-medium text-slate-700">
           {current ? nextSessionSummary : tr(ST.weekDone)}
         </p>

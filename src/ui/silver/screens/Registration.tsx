@@ -229,7 +229,7 @@ export default function Registration({ exitHandlerRef }: RegistrationProps) {
       </Panel>
 
       {/* Chân màn dính đáy: hiện tóm tắt ở 360px + hai nút hành động */}
-      <div className="sticky bottom-0 z-10 space-y-2 rounded-2xl border border-slate-200/80 bg-white/95 p-3 shadow-lg backdrop-blur-sm sm:px-5 sm:py-3.5">
+      <div className="sticky bottom-0 z-10 space-y-2 rounded-t-2xl border border-b-0 border-slate-200/80 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg sm:px-5 sm:py-3.5">
         <div className="md:hidden" aria-live="polite">
           <p className="text-xs font-bold text-[#0b3d91]">{totalsText}</p>
           {problemText && (

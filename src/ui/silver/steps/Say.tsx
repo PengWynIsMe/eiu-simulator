@@ -5,7 +5,6 @@ import { useT } from '../../text';
 import { useTypewriter } from '../../desktop/useTypewriter';
 import { ST } from '../text';
 import Avatar, { LABEL_BY_SPEAKER } from '../parts/Avatar';
-import Panel from '../parts/Panel';
 
 interface SayProps {
   step: SayStep;
@@ -46,36 +45,6 @@ export default function Say({ step, fullyShownRef, revealRef }: SayProps) {
 
   if (step.speaker === 'narrator') {
     return (
-      <Panel className="mx-auto max-w-3xl cursor-pointer select-text" >
-        <div
-          role="button"
-          tabIndex={0}
-          onClick={skip}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              if (!isDone) {
-                e.preventDefault();
-                skip();
-              }
-            }
-          }}
-          className="max-h-[48dvh] overflow-y-auto px-2 py-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-        >
-          <p className="whitespace-pre-line text-[15px] italic leading-6 text-slate-700">
-            {displayText}
-          </p>
-          {!isDone && (
-            <p className="mt-2 text-xs font-medium text-slate-400">{tr(ST.tapReveal)}</p>
-          )}
-        </div>
-      </Panel>
-    );
-  }
-
-  const speakerLabel = tr(LABEL_BY_SPEAKER[step.speaker]);
-
-  return (
-    <Panel className="mx-auto max-w-3xl">
       <div
         role="button"
         tabIndex={0}
@@ -86,21 +55,45 @@ export default function Say({ step, fullyShownRef, revealRef }: SayProps) {
             skip();
           }
         }}
-        className="max-h-[48dvh] overflow-y-auto rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        className="w-full max-h-[48dvh] cursor-pointer select-text overflow-y-auto px-2 py-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
-        <div className="flex items-start gap-3">
-          <Avatar speaker={step.speaker} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold text-[#0b3d91]">{speakerLabel}</p>
-            <p className="mt-1 whitespace-pre-line text-[15px] leading-6 text-slate-800">
-              {displayText}
-            </p>
-            {!isDone && (
-              <p className="mt-2 text-xs font-medium text-slate-400">{tr(ST.tapReveal)}</p>
-            )}
-          </div>
+        <p className="whitespace-pre-line text-[15px] italic leading-6 text-slate-700">
+          {displayText}
+        </p>
+        {!isDone && (
+          <p className="mt-2 text-xs font-medium text-slate-400">{tr(ST.tapReveal)}</p>
+        )}
+      </div>
+    );
+  }
+
+  const speakerLabel = tr(LABEL_BY_SPEAKER[step.speaker]);
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={skip}
+      onKeyDown={(e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && !isDone) {
+          e.preventDefault();
+          skip();
+        }
+      }}
+      className="w-full max-h-[48dvh] cursor-pointer overflow-y-auto rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+    >
+      <div className="flex items-start gap-3">
+        <Avatar speaker={step.speaker} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-[#0b3d91]">{speakerLabel}</p>
+          <p className="mt-1 whitespace-pre-line text-[15px] leading-6 text-slate-800">
+            {displayText}
+          </p>
+          {!isDone && (
+            <p className="mt-2 text-xs font-medium text-slate-400">{tr(ST.tapReveal)}</p>
+          )}
         </div>
       </div>
-    </Panel>
+    </div>
   );
 }

@@ -128,9 +128,13 @@ export default function WeekGrid({ meetings, names }: WeekGridProps) {
                           </span>
                         )}
                         {isCurrent && (
-                          <span aria-hidden="true" className="font-bold text-[#0b3d91]">
-                            ▶
-                          </span>
+                          <svg
+                            viewBox="0 0 12 12"
+                            className="mt-0.5 h-3 w-3 shrink-0 fill-[#0b3d91]"
+                            aria-hidden="true"
+                          >
+                            <path d="M2.5 1.5l7.5 4.5-7.5 4.5z" />
+                          </svg>
                         )}
                       </div>
                       <p className="mt-0.5 text-[11px] font-medium text-slate-700">
@@ -189,9 +193,13 @@ export default function WeekGrid({ meetings, names }: WeekGridProps) {
                         </span>
                       )}
                       {m.current && (
-                        <span aria-hidden="true" className="shrink-0 font-bold text-[#0b3d91]">
-                          ▶
-                        </span>
+                        <svg
+                          viewBox="0 0 12 12"
+                          className="h-3 w-3 shrink-0 fill-[#0b3d91]"
+                          aria-hidden="true"
+                        >
+                          <path d="M2.5 1.5l7.5 4.5-7.5 4.5z" />
+                        </svg>
                       )}
                     </li>
                   );
