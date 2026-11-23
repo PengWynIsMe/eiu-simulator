@@ -1,0 +1,781 @@
+{
+ "chapters": [
+  {
+   "id": "entrance",
+   "title": {
+    "vi": "Ngày kiểm tra đầu vào",
+    "en": "Placement test day"
+   },
+   "subtitle": {
+    "vi": "Trước ngày nhập học",
+    "en": "Before the first term"
+   },
+   "minutes": 8,
+   "status": "done"
+  },
+  {
+   "id": "1.1",
+   "title": {
+    "vi": "Năm 1 · Kỳ 1 — Level 1",
+    "en": "Year 1 · Term 1 — Level 1"
+   },
+   "subtitle": {
+    "vi": "Anh văn, Triết học, thể chất",
+    "en": "English, Philosophy, PE"
+   },
+   "minutes": 12,
+   "status": "in-progress"
+  },
+  {
+   "id": "2.2",
+   "title": {
+    "vi": "Năm 2 · Kỳ 2 — Vào chuyên ngành",
+    "en": "Year 2 · Term 2 — Into the major"
+   },
+   "subtitle": {
+    "vi": "Trọng tâm: CSE 103",
+    "en": "Focus: CSE 103"
+   },
+   "minutes": 31,
+   "status": "new"
+  },
+  {
+   "id": "2.3",
+   "title": {
+    "vi": "Năm 2 · Kỳ 3",
+    "en": "Year 2 · Term 3"
+   },
+   "subtitle": {
+    "vi": "Trọng tâm: CSE 104",
+    "en": "Focus: CSE 104"
+   },
+   "minutes": 30,
+   "status": "coming-soon"
+  }
+ ],
+ "recap": {
+  "chapterId": "2.2",
+  "text": {
+   "vi": "Bạn đã qua năm level Anh văn và đạt IELTS 6.0 trong câu chuyện. Giờ bắt đầu môn chuyên ngành.",
+   "en": "In this story you have finished five English levels and reached IELTS 6.0. Your major courses start now."
+  }
+ },
+ "registration": {
+  "chapterId": "2.2",
+  "rows": [
+   {
+    "code": "CSE 103",
+    "name": {
+     "vi": "Lập trình và giải quyết vấn đề I",
+     "en": "Programming and Problem Solving I"
+    },
+    "credits": 4,
+    "lab": true,
+    "tier": "core",
+    "selected": true,
+    "locked": true,
+    "suggested": true,
+    "status": {
+     "code": "available",
+     "missing": []
+    }
+   },
+   {
+    "code": "MATH 112",
+    "name": {
+     "vi": "Giải tích II",
+     "en": "Calculus II"
+    },
+    "credits": 4,
+    "lab": false,
+    "tier": "summary",
+    "selected": true,
+    "locked": false,
+    "suggested": true,
+    "status": {
+     "code": "available",
+     "missing": []
+    }
+   },
+   {
+    "code": "POLS 135",
+    "name": {
+     "vi": "Chủ nghĩa xã hội khoa học",
+     "en": "Scientific Socialism"
+    },
+    "credits": 3,
+    "lab": false,
+    "tier": "summary",
+    "selected": true,
+    "locked": false,
+    "suggested": true,
+    "status": {
+     "code": "available",
+     "missing": []
+    }
+   },
+   {
+    "code": "COMS 101",
+    "name": {
+     "vi": "Kỹ năng giao tiếp",
+     "en": "Communication Skills"
+    },
+    "credits": 4,
+    "lab": false,
+    "tier": "summary",
+    "selected": true,
+    "locked": false,
+    "suggested": true,
+    "status": {
+     "code": "available",
+     "missing": []
+    }
+   },
+   {
+    "code": "CSE 204",
+    "name": {
+     "vi": "Mạng máy tính",
+     "en": "Computer Networks"
+    },
+    "credits": 4,
+    "lab": true,
+    "tier": "quick",
+    "selected": false,
+    "locked": false,
+    "suggested": false,
+    "status": {
+     "code": "available",
+     "missing": []
+    }
+   },
+   {
+    "code": "STAT 101",
+    "name": {
+     "vi": "Xác suất thống kê",
+     "en": "Statistics and Probability"
+    },
+    "credits": 4,
+    "lab": false,
+    "tier": "quick",
+    "selected": false,
+    "locked": false,
+    "suggested": false,
+    "status": {
+     "code": "available",
+     "missing": []
+    }
+   },
+   {
+    "code": "MATH 113",
+    "name": {
+     "vi": "Giải tích III",
+     "en": "Calculus III"
+    },
+    "credits": 4,
+    "lab": false,
+    "tier": "quick",
+    "selected": false,
+    "locked": false,
+    "suggested": false,
+    "status": {
+     "code": "missing-prereq",
+     "missing": [
+      "MATH 112"
+     ]
+    }
+   },
+   {
+    "code": "CSE 206",
+    "name": {
+     "vi": "Kiến trúc và cấu tạo máy tính",
+     "en": "Computer Architecture and Organization"
+    },
+    "credits": 4,
+    "lab": true,
+    "tier": "quick",
+    "selected": false,
+    "locked": false,
+    "suggested": false,
+    "status": {
+     "code": "no-content",
+     "missing": []
+    }
+   },
+   {
+    "code": "CSW 436",
+    "name": {
+     "vi": "Cơ sở dữ liệu nâng cao",
+     "en": "Advanced Databases"
+    },
+    "credits": 4,
+    "lab": true,
+    "tier": "quick",
+    "selected": false,
+    "locked": false,
+    "suggested": false,
+    "status": {
+     "code": "needs-confirmation",
+     "missing": [
+      "CSN 301"
+     ]
+    }
+   },
+   {
+    "code": "CSE 100",
+    "name": {
+     "vi": "Nhập môn Công nghệ thông tin",
+     "en": "Introduction to Computing"
+    },
+    "credits": 4,
+    "lab": true,
+    "tier": "quick",
+    "selected": false,
+    "locked": false,
+    "suggested": false,
+    "status": {
+     "code": "done",
+     "missing": []
+    }
+   }
+  ],
+  "credits": 15,
+  "minutes": 31,
+  "maxCourses": 6,
+  "problem": null,
+  "meetings": [
+   {
+    "code": "CSE 103",
+    "kind": "lab",
+    "day": 0,
+    "slot": 0,
+    "length": 2
+   },
+   {
+    "code": "MATH 112",
+    "kind": "theoryA",
+    "day": 1,
+    "slot": 0,
+    "length": 1
+   },
+   {
+    "code": "POLS 135",
+    "kind": "theoryA",
+    "day": 1,
+    "slot": 1,
+    "length": 1
+   },
+   {
+    "code": "CSE 103",
+    "kind": "theoryA",
+    "day": 2,
+    "slot": 0,
+    "length": 1
+   },
+   {
+    "code": "COMS 101",
+    "kind": "theoryA",
+    "day": 2,
+    "slot": 1,
+    "length": 1
+   },
+   {
+    "code": "MATH 112",
+    "kind": "theoryB",
+    "day": 3,
+    "slot": 0,
+    "length": 1
+   },
+   {
+    "code": "POLS 135",
+    "kind": "theoryB",
+    "day": 3,
+    "slot": 1,
+    "length": 1
+   },
+   {
+    "code": "CSE 103",
+    "kind": "theoryB",
+    "day": 4,
+    "slot": 0,
+    "length": 1
+   },
+   {
+    "code": "COMS 101",
+    "kind": "theoryB",
+    "day": 4,
+    "slot": 1,
+    "length": 1
+   }
+  ]
+ },
+ "week": {
+  "chapterId": "2.2",
+  "meetings": [
+   {
+    "code": "CSE 103",
+    "kind": "lab",
+    "day": 0,
+    "slot": 0,
+    "length": 2,
+    "done": true,
+    "current": false
+   },
+   {
+    "code": "MATH 112",
+    "kind": "theoryA",
+    "day": 1,
+    "slot": 0,
+    "length": 1,
+    "done": true,
+    "current": false
+   },
+   {
+    "code": "POLS 135",
+    "kind": "theoryA",
+    "day": 1,
+    "slot": 1,
+    "length": 1,
+    "done": false,
+    "current": true
+   },
+   {
+    "code": "CSE 103",
+    "kind": "theoryA",
+    "day": 2,
+    "slot": 0,
+    "length": 1,
+    "done": false,
+    "current": false
+   },
+   {
+    "code": "COMS 101",
+    "kind": "theoryA",
+    "day": 2,
+    "slot": 1,
+    "length": 1,
+    "done": false,
+    "current": false
+   },
+   {
+    "code": "MATH 112",
+    "kind": "theoryB",
+    "day": 3,
+    "slot": 0,
+    "length": 1,
+    "done": false,
+    "current": false
+   },
+   {
+    "code": "POLS 135",
+    "kind": "theoryB",
+    "day": 3,
+    "slot": 1,
+    "length": 1,
+    "done": false,
+    "current": false
+   },
+   {
+    "code": "CSE 103",
+    "kind": "theoryB",
+    "day": 4,
+    "slot": 0,
+    "length": 1,
+    "done": false,
+    "current": false
+   },
+   {
+    "code": "COMS 101",
+    "kind": "theoryB",
+    "day": 4,
+    "slot": 1,
+    "length": 1,
+    "done": false,
+    "current": false
+   }
+  ],
+  "names": {
+   "CSE 103": {
+    "vi": "Lập trình và giải quyết vấn đề I",
+    "en": "Programming and Problem Solving I"
+   },
+   "MATH 112": {
+    "vi": "Giải tích II",
+    "en": "Calculus II"
+   },
+   "POLS 135": {
+    "vi": "Chủ nghĩa xã hội khoa học",
+    "en": "Scientific Socialism"
+   },
+   "COMS 101": {
+    "vi": "Kỹ năng giao tiếp",
+    "en": "Communication Skills"
+   }
+  }
+ },
+ "playItem": {
+  "id": "session:CSE 103:lab:0",
+  "kind": "session",
+  "scene": {
+   "id": "CSE 103/lab-1",
+   "title": {
+    "vi": "Chương trình đầu tiên",
+    "en": "Your first program"
+   },
+   "place": "406.B8",
+   "minutes": 3,
+   "steps": [
+    {
+     "id": "s1",
+     "type": "say",
+     "speaker": "han",
+     "text": {
+      "vi": "Chào bạn, mình là Han. Máy của bạn biết chào rồi kìa!",
+      "en": "Hi, I'm Han. Look, your computer just said hello!"
+     },
+     "variants": [
+      {
+       "when": {
+        "seen": "1.1/greet-han"
+       },
+       "text": {
+        "vi": "Hồi đó tập chào nhau, giờ tới lượt máy chào tụi mình.",
+        "en": "Back then we practised greeting each other. Now it's the computer's turn to greet us."
+       }
+      }
+     ]
+    },
+    {
+     "id": "s2",
+     "type": "choice",
+     "speaker": "han",
+     "text": {
+      "vi": "Bạn muốn ngồi máy nào?",
+      "en": "Which computer would you like?"
+     },
+     "options": [
+      {
+       "id": "window",
+       "text": {
+        "vi": "Máy cạnh cửa sổ.",
+        "en": "The one by the window."
+       },
+       "reply": {
+        "vi": "Sáng ghê, mình ngồi cạnh nhé.",
+        "en": "So bright. I'll sit next to you."
+       }
+      },
+      {
+       "id": "front",
+       "text": {
+        "vi": "Máy hàng đầu.",
+        "en": "The one in the front row."
+       },
+       "reply": {
+        "vi": "Gần bảng, dễ nhìn.",
+        "en": "Close to the board, easy to see."
+       }
+      }
+     ],
+     "flag": "2.2/seat"
+    },
+    {
+     "id": "s3",
+     "type": "slide",
+     "title": {
+      "vi": "In chữ ra màn hình",
+      "en": "Printing text"
+     },
+     "body": {
+      "vi": "println in một dòng chữ rồi xuống dòng.",
+      "en": "println prints one line of text and moves to the next line."
+     },
+     "code": "System.out.println(\"Hello EIU\");"
+    },
+    {
+     "id": "s4",
+     "type": "question",
+     "prompt": {
+      "vi": "Đoạn code này in ra gì?",
+      "en": "What does this code print?"
+     },
+     "code": "for (int i = 0; i < 3; i++) {\n    System.out.print(i);\n}",
+     "options": [
+      {
+       "id": "a",
+       "text": {
+        "vi": "012",
+        "en": "012"
+       }
+      },
+      {
+       "id": "b",
+       "text": {
+        "vi": "123",
+        "en": "123"
+       }
+      },
+      {
+       "id": "c",
+       "text": {
+        "vi": "0123",
+        "en": "0123"
+       }
+      }
+     ],
+     "answerId": "a",
+     "explainCorrect": {
+      "vi": "Đúng. i chạy 0, 1, 2.",
+      "en": "Correct. i goes 0, 1, 2."
+     },
+     "explainWrong": {
+      "vi": "Chưa đúng. i bắt đầu từ 0 và dừng trước 3.",
+      "en": "Not yet. i starts at 0 and stops before 3."
+     }
+    },
+    {
+     "id": "s5",
+     "type": "question",
+     "prompt": {
+      "vi": "Buổi học bắt đầu lúc mấy giờ?",
+      "en": "What time does the class start?"
+     },
+     "passage": {
+      "vi": "A: Is the English class at eight? B: No, it starts at nine on Monday.",
+      "en": "A: Is the English class at eight? B: No, it starts at nine on Monday."
+     },
+     "passageKind": "listening",
+     "options": [
+      {
+       "id": "8",
+       "text": {
+        "vi": "8 giờ",
+        "en": "8 o'clock"
+       }
+      },
+      {
+       "id": "9",
+       "text": {
+        "vi": "9 giờ",
+        "en": "9 o'clock"
+       }
+      }
+     ],
+     "answerId": "9",
+     "explainCorrect": {
+      "vi": "Đúng, lớp bắt đầu lúc 9 giờ thứ Hai.",
+      "en": "Correct, it starts at nine on Monday."
+     },
+     "explainWrong": {
+      "vi": "Nghe lại câu của B nhé.",
+      "en": "Listen to B's reply again."
+     }
+    },
+    {
+     "id": "s6",
+     "type": "order",
+     "prompt": {
+      "vi": "Sắp các câu thành lời giới thiệu.",
+      "en": "Put the sentences in order to introduce yourself."
+     },
+     "items": [
+      {
+       "id": "x",
+       "text": {
+        "vi": "I am a new student at EIU.",
+        "en": "I am a new student at EIU."
+       }
+      },
+      {
+       "id": "y",
+       "text": {
+        "vi": "Hello everyone.",
+        "en": "Hello everyone."
+       }
+      },
+      {
+       "id": "z",
+       "text": {
+        "vi": "Nice to meet you.",
+        "en": "Nice to meet you."
+       }
+      }
+     ],
+     "answer": [
+      "y",
+      "x",
+      "z"
+     ],
+     "explainCorrect": {
+      "vi": "Đúng thứ tự rồi.",
+      "en": "That is the right order."
+     },
+     "explainWrong": {
+      "vi": "Bắt đầu bằng câu chào nhé.",
+      "en": "Start with the greeting."
+     }
+    },
+    {
+     "id": "s7",
+     "type": "code",
+     "title": {
+      "vi": "Chào EIU",
+      "en": "Hello EIU"
+     },
+     "instruction": {
+      "vi": "Điền tên lệnh còn thiếu.",
+      "en": "Fill in the missing command."
+     },
+     "template": "public class Main {\n    public static void main(String[] args) {\n        System.out.___(\"Hello EIU\");\n    }\n}",
+     "answers": [
+      "println",
+      "print"
+     ],
+     "outputCorrect": "Hello EIU",
+     "outputWrong": "error: cannot find symbol",
+     "hint": {
+      "vi": "Tên lệnh là print + ln.",
+      "en": "The command is print + ln."
+     },
+     "explainWrong": {
+      "vi": "Java không biết lệnh này.",
+      "en": "Java does not know this command."
+     }
+    }
+   ]
+  },
+  "courseCode": "CSE 103",
+  "meeting": {
+   "code": "CSE 103",
+   "kind": "lab",
+   "day": 0,
+   "slot": 0,
+   "length": 2
+  },
+  "minutes": 3
+ },
+ "transcript": {
+  "level": 1,
+  "listening": "B",
+  "reading": "B",
+  "writing": "C",
+  "speaking": "C"
+ },
+ "memory": {
+  "chapterId": "1.1",
+  "title": {
+   "vi": "Năm 1 · Kỳ 1 — Level 1",
+   "en": "Year 1 · Term 1 — Level 1"
+  },
+  "stamp": {
+   "vi": "LEVEL 1",
+   "en": "LEVEL 1"
+  },
+  "photo": {
+   "id": "class",
+   "caption": {
+    "vi": "Giờ học đầu tiên cùng Han",
+    "en": "First class with Han"
+   }
+  },
+  "photoChoices": [
+   {
+    "id": "class",
+    "caption": {
+     "vi": "Giờ học đầu tiên cùng Han",
+     "en": "First class with Han"
+    }
+   },
+   {
+    "id": "yard",
+    "caption": {
+     "vi": "Giờ thể chất đầu tiên",
+     "en": "First PE class"
+    }
+   }
+  ],
+  "line": {
+   "id": "warm",
+   "text": {
+    "vi": "\"Nice to meet you\" — và mình đã có bạn.",
+    "en": "\"Nice to meet you\" — and I made a friend."
+   }
+  },
+  "courses": [
+   {
+    "code": "POLS 133",
+    "name": {
+     "vi": "Triết học Mác – Lênin",
+     "en": "Philosophy of Marxism and Leninism"
+    }
+   }
+  ],
+  "activities": [
+   {
+    "vi": "Giờ thể chất",
+    "en": "PE class"
+   }
+  ],
+  "hasOld": false,
+  "savedAt": null
+ },
+ "notebook": [
+  {
+   "chapterId": "1.1",
+   "title": {
+    "vi": "Năm 1 · Kỳ 1 — Level 1",
+    "en": "Year 1 · Term 1 — Level 1"
+   },
+   "stamp": {
+    "vi": "LEVEL 1",
+    "en": "LEVEL 1"
+   },
+   "photo": {
+    "id": "class",
+    "caption": {
+     "vi": "Giờ học đầu tiên cùng Han",
+     "en": "First class with Han"
+    }
+   },
+   "photoChoices": [
+    {
+     "id": "class",
+     "caption": {
+      "vi": "Giờ học đầu tiên cùng Han",
+      "en": "First class with Han"
+     }
+    },
+    {
+     "id": "yard",
+     "caption": {
+      "vi": "Giờ thể chất đầu tiên",
+      "en": "First PE class"
+     }
+    }
+   ],
+   "line": {
+    "id": "warm",
+    "text": {
+     "vi": "\"Nice to meet you\" — và mình đã có bạn.",
+     "en": "\"Nice to meet you\" — and I made a friend."
+    }
+   },
+   "courses": [
+    {
+     "code": "POLS 133",
+     "name": {
+      "vi": "Triết học Mác – Lênin",
+      "en": "Philosophy of Marxism and Leninism"
+     }
+    }
+   ],
+   "activities": [
+    {
+     "vi": "Giờ thể chất",
+     "en": "PE class"
+    }
+   ],
+   "hasOld": true,
+   "savedAt": "2026-11-23T08:00:00.000Z"
+  }
+ ]
+}

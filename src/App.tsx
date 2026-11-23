@@ -7,6 +7,7 @@ import ReviewPanel from './ui/ReviewPanel';
 import WalkHud from './ui/walk/WalkHud';
 import InteriorHud from './ui/interior/InteriorHud';
 import LessonLayer from './ui/lesson/LessonLayer';
+import SilverLayer from './ui/silver/SilverLayer';
 import BuildingPanel from './ui/BuildingPanel';
 import SnowIntroOverlay from './ui/snow/SnowIntroOverlay';
 import { useWalkStore } from './store/useWalkStore';
@@ -70,6 +71,7 @@ export default function App() {
       {/* T12 — nội thất: nút vào/ra, chọn tầng thang máy, thẻ phòng */}
       {!isCinematicActive && <InteriorHud />}
       {!isCinematicActive && <LessonLayer />}
+      {!isCinematicActive && <SilverLayer />}
     </div>
   );
 }

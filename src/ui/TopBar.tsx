@@ -5,6 +5,8 @@ import { useWalkStore } from '../store/useWalkStore';
 import { useLessonStore } from '../store/useLessonStore';
 import { useLessonUi } from './lesson/lessonUi';
 import { useSnowStore } from '../store/useSnowStore';
+import { useSilver } from './silver/adapter';
+import { ST } from './silver/text';
 
 /** Nút thanh trên: vuông 32 px (chỉ icon) trên điện thoại, nút có chữ từ sm. */
 const BTN =
@@ -116,6 +118,24 @@ export default function TopBar() {
             >
               <span className="text-base leading-none sm:hidden">📚</span>
               <span className="hidden sm:inline">{tr(UI_TEXT.lessonOpenBtn)}</span>
+            </button>
+          )}
+
+          {/* Nút IT Silver */}
+          {lessonIdle && !reviewMode && (
+            <button
+              type="button"
+              data-silver-trigger="true"
+              onClick={() => {
+                useWalkStore.getState().exitWalkMode();
+                useSilver.getState().openHome();
+              }}
+              aria-label={tr(ST.open)}
+              className={`${BTN} bg-white/85 text-slate-700 hover:bg-white hover:text-slate-900 backdrop-blur-sm`}
+              title={tr(ST.open)}
+            >
+              <span className="text-base leading-none sm:hidden">🎓</span>
+              <span className="hidden sm:inline">{tr(ST.open)}</span>
             </button>
           )}
 
