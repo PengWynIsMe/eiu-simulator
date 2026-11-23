@@ -15,6 +15,8 @@ import ReviewPins from './ReviewPins';
 import WalkMode from './walk/WalkMode';
 import InteriorScene from './interior/InteriorScene';
 import CampusNpcs from './npc/CampusNpcs';
+import SnowParticles from './snow/SnowParticles';
+import SnowCinematicCamera from './snow/SnowCinematicCamera';
 import { campus } from '../data';
 import { useWalkStore } from '../store/useWalkStore';
 
@@ -51,6 +53,8 @@ export default function Campus() {
       <ReviewPins />
       <CampusNpcs />
       {walkMode ? <WalkMode /> : <CameraRig />}
+      <SnowParticles />
+      <SnowCinematicCamera />
     </>
   );
 }

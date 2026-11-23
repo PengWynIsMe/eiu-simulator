@@ -11,6 +11,7 @@ import {
 import { useFrame } from '@react-three/fiber';
 import { GRASS } from '../groundLevels';
 import { windTime } from './wind';
+import { useSnowStore } from '../../store/useSnowStore';
 
 /** Số lá tối đa (ngân sách PLAN mục 5). */
 export const LEAF_COUNT = 300;
@@ -122,7 +123,13 @@ export default function FallingLeaves() {
     [assets],
   );
 
+  const isSnowing = useSnowStore((s) => s.isSnowing);
+
   useFrame(({ camera }) => {
+    if (isSnowing) {
+      if (assets.mesh.visible) assets.mesh.visible = false;
+      return;
+    }
     const show = camera.position.y < HIDE_ABOVE_Y;
     if (assets.mesh.visible !== show) assets.mesh.visible = show;
     if (!show) return;

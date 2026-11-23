@@ -4,6 +4,8 @@ import { useReviewStore } from '../store/useReviewStore';
 import { useWalkStore } from '../store/useWalkStore';
 import { useLessonStore } from '../store/useLessonStore';
 import { useLessonUi } from './lesson/lessonUi';
+import { useSnowStore } from '../store/useSnowStore';
+import { SNOW_TEXT } from './snowText';
 
 export default function TopBar() {
   const tr = useT();
@@ -20,6 +22,13 @@ export default function TopBar() {
   const scheduleOpen = useLessonUi((s) => s.scheduleOpen);
   const toggleSchedule = useLessonUi((s) => s.toggleSchedule);
 
+  const isSnowing = useSnowStore((s) => s.isSnowing);
+  const toggleSnow = useSnowStore((s) => s.toggleSnow);
+  const startCinematic = useSnowStore((s) => s.startCinematic);
+  const lang = useSnowStore((s) => s.lang);
+  const toggleLang = useSnowStore((s) => s.toggleLang);
+  const snowText = SNOW_TEXT[lang];
+
   return (
     <>
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex flex-wrap items-center justify-between gap-2 p-3 sm:p-4">
@@ -29,6 +38,45 @@ export default function TopBar() {
 
         <div className="pointer-events-auto flex flex-wrap items-center justify-end gap-2">
           <LangToggle />
+          {/* Nút Tuyết rơi */}
+          <button
+            type="button"
+            onClick={() => toggleSnow()}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all shadow ${
+              isSnowing
+                ? 'bg-sky-600 text-white ring-2 ring-sky-300'
+                : 'bg-white/85 text-slate-700 hover:bg-white hover:text-slate-900 backdrop-blur-sm'
+            }`}
+            title={isSnowing ? snowText.snowBtnActive : snowText.snowBtnTip}
+          >
+            <span className="text-base leading-none">❄️</span>
+            <span>{isSnowing ? snowText.snowBtnActive : snowText.snowBtn}</span>
+          </button>
+
+          {/* Nếu đang ở chế độ tuyết, thêm nút xem lại mở đầu & đổi ngôn ngữ */}
+          {isSnowing && (
+            <>
+              <button
+                type="button"
+                onClick={startCinematic}
+                className="hidden md:flex items-center gap-1 rounded-lg bg-sky-50 px-2.5 py-1.5 text-xs font-semibold text-sky-800 border border-sky-300 shadow backdrop-blur-sm hover:bg-sky-100 transition-all"
+                title={snowText.replayIntro}
+              >
+                <span>🎬</span>
+                <span>{snowText.replayIntro}</span>
+              </button>
+              <button
+                type="button"
+                onClick={toggleLang}
+                className="flex items-center gap-1 rounded-lg bg-white/85 px-2.5 py-1.5 text-xs font-semibold text-slate-700 border border-slate-300 shadow backdrop-blur-sm hover:bg-white transition-all"
+                title={snowText.langToggle}
+              >
+                <span>🌐</span>
+                <span>{snowText.langToggle}</span>
+              </button>
+            </>
+          )}
+
           {/* Nút Đi bộ */}
           <button
             type="button"

@@ -8,12 +8,15 @@ import WalkHud from './ui/walk/WalkHud';
 import InteriorHud from './ui/interior/InteriorHud';
 import LessonLayer from './ui/lesson/LessonLayer';
 import BuildingPanel from './ui/BuildingPanel';
+import SnowIntroOverlay from './ui/snow/SnowIntroOverlay';
 import { useWalkStore } from './store/useWalkStore';
 import { useReviewStore } from './store/useReviewStore';
+import { useSnowStore } from './store/useSnowStore';
 
 export default function App() {
   const reviewMode = useReviewStore((s) => s.reviewMode);
   const walkMode = useWalkStore((s) => s.walkMode);
+  const isCinematicActive = useSnowStore((s) => s.isCinematicActive);
 
   useEffect(() => {
     void useReviewStore.getState().load();
@@ -43,14 +46,15 @@ export default function App() {
       >
         <Campus />
       </Canvas>
-      <TopBar />
-      {reviewMode && <ReviewPanel />}
-      {!reviewMode && !walkMode && <BuildingPanel />}
+      <SnowIntroOverlay />
+      {!isCinematicActive && <TopBar />}
+      {!isCinematicActive && reviewMode && <ReviewPanel />}
+      {!isCinematicActive && !reviewMode && !walkMode && <BuildingPanel />}
       {/* Luồng C (T09) — giữ nguyên dòng này */}
-      <WalkHud />
+      {!isCinematicActive && <WalkHud />}
       {/* T12 — nội thất: nút vào/ra, chọn tầng thang máy, thẻ phòng */}
-      <InteriorHud />
-      <LessonLayer />
+      {!isCinematicActive && <InteriorHud />}
+      {!isCinematicActive && <LessonLayer />}
     </div>
   );
 }

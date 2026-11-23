@@ -5,6 +5,7 @@ import { campus } from '../data';
 import type { Vec2 } from '../types';
 import { useReviewStore } from '../store/useReviewStore';
 import { useCampusStore } from '../store/useCampusStore';
+import { useSnowStore } from '../store/useSnowStore';
 import { getCameraPose } from './cameraUtils';
 import { FOOTWAY, FOOTWAY_WIDTH, GRASS, INTERNAL, PARKING, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUNDABOUT_ROAD, ROUNDABOUT_ROAD_WIDTH, STREET, STREET_LANE_WIDTH, GROUND, BRIDGE_WIDTH } from './groundLevels';
 import {
@@ -24,6 +25,7 @@ function toShapePoints(pts: Vec2[]): [number, number][] {
 export default function Ground() {
   const { layout } = campus;
   const { camera, controls } = useThree();
+  const isSnowing = useSnowStore((s) => s.isSnowing);
 
   // Đa giác ranh giới khuôn viên (màu cỏ bên trong tươi hơn)
   const boundaryShape = useMemo(() => {
@@ -159,14 +161,14 @@ export default function Ground() {
       {/* 1. Đất cỏ lớn xung quanh (~2400m) — y = 0 */}
       <mesh rotation-x={-Math.PI / 2} position-y={GROUND} receiveShadow>
         <planeGeometry args={[2400, 2400]} />
-        <meshStandardMaterial color="#b2c9a6" roughness={0.9} />
+        <meshStandardMaterial color={isSnowing ? '#dce5ee' : '#b2c9a6'} roughness={0.9} />
       </mesh>
 
       {/* 2. Cỏ bên trong ranh giới trường EIU — y = 0.15 */}
       <mesh rotation-x={-Math.PI / 2} position-y={GRASS} receiveShadow>
         <shapeGeometry args={[boundaryShape]} />
         <meshStandardMaterial
-          color="#9ec08d"
+          color={isSnowing ? '#edf4fa' : '#9ec08d'}
           roughness={0.9}
           polygonOffset
           polygonOffsetFactor={-1}
@@ -179,7 +181,7 @@ export default function Ground() {
         <mesh key={i} rotation-x={-Math.PI / 2} position-y={PARKING} receiveShadow>
           <shapeGeometry args={[shape]} />
           <meshStandardMaterial
-            color="#6f747d"
+            color={isSnowing ? '#4e545f' : '#6f747d'}
             roughness={0.8}
             polygonOffset
             polygonOffsetFactor={-2}
@@ -192,7 +194,7 @@ export default function Ground() {
       <mesh rotation-x={-Math.PI / 2} position-y={ROUNDABOUT_GRASS} receiveShadow>
         <circleGeometry args={[rbInner, 96]} />
         <meshStandardMaterial
-          color="#91b681"
+          color={isSnowing ? '#edf2f7' : '#91b681'}
           roughness={0.9}
           polygonOffset
           polygonOffsetFactor={-2}
@@ -243,7 +245,7 @@ export default function Ground() {
       {/* 7b. Bó vỉa 0.2 m × 0.15 m dọc 2 mép đường nội bộ */}
       {surfaces.kerbGeo && (
         <mesh geometry={surfaces.kerbGeo} receiveShadow>
-          <meshStandardMaterial color="#b9bcc0" roughness={0.9} />
+          <meshStandardMaterial color={isSnowing ? '#dbe0e6' : '#b9bcc0'} roughness={0.9} />
         </mesh>
       )}
 

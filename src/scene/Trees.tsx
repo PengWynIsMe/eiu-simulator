@@ -13,6 +13,7 @@ import { b11ToLocal } from './interior/layouts/b11';
 import SalixAlbaTrees, { type SalixAlbaInstance } from './trees/SalixAlbaTrees';
 import { isPointInPond } from './zone1/pondLayout';
 import { applyWind } from './nature/wind';
+import { useSnowStore } from '../store/useSnowStore';
 
 /** Bộ sinh số giả ngẫu nhiên có hạt giống cố định (Mulberry32) để vị trí không đổi mỗi lần render. */
 function createPrng(seed: number) {
@@ -278,6 +279,7 @@ export default function Trees() {
 
   const trunkRef = useRef<InstancedMesh>(null);
   const canopyRef = useRef<InstancedMesh>(null);
+  const isSnowing = useSnowStore((s) => s.isSnowing);
 
   useLayoutEffect(() => {
     const trunkMesh = trunkRef.current;
@@ -286,6 +288,7 @@ export default function Trees() {
 
     const dummy = new Object3D();
     const col = new Color();
+    const snowTint = new Color('#e2eef8');
 
     genericTrees.forEach((t, i) => {
       dummy.position.set(t.x, 0, t.z);
@@ -297,6 +300,9 @@ export default function Trees() {
       canopyMesh.setMatrixAt(i, dummy.matrix);
 
       col.set(t.color);
+      if (isSnowing) {
+        col.lerp(snowTint, 0.55);
+      }
       canopyMesh.setColorAt(i, col);
     });
 
@@ -305,7 +311,7 @@ export default function Trees() {
     if (canopyMesh.instanceColor) {
       canopyMesh.instanceColor.needsUpdate = true;
     }
-  }, [genericTrees]);
+  }, [genericTrees, isSnowing]);
 
   return (
     <group>

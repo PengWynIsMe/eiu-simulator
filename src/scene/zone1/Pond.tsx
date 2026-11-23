@@ -2,8 +2,10 @@ import { useMemo } from 'react';
 import { BoxGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { POND_BASINS, POND_ROTATION_Y } from './pondLayout';
+import { useSnowStore } from '../../store/useSnowStore';
 
 export default function Pond() {
+  const isSnowing = useSnowStore((s) => s.isSnowing);
   const { rimGeometry, waterGeometry, basinFloorGeometry } = useMemo(() => {
     const rimGeos: BufferGeometry[] = [];
     const waterGeos: BufferGeometry[] = [];
@@ -73,18 +75,18 @@ export default function Pond() {
         <meshStandardMaterial color="#0284c7" roughness={0.7} />
       </mesh>
 
-      {/* Mặt nước xanh ngọc phẳng, hơi phản chiếu */}
+      {/* Mặt nước xanh ngọc phẳng / đóng băng khi tuyết rơi */}
       <mesh geometry={waterGeometry} receiveShadow>
         <meshStandardMaterial
-          color="#06b6d4"
-          roughness={0.12}
-          metalness={0.15}
+          color={isSnowing ? '#93c5fd' : '#06b6d4'}
+          roughness={isSnowing ? 0.35 : 0.12}
+          metalness={isSnowing ? 0.05 : 0.15}
         />
       </mesh>
 
       {/* Thành hồ bê tông cao 0.6m so với mặt đất */}
       <mesh geometry={rimGeometry} castShadow receiveShadow>
-        <meshStandardMaterial color="#cbd5e1" roughness={0.6} />
+        <meshStandardMaterial color={isSnowing ? '#e2e8f0' : '#cbd5e1'} roughness={0.6} />
       </mesh>
     </group>
   );

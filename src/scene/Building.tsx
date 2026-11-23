@@ -6,6 +6,7 @@ import { useThree, type ThreeEvent } from '@react-three/fiber';
 import type { Building, Vec2 } from '../types';
 import { useCampusStore } from '../store/useCampusStore';
 import { useReviewStore } from '../store/useReviewStore';
+import { useSnowStore } from '../store/useSnowStore';
 import { getCameraPose } from './cameraUtils';
 import BlockFacade from './kit/BlockFacade';
 import TwinWingBlock from './kit/TwinWingBlock';
@@ -85,6 +86,7 @@ interface BuildingSubProps {
 /** Tòa nhà dựng mức 1 cơ bản: khối đùn phẳng và mái chìa xám sáng */
 function StandardBuildingBlock({ building, isHovered, isSelected }: BuildingSubProps) {
   const { kind, height, color, shape: buildingShape } = building;
+  const isSnowing = useSnowStore((s) => s.isSnowing);
 
   const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
   const emissiveIntensity = isSelected ? 0.35 : isHovered ? 0.2 : 0;
@@ -180,7 +182,7 @@ function StandardBuildingBlock({ building, isHovered, isSelected }: BuildingSubP
         {/* Mái tôn nhà xe */}
         <mesh geometry={parkingData.roofGeo} rotation-x={-Math.PI / 2} position-y={3.15} castShadow receiveShadow>
           <meshStandardMaterial
-            color="#949da6"
+            color={isSnowing ? '#eef2f6' : '#949da6'}
             metalness={0.2}
             roughness={0.6}
             flatShading
@@ -213,11 +215,11 @@ function StandardBuildingBlock({ building, isHovered, isSelected }: BuildingSubP
         </mesh>
       )}
 
-      {/* Mái chìa nhô ra 0.8m màu xám sáng #8d9196 */}
+      {/* Mái chìa nhô ra 0.8m màu xám sáng #8d9196 / phủ tuyết #f8fafc */}
       {roofGeometry && (
         <mesh geometry={roofGeometry} rotation-x={-Math.PI / 2} position-y={height} castShadow receiveShadow>
           <meshStandardMaterial
-            color="#8d9196"
+            color={isSnowing ? '#f8fafc' : '#8d9196'}
             flatShading
             roughness={0.65}
             emissive={emissiveColor}

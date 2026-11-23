@@ -10,6 +10,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import type { Building } from '../../types';
 import { FLOOR_HEIGHT } from '../../data';
 import { expandShapePolygon, stripClosingPoint, toShapePoints } from './geometryHelpers';
+import { useSnowStore } from '../../store/useSnowStore';
 
 interface BlockFacadeProps {
   building: Building;
@@ -19,6 +20,7 @@ interface BlockFacadeProps {
 
 export default function BlockFacade({ building, isHovered, isSelected }: BlockFacadeProps) {
   const { height, floors, color, shape: buildingShape, id } = building;
+  const isSnowing = useSnowStore((s) => s.isSnowing);
 
   const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
   const emissiveIntensity = isSelected ? 0.35 : isHovered ? 0.2 : 0;
@@ -206,7 +208,7 @@ export default function BlockFacade({ building, isHovered, isSelected }: BlockFa
       {/* Viền chỉ sàn phân tầng sáng màu */}
       {floorSlabsGeometry && (
         <mesh geometry={floorSlabsGeometry} castShadow receiveShadow>
-          <meshStandardMaterial color="#e5e7eb" roughness={0.6} />
+          <meshStandardMaterial color={isSnowing ? '#f1f5f9' : '#e5e7eb'} roughness={0.6} />
         </mesh>
       )}
 
@@ -224,10 +226,10 @@ export default function BlockFacade({ building, isHovered, isSelected }: BlockFa
         </mesh>
       )}
 
-      {/* Mái chìa xám sáng nhô ra 0.8m */}
+      {/* Mái chìa xám sáng nhô ra 0.8m / phủ tuyết #f8fafc */}
       <mesh geometry={roofGeometry} rotation-x={-Math.PI / 2} position-y={height} castShadow receiveShadow>
         <meshStandardMaterial
-          color="#8d9196"
+          color={isSnowing ? '#f8fafc' : '#8d9196'}
           flatShading
           roughness={0.65}
           emissive={emissiveColor}

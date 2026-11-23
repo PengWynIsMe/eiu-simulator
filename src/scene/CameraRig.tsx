@@ -6,6 +6,7 @@ import type { Building } from '../types';
 import { getBuilding } from '../data';
 import { useCampusStore } from '../store/useCampusStore';
 import { useReviewStore } from '../store/useReviewStore';
+import { useSnowStore } from '../store/useSnowStore';
 
 /** Góc nhìn toàn cảnh mặc định: từ phía cổng chính (+X) nhìn vào quảng trường, trên cao ~220 m. */
 export const OVERVIEW_CAMERA = {
@@ -90,6 +91,7 @@ export default function CameraRig() {
 
   const selectedBuildingId = useCampusStore((s) => s.selectedBuildingId);
   const reviewMode = useReviewStore((s) => s.reviewMode);
+  const isCinematicActive = useSnowStore((s) => s.isCinematicActive);
   const cameraRequest = useReviewStore((s) => s.cameraRequest);
   const clearCameraRequest = useReviewStore((s) => s.clearCameraRequest);
 
@@ -182,9 +184,9 @@ export default function CameraRig() {
     <CameraControls
       ref={controlsRef}
       makeDefault
-      minDistance={30}
+      minDistance={isCinematicActive ? 5 : 30}
       maxDistance={700}
-      maxPolarAngle={1.35}
+      maxPolarAngle={isCinematicActive ? 1.52 : 1.35}
     />
   );
 }
