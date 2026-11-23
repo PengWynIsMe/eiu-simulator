@@ -1,5 +1,5 @@
 import { getClassroom } from '../../../data';
-import type { Vec2 } from '../../../types';
+import type { Classroom, Vec2 } from '../../../types';
 import type {
   WallSegment,
   RoomArea,
@@ -478,11 +478,8 @@ const TANG_2_WALLS = createFloorWalls(2);
 const TANG_3_WALLS = createFloorWalls(3);
 const TANG_4_WALLS = createFloorWalls(4);
 
-// Bàn phòng 406.B8 chỉ tham gia va chạm; không dựng lại hình học bàn ở đây.
-(function addClassroom406B8Obstacles(): void {
-  const room = getClassroom('406.B8');
-  if (!room) return;
-
+// Bàn các phòng học B8 chỉ tham gia va chạm; không dựng lại hình học bàn ở đây.
+function addClassroomObstacles(room: Classroom, targetWalls: WallSegment[]): void {
   const { depth, width } = room.desk;
   const rowDeskUs = [...new Set(room.seats.map((seat) => seat.deskU))];
   for (const deskU of rowDeskUs) {
@@ -498,7 +495,7 @@ const TANG_4_WALLS = createFloorWalls(4);
       const vs = block.map((seat) => seat.v);
       const v1 = Math.min(...vs) - width / 2 + 0.25 + depth / 2;
       const v2 = Math.max(...vs) + width / 2 - 0.25 - depth / 2;
-      TANG_4_WALLS.push({
+      targetWalls.push({
         u1: deskU,
         v1,
         u2: deskU,
@@ -510,12 +507,43 @@ const TANG_4_WALLS = createFloorWalls(4);
   }
 
   const desk = room.teacherDesk;
-  TANG_4_WALLS.push({
-    u1: desk.u,
-    v1: desk.v - desk.width / 2 + desk.depth / 2,
-    u2: desk.u,
-    v2: desk.v + desk.width / 2 - desk.depth / 2,
-    thickness: desk.depth,
+  if (desk) {
+    targetWalls.push({
+      u1: desk.u,
+      v1: desk.v - desk.width / 2 + desk.depth / 2,
+      u2: desk.u,
+      v2: desk.v + desk.width / 2 - desk.depth / 2,
+      thickness: desk.depth,
+      isRailing: true,
+    });
+  }
+}
+
+(function addB8ClassroomObstacles(): void {
+  const room406 = getClassroom('406.B8');
+  if (room406) addClassroomObstacles(room406, TANG_4_WALLS);
+
+  const room206 = getClassroom('206.B8');
+  if (room206) addClassroomObstacles(room206, TANG_2_WALLS);
+
+  const room207 = getClassroom('207.B8');
+  if (room207) addClassroomObstacles(room207, TANG_2_WALLS);
+
+  const room311 = getClassroom('311.B8');
+  if (room311) addClassroomObstacles(room311, TANG_3_WALLS);
+
+  // 208.B8: Bàn phỏng vấn 1-1 (u=77.2, v=-205.1, dài v 1.2 m, sâu u 0.7 m)
+  // Thụt 0.25 m như các bàn khác:
+  const desk208Depth = 0.7;
+  const desk208Width = 1.2;
+  const v1 = -205.1 - desk208Width / 2 + 0.25 + desk208Depth / 2;
+  const v2 = -205.1 + desk208Width / 2 - 0.25 - desk208Depth / 2;
+  TANG_2_WALLS.push({
+    u1: 77.2,
+    v1,
+    u2: 77.2,
+    v2,
+    thickness: desk208Depth,
     isRailing: true,
   });
 })();

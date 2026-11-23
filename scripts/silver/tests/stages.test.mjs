@@ -34,10 +34,11 @@ export default {
       assert.equal(outdoor.roomCode, null);
       assert.equal(isStageAvailable('entrance/meet-thanh'), true);
 
-      // 207.B8 is absent in đợt 1
+      // 207.B8 is available in 3D-09
       const theory = getStage('CSE 103/a');
       assert.ok(theory);
-      assert.equal(isStageAvailable('CSE 103/a'), false);
+      assert.equal(isStageAvailable('CSE 103/a'), true);
+      assert.equal(isStageAvailable('CSE 103/a', () => undefined), false);
     });
   },
 
