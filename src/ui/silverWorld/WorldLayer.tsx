@@ -98,12 +98,6 @@ export default function WorldLayer() {
   return (
     <>
       <HomeExtraSlot />
-      {/* Ẩn thanh TopBar chung khi đang chơi trong 3D world để tránh chồng lấn giao diện */}
-      <style>{`
-        header:not([data-world-layer="true"]) {
-          display: none !important;
-        }
-      `}</style>
 
       {/* Thanh trên: tên cảnh, môn học, tiến độ, ngôn ngữ, âm thanh, nút Đứng dậy, Thoát */}
       <header data-world-layer="true" className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-1 p-1.5 sm:gap-2 sm:p-4">

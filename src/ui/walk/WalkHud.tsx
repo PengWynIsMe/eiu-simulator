@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useWalkStore } from '../../store/useWalkStore';
-import { useState } from 'react';
+import { useActivityStore } from '../../store/useActivityStore';
 
 export default function WalkHud() {
   const walkMode = useWalkStore((state) => state.walkMode);
@@ -8,6 +8,10 @@ export default function WalkHud() {
   const knob = useRef<HTMLDivElement>(null);
   const activePointer = useRef<number | null>(null);
   const [viewMode, setViewMode] = useState(0);
+
+  const activity = useActivityStore((state) => state.activity);
+  const phase = useActivityStore((state) => state.phase);
+  const isEngaged = Boolean(activity && phase === 'engaged');
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -50,15 +54,17 @@ export default function WalkHud() {
 
   return (
     <>
-      <div className="pointer-events-none fixed bottom-5 left-5 z-40 hidden rounded-xl border border-slate-700/60 bg-slate-950/80 px-4 py-2.5 text-xs text-slate-200 shadow-lg backdrop-blur-md md:block">
-        Góc nhìn: {['Sau vai', 'Thứ nhất (FPS)', 'Trên xuống'][viewMode]} ·{' '}
-        {viewMode === 1
-          ? 'W A S D: đi · Shift: chạy · Bấm màn hình xoay chuột · Esc: nhả chuột'
-          : interior
-            ? 'W A S D / ↑↓←→: đi · Shift: chạy · Kéo chuột: xoay nhìn · Cuộn chuột: thu phóng (2.5–7m)'
-            : 'W A S D / ↑↓←→: đi · Shift: chạy · Kéo chuột: xoay nhìn'}{' '}
-        · C: đổi góc nhìn
-      </div>
+      {!isEngaged && (
+        <div className="pointer-events-none fixed bottom-5 left-5 z-40 hidden rounded-xl border border-slate-700/60 bg-slate-950/80 px-4 py-2.5 text-xs text-slate-200 shadow-lg backdrop-blur-md md:block">
+          Góc nhìn: {['Sau vai', 'Thứ nhất (FPS)', 'Trên xuống'][viewMode]} ·{' '}
+          {viewMode === 1
+            ? 'W A S D: đi · Shift: chạy · Bấm màn hình xoay chuột · Esc: nhả chuột'
+            : interior
+              ? 'W A S D / ↑↓←→: đi · Shift: chạy · Kéo chuột: xoay nhìn · Cuộn chuột: thu phóng (2.5–7m)'
+              : 'W A S D / ↑↓←→: đi · Shift: chạy · Kéo chuột: xoay nhìn'}{' '}
+          · C: đổi góc nhìn
+        </div>
+      )}
       {viewMode === 1 && <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center" aria-hidden="true"><span className="text-xl font-bold leading-none text-white" style={{ textShadow: '-1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000, 1px 1px 1px #000' }}>+</span></div>}
       <button type="button" className="fixed right-6 top-20 z-50 rounded-xl bg-slate-950/80 px-4 py-3 font-semibold text-white shadow-lg [@media(pointer:fine)]:hidden" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c' }))}>Góc nhìn: {['Sau vai', 'Thứ nhất', 'Trên xuống'][viewMode]} · C</button>
       <div

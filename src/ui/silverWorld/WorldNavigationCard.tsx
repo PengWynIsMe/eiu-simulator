@@ -92,7 +92,7 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
   return (
     <>
       {/* Thẻ góc trái màn hình */}
-      <div className="fixed left-3 top-14 z-30 w-72 max-w-[calc(100vw-1.5rem)] select-none rounded-2xl border border-white/60 bg-white/95 p-3.5 shadow-xl backdrop-blur-md transition-all sm:left-4 sm:top-16">
+      <div className="fixed left-3 top-28 z-30 w-72 max-w-[calc(100vw-1.5rem)] select-none rounded-2xl border border-white/60 bg-white/95 p-3.5 shadow-xl backdrop-blur-md transition-all sm:left-4 sm:top-16">
         {/* Nơi & chặng */}
         <div className="space-y-1">
           <div className="truncate text-xs font-semibold uppercase tracking-wider text-slate-500">
