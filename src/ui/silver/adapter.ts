@@ -1,7 +1,7 @@
 import type { UseSilver } from '../../types/silver';
-import { useSilverMock } from './mock/useSilverMock';
+import { useSilverStore } from '../../store/useSilverStore';
 
-const check: UseSilver = useSilverMock;
+const check: UseSilver = useSilverStore;
 void check;
 
-export { useSilverMock as useSilver };
+export { useSilverStore as useSilver };
