@@ -106,4 +106,46 @@ export default {
     assert.ok(screenX > seatX, 'Màn hình máy tính phải ở phía trước mặt ghế ngồi');
     assert.ok(Math.hypot(screenX - seatX, screenZ - seatZ) < 0.7, 'Màn hình cách ghế < 0.7 m');
   },
+
+  'StoryActors supports optional room, spot+sit pose in 208.B8, and outdoor actors': async ({ assert, load }) => {
+    const { getStage } = await load('/src/data/silver/stages.ts');
+    const { resolveSeatAnchor } = await load('/src/silverWorld/seatAnchor.ts');
+    const { toWorld } = await load('/src/scene/interior/layouts/b8.ts');
+
+    // 1. 208.B8: examiner has spot and pose === 'sit' without seatId
+    const speaking = getStage('entrance/speaking');
+    assert.ok(speaking, 'Phải tìm thấy stage entrance/speaking');
+    assert.equal(speaking.roomCode, '208.B8');
+    const examiner = speaking.actors.find((a) => a.speaker === 'examiner');
+    assert.ok(examiner, 'Phải có examiner trong 208.B8');
+    assert.equal(examiner.pose, 'sit');
+    assert.ok(examiner.spot, 'Examiner phải có spot');
+    assert.equal(examiner.seatId, undefined, 'Examiner 208 không dùng seatId');
+
+    // 2. 208.B8: player seat anchor from resolveSeatAnchor
+    const seatAnchor = resolveSeatAnchor('208.B8', () => undefined, (_frame, u, v) => toWorld(u, v));
+    assert.ok(seatAnchor, 'Phải tạo được seatAnchor cho 208.B8');
+    assert.equal(seatAnchor.id, '208-player');
+    const [expectedSeatX, expectedSeatZ] = toWorld(77.95, -205.1);
+    assert.ok(Math.abs(seatAnchor.spot.x - expectedSeatX) < 1e-4);
+    assert.ok(Math.abs(seatAnchor.spot.z - expectedSeatZ) < 1e-4);
+
+    // 3. Outdoor scenes: roomCode is null, actors have spots
+    const meetThanh = getStage('entrance/meet-thanh');
+    assert.ok(meetThanh);
+    assert.equal(meetThanh.roomCode, null);
+    const thanhActor = meetThanh.actors.find((a) => a.speaker === 'thanh');
+    assert.ok(thanhActor?.spot);
+    assert.equal(thanhActor.pose, 'idle');
+
+    const resultStage = getStage('entrance/result');
+    assert.ok(resultStage);
+    assert.equal(resultStage.roomCode, null);
+    assert.equal(resultStage.actors.length, 2);
+
+    const peStage = getStage('1.1/pe');
+    assert.ok(peStage);
+    assert.equal(peStage.roomCode, null);
+    assert.equal(peStage.crowd, 4);
+  },
 };
