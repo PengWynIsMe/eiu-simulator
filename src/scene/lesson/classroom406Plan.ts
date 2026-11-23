@@ -332,6 +332,9 @@ export function buildClassroom406Plan(room: Classroom): Classroom406Plan {
   // Kính cửa sổ dưới (màu trời xanh sáng dịu)
   box(91.925, 1.72, -147.89, 9.25, 1.66, 0.02, '#bae6fd');
 
+  // 7. Trần bê tông xám nhạt bên trên dầm đen và máy lạnh cassette (khớp ảnh phong-may-3-video.jpg)
+  box(91.925, 3.79, -142.05, 9.35, 0.02, 12.0, CONCRETE_LIGHT_GRAY);
+
   return { desks, chairs, monitors, faces, faceBrightness, keyboards, cases, lights, misc };
 }
 

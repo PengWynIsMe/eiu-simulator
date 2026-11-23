@@ -2,7 +2,7 @@
 
 - **Người thực hiện**: Antigravity (Gemini)
 - **Nhánh**: `PengWynIsMe/phong-may-406`
-- **Ảnh tham khảo gốc**: `references/phong-may/phong-may-1.jpg` & `phong-may-2.jpg`
+- **Ảnh tham khảo gốc**: `references/phong-may/phong-may-1.jpg`, `phong-may-2.jpg`, và `phong-may-3-video.jpg`
 - **Ảnh chụp nghiệm thu thực tế**: `docs/tasks/PHONG-MAY-anh/`
 
 ---
@@ -100,6 +100,11 @@ npm run build       # vite build -> thành công, 738 modules trong 2.31 s
   - Tường cửa sổ phía Bắc khung đen đón sáng tự nhiên: ✅ Khớp.
   - Hàng poster slogan EIU ("CREATE, ENHANCE, and SUSTAIN", "Making it HAPPEN", "EIU TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG", "DESIGN IT and BUILD IT", "Turning IDEAS into REALITY", "Design FUTURE with EXCELLENCE"): ✅ Đã tái hiện đầy đủ trên các ô kính phía Bắc.
   - Ghế ngồi gỗ sáng uốn cong, chân kim loại không bánh xe: ✅ Khớp.
+- **Ảnh `phong-may-3-video.jpg` (nhìn thẳng tường trước)**:
+  - Tường trước xám nhạt vân bê tông mộc: ✅ Khớp (`#abaaa5`).
+  - 2 bảng trắng hai bên + TV lớn ở giữa cân đối: ✅ Khớp.
+  - Trần xám bê tông lộ kết cấu bên trên các dầm đen + máy lạnh âm trần cassette: ✅ Đã bổ sung tấm trần bê tông xám `y = 3.79 m`, các dầm ngang chạy dọc và cassette điều hòa trắng ở giữa lối đi.
+  - Ánh sáng tự nhiên và đèn LED treo tỏa sáng toàn phòng: ✅ Đạt chuẩn sáng rõ, không đổ bóng nặng.
 
 ---
 
