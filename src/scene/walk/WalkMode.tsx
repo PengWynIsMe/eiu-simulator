@@ -22,8 +22,8 @@ import {
 } from '../interior/layouts';
 
 /** Phải khớp `near` của <Canvas> trong App.tsx. */
-const OUTDOOR_CAMERA_NEAR = 0.3;
-const OUTDOOR_CAMERA_FAR = 2500;
+const OUTDOOR_CAMERA_NEAR = 0.35;
+const OUTDOOR_CAMERA_FAR = 2000;
 const WALK_SPEED = 5;
 const RUN_SPEED = 12;
 const PLAYER_RADIUS = 0.4;
@@ -833,7 +833,7 @@ export default function WalkMode() {
     globalFacingYaw = facingYaw.current;
 
     // --- Điều khiển Camera ---
-    const wantedNear = viewMode.current === 1 ? (isInterior ? 0.2 : 0.3) : (isInterior ? 0.2 : OUTDOOR_CAMERA_NEAR);
+    const wantedNear = viewMode.current === 1 ? (isInterior ? 0.2 : 0.35) : (isInterior ? 0.2 : OUTDOOR_CAMERA_NEAR);
     const wantedFar = viewMode.current === 1 ? (isInterior ? 400 : 1500) : (isInterior ? 400 : OUTDOOR_CAMERA_FAR);
     if (camera.near !== wantedNear || camera.far !== wantedFar) {
       camera.near = wantedNear;

@@ -46,7 +46,6 @@ export default function App() {
       <Canvas
         shadows
         dpr={[1, 2]}
-        gl={{ logarithmicDepthBuffer: true }}
         onCreated={({ gl, scene }) => {
           if (import.meta.env.DEV) {
             (window as unknown as Record<string, unknown>).__gl = gl;
@@ -56,8 +55,8 @@ export default function App() {
         camera={{
           position: [OVERVIEW_CAMERA.position[0], OVERVIEW_CAMERA.position[1], OVERVIEW_CAMERA.position[2]],
           fov: 45,
-          near: 0.3,
-          far: 2500,
+          near: 0.35,
+          far: 2000,
         }}
       >
         <Campus />
