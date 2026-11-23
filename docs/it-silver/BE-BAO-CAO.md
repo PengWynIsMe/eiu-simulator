@@ -107,3 +107,10 @@ Không tạo dữ liệu nội dung thật; test sử dụng fixture tổng hợ
 | Upsert cùng chapter thay đúng vị trí; trang mới thêm cuối; mảng đầu vào bất biến | `notebook.test.mjs` — upsert replaces in place, appends new chapter and never mutates input | Đạt |
 | Tên môn không tồn tại bị bỏ qua | `notebook.test.mjs` — saved ids persist even after conditions change; vanished ids use fallback | Đạt |
 | typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
+
+## BE-10 correction — replay suggestions
+
+| Tiêu chí | Test | Kết quả |
+|---|---|---|
+| makeMemoryView dùng gợi ý theo điều kiện hiện tại, `old` chỉ bật hasOld, savedAt null; savedMemoryView tiếp tục khôi phục entry | `notebook.test.mjs` — replay offers fresh suggestions while signaling an old page | Đạt |
+| typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |

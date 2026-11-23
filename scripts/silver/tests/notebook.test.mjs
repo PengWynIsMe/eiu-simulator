@@ -26,6 +26,17 @@ export default {
     assert.equal(unmatched.photo.id, 'b');
     assert.deepEqual(unmatched.photoChoices.map(photo => photo.id), ['b']);
   },
+  'replay offers fresh suggestions while signaling an old page': async ({ assert, load }) => {
+    const { makeMemoryView } = await load('/src/silver/notebook.ts');
+    const view = makeMemoryView(chapter(), [], entry({ photoId: 'b', lineId: 'y' }), {
+      match: condition => condition.flag?.is === 'yes' || condition.seen === 'seen',
+      courseName: () => undefined,
+    });
+    assert.equal(view.photo.id, 'a');
+    assert.equal(view.line.id, 'x');
+    assert.equal(view.hasOld, true);
+    assert.equal(view.savedAt, null);
+  },
   'saved ids persist even after conditions change; vanished ids use fallback': async ({ assert, load }) => {
     const { savedMemoryView } = await load('/src/silver/notebook.ts');
     const oldEntry = entry();

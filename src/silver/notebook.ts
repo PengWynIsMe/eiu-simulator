@@ -50,7 +50,7 @@ function createView(chapter: ChapterContent, entry: NotebookEntry | undefined, d
 }
 
 export function makeMemoryView(chapter: ChapterContent, courses: string[], old: NotebookEntry | undefined, deps: MemoryDeps): MemoryView {
-  return createView(chapter, old, deps, old !== undefined, courses);
+  return createView(chapter, undefined, deps, old !== undefined, courses);
 }
 
 export function savedMemoryView(chapter: ChapterContent, entry: NotebookEntry, deps: MemoryDeps): MemoryView {
