@@ -227,6 +227,12 @@ export default {
       checkPoint(lessonSeat.screenCamera.look, cameraPoint(92.45, -141, 1.05));
 
       lesson.arriveAtClass();
+      assert.equal(store.getState().phase, 'travel');
+      assert.equal(store.getState().inRange, false);
+      actions.interact();
+      assert.equal(useLessonStore.getState().seatId, null);
+      writes(2, 1);
+      actions.setInRange(true);
       assert.equal(store.getState().phase, 'near');
       writes(2, 2);
       lesson.sitDown(lessonSeat.id);
@@ -278,6 +284,36 @@ export default {
       actions.end();
     }
   },
+  'entering the lesson room updates the HUD without bringing a distant seat into range': async ({ assert, load }) => {
+    const store = await loadActivity(load);
+    const { useLessonStore } = await loadLesson(load);
+    const { useWalkStore } = await load('/src/store/useWalkStore.ts');
+    const { startLessonBridge } = await load('/src/silverWorld/lessonBridge.ts');
+    const { b11ToWorld } = await load('/src/scene/interior/layouts/b11.ts');
+    const { getClassroom } = await load('/src/data/index.ts');
+    const lesson = useLessonStore.getState();
+    const walk = useWalkStore.getState();
+    const stop = startLessonBridge(b11ToWorld);
+    const room = getClassroom('406.B11');
+    const [x, z] = b11ToWorld(room.bounds.minU + 0.5, room.bounds.maxV - 0.5);
+    try {
+      lesson.startLesson('nmlt-01');
+      walk.enterInterior(room.buildingId);
+      walk.setPlayerPos({ x, z, y: 0, floor: 1 });
+      assert.equal(useLessonStore.getState().phase, 'goToClass');
+      walk.setInteriorFloor(room.floor);
+      walk.setPlayerPos({ x, z, y: 0, floor: room.floor });
+      assert.equal(useLessonStore.getState().phase, 'findSeat');
+      assert.equal(store.getState().inRange, false);
+      store.getState().interact();
+      assert.equal(useLessonStore.getState().seatId, null);
+    } finally {
+      lesson.endLesson();
+      walk.exitInterior();
+      walk.setPlayerPos(walk.playerPos);
+      stop();
+    }
+  },
   'nmlt-01 plays through both slides, question, code, pause and summary with and without the bridge': async ({ assert, load }) => {
     const store = await loadActivity(load);
     const { useLessonStore, getCurrentStep } = await loadLesson(load);
@@ -293,6 +329,7 @@ export default {
         assert.equal(phase(), 'goToClass');
         lesson.arriveAtClass();
         assert.equal(phase(), 'findSeat');
+        if (useBridge) store.getState().setInRange(true);
         lesson.sitDown(getClassroom('406.B11').playerSeat);
         assert.equal(phase(), 'dialogue');
         lesson.chooseOption(step().options[0].id);
