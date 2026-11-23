@@ -81,3 +81,19 @@ Không tạo dữ liệu nội dung thật; test sử dụng fixture tổng hợ
 | Quick chọn lab khi có lab, theoryA khi không lab, project khi project | cùng test term queue | Đạt |
 | gradeStep question/order/code đúng sai, đáp án chuẩn, trim phân biệt hoa thường, output chỉ code | `run.test.mjs` — grading rules for every step type and both outcomes | Đạt |
 | typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
+
+## BE-08 correction — code answers
+
+| Tiêu chí | Test | Kết quả |
+|---|---|---|
+| Accept any configured answer after trim, retain first as canonical answer, case-sensitive | `run.test.mjs` — grading rules for every step type and both outcomes; two answers (`println`, `print`) | Đạt |
+
+## BE-09 — Lưu cục bộ
+
+| Tiêu chí / ví dụ | Test | Kết quả |
+|---|---|---|
+| SAVE_KEY, emptySave/read absent exact shape; parseSave round trip | `save.test.mjs` — empty save exact fields; parses round trip and sanitizes array entries and invalid run | Đạt |
+| JSON sai, version sai, thiếu seed trả null; sanitize flags/seen/registrations/doneChapters/notebook; run sai thành null | `save.test.mjs` — rejects missing seed and wrong version; validates every saved field | Đạt |
+| Corrupt data backed up `.bak`, warning corrupt; null kv/get exception blocked; backup set exception handled | `save.test.mjs` — read handles corrupt backup, null storage and thrown get/set | Đạt |
+| write catches errors/kv null; clear removes main key but preserves backup | `save.test.mjs` — write catches storage failures; clear preserves backup | Đạt |
+| typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
