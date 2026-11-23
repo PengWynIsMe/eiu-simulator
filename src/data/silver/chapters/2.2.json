@@ -1,0 +1,392 @@
+{
+  "version": 1,
+  "id": "2.2",
+  "title": {
+    "vi": "Năm 2 · Kỳ 2 — Vào chuyên ngành",
+    "en": "Year 2 · Term 2 — Into the major"
+  },
+  "subtitle": {
+    "vi": "Trọng tâm: CSE 103",
+    "en": "Focus: CSE 103"
+  },
+  "recap": {
+    "vi": "Trong câu chuyện này, bạn đã qua năm level Anh văn và đạt IELTS 6.0 (kết quả của câu chuyện, không phải chứng chỉ thật). Từ kỳ này bạn bắt đầu học chuyên ngành.",
+    "en": "In this story you have finished the five English levels and reached IELTS 6.0 (a story result, not a real certificate). From this term you begin your major courses."
+  },
+  "opening": [
+    {
+      "id": "2.2/opening",
+      "title": {
+        "vi": "Ngày đầu kỳ",
+        "en": "First day of the term"
+      },
+      "place": "b8",
+      "minutes": 1,
+      "steps": [
+        {
+          "id": "open",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Đầu Năm 2 · Kỳ 2. Lịch học trong game đã được sắp xếp lại cho gọn, không phải thời khóa biểu chính thức của EIU. Hôm nay bạn bước vào B8 với một danh sách môn chuyên ngành.",
+            "en": "The start of Year 2 · Term 2. The timetable in this game has been rearranged to keep things short, so it is not EIU's official schedule. Today you walk into B8 with a list of major courses."
+          }
+        },
+        {
+          "id": "thanh",
+          "type": "say",
+          "speaker": "thanh",
+          "text": {
+            "vi": "Lâu rồi không gặp! Từ ngày kiểm tra đầu vào tới giờ nhanh thật.",
+            "en": "Long time no see! It's gone so fast since the placement test."
+          },
+          "variants": [
+            {
+              "when": {
+                "flag": {
+                  "key": "entrance/greet",
+                  "is": "warm"
+                }
+              },
+              "text": {
+                "vi": "Ê, nhớ hôm kiểm tra đầu vào không? Bạn đi chung với mình tới tận cửa phòng nghe. Mình vẫn nhớ đó.",
+                "en": "Hey, remember the placement test? You walked with me all the way to the listening room. I still remember that."
+              }
+            },
+            {
+              "when": {
+                "flag": {
+                  "key": "entrance/greet",
+                  "is": "brief"
+                }
+              },
+              "text": {
+                "vi": "Nhớ hôm kiểm tra đầu vào không? Bạn chỉ đường cho mình đúng một câu mà mình tìm ra phòng luôn đó.",
+                "en": "Remember the placement test? You gave me one sentence of directions and I found the room right away."
+              }
+            }
+          ]
+        },
+        {
+          "id": "quyen",
+          "type": "say",
+          "speaker": "quyen",
+          "text": {
+            "vi": "Mình lên lab trước. Chỗ đẹp hết rồi thì đừng trách.",
+            "en": "I'm heading up to the lab. Don't blame me if the good seats are gone."
+          }
+        }
+      ]
+    }
+  ],
+  "scenes": [],
+  "closing": [
+    {
+      "id": "2.2/closing",
+      "title": {
+        "vi": "Hết buổi, cả nhóm so kết quả",
+        "en": "After class, comparing results"
+      },
+      "place": "b8",
+      "minutes": 1.5,
+      "steps": [
+        {
+          "id": "open",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Hết buổi cuối. Ba người bạn đứng quanh một màn hình, tay còn chưa rời bàn phím.",
+            "en": "The last session is over. Three friends stand around one screen, hands still on the keyboard."
+          }
+        },
+        {
+          "id": "han",
+          "type": "say",
+          "speaker": "han",
+          "text": {
+            "vi": "Câu cuối thi mình suýt dính cái dấu =.",
+            "en": "I almost fell for that = sign in the last question."
+          },
+          "variants": [
+            {
+              "when": {
+                "flag": {
+                  "key": "1.1/han",
+                  "is": "practice"
+                }
+              },
+              "text": {
+                "vi": "Câu cuối thi mình suýt dính cái dấu =. Mà nghĩ lại, hồi tập “Nice to meet you” mình còn run hơn thế nhiều.",
+                "en": "I almost fell for that = sign in the last question. But thinking back, I was a lot more nervous practising \"Nice to meet you\"."
+              }
+            },
+            {
+              "when": {
+                "flag": {
+                  "key": "1.1/han",
+                  "is": "joke"
+                }
+              },
+              "text": {
+                "vi": "Câu cuối thi mình suýt dính cái dấu =. Mà may là không phải nói “Nice to meet you” ba lần mới chạy được.",
+                "en": "I almost fell for that = sign in the last question. At least I didn't have to say \"Nice to meet you\" three times to make it run."
+              }
+            }
+          ]
+        },
+        {
+          "id": "after",
+          "type": "choice",
+          "speaker": "quyen",
+          "text": {
+            "vi": "Nhóm mình ăn ý đấy. Lần sau có bài làm chung, làm cùng nhé?",
+            "en": "Our group works well together. Next time there's a team assignment, shall we do it together?"
+          },
+          "options": [
+            {
+              "id": "plan",
+              "text": {
+                "vi": "Làm chung đi, mình lên kế hoạch trước.",
+                "en": "Let's team up. I'll plan it out first."
+              },
+              "reply": {
+                "vi": "Được. Mình lo chia việc.",
+                "en": "Good. I'll handle splitting the work."
+              }
+            },
+            {
+              "id": "play",
+              "text": {
+                "vi": "Làm chung, nhưng chơi trước đã.",
+                "en": "Let's team up, but play first."
+              },
+              "reply": {
+                "vi": "Cũng được. Miễn là có người nhắc hạn nộp.",
+                "en": "Fine. As long as someone reminds us of the deadline."
+              }
+            }
+          ],
+          "flag": "2.2/after"
+        },
+        {
+          "id": "end",
+          "type": "say",
+          "speaker": "han",
+          "text": {
+            "vi": "Hẹn tiết sau nha. Mình giữ chỗ cạnh nhau như cũ!",
+            "en": "See you next class. I'll keep our seats next to each other, like before!"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2.2/club",
+      "title": {
+        "vi": "Bàn đăng ký câu lạc bộ",
+        "en": "The club sign-up tables"
+      },
+      "place": "b8",
+      "minutes": 0.5,
+      "steps": [
+        {
+          "id": "pick",
+          "type": "choice",
+          "speaker": "han",
+          "text": {
+            "vi": "Mình định ghé bàn đăng ký câu lạc bộ. Bạn thấy loại nào hợp mình nhất?",
+            "en": "I'm going to look at the club sign-up tables. Which kind do you think suits me?"
+          },
+          "options": [
+            {
+              "id": "tech",
+              "text": {
+                "vi": "Một câu lạc bộ công nghệ",
+                "en": "A technology club"
+              },
+              "reply": {
+                "vi": "Nghe hợp với tụi mình đó!",
+                "en": "That sounds right for us!"
+              }
+            },
+            {
+              "id": "art",
+              "text": {
+                "vi": "Một câu lạc bộ nghệ thuật",
+                "en": "An arts club"
+              },
+              "reply": {
+                "vi": "Hay đó, mình chưa thử bao giờ.",
+                "en": "Nice, I've never tried that."
+              }
+            },
+            {
+              "id": "sport",
+              "text": {
+                "vi": "Một câu lạc bộ thể thao",
+                "en": "A sports club"
+              },
+              "reply": {
+                "vi": "Vậy mình phải chạy được nhiều hơn rồi.",
+                "en": "Then I'd better learn to run more."
+              }
+            }
+          ],
+          "flag": "2.2/club"
+        }
+      ]
+    }
+  ],
+  "memory": {
+    "stamp": {
+      "vi": "Năm 2 · Kỳ 2 — Dòng lệnh đầu tiên",
+      "en": "Year 2 · Term 2 — The first lines of code"
+    },
+    "photos": [
+      {
+        "id": "club-tech",
+        "when": {
+          "flag": {
+            "key": "2.2/club",
+            "is": "tech"
+          }
+        },
+        "caption": {
+          "vi": "Bàn câu lạc bộ công nghệ",
+          "en": "The technology club table"
+        }
+      },
+      {
+        "id": "club-art",
+        "when": {
+          "flag": {
+            "key": "2.2/club",
+            "is": "art"
+          }
+        },
+        "caption": {
+          "vi": "Bàn câu lạc bộ nghệ thuật",
+          "en": "The arts club table"
+        }
+      },
+      {
+        "id": "club-sport",
+        "when": {
+          "flag": {
+            "key": "2.2/club",
+            "is": "sport"
+          }
+        },
+        "caption": {
+          "vi": "Bàn câu lạc bộ thể thao",
+          "en": "The sports club table"
+        }
+      },
+      {
+        "id": "lab",
+        "caption": {
+          "vi": "Phòng lab, màn hình vừa chào cả nhóm",
+          "en": "The lab, with a screen that just greeted the group"
+        }
+      }
+    ],
+    "lines": [
+      {
+        "id": "han-plan",
+        "when": {
+          "seen": "1.1/greet-han",
+          "flag": {
+            "key": "2.2/after",
+            "is": "plan"
+          }
+        },
+        "text": {
+          "vi": "Từ một câu chào ở Level 1 tới dòng code đầu tiên, và giờ có hẹn làm chung với hai người bạn.",
+          "en": "From a greeting in Level 1 to my first line of code, and now a plan to team up with two friends."
+        }
+      },
+      {
+        "id": "han-play",
+        "when": {
+          "seen": "1.1/greet-han",
+          "flag": {
+            "key": "2.2/after",
+            "is": "play"
+          }
+        },
+        "text": {
+          "vi": "Từ một câu chào ở Level 1 tới dòng code đầu tiên. Chơi trước, rồi tính bài chung sau.",
+          "en": "From a greeting in Level 1 to my first line of code. Play first, team assignment later."
+        }
+      },
+      {
+        "id": "plan",
+        "when": {
+          "flag": {
+            "key": "2.2/after",
+            "is": "plan"
+          }
+        },
+        "text": {
+          "vi": "Dòng lệnh đầu tiên chạy được, và đã có kế hoạch cho bài làm chung.",
+          "en": "The first line of code ran, and there's already a plan for the team assignment."
+        }
+      },
+      {
+        "id": "play",
+        "when": {
+          "flag": {
+            "key": "2.2/after",
+            "is": "play"
+          }
+        },
+        "text": {
+          "vi": "Dòng lệnh đầu tiên chạy được. Bài làm chung thì để sau, chơi trước đã.",
+          "en": "The first line of code ran. The team assignment can wait, play comes first."
+        }
+      },
+      {
+        "id": "han-joke",
+        "when": {
+          "flag": {
+            "key": "1.1/han",
+            "is": "joke"
+          }
+        },
+        "text": {
+          "vi": "Nhớ hoài lần mình với Han nói “Nice to meet you” ba lần cho chắc. Giờ tới lượt máy chào tụi mình.",
+          "en": "I'll never forget Han and me saying \"Nice to meet you\" three times to be safe. Now it's the computer's turn to greet us."
+        }
+      },
+      {
+        "id": "han-practice",
+        "when": {
+          "flag": {
+            "key": "1.1/han",
+            "is": "practice"
+          }
+        },
+        "text": {
+          "vi": "Hồi đó tập chào nhau, giờ tới lượt máy chào tụi mình.",
+          "en": "Back then we practised greeting each other. Now it's the computer's turn to greet us."
+        }
+      },
+      {
+        "id": "default",
+        "text": {
+          "vi": "Dòng lệnh đầu tiên chạy được, và có Han ngồi cạnh.",
+          "en": "The first line of code ran, with Han sitting next to me."
+        }
+      }
+    ],
+    "activities": [
+      {
+        "vi": "Buổi lab Java đầu tiên",
+        "en": "The first Java lab"
+      },
+      {
+        "vi": "Bài thi ngắn CSE 103 (mô phỏng)",
+        "en": "A short CSE 103 check (simulation)"
+      }
+    ]
+  }
+}

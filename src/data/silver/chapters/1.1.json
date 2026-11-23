@@ -1,0 +1,853 @@
+{
+  "version": 1,
+  "id": "1.1",
+  "title": {
+    "vi": "Năm 1 · Kỳ 1 — Level 1",
+    "en": "Year 1 · Term 1 — Level 1"
+  },
+  "subtitle": {
+    "vi": "Anh văn, Triết học, thể chất",
+    "en": "English, Philosophy, PE"
+  },
+  "recap": {
+    "vi": "Bạn đã làm bài kiểm tra đầu vào và được xếp vào Level 1. Giờ là kỳ học đầu tiên ở EIU.",
+    "en": "You have taken the placement test and been placed in Level 1. Now it is your first term at EIU."
+  },
+  "opening": [
+    {
+      "id": "1.1/greet-han",
+      "title": {
+        "vi": "Ngồi cạnh Han",
+        "en": "Sitting next to Han"
+      },
+      "place": "b8",
+      "minutes": 2,
+      "steps": [
+        {
+          "id": "open",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Ngày đầu của Level 1. Phòng học gần kín chỗ, chỉ còn một ghế trống cạnh một bạn nữ đang lẩm nhẩm gì đó, tay gõ nhịp xuống bàn.",
+            "en": "The first day of Level 1. The room is almost full, with one empty seat next to a girl who is murmuring something and tapping the desk."
+          }
+        },
+        {
+          "id": "han1",
+          "type": "say",
+          "speaker": "han",
+          "text": {
+            "vi": "Ơ, bạn ngồi đây hả? Mình là Han. Mình đang tập một câu từ sáng giờ nè: “Nice to meet you.” Nghe đơn giản mà nói ra là run liền.",
+            "en": "Oh, are you sitting here? I'm Han. I've been practising one sentence since this morning: \"Nice to meet you.\" It sounds simple, but saying it out loud makes me nervous."
+          }
+        },
+        {
+          "id": "try",
+          "type": "choice",
+          "speaker": "han",
+          "text": {
+            "vi": "Bạn nói thử cùng mình nha? Một, hai…",
+            "en": "Want to say it with me? One, two…"
+          },
+          "options": [
+            {
+              "id": "practice",
+              "text": {
+                "vi": "Nice to meet you!",
+                "en": "Nice to meet you!"
+              },
+              "reply": {
+                "vi": "Đó, nghe ổn mà! Mình bớt run rồi.",
+                "en": "See, that sounded fine! I'm less nervous already."
+              }
+            },
+            {
+              "id": "joke",
+              "text": {
+                "vi": "Nice to meet you… ba lần cho chắc ăn nhé?",
+                "en": "Nice to meet you… shall we say it three times to be safe?"
+              },
+              "reply": {
+                "vi": "Haha, ba lần nghe như đọc thần chú. Mà dễ nhớ thật!",
+                "en": "Ha, three times sounds like a magic spell. But it really is easy to remember!"
+              }
+            }
+          ],
+          "flag": "1.1/han"
+        },
+        {
+          "id": "greeting",
+          "type": "order",
+          "prompt": {
+            "vi": "Giáo viên viết một đoạn chào hỏi lên bảng nhưng các dòng bị xáo trộn. Giúp Han xếp lại cho đúng thứ tự.",
+            "en": "The teacher writes a greeting on the board, but the lines are mixed up. Help Han put them in order."
+          },
+          "items": [
+            {
+              "id": "b",
+              "text": {
+                "vi": "My name is Han.",
+                "en": "My name is Han."
+              }
+            },
+            {
+              "id": "d",
+              "text": {
+                "vi": "Nice to meet you, too.",
+                "en": "Nice to meet you, too."
+              }
+            },
+            {
+              "id": "a",
+              "text": {
+                "vi": "Hello!",
+                "en": "Hello!"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "Nice to meet you.",
+                "en": "Nice to meet you."
+              }
+            }
+          ],
+          "answer": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "explainCorrect": {
+            "vi": "Đúng rồi: chào, nói tên, nói câu làm quen, rồi người kia đáp lại với “too”.",
+            "en": "That's right: greet, give a name, say the friendly line, then the other person replies with \"too\"."
+          },
+          "explainWrong": {
+            "vi": "Gần rồi. Lời chào đi đầu, giới thiệu tên tiếp theo, và câu đáp “too” phải đến sau câu “Nice to meet you.”",
+            "en": "Almost. The greeting goes first, then the name, and the reply with \"too\" must come after \"Nice to meet you.\""
+          }
+        },
+        {
+          "id": "han2",
+          "type": "say",
+          "speaker": "han",
+          "text": {
+            "vi": "Xong! Mà mình ngồi cạnh bạn được chứ? Có người quen dù mới biết cũng đỡ lo.",
+            "en": "Done! Can I sit next to you, then? Knowing someone, even from five minutes ago, makes it less scary."
+          }
+        }
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "1.1/skills",
+      "title": {
+        "vi": "Nghe và đọc",
+        "en": "Listening and reading"
+      },
+      "place": "b8",
+      "minutes": 1.5,
+      "steps": [
+        {
+          "id": "intro",
+          "type": "say",
+          "speaker": "han",
+          "text": {
+            "vi": "Giáo viên bảo thử nghe một đoạn rất ngắn, rồi đọc một tờ nhắc. Bạn nghe được là mình mừng liền.",
+            "en": "The teacher wants us to try a very short listening, then read a short note. If you catch it, I'll be so relieved."
+          }
+        },
+        {
+          "id": "listen",
+          "type": "question",
+          "prompt": {
+            "vi": "Anna đến từ đâu?",
+            "en": "Where is Anna from?"
+          },
+          "passage": {
+            "vi": "Hello. I am Anna. I am from Da Nang. I am a student.",
+            "en": "Hello. I am Anna. I am from Da Nang. I am a student."
+          },
+          "passageKind": "listening",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "Đà Nẵng",
+                "en": "Da Nang"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "Huế",
+                "en": "Hue"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "Hà Nội",
+                "en": "Hanoi"
+              }
+            }
+          ],
+          "answerId": "a",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Anna nói mình đến từ Đà Nẵng.",
+            "en": "That's right. Anna says she is from Da Nang."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Nghe lại câu thứ hai: Anna đến từ Đà Nẵng.",
+            "en": "Not quite. Listen to the second sentence again: Anna is from Da Nang."
+          }
+        },
+        {
+          "id": "read",
+          "type": "question",
+          "prompt": {
+            "vi": "Theo ghi chú, sinh viên cần mang gì?",
+            "en": "According to the note, what should students bring?"
+          },
+          "passage": {
+            "vi": "Class starts at 8:00. Please bring your book and a pen.",
+            "en": "Class starts at 8:00. Please bring your book and a pen."
+          },
+          "passageKind": "reading",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "Một cuốn sách và một cây bút",
+                "en": "A book and a pen"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "Một máy tính xách tay",
+                "en": "A laptop"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "Bữa trưa",
+                "en": "Lunch"
+              }
+            }
+          ],
+          "answerId": "a",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Ghi chú nhắc mang sách và bút.",
+            "en": "That's right. The note asks for a book and a pen."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Đọc lại câu thứ hai của ghi chú: mang sách và bút.",
+            "en": "Not quite. Read the second sentence again: bring a book and a pen."
+          }
+        }
+      ]
+    },
+    {
+      "id": "1.1/philosophy",
+      "title": {
+        "vi": "Tiết Triết học",
+        "en": "Philosophy class"
+      },
+      "place": "b8",
+      "minutes": 1.5,
+      "steps": [
+        {
+          "id": "open",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Tiết Triết học Mác – Lênin ở phòng lớn của B8. Ghế gần kín, ai cũng cúi ghi chép.",
+            "en": "The Marxist–Leninist Philosophy class is in a big room at B8. The seats are nearly full and everyone is bent over their notes."
+          }
+        },
+        {
+          "id": "s1",
+          "type": "slide",
+          "title": {
+            "vi": "Triết học Mác – Lênin học gì? (tóm tắt mô phỏng)",
+            "en": "What does Marxist–Leninist Philosophy cover? (short simulation)"
+          },
+          "body": {
+            "vi": "Theo mô tả môn học, đầu tiên là triết học và vai trò của nó trong đời sống xã hội, rồi những nét khái quát của triết học Mác – Lênin. Tiếp đến là chủ nghĩa duy vật biện chứng (vật chất và ý thức, phép biện chứng duy vật, lý luận nhận thức) và chủ nghĩa duy vật lịch sử.",
+            "en": "According to the course description, it starts with philosophy and its role in social life, then gives an overview of Marxist–Leninist philosophy. It goes on to dialectical materialism (matter and consciousness, materialist dialectics, the theory of knowledge) and historical materialism."
+          }
+        },
+        {
+          "id": "q",
+          "type": "question",
+          "prompt": {
+            "vi": "Theo slide, chủ nghĩa duy vật biện chứng gồm vấn đề nào?",
+            "en": "According to the slide, which topic belongs to dialectical materialism?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "Vật chất và ý thức",
+                "en": "Matter and consciousness"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "Giá trị thặng dư",
+                "en": "Surplus value"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "Vòng lặp for",
+                "en": "The for loop"
+              }
+            }
+          ],
+          "answerId": "a",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Vật chất và ý thức là một trong các vấn đề của chủ nghĩa duy vật biện chứng.",
+            "en": "That's right. Matter and consciousness is one of the topics of dialectical materialism."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Đọc lại slide: vật chất và ý thức, phép biện chứng duy vật, lý luận nhận thức.",
+            "en": "Not quite. Re-read the slide: matter and consciousness, materialist dialectics, the theory of knowledge."
+          }
+        },
+        {
+          "id": "han",
+          "type": "say",
+          "speaker": "han",
+          "text": {
+            "vi": "Mình ghi được nửa trang thôi. Bạn chép được nhiều hơn không?",
+            "en": "I only got half a page of notes. Did you manage more?"
+          }
+        }
+      ]
+    },
+    {
+      "id": "1.1/pe",
+      "title": {
+        "vi": "Giờ thể chất đầu tiên",
+        "en": "The first PE class"
+      },
+      "place": "b8",
+      "minutes": 1,
+      "steps": [
+        {
+          "id": "open",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Giờ thể chất đầu tiên. Cả lớp tập trung ngoài trời, khởi động nhẹ, ai cũng cười vì chưa biết bài nào là bài nào.",
+            "en": "The first PE class. Everyone gathers outdoors for a light warm-up, laughing because nobody knows the routine yet."
+          }
+        },
+        {
+          "id": "after",
+          "type": "choice",
+          "speaker": "han",
+          "text": {
+            "vi": "Khởi động xong rồi. Mình chạy thêm một vòng hay nghỉ chút?",
+            "en": "Warm-up's done. Shall we run one more lap or take a break?"
+          },
+          "options": [
+            {
+              "id": "run",
+              "text": {
+                "vi": "Chạy thêm một vòng đi.",
+                "en": "Let's run one more lap."
+              },
+              "reply": {
+                "vi": "Chơi! Đợi mình với nha.",
+                "en": "You're on! Wait for me."
+              }
+            },
+            {
+              "id": "rest",
+              "text": {
+                "vi": "Nghỉ chút, uống nước đã.",
+                "en": "Let's rest and have some water."
+              },
+              "reply": {
+                "vi": "Ừ, ngồi nói chuyện cũng vui.",
+                "en": "Sure, sitting and chatting is nice too."
+              }
+            }
+          ],
+          "flag": "1.1/pe"
+        }
+      ]
+    },
+    {
+      "id": "1.1/midterm",
+      "title": {
+        "vi": "Kiểm tra giữa kỳ",
+        "en": "Mid-term check"
+      },
+      "place": "b8",
+      "minutes": 1,
+      "steps": [
+        {
+          "id": "m1",
+          "type": "question",
+          "prompt": {
+            "vi": "Chọn từ đúng để hoàn thành câu: “I ___ a student.”",
+            "en": "Choose the correct word to complete the sentence: \"I ___ a student.\""
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "am",
+                "en": "am"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "is",
+                "en": "is"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "are",
+                "en": "are"
+              }
+            }
+          ],
+          "answerId": "a",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Với “I” ta dùng “am”.",
+            "en": "That's right. With \"I\" we use \"am\"."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Với “I” ta dùng “am”: I am a student.",
+            "en": "Not quite. With \"I\" we use \"am\": I am a student."
+          }
+        },
+        {
+          "id": "m2",
+          "type": "question",
+          "prompt": {
+            "vi": "Ai có một cuốn sách?",
+            "en": "Who has a book?"
+          },
+          "passage": {
+            "vi": "Mai has a pen. Tom has a book.",
+            "en": "Mai has a pen. Tom has a book."
+          },
+          "passageKind": "reading",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "Mai",
+                "en": "Mai"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "Tom",
+                "en": "Tom"
+              }
+            }
+          ],
+          "answerId": "b",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Tom có một cuốn sách.",
+            "en": "That's right. Tom has a book."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Đọc lại: Mai có bút, còn Tom có sách.",
+            "en": "Not quite. Read again: Mai has a pen, and Tom has a book."
+          }
+        }
+      ]
+    },
+    {
+      "id": "1.1/final",
+      "title": {
+        "vi": "Kiểm tra cuối kỳ",
+        "en": "End-of-term test"
+      },
+      "place": "b8",
+      "minutes": 2.5,
+      "steps": [
+        {
+          "id": "f-listen",
+          "type": "question",
+          "prompt": {
+            "vi": "Nghe: người B làm gì vào thứ Bảy?",
+            "en": "Listening: what does B do on Saturday?"
+          },
+          "passage": {
+            "vi": "A: What do you do on Saturday?  B: I play football with my friends.",
+            "en": "A: What do you do on Saturday?  B: I play football with my friends."
+          },
+          "passageKind": "listening",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "Chơi bóng đá",
+                "en": "Plays football"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "Học tiếng Anh",
+                "en": "Studies English"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "Đi mua sắm",
+                "en": "Goes shopping"
+              }
+            }
+          ],
+          "answerId": "a",
+          "explainCorrect": {
+            "vi": "Đúng rồi. B chơi bóng đá với bạn.",
+            "en": "That's right. B plays football with friends."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. B nói mình chơi bóng đá với bạn vào thứ Bảy.",
+            "en": "Not quite. B says they play football with friends on Saturday."
+          }
+        },
+        {
+          "id": "f-read",
+          "type": "question",
+          "prompt": {
+            "vi": "Đọc: Sam đi học lúc mấy giờ?",
+            "en": "Reading: what time does Sam go to school?"
+          },
+          "passage": {
+            "vi": "Sam gets up at six. He eats breakfast at six thirty. He goes to school at seven.",
+            "en": "Sam gets up at six. He eats breakfast at six thirty. He goes to school at seven."
+          },
+          "passageKind": "reading",
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "6:00",
+                "en": "6:00"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "6:30",
+                "en": "6:30"
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "7:00",
+                "en": "7:00"
+              }
+            }
+          ],
+          "answerId": "c",
+          "explainCorrect": {
+            "vi": "Đúng rồi. Sam đi học lúc bảy giờ.",
+            "en": "That's right. Sam goes to school at seven."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Sam dậy lúc sáu giờ, ăn sáng lúc sáu giờ rưỡi và đi học lúc bảy giờ.",
+            "en": "Not quite. Sam gets up at six, eats breakfast at six thirty and goes to school at seven."
+          }
+        },
+        {
+          "id": "f-write",
+          "type": "order",
+          "prompt": {
+            "vi": "Viết: sắp các từ thành một câu đúng.",
+            "en": "Writing: put the words in order to make a correct sentence."
+          },
+          "items": [
+            {
+              "id": "t",
+              "text": {
+                "vi": "to",
+                "en": "to"
+              }
+            },
+            {
+              "id": "s",
+              "text": {
+                "vi": "She",
+                "en": "She"
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "by",
+                "en": "by"
+              }
+            },
+            {
+              "id": "g",
+              "text": {
+                "vi": "goes",
+                "en": "goes"
+              }
+            },
+            {
+              "id": "k",
+              "text": {
+                "vi": "bike",
+                "en": "bike"
+              }
+            },
+            {
+              "id": "sc",
+              "text": {
+                "vi": "school",
+                "en": "school"
+              }
+            }
+          ],
+          "answer": [
+            "s",
+            "g",
+            "t",
+            "sc",
+            "b",
+            "k"
+          ],
+          "explainCorrect": {
+            "vi": "Đúng rồi: She goes to school by bike.",
+            "en": "That's right: She goes to school by bike."
+          },
+          "explainWrong": {
+            "vi": "Chưa đúng. Câu đúng bắt đầu bằng “She goes to school” rồi mới đến “by bike”.",
+            "en": "Not quite. The correct sentence starts with \"She goes to school\" and ends with \"by bike\"."
+          }
+        },
+        {
+          "id": "f-speak",
+          "type": "choice",
+          "speaker": "examiner",
+          "text": {
+            "vi": "Nói: bạn thường làm gì vào cuối tuần?",
+            "en": "Speaking: what do you usually do at the weekend?"
+          },
+          "options": [
+            {
+              "id": "a",
+              "text": {
+                "vi": "I usually play games.",
+                "en": "I usually play games."
+              },
+              "reply": {
+                "vi": "Cảm ơn bạn.",
+                "en": "Thank you."
+              }
+            },
+            {
+              "id": "b",
+              "text": {
+                "vi": "I usually see my friends.",
+                "en": "I usually see my friends."
+              },
+              "reply": {
+                "vi": "Cảm ơn bạn.",
+                "en": "Thank you."
+              }
+            },
+            {
+              "id": "c",
+              "text": {
+                "vi": "I usually stay at home.",
+                "en": "I usually stay at home."
+              },
+              "reply": {
+                "vi": "Cảm ơn bạn.",
+                "en": "Thank you."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "closing": [
+    {
+      "id": "1.1/after",
+      "title": {
+        "vi": "Giờ nghỉ sau buổi thi",
+        "en": "Break after the test"
+      },
+      "place": "b8",
+      "minutes": 1.5,
+      "steps": [
+        {
+          "id": "open",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Thi xong, cả khóa tràn ra hành lang. Han đứng chờ ở cửa, tay còn cầm cây bút chưa kịp cất.",
+            "en": "The test is over and the whole cohort spills into the corridor. Han waits at the door, still holding a pen she hasn't put away."
+          }
+        },
+        {
+          "id": "han",
+          "type": "say",
+          "speaker": "han",
+          "text": {
+            "vi": "Xong rồi! Bốn kỹ năng liền một lúc, đầu mình vẫn còn vang tiếng loa.",
+            "en": "Done! Four skills in one go, and I can still hear the speaker in my head."
+          },
+          "variants": [
+            {
+              "when": {
+                "flag": {
+                  "key": "1.1/han",
+                  "is": "practice"
+                }
+              },
+              "text": {
+                "vi": "Xong rồi! Hồi đầu kỳ mình tập “Nice to meet you” hoài, giờ nói trơn tru hơn rồi nè.",
+                "en": "Done! At the start of term I kept practising \"Nice to meet you\", and now I can say it without tripping."
+              }
+            },
+            {
+              "when": {
+                "flag": {
+                  "key": "1.1/han",
+                  "is": "joke"
+                }
+              },
+              "text": {
+                "vi": "Xong rồi! Nhớ hồi đầu kỳ bạn nói “Nice to meet you” ba lần không? Mình vẫn còn nghe văng vẳng.",
+                "en": "Done! Remember when you said \"Nice to meet you\" three times at the start of term? I can still hear it."
+              }
+            }
+          ]
+        },
+        {
+          "id": "thanh",
+          "type": "say",
+          "speaker": "thanh",
+          "text": {
+            "vi": "Giờ nghỉ mà gặp thật nè. Bên mình, lớp Level 2, cũng vừa thi xong. Đi ăn gì không?",
+            "en": "We really do meet at break! My Level 2 class just finished too. Want to get something to eat?"
+          }
+        },
+        {
+          "id": "quyen",
+          "type": "say",
+          "speaker": "narrator",
+          "text": {
+            "vi": "Quyền đi ngang qua, giơ tay chào một cái rồi đi tiếp. Hôm nay có vẻ ai cũng đói.",
+            "en": "Quyền walks past, gives a quick wave and keeps going. Everyone seems hungry today."
+          }
+        },
+        {
+          "id": "han2",
+          "type": "say",
+          "speaker": "han",
+          "text": {
+            "vi": "Đi! Mình đói tới mức nuốt trọn cả từ điển.",
+            "en": "Let's go! I'm hungry enough to swallow a dictionary."
+          }
+        }
+      ]
+    }
+  ],
+  "englishLevel": 1,
+  "memory": {
+    "stamp": {
+      "vi": "Level 1 — kỳ đầu tiên",
+      "en": "Level 1 — the first term"
+    },
+    "photos": [
+      {
+        "id": "yard",
+        "when": {
+          "flag": {
+            "key": "1.1/pe",
+            "is": "run"
+          }
+        },
+        "caption": {
+          "vi": "Giờ thể chất đầu tiên",
+          "en": "The first PE class"
+        }
+      },
+      {
+        "id": "class",
+        "caption": {
+          "vi": "Giờ học đầu tiên cùng Han",
+          "en": "The first class with Han"
+        }
+      }
+    ],
+    "lines": [
+      {
+        "id": "practice",
+        "when": {
+          "flag": {
+            "key": "1.1/han",
+            "is": "practice"
+          }
+        },
+        "text": {
+          "vi": "“Nice to meet you” — và mình đã có bạn.",
+          "en": "\"Nice to meet you\" — and I made a friend."
+        }
+      },
+      {
+        "id": "joke",
+        "when": {
+          "flag": {
+            "key": "1.1/han",
+            "is": "joke"
+          }
+        },
+        "text": {
+          "vi": "Một câu chào nói ba lần, mà mình nhớ cả đời.",
+          "en": "One greeting said three times, and I'll remember it for good."
+        }
+      },
+      {
+        "id": "default",
+        "text": {
+          "vi": "Level 1: những câu tiếng Anh đầu tiên, và một người ngồi cạnh.",
+          "en": "Level 1: the first English sentences, and someone sitting next to me."
+        }
+      }
+    ],
+    "activities": [
+      {
+        "vi": "Giờ thể chất",
+        "en": "PE class"
+      },
+      {
+        "vi": "Tiết Triết học trong phòng lớn",
+        "en": "Philosophy in the big lecture room"
+      },
+      {
+        "vi": "Kiểm tra giữa kỳ và cuối kỳ",
+        "en": "Mid-term and end-of-term tests"
+      }
+    ]
+  }
+}
