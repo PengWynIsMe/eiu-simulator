@@ -454,32 +454,6 @@
           "th": 0,
           "year": 2,
           "yearSource": "ma-mon"
-        },
-        {
-          "code": "DANC 212",
-          "name": {
-            "vi": "Khiêu vũ 3",
-            "en": "Dance 3"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
-          "year": 2,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "THE 225",
-          "name": {
-            "vi": "Nghệ thuật sân khấu 3",
-            "en": "Theater 3"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
-          "year": 2,
-          "yearSource": "ma-mon"
         }
       ],
       "electiveSlots": []
@@ -1372,7 +1346,8 @@
     "file": "QTKD.pdf",
     "kind": "khung",
     "year": null,
-    "pages": "1–7"
+    "pages": "1–7",
+    "note": "hand-checked từ PDF"
   },
   "generatedAt": "2026-11-23"
 }

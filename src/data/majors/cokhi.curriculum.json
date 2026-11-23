@@ -112,6 +112,19 @@
           "yearSource": "ma-mon"
         },
         {
+          "code": "MATH 112",
+          "name": {
+            "vi": "Giải tích II",
+            "en": "Calculus II"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
+        },
+        {
           "code": "MATH 113",
           "name": {
             "vi": "Giải tích III",
@@ -350,6 +363,32 @@
           "th": 1,
           "year": 2,
           "yearSource": "ma-mon"
+        },
+        {
+          "code": "WRT 230",
+          "name": {
+            "vi": "Viết kỹ thuật và thuyết trình",
+            "en": "Technical Writing and Presentation"
+          },
+          "credits": 3,
+          "block": "bo-tro",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 250",
+          "name": {
+            "vi": "Trách nhiệm nghề nghiệp",
+            "en": "Professional Responsibility"
+          },
+          "credits": 3,
+          "block": "bo-tro",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
         }
       ],
       "electiveSlots": []
@@ -499,6 +538,45 @@
           "th": 0,
           "year": 3,
           "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 362",
+          "name": {
+            "vi": "Thí nghiệm Cơ lưu chất và Truyền nhiệt",
+            "en": "Fluid & Heat Transfer Lab"
+          },
+          "credits": 1,
+          "block": "nganh",
+          "lt": 0,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ACE 307",
+          "name": {
+            "vi": "Hệ thống điều khiển",
+            "en": "Control Systems"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 375",
+          "name": {
+            "vi": "Đo lường kỹ thuật và phân tích dữ liệu",
+            "en": "Engineering Measurement & Data Analysis"
+          },
+          "credits": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
         }
       ],
       "electiveSlots": []
@@ -507,67 +585,15 @@
       "year": 4,
       "courses": [
         {
-          "code": "ME 440",
+          "code": "ME 470",
           "name": {
-            "vi": "Manufacturing Tooling 3 Vật liệu Composite",
-            "en": "Composite Materials"
+            "vi": "Thực tập tốt nghiệp Cơ khí",
+            "en": "Internship"
           },
-          "credits": 1,
-          "block": "chuyen-nganh",
+          "credits": 2,
+          "block": "nganh",
           "lt": 0,
-          "th": 1,
-          "year": 4,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "ME 425",
-          "name": {
-            "vi": "Gia công bồi đắp",
-            "en": "Additive Manufacturing"
-          },
-          "credits": 4,
-          "block": "chuyen-nganh",
-          "lt": 4,
-          "th": 0,
-          "year": 4,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "ME 462",
-          "name": {
-            "vi": "Hệ thống sưởi, thông gió và điều hòa không khí",
-            "en": "Heating, Ventilating Air Conditioning"
-          },
-          "credits": 4,
-          "block": "chuyen-nganh",
-          "lt": 3,
-          "th": 1,
-          "year": 4,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "ME 463",
-          "name": {
-            "vi": "Năng lượng mặt trời và năng lượng tái tạo",
-            "en": "Solar and renewable energy systems"
-          },
-          "credits": 4,
-          "block": "chuyen-nganh",
-          "lt": 3,
-          "th": 1,
-          "year": 4,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "ME 430",
-          "name": {
-            "vi": "Tính toán động lực học chất lưu",
-            "en": "Computational Fluid Dynamics"
-          },
-          "credits": 4,
-          "block": "chuyen-nganh",
-          "lt": 4,
-          "th": 0,
+          "th": 2,
           "year": 4,
           "yearSource": "ma-mon"
         },
@@ -578,7 +604,7 @@
             "en": "Capstone Project 1"
           },
           "credits": 1,
-          "block": "chuyen-nganh",
+          "block": "tot-nghiep",
           "lt": 0,
           "th": 1,
           "year": 4,
@@ -591,7 +617,7 @@
             "en": "Capstone Project 2"
           },
           "credits": 2,
-          "block": "chuyen-nganh",
+          "block": "tot-nghiep",
           "lt": 0,
           "th": 2,
           "year": 4,
@@ -604,7 +630,7 @@
             "en": "Capstone Project 3"
           },
           "credits": 4,
-          "block": "chuyen-nganh",
+          "block": "tot-nghiep",
           "lt": 0,
           "th": 4,
           "year": 4,
@@ -813,6 +839,169 @@
           "yearSource": "ma-mon"
         }
       ]
+    },
+    {
+      "id": "tu-chon-thiet-ke-co-khi",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Thiết kế Cơ khí",
+        "en": "Mechanical Design electives"
+      },
+      "minCredits": 8,
+      "specializationId": "thiet-ke-co-khi",
+      "courses": [
+        {
+          "code": "ME 481",
+          "name": {
+            "vi": "Hệ thống Khí nén và Thủy lực",
+            "en": "Pneumatic & Hydraulic Systems"
+          },
+          "credits": 2,
+          "block": "chuyen-nganh",
+          "lt": 0,
+          "th": 2,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 418",
+          "name": {
+            "vi": "Dao động cơ khí",
+            "en": "Mechanical Vibrations"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 480",
+          "name": {
+            "vi": "Cơ điện tử",
+            "en": "Mechatronics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ]
+    },
+    {
+      "id": "tu-chon-gia-cong-che-tao",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Gia công Chế tạo",
+        "en": "Manufacturing electives"
+      },
+      "minCredits": 8,
+      "specializationId": "gia-cong-che-tao",
+      "courses": [
+        {
+          "code": "ME 403",
+          "name": {
+            "vi": "Các phương pháp gia công hiện đại",
+            "en": "Advanced Manufacturing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 404",
+          "name": {
+            "vi": "Thiết kế dao cụ và đồ gá",
+            "en": "Manufacturing Tooling"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 440",
+          "name": {
+            "vi": "Vật liệu Composite",
+            "en": "Composite Materials"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 425",
+          "name": {
+            "vi": "Gia công bồi đắp",
+            "en": "Additive Manufacturing"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ]
+    },
+    {
+      "id": "tu-chon-he-thong-nang-luong",
+      "title": {
+        "vi": "Tự chọn chuyên ngành Hệ thống năng lượng",
+        "en": "Energy Systems electives"
+      },
+      "minCredits": 8,
+      "specializationId": "he-thong-nang-luong",
+      "courses": [
+        {
+          "code": "ME 462",
+          "name": {
+            "vi": "Hệ thống sưởi, thông gió và điều hòa không khí",
+            "en": "Heating, Ventilating Air Conditioning"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 463",
+          "name": {
+            "vi": "Năng lượng mặt trời và năng lượng tái tạo",
+            "en": "Solar and renewable energy systems"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 430",
+          "name": {
+            "vi": "Tính toán động lực học chất lưu",
+            "en": "Computational Fluid Dynamics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ]
     }
   ],
   "specializations": [
@@ -822,8 +1011,37 @@
         "vi": "Thiết kế cơ khí",
         "en": "Mechanical Design"
       },
-      "requiredCourses": [],
-      "electiveGroupIds": []
+      "requiredCourses": [
+        {
+          "code": "ME 410",
+          "name": {
+            "vi": "Thiết kế và phát triển sản phẩm",
+            "en": "Product Realization"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 412",
+          "name": {
+            "vi": "Phân tích kỹ thuật trên máy tính",
+            "en": "Computer- Aided Engineering"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "tu-chon-thiet-ke-co-khi"
+      ]
     },
     {
       "id": "gia-cong-che-tao",
@@ -831,8 +1049,37 @@
         "vi": "Gia công chế tạo",
         "en": "Manufacturing"
       },
-      "requiredCourses": [],
-      "electiveGroupIds": []
+      "requiredCourses": [
+        {
+          "code": "ME 400",
+          "name": {
+            "vi": "Đo lường cơ khí",
+            "en": "Metrology"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 401",
+          "name": {
+            "vi": "CAM nâng cao",
+            "en": "CAM for Manufacturing Center"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "tu-chon-gia-cong-che-tao"
+      ]
     },
     {
       "id": "he-thong-nang-luong",
@@ -840,15 +1087,45 @@
         "vi": "Hệ thống năng lượng",
         "en": "Energy Systems"
       },
-      "requiredCourses": [],
-      "electiveGroupIds": []
+      "requiredCourses": [
+        {
+          "code": "ME 460",
+          "name": {
+            "vi": "Nhiệt động lực học kỹ thuật ứng dụng",
+            "en": "Applied Engineering Thermodynamics"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 4,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ME 461",
+          "name": {
+            "vi": "Thiết kế hệ thống nhiệt",
+            "en": "Thermal System Design"
+          },
+          "credits": 4,
+          "block": "chuyen-nganh",
+          "lt": 4,
+          "th": 0,
+          "year": 4,
+          "yearSource": "ma-mon"
+        }
+      ],
+      "electiveGroupIds": [
+        "tu-chon-he-thong-nang-luong"
+      ]
     }
   ],
   "source": {
     "file": "COKHI.pdf",
     "kind": "khung",
     "year": null,
-    "pages": "1–5"
+    "pages": "1–5",
+    "note": "hand-checked từ PDF"
   },
   "generatedAt": "2026-11-23"
 }

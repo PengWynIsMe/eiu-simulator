@@ -196,6 +196,20 @@
       "year": 2,
       "courses": [
         {
+          "code": "POLS 132",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Ho Chi Minh's Ideology"
+          },
+          "credits": 3,
+          "lt": 3,
+          "th": 0,
+          "block": "nganh",
+          "year": 2,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "MATH 122",
           "name": {
             "vi": "Phương trình vi phân",
@@ -266,6 +280,20 @@
           "yearSource": "ke-hoach"
         },
         {
+          "code": "ECE 207",
+          "name": {
+            "vi": "Kỹ thuật số",
+            "en": "Digital Circuits"
+          },
+          "credits": 4,
+          "lt": 3,
+          "th": 1,
+          "block": "nganh",
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "ECE 202",
           "name": {
             "vi": "Mạch điện 2",
@@ -291,6 +319,20 @@
           "th": 1,
           "year": 2,
           "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MATH 114",
+          "name": {
+            "vi": "Giải tích IV",
+            "en": "Calculus IV"
+          },
+          "credits": 4,
+          "lt": 4,
+          "th": 0,
+          "block": "nganh",
+          "year": 2,
+          "semester": 3,
           "yearSource": "ke-hoach"
         },
         {
@@ -508,6 +550,48 @@
           "year": 3,
           "semester": 3,
           "yearSource": "ke-hoach"
+        },
+        {
+          "code": "ACE 306",
+          "name": {
+            "vi": "Hệ thống điều khiển hồi tiếp",
+            "en": "Feedback Control Systems"
+          },
+          "credits": 4,
+          "lt": 3,
+          "th": 1,
+          "block": "nganh",
+          "year": 3,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 322",
+          "name": {
+            "vi": "Đồ án Kỹ thuật Điện 2",
+            "en": "Electrical Engineering Project 2"
+          },
+          "credits": 1,
+          "lt": 0,
+          "th": 1,
+          "block": "nganh",
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 323",
+          "name": {
+            "vi": "Thực tập tốt nghiệp Kỹ thuật Điện",
+            "en": "EE Internship"
+          },
+          "credits": 2,
+          "lt": 0,
+          "th": 2,
+          "block": "nganh",
+          "year": 3,
+          "semester": 4,
+          "yearSource": "ke-hoach"
         }
       ],
       "electiveSlots": [
@@ -533,6 +617,34 @@
           "th": 1,
           "year": 4,
           "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 491",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Kỹ thuật Điện 1",
+            "en": "Electrical Engineering Capstone Project 1"
+          },
+          "credits": 1,
+          "lt": 0,
+          "th": 1,
+          "block": "tot-nghiep",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "EE 492",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Kỹ thuật Điện 2",
+            "en": "Electrical Engineering Capstone Project 2"
+          },
+          "credits": 2,
+          "lt": 0,
+          "th": 2,
+          "block": "tot-nghiep",
+          "year": 4,
+          "semester": 2,
           "yearSource": "ke-hoach"
         },
         {
@@ -682,17 +794,15 @@
           "yearSource": "ke-hoach"
         }
       ],
-      "electiveGroupIds": [
-        "giao-tiep-ngon-ngu-va-3-3",
-        "tu-chon-4-1"
-      ]
+      "electiveGroupIds": []
     }
   ],
   "source": {
     "file": "BEE.pdf",
     "kind": "bm08",
     "year": 2026,
-    "pages": "8–70, 81–82"
+    "pages": "8–70, 81–82",
+    "note": "hand-checked từ PDF"
   },
   "generatedAt": "2026-11-23"
 }

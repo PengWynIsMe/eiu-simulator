@@ -570,20 +570,6 @@
           "year": 4,
           "semester": 3,
           "yearSource": "ke-hoach"
-        },
-        {
-          "code": "CSW 430",
-          "name": {
-            "vi": "Phát triển ứng dụng di động",
-            "en": "Mobile Application Development"
-          },
-          "credits": 4,
-          "block": "nganh",
-          "lt": 3,
-          "th": 1,
-          "year": 4,
-          "semester": 3,
-          "yearSource": "ke-hoach"
         }
       ],
       "electiveSlots": [
@@ -670,7 +656,8 @@
     "file": "BSE.pdf",
     "kind": "bm08",
     "year": 2026,
-    "pages": "7–57, 75–76"
+    "pages": "7–57, 75–76",
+    "note": "hand-checked từ PDF"
   },
   "generatedAt": "2026-11-23"
 }

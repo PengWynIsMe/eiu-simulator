@@ -62,8 +62,8 @@ for (const major of config) {
 
     // Known source exceptions: BSE IV says 180 while the semester plan totals 183;
     // DTVT's short framework PDF has no overall credit total.
-    const allowedTotals = major.id === 'ktpm' ? [180, 183] : major.id === 'dtvt' ? [] : [major.totalCredits];
-    if (!allowedTotals.length && major.id !== 'dtvt') throw new Error('expected total missing');
+    const allowedTotals = major.id === 'ktpm' ? [180, 183] : major.id === 'qtkd' ? [191, 195] : [major.totalCredits];
+    if (!allowedTotals.length) throw new Error('expected total missing');
     if (allowedTotals.length && expectedTotals.some(total => !allowedTotals.includes(total))) {
       majorFailed = true;
       console.error(`  mismatch by component: expected ${allowedTotals.join(' or ')}, got ${expectedTotals.join(', ')}`);

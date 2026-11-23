@@ -566,13 +566,13 @@
           "yearSource": "ke-hoach"
         },
         {
-          "code": "MEC 471",
+          "code": "MEC 332",
           "name": {
-            "vi": "Đồ án tốt nghiệp Cơ điện tử 1",
-            "en": "Capstone Project 1"
+            "vi": "Thiết kế hệ thống Cơ điện tử",
+            "en": "IELTS 6.0 MEC Mechatronics System Design"
           },
           "credits": 1,
-          "block": "tot-nghiep",
+          "block": "nganh",
           "lt": 0,
           "th": 1,
           "year": 3,
@@ -580,17 +580,31 @@
           "yearSource": "ke-hoach"
         },
         {
-          "code": "MEC 332",
+          "code": "MEC 364",
           "name": {
-            "vi": "Thiết kế hệ thống Cơ điện tử",
-            "en": "IELTS 6.0 MEC Mechatronics System Design"
+            "vi": "Công nghệ chế tạo",
+            "en": "Manufacturing Technology"
           },
           "credits": 4,
-          "block": "nganh",
           "lt": 3,
           "th": 1,
+          "block": "nganh",
           "year": 3,
-          "semester": 4,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 305",
+          "name": {
+            "vi": "Vi điều khiển",
+            "en": "Microcontroller"
+          },
+          "credits": 4,
+          "lt": 3,
+          "th": 1,
+          "block": "nganh",
+          "year": 3,
+          "semester": 3,
           "yearSource": "ke-hoach"
         }
       ],
@@ -610,6 +624,34 @@
     {
       "year": 4,
       "courses": [
+        {
+          "code": "MEC 471",
+          "name": {
+            "vi": "Đồ án tốt nghiệp Cơ điện tử 1",
+            "en": "Capstone Project 1"
+          },
+          "credits": 1,
+          "lt": 0,
+          "th": 1,
+          "block": "tot-nghiep",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
+          "code": "MEC 480",
+          "name": {
+            "vi": "Thiết kế hệ thống Cơ điện tử",
+            "en": "Mechatronics System Design"
+          },
+          "credits": 4,
+          "lt": 3,
+          "th": 1,
+          "block": "nganh",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
         {
           "code": "MEC 472",
           "name": {
@@ -1233,15 +1275,29 @@
       },
       "requiredCourses": [
         {
+          "code": "MEC 400",
+          "name": {
+            "vi": "Xe robot tự hành",
+            "en": "Autonomous Mobile Robot"
+          },
+          "credits": 4,
+          "lt": 3,
+          "th": 1,
+          "block": "chuyen-nganh",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "MEC 402",
           "name": {
-            "vi": "Thiết kế và Ứng dụng Hệ thống Robot",
+            "vi": "Thiết kế và Ứng dụng Hệ thống Robot",
             "en": "Robotic Systems Design and Application"
           },
           "credits": 4,
-          "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
+          "block": "chuyen-nganh",
           "year": 4,
           "semester": 2,
           "yearSource": "ke-hoach"
@@ -1257,15 +1313,29 @@
       },
       "requiredCourses": [
         {
+          "code": "MEC 487",
+          "name": {
+            "vi": "Hệ thống sản xuất thông minh",
+            "en": "Smart Manufacturing System"
+          },
+          "credits": 4,
+          "lt": 3,
+          "th": 1,
+          "block": "chuyen-nganh",
+          "year": 4,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "MEC 489",
           "name": {
-            "vi": "Chuyển đổi số trong sản xuất",
+            "vi": "Chuyển đổi số trong sản xuất",
             "en": "Digital Transformation in Manufacturing"
           },
           "credits": 4,
-          "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
+          "block": "chuyen-nganh",
           "year": 4,
           "semester": 2,
           "yearSource": "ke-hoach"
@@ -1278,7 +1348,8 @@
     "file": "MEE.pdf",
     "kind": "bm08",
     "year": 2026,
-    "pages": "8–68"
+    "pages": "8–68",
+    "note": "hand-checked từ PDF"
   },
   "generatedAt": "2026-11-23"
 }

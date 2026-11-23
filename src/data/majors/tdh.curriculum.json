@@ -322,6 +322,20 @@
           "yearSource": "ke-hoach"
         },
         {
+          "code": "MATH 123",
+          "name": {
+            "vi": "Tính toán kỹ thuật",
+            "en": "Engineering Computation"
+          },
+          "credits": 3,
+          "lt": 3,
+          "th": 0,
+          "block": "nganh",
+          "year": 2,
+          "semester": 2,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "MATH 114",
           "name": {
             "vi": "Giải tích IV",
@@ -566,6 +580,20 @@
           "yearSource": "ke-hoach"
         },
         {
+          "code": "EE 312",
+          "name": {
+            "vi": "Thực hành hệ thống điện công nghiệp",
+            "en": "Industrial Electrical Systems Practice"
+          },
+          "credits": 1,
+          "lt": 0,
+          "th": 1,
+          "block": "nganh",
+          "year": 3,
+          "semester": 3,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "ACE 392",
           "name": {
             "vi": "Đồ án Kỹ thuật điều khiển và tự động hóa 2",
@@ -765,16 +793,15 @@
           "yearSource": "ke-hoach"
         }
       ],
-      "electiveGroupIds": [
-        "khoa-hoc-xa-hoi-va-hanh-vi-4-1"
-      ]
+      "electiveGroupIds": []
     }
   ],
   "source": {
     "file": "ACE.pdf",
     "kind": "bm08",
     "year": 2026,
-    "pages": "8–73, 83–84"
+    "pages": "8–73, 83–84",
+    "note": "hand-checked từ PDF"
   },
   "generatedAt": "2026-11-23"
 }

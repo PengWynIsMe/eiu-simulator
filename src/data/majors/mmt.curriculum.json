@@ -355,6 +355,20 @@
           "yearSource": "ke-hoach"
         },
         {
+          "code": "CSN 302",
+          "name": {
+            "vi": "Internet of Things",
+            "en": "Internet of Things"
+          },
+          "credits": 4,
+          "lt": 3,
+          "th": 1,
+          "block": "nganh",
+          "year": 3,
+          "semester": 1,
+          "yearSource": "ke-hoach"
+        },
+        {
           "code": "CSN 303",
           "name": {
             "vi": "Nhập môn an ninh mạng",
@@ -754,9 +768,7 @@
           "yearSource": "ke-hoach"
         }
       ],
-      "electiveGroupIds": [
-        "tu-chon-chuyen-nganh-4-1"
-      ]
+      "electiveGroupIds": []
     },
     {
       "id": "iot",
@@ -801,7 +813,8 @@
     "file": "CNDC.pdf",
     "kind": "bm08",
     "year": 2026,
-    "pages": "7–55, 66–67"
+    "pages": "7–55, 66–67",
+    "note": "hand-checked từ PDF"
   },
   "generatedAt": "2026-11-23"
 }
