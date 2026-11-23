@@ -5,7 +5,7 @@ import { safeMerge } from '../kit/geometryHelpers';
 import Block11Details from './Block11Details';
 import CampusGreenery from '../nature/CampusGreenery';
 
-const ZONE2_WALKWAYS: readonly { readonly points: readonly Vec2[]; readonly roofH: number; readonly width: number }[] = [
+export const ZONE2_WALKWAYS: readonly { readonly points: readonly Vec2[]; readonly roofH: number; readonly width: number }[] = [
   // Hành lang mái che B9 ↔ B10 (theo đường footway OSM)
   {
     points: [
