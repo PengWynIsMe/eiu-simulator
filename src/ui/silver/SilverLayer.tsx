@@ -82,7 +82,9 @@ function SilverOverlay({ mode }: { mode: 'overlay' | 'world' }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="silver-screen-title"
-      className="fixed inset-0 z-[60] flex h-[100dvh] flex-col bg-slate-900/70 backdrop-blur-sm"
+      className={`fixed inset-0 z-[60] flex h-[100dvh] flex-col ${
+        mode === 'world' ? 'bg-transparent' : 'bg-slate-900/70 backdrop-blur-sm'
+      }`}
       onKeyDown={(e) => {
         if (mode !== 'world') {
           e.stopPropagation();

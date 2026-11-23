@@ -3,6 +3,7 @@ import { useT } from '../text';
 import { useSilver } from '../silver/adapter';
 import { useSilverPresentation } from '../silver/presentation';
 import { useActivityStore } from '../../store/useActivityStore';
+import { useWalkStore } from '../../store/useWalkStore';
 import LangToggle from '../major/LangToggle';
 import MuteButton from '../lesson/MuteButton';
 import ConfirmDialog from '../silver/parts/ConfirmDialog';
@@ -13,7 +14,7 @@ import QuestionView from '../lesson/views/QuestionView';
 import WorldNavigationCard from './WorldNavigationCard';
 import WorldOrder from './WorldOrder';
 import WorldDesktop from './WorldDesktop';
-import { initDevSilver3DLab1 } from './directorBridge';
+import HomeExtraSlot from './HomeExtraSlot';
 import { fmt, ST_W } from './text';
 
 const SPEAKER_STYLE: Record<string, { bg: string; text: string; initial: string }> = {
@@ -54,10 +55,14 @@ export default function WorldLayer() {
   const prevStepKeyRef = useRef<string | null>(null);
   const lastNextClickRef = useRef(0);
 
-  // Kích hoạt cửa vào dev ?silver3d=lab1 trên môi trường phát triển
+  // Tự động bật walkMode nếu chưa bật khi vào màn play ở chế độ 3D world
   useEffect(() => {
-    void initDevSilver3DLab1(useSilver);
-  }, []);
+    if (screen === 'play' && mode === 'world') {
+      if (!useWalkStore.getState().walkMode) {
+        useWalkStore.setState({ walkMode: true });
+      }
+    }
+  }, [screen, mode]);
 
   const stepKey = play?.item.id && play.step.id ? `${play.item.id}:${play.step.id}` : null;
 
@@ -68,9 +73,9 @@ export default function WorldLayer() {
     }
   }, [stepKey]);
 
-  // Chỉ hiển thị khi đang ở màn chơi của chế độ 3D world
+  // Chỉ hiển thị phần 3D Play layer khi đang ở màn chơi của chế độ 3D world
   if (screen !== 'play' || mode !== 'world' || !play) {
-    return null;
+    return <HomeExtraSlot />;
   }
 
   const isLastStep = play.stepIndex + 1 >= play.stepCount;
@@ -92,6 +97,7 @@ export default function WorldLayer() {
 
   return (
     <>
+      <HomeExtraSlot />
       {/* Ẩn thanh TopBar chung khi đang chơi trong 3D world để tránh chồng lấn giao diện */}
       <style>{`
         header:not([data-world-layer="true"]) {
