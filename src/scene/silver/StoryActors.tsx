@@ -1,4 +1,4 @@
-import { Suspense, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { Vector3, type Group } from 'three';
@@ -10,6 +10,7 @@ import { useLangStore } from '../../store/useLangStore';
 import { useSilverStore } from '../../store/useSilverStore';
 import type { Classroom } from '../../types';
 import type { ClassSignal, StageActor, StageSpec } from '../../types/silverWorld';
+import { departureManager, shouldTriggerDeparture } from './departureState';
 
 const SPEAKER_NAMES: Record<string, { vi: string; en: string }> = {
   han: { vi: 'Han', en: 'Han' },
@@ -18,9 +19,6 @@ const SPEAKER_NAMES: Record<string, { vi: string; en: string }> = {
   examiner: { vi: 'Giám khảo', en: 'Examiner' },
   guide: { vi: 'Hướng dẫn viên', en: 'Guide' },
 };
-
-/** Ghi nhớ các cảnh mà diễn viên đã rời đi để không chạy lại khi mount lại */
-const completedDepartures = new Set<string>();
 
 export interface StoryActorsProps {
   room?: Classroom | null;
@@ -78,8 +76,14 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
     return getDepartureConfig(stage.sceneId, actor.speaker);
   }, [stage.sceneId, actor.speaker]);
 
-  // Nếu diễn viên này đã hoàn thành rời đi ở cảnh này, không render lại
-  const alreadyDeparted = departConfig ? completedDepartures.has(departConfig.key) : false;
+  const screen = useSilverStore((s) => s.screen);
+  const play = useSilverStore((s) => s.play);
+  const sessionKey = useMemo(() => {
+    return departureManager.updateSession(screen, play?.chapterId ?? null, play?.item.id ?? null);
+  }, [screen, play?.chapterId, play?.item.id]);
+
+  // Nếu diễn viên này đã hoàn thành rời đi ở lượt chơi này, không render lại
+  const alreadyDeparted = departConfig ? departureManager.isCompleted(sessionKey, departConfig.key) : false;
 
   // Tính tọa độ, hướng quay mặc định và hướng nhìn về người chơi
   const poseInfo = useMemo(() => {
@@ -158,6 +162,30 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
   const isDepartingRef = useRef<boolean>(false);
   const departStartRef = useRef<number>(-1);
   const isFinishedDepartRef = useRef<boolean>(alreadyDeparted);
+  const stepTimeRef = useRef<{ stepIndex: number; shownAt: number }>({ stepIndex: -1, shownAt: 0 });
+
+  // Reset vị trí và hiển thị ban đầu khi poseInfo hoặc session thay đổi
+  useEffect(() => {
+    const g = group.current;
+    if (g && poseInfo && !alreadyDeparted) {
+      g.position.set(poseInfo.pos[0], poseInfo.pos[1], poseInfo.pos[2]);
+      g.rotation.y = poseInfo.defaultYaw;
+      g.visible = true;
+      if (labelRef.current) {
+        labelRef.current.style.display = 'block';
+      }
+      isDepartingRef.current = false;
+      departStartRef.current = -1;
+      isFinishedDepartRef.current = false;
+    }
+    return () => {
+      // Khi unmount đưa vị trí về đúng chỗ
+      if (g && poseInfo) {
+        g.position.set(poseInfo.pos[0], poseInfo.pos[1], poseInfo.pos[2]);
+        g.rotation.y = poseInfo.defaultYaw;
+      }
+    };
+  }, [poseInfo, alreadyDeparted, sessionKey]);
 
   const nameConfig = SPEAKER_NAMES[actor.speaker];
   const actorName = nameConfig ? nameConfig[lang] : actor.speaker;
@@ -170,13 +198,26 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
     const now = state.clock.elapsedTime;
     const signal = getSignal();
 
+    const playState = useSilverStore.getState().play;
+    const currentStepIndex = playState?.stepIndex ?? -1;
+    if (stepTimeRef.current.stepIndex !== currentStepIndex) {
+      stepTimeRef.current = { stepIndex: currentStepIndex, shownAt: now };
+    }
+    const stepElapsed = now - stepTimeRef.current.shownAt;
+
     // 1. Kiểm tra kích hoạt rời đi (Thành vào cửa Nam, Quyền đi ngang)
     if (departConfig && !isDepartingRef.current) {
-      const playState = useSilverStore.getState().play;
-      const isEndMode = signal.mode === 'end';
-      const isLastStep = Boolean(playState && playState.stepIndex + 1 >= playState.stepCount);
+      const trigger = shouldTriggerDeparture({
+        signalMode: signal.mode,
+        signalSpeaker: signal.speaker,
+        actorSpeaker: actor.speaker,
+        stepIndex: playState?.stepIndex ?? 0,
+        stepCount: playState?.stepCount ?? 0,
+        currentStepSpeaker: (playState?.step && 'speaker' in playState.step) ? (playState.step as { speaker?: string }).speaker ?? null : null,
+        stepElapsedSeconds: stepElapsed,
+      });
 
-      if (isEndMode || isLastStep) {
+      if (trigger) {
         isDepartingRef.current = true;
         departStartRef.current = now;
         handle.current?.play('walk');
@@ -196,9 +237,9 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
       const traveled = elapsed * departConfig.speed;
 
       if (traveled >= departConfig.maxDist) {
-        // Hoàn thành rời đi: ẩn và lưu trạng thái
+        // Hoàn thành rời đi: ẩn và lưu trạng thái vào session
         isFinishedDepartRef.current = true;
-        completedDepartures.add(departConfig.key);
+        departureManager.markCompleted(sessionKey, departConfig.key);
         g.visible = false;
         return;
       }

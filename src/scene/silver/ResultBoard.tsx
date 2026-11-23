@@ -57,7 +57,7 @@ function drawResultCanvas(canvas: HTMLCanvasElement, lang: 'vi' | 'en'): void {
     : 'ENGLISH PLACEMENT TEST RESULTS (LEVEL 1)';
   ctx.fillText(examTitle, w / 2, 85);
 
-  // 3. Tiêu đề các cột bảng
+  // 3. Tiêu đề các cột bảng (3 cột: SBD, Họ tên, Xếp lớp — không có đạt/trượt)
   const tableTop = 135;
   const colY = tableTop + 24;
   ctx.fillStyle = '#1e293b';
@@ -69,32 +69,31 @@ function drawResultCanvas(canvas: HTMLCanvasElement, lang: 'vi' | 'en'): void {
   ctx.textBaseline = 'middle';
 
   const headers = lang === 'vi'
-    ? ['SBD', 'Họ và tên', 'Kết quả', 'Trạng thái']
-    : ['Candidate ID', 'Full Name', 'Placement', 'Status'];
+    ? ['SBD / ID', 'Họ và tên thí sinh', 'Xếp lớp']
+    : ['Candidate ID', 'Full Name', 'Placement Level'];
 
-  const colX = [120, 370, 680, 890];
-  ctx.fillText(headers[0] ?? '', colX[0] ?? 120, colY);
-  ctx.fillText(headers[1] ?? '', colX[1] ?? 370, colY);
-  ctx.fillText(headers[2] ?? '', colX[2] ?? 680, colY);
-  ctx.fillText(headers[3] ?? '', colX[3] ?? 890, colY);
+  const colX = [180, 512, 830];
+  ctx.fillText(headers[0] ?? '', colX[0] ?? 180, colY);
+  ctx.fillText(headers[1] ?? '', colX[1] ?? 512, colY);
+  ctx.fillText(headers[2] ?? '', colX[2] ?? 830, colY);
 
   // 4. Danh sách thí sinh ẩn danh (không tên thật, không điểm thật)
   const rows = lang === 'vi'
     ? [
-      { id: 'EIU-2026-001', name: 'Thí sinh A', result: 'Level 1', status: 'Đạt' },
-      { id: 'EIU-2026-002', name: 'Thí sinh B', result: 'Level 1', status: 'Đạt' },
-      { id: 'EIU-2026-003', name: 'Thí sinh C', result: 'Level 1', status: 'Đạt' },
-      { id: 'EIU-2026-004', name: 'Thí sinh D', result: 'Level 1', status: 'Đạt' },
-      { id: 'EIU-2026-005', name: 'Thí sinh E', result: 'Level 1', status: 'Đạt' },
-      { id: 'EIU-2026-006', name: 'Thí sinh F', result: 'Level 1', status: 'Đạt' },
+      { id: 'EIU-2026-001', name: 'Thí sinh A', result: 'Level 1 (Tiếng Anh 1)' },
+      { id: 'EIU-2026-002', name: 'Thí sinh B', result: 'Level 1 (Tiếng Anh 1)' },
+      { id: 'EIU-2026-003', name: 'Thí sinh C', result: 'Level 2 (Tiếng Anh 2)' },
+      { id: 'EIU-2026-004', name: 'Thí sinh D', result: 'Level 1 (Tiếng Anh 1)' },
+      { id: 'EIU-2026-005', name: 'Thí sinh E', result: 'Level 2 (Tiếng Anh 2)' },
+      { id: 'EIU-2026-006', name: 'Thí sinh F', result: 'Level 1 (Tiếng Anh 1)' },
     ]
     : [
-      { id: 'EIU-2026-001', name: 'Candidate A', result: 'Level 1', status: 'Qualified' },
-      { id: 'EIU-2026-002', name: 'Candidate B', result: 'Level 1', status: 'Qualified' },
-      { id: 'EIU-2026-003', name: 'Candidate C', result: 'Level 1', status: 'Qualified' },
-      { id: 'EIU-2026-004', name: 'Candidate D', result: 'Level 1', status: 'Qualified' },
-      { id: 'EIU-2026-005', name: 'Candidate E', result: 'Level 1', status: 'Qualified' },
-      { id: 'EIU-2026-006', name: 'Candidate F', result: 'Level 1', status: 'Qualified' },
+      { id: 'EIU-2026-001', name: 'Candidate A', result: 'Level 1 (English 1)' },
+      { id: 'EIU-2026-002', name: 'Candidate B', result: 'Level 1 (English 1)' },
+      { id: 'EIU-2026-003', name: 'Candidate C', result: 'Level 2 (English 2)' },
+      { id: 'EIU-2026-004', name: 'Candidate D', result: 'Level 1 (English 1)' },
+      { id: 'EIU-2026-005', name: 'Candidate E', result: 'Level 2 (English 2)' },
+      { id: 'EIU-2026-006', name: 'Candidate F', result: 'Level 1 (English 1)' },
     ];
 
   let rowY = tableTop + 42;
@@ -116,27 +115,21 @@ function drawResultCanvas(canvas: HTMLCanvasElement, lang: 'vi' | 'en'): void {
 
     const midY = rowY + rowH / 2;
     ctx.fillStyle = '#334155';
-    ctx.fillText(r.id, colX[0] ?? 120, midY);
-    ctx.fillText(r.name, colX[1] ?? 370, midY);
+    ctx.fillText(r.id, colX[0] ?? 180, midY);
+    ctx.fillText(r.name, colX[1] ?? 512, midY);
 
     ctx.fillStyle = '#0b3d6e';
-    ctx.fillText(r.result, colX[2] ?? 680, midY);
-
-    ctx.fillStyle = '#16a34a'; // Xanh lá đạt
-    ctx.fillText(r.status, colX[3] ?? 890, midY);
+    ctx.fillText(r.result, colX[2] ?? 830, midY);
 
     rowY += rowH;
   });
 
-  // 5. Lời chúc mừng ở đáy bảng
+  // 5. Ghi chú minh họa đáy bảng (bỏ chúc mừng, thêm minh họa trong game)
   ctx.fillStyle = '#64748b';
   ctx.font = 'italic 16px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  const footerText = lang === 'vi'
-    ? 'Chúc mừng các tân sinh viên đã hoàn thành xuất sắc đợt kiểm tra đầu vào!'
-    : 'Congratulations to all new students on completing the placement exam!';
-  ctx.fillText(footerText, w / 2, h - 35);
+  ctx.fillText('* Minh họa trong game / Illustration only', w / 2, h - 35);
 }
 
 /**

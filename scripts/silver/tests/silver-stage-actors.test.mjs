@@ -148,4 +148,117 @@ export default {
     assert.equal(peStage.roomCode, null);
     assert.equal(peStage.crowd, 4);
   },
+
+  'departureState pure functions and lifecycle manager': async ({ assert, load }) => {
+    const {
+      computeSessionKey,
+      shouldTriggerDeparture,
+      departureManager,
+    } = await load('/src/scene/silver/departureState.ts');
+
+    // 1. computeSessionKey
+    assert.equal(computeSessionKey({ screen: 'home', itemId: 'entrance/meet-thanh' }), null, 'Screen home trả về null');
+    assert.equal(computeSessionKey({ screen: 'play', itemId: null }), null, 'ItemId null trả về null');
+    assert.equal(
+      computeSessionKey({ screen: 'play', chapterId: 'entrance', itemId: 'entrance/meet-thanh', turnIndex: 1 }),
+      'entrance:entrance/meet-thanh:1'
+    );
+
+    // 2. shouldTriggerDeparture pure function
+    // 2.1 Cảnh kết thúc: luôn trigger
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'end',
+        actorSpeaker: 'thanh',
+        stepIndex: 3,
+        stepCount: 4,
+        stepElapsedSeconds: 0.1,
+      }),
+      true,
+      'signalMode end phải trigger rời đi'
+    );
+
+    // 2.2 Chưa đến bước cuối: không trigger
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'say',
+        actorSpeaker: 'thanh',
+        stepIndex: 1,
+        stepCount: 4,
+        stepElapsedSeconds: 5.0,
+      }),
+      false,
+      'Chưa đến bước cuối không được rời đi'
+    );
+
+    // 2.3 Bước cuối nhưng nhân vật đang là người nói: ở lại, không rời đi
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'say',
+        signalSpeaker: 'thanh',
+        actorSpeaker: 'thanh',
+        stepIndex: 3,
+        stepCount: 4,
+        currentStepSpeaker: 'thanh',
+        stepElapsedSeconds: 4.0,
+      }),
+      false,
+      'Nhân vật đang nói ở bước cuối không được rời đi'
+    );
+
+    // 2.4 Bước cuối người khác nói, nhưng chưa đủ 2.5s: không rời đi
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'say',
+        signalSpeaker: 'narrator',
+        actorSpeaker: 'thanh',
+        stepIndex: 3,
+        stepCount: 4,
+        currentStepSpeaker: 'narrator',
+        stepElapsedSeconds: 1.8,
+      }),
+      false,
+      'Bước cuối chưa đủ 2.5s không được rời đi'
+    );
+
+    // 2.5 Bước cuối người khác nói, đã hiện >= 2.5s: kích hoạt rời đi
+    assert.equal(
+      shouldTriggerDeparture({
+        signalMode: 'say',
+        signalSpeaker: 'narrator',
+        actorSpeaker: 'thanh',
+        stepIndex: 3,
+        stepCount: 4,
+        currentStepSpeaker: 'narrator',
+        stepElapsedSeconds: 2.8,
+      }),
+      true,
+      'Bước cuối người khác nói sau 2.5s được kích hoạt rời đi'
+    );
+
+    // 3. departureManager lifecycle
+    departureManager.reset();
+
+    // 3.1 Bắt đầu lượt chơi cảnh entrance/meet-thanh
+    const sKey1 = departureManager.updateSession('play', 'entrance', 'entrance/meet-thanh');
+    assert.ok(sKey1, 'Phải có sessionKey cho lượt chơi');
+    assert.equal(departureManager.isCompleted(sKey1, 'entrance/meet-thanh:thanh'), false, 'Đầu cảnh chưa rời đi');
+
+    // Diễn viên hoàn tất rời đi
+    departureManager.markCompleted(sKey1, 'entrance/meet-thanh:thanh');
+    assert.equal(departureManager.isCompleted(sKey1, 'entrance/meet-thanh:thanh'), true, 'Đã ghi nhận hoàn tất rời đi');
+
+    // 3.2 Mount lại giữa cảnh (cùng sessionKey): vẫn ghi nhận đã rời đi, không chạy lại
+    assert.equal(departureManager.isCompleted(sKey1, 'entrance/meet-thanh:thanh'), true, 'Mount lại cùng cảnh không chạy lại');
+
+    // 3.3 Thoát ra Home: session bị xóa
+    const homeSession = departureManager.updateSession('home', 'entrance', null);
+    assert.equal(homeSession, null, 'Về home sessionKey là null');
+
+    // 3.4 Chơi lại chương từ Home: session mới được tạo
+    const sKey2 = departureManager.updateSession('play', 'entrance', 'entrance/meet-thanh');
+    assert.ok(sKey2, 'Phải có sessionKey mới');
+    assert.notEqual(sKey1, sKey2, 'Lượt chơi mới phải có sessionKey khác lượt cũ');
+    assert.equal(departureManager.isCompleted(sKey2, 'entrance/meet-thanh:thanh'), false, 'Chơi lại chương Thành phải có mặt');
+  },
 };
