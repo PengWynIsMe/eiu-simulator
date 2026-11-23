@@ -95,7 +95,7 @@ function SilverStageContent({ stage, room, sitYOffset }: SilverStageContentProps
   return (
     <>
       {/* 0. Phòng lý thuyết (bàn học, ghế, bàn GV, bảng, khung TV) khi không phải phòng máy */}
-      {!isComputerLabRoom(room) && <TheoryRoom room={room} />}
+      {!isComputerLabRoom(room) && <TheoryRoom key={room.code} room={room} />}
 
       {/* 1. Màn TV slide trên tường trước (không thêm đèn vào scene) */}
       <ProjectorScreen room={room} getSignal={handle.getSignal} subscribe={handle.subscribe} />

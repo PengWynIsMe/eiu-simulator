@@ -55,6 +55,7 @@ export default function Room208() {
         if (m) deskMesh.setMatrixAt(i, m);
       }
       deskMesh.instanceMatrix.needsUpdate = true;
+      deskMesh.computeBoundingSphere();
     }
     const chairMesh = chairRef.current;
     if (chairMesh) {
@@ -63,6 +64,7 @@ export default function Room208() {
         if (m) chairMesh.setMatrixAt(i, m);
       }
       chairMesh.instanceMatrix.needsUpdate = true;
+      chairMesh.computeBoundingSphere();
     }
   }, [deskMatrices, chairMatrices]);
 

@@ -94,6 +94,7 @@ function InstancedBatch({
       if (m) mesh.setMatrixAt(i, m);
     }
     mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingSphere();
   }, [matrices]);
 
   if (matrices.length === 0) return null;
