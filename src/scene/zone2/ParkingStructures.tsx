@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import type { BufferGeometry } from 'three';
 import type { Building } from '../../types';
+import { CANTEEN_PARKING_DECK } from '../groundLevels';
+import StaticInstances, { type StaticInstance } from '../kit/StaticInstances';
 import {
   addBox,
   addRotatedBox,
@@ -118,68 +120,71 @@ export function TwoLevelParking({ building, isHovered, isSelected }: ParkingProp
 
 /**
  * Nhà giữ xe cạnh Căn tin (`nha-xe-can-tin`, ~121 m × 13 m).
- * Kết cấu mái tôn răng cưa nhiều nhịp + cột thép đồng bộ với nhà xe B5 (`ParkingShed`).
+ * Giữ nền và lưới cột hiện có, dựng nhịp chữ A liên tiếp dọc cạnh dài.
  */
 export function LongParkingShed({ building, isHovered, isSelected }: ParkingProps) {
   const emissiveColor = isSelected ? '#60a5fa' : isHovered ? '#38bdf8' : '#000000';
   const emissiveIntensity = isSelected ? 0.24 : isHovered ? 0.16 : 0;
 
-  const { originX, originZ, rotY, concreteGeo, steelGeo, roofGeo } = useMemo(() => {
+  const { originX, originZ, rotY, maxU, maxV, steel, roofs } = useMemo(() => {
     const axis = computePrincipalAxis(building.shape.outer);
     const { maxU, maxV } = axis;
-    const concreteGeos: BufferGeometry[] = [];
-    const steelGeos: BufferGeometry[] = [];
-    const roofGeos: BufferGeometry[] = [];
-
-    addBox(concreteGeos, 0, maxU, 0.0, 0.16, 0, maxV);
-
+    const steel: StaticInstance[] = [];
+    const roofs: StaticInstance[] = [];
     const bays = 15;
     const bayLen = maxU / bays;
+    const eave = 3.28;
+    const rise = 0.72;
+    const halfBay = bayLen / 2;
+    const pitch = Math.atan2(rise, halfBay);
+    const slopeLength = Math.hypot(halfBay, rise);
+
     for (let i = 0; i <= bays; i++) {
       const u = i === 0 ? 0.4 : i === bays ? maxU - 0.4 : i * bayLen;
       for (const cv of [0.45, maxV * 0.5, maxV - 0.45]) {
-        addBox(steelGeos, u - 0.12, u + 0.12, 0.16, 3.15, cv - 0.12, cv + 0.12);
+        steel.push({
+          position: [u, (CANTEEN_PARKING_DECK + eave) / 2, cv],
+          scale: [0.24, eave - CANTEEN_PARKING_DECK, 0.24],
+        });
       }
-      if (i < bays) {
-        const midU = (i + 0.5) * bayLen;
-        addRotatedBox(roofGeos, bayLen + 0.25, 0.12, maxV + 0.8, midU, 3.35, maxV * 0.5, 0, 0, 0.14);
+      steel.push({ position: [u, eave - 0.09, maxV / 2], scale: [0.15, 0.18, maxV] });
+      if (i === bays) break;
+
+      for (const side of [-1, 1]) {
+        const midU = (i + 0.5) * bayLen + side * halfBay / 2;
+        const y = eave + rise / 2;
+        const rotation: [number, number, number] = [0, 0, -side * pitch];
+        roofs.push({ position: [midU, y, maxV / 2], scale: [slopeLength + 0.025, 0.12, maxV + 0.65], rotation });
+        for (const v of [0.45, maxV / 2, maxV - 0.45]) {
+          steel.push({ position: [midU, y - 0.14, v], scale: [slopeLength, 0.17, 0.1], rotation });
+        }
       }
     }
 
-    return {
-      originX: axis.originX,
-      originZ: axis.originZ,
-      rotY: axis.rotY,
-      concreteGeo: safeMerge(concreteGeos),
-      steelGeo: safeMerge(steelGeos),
-      roofGeo: safeMerge(roofGeos),
-    };
+    return { ...axis, steel, roofs };
   }, [building]);
 
   return (
     <group position={[originX, 0, originZ]} rotation={[0, rotY, 0]}>
-      {concreteGeo && (
-        <mesh geometry={concreteGeo} receiveShadow>
-          <meshStandardMaterial color="#cbd5e1" roughness={0.9} />
-        </mesh>
-      )}
-      {steelGeo && (
-        <mesh geometry={steelGeo} castShadow receiveShadow>
-          <meshStandardMaterial color="#3e4752" roughness={0.7} />
-        </mesh>
-      )}
-      {roofGeo && (
-        <mesh geometry={roofGeo} castShadow receiveShadow>
-          <meshStandardMaterial
-            color="#949da6"
-            metalness={0.22}
-            roughness={0.6}
-            flatShading
-            emissive={emissiveColor}
-            emissiveIntensity={emissiveIntensity}
-          />
-        </mesh>
-      )}
+      <mesh position={[maxU / 2, CANTEEN_PARKING_DECK / 2, maxV / 2]} receiveShadow>
+        <boxGeometry args={[maxU, CANTEEN_PARKING_DECK, maxV]} />
+        <meshStandardMaterial color="#cbd5e1" roughness={0.9} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-2} />
+      </mesh>
+      <StaticInstances items={steel} pickable receiveShadow>
+        <boxGeometry />
+        <meshStandardMaterial color="#64748b" roughness={0.65} metalness={0.22} />
+      </StaticInstances>
+      <StaticInstances items={roofs} pickable castShadow receiveShadow>
+        <boxGeometry />
+        <meshStandardMaterial
+          color="#f1f3f4"
+          metalness={0.22}
+          roughness={0.6}
+          flatShading
+          emissive={emissiveColor}
+          emissiveIntensity={emissiveIntensity}
+        />
+      </StaticInstances>
     </group>
   );
 }

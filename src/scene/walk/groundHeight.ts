@@ -1,5 +1,6 @@
 import { campus } from '../../data';
 import { isOnMedianPlanter, MEDIAN_TOP } from '../zone1/medianLayout';
+import { getPondTerraceHeight } from '../zone1/pondTerraceLayout';
 import type { Vec2 } from '../../types';
 import {
   BRIDGE,
@@ -106,6 +107,8 @@ export function getGroundHeight(x: number, z: number): number {
   if (onBridge(x, z)) return BRIDGE;
   if (isOnMedianPlanter(x, z)) return MEDIAN_TOP;
   if (inPond(x, z)) return POND_RIM;
+  const terraceHeight = getPondTerraceHeight(x, z);
+  if (terraceHeight !== undefined) return terraceHeight;
   if (nearRoads(x, z, 'footway')) return FOOTWAY;
   if (nearRoads(x, z, 'internal')) return INTERNAL;
   if (nearRoads(x, z, 'street')) return STREET;

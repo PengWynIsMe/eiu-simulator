@@ -3,6 +3,7 @@ import { Matrix4, Vector3, Quaternion, Euler, BoxGeometry, CylinderGeometry } fr
 import { FLOOR_HEIGHT } from '../../data';
 import type { Vec2 } from '../../types';
 import { b3Layout } from './layouts/b3';
+import B6Furniture from './B6Furniture';
 import B8Furniture from './B8Furniture';
 import B11Furniture from './B11Furniture';
 
@@ -58,6 +59,9 @@ export default function InteriorFurniture({
   }
   if (id === 'b3') {
     return <B3Furniture floor={floor} />;
+  }
+  if (id === 'b6') {
+    return <B6Furniture floor={floor} showUpperFloors={showUpperFloors} />;
   }
   return null;
 }
