@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "code": "POLS 135",
+  "tier": "summary",
+  "status": "nhap",
+  "basis": {
+    "pdfPages": "8–9",
+    "note": {
+      "vi": "Đây là mô phỏng ngắn của môn học.",
+      "en": "This is a short simulation of the course."
+    }
+  },
+  "summary": {
+    "vi": "Bạn làm quen với các chủ đề chính trị và xã hội được nghiên cứu trong môn Chủ nghĩa xã hội khoa học.",
+    "en": "Explore some of the political and social topics studied in Scientific Socialism."
+  },
+  "sessions": [
+    {
+      "slot": "theoryA",
+      "scene": {
+        "id": "POLS 135/theory-a",
+        "title": {
+          "vi": "Môn học nghiên cứu gì?",
+          "en": "What does the course study?"
+        },
+        "place": "b8",
+        "minutes": 1.75,
+        "steps": [
+          {
+            "id": "mo-bai",
+            "type": "say",
+            "speaker": "narrator",
+            "text": {
+              "vi": "Bạn lướt qua phần giới thiệu học phần.",
+              "en": "You skim the course overview."
+            }
+          },
+          {
+            "id": "pham-vi",
+            "type": "slide",
+            "title": {
+              "vi": "Phạm vi học phần",
+              "en": "Course scope"
+            },
+            "body": {
+              "vi": "Phần nhập môn giới thiệu sự hình thành của chủ nghĩa xã hội khoa học.",
+              "en": "The introduction looks at how scientific socialism developed."
+            }
+          },
+          {
+            "id": "doc-hieu",
+            "type": "question",
+            "prompt": {
+              "vi": "Theo đoạn vừa đọc, cặp chủ đề nào nằm trong phạm vi học phần?",
+              "en": "According to the passage, which two topics does the course cover?"
+            },
+            "passage": {
+              "vi": "Học phần tìm hiểu giai cấp công nhân, dân chủ xã hội chủ nghĩa và cơ cấu xã hội trong thời kỳ quá độ lên chủ nghĩa xã hội.",
+              "en": "The course explores the working class, socialist democracy and social structure during the transition to socialism."
+            },
+            "passageKind": "reading",
+            "options": [
+              {
+                "id": "lich-su",
+                "text": {
+                  "vi": "Lịch sử đô thị và các tuyến thương mại.",
+                  "en": "Urban history and trade routes."
+                }
+              },
+              {
+                "id": "cong-nghe",
+                "text": {
+                  "vi": "Cấu trúc máy tính và lưu trữ dữ liệu.",
+                  "en": "Computer architecture and data storage."
+                }
+              },
+              {
+                "id": "chinh-tri-xa-hoi",
+                "text": {
+                  "vi": "Dân chủ xã hội chủ nghĩa và cơ cấu xã hội.",
+                  "en": "Socialist democracy and social structure."
+                }
+              }
+            ],
+            "answerId": "chinh-tri-xa-hoi",
+            "explainCorrect": {
+              "vi": "Đoạn giới thiệu nêu cả dân chủ xã hội chủ nghĩa và cơ cấu xã hội.",
+              "en": "The overview mentions both socialist democracy and social structure."
+            },
+            "explainWrong": {
+              "vi": "Tìm cặp chủ đề trong đoạn đọc.",
+              "en": "Look for the pair of topics named in the passage."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "slot": "theoryB",
+      "scene": {
+        "id": "POLS 135/theory-b",
+        "title": {
+          "vi": "Trao đổi về chủ đề gia đình",
+          "en": "Discussing the topic of family"
+        },
+        "place": "b8",
+        "minutes": 1.75,
+        "steps": [
+          {
+            "id": "chu-de-gia-dinh",
+            "type": "slide",
+            "title": {
+              "vi": "Gia đình trong học phần",
+              "en": "Family as a course topic"
+            },
+            "body": {
+              "vi": "Học phần cũng đề cập đến gia đình trong thời kỳ quá độ lên chủ nghĩa xã hội. Nhóm sẽ dùng phần tài liệu đã đọc để tóm tắt chủ đề này.",
+              "en": "The course also covers family during the transition to socialism. Your group will summarise this topic using the assigned reading."
+            }
+          },
+          {
+            "id": "chia-viec",
+            "type": "choice",
+            "speaker": "quyen",
+            "text": {
+              "vi": "Nhóm mình chia việc thế nào để ai cũng góp được ý?",
+              "en": "How should we split up the work so everyone gets to contribute?"
+            },
+            "options": [
+              {
+                "id": "chia-theo-doan",
+                "text": {
+                  "vi": "Mỗi người tóm tắt một đoạn rồi cả nhóm ghép ý.",
+                  "en": "Each person summarises a section, then we combine our notes."
+                },
+                "reply": {
+                  "vi": "Được. Chia theo đoạn giúp mình xem cả phần đọc, rồi gộp các ý trùng nhau.",
+                  "en": "Sounds good. Splitting up the sections lets us cover the whole reading and combine ideas that overlap."
+                }
+              },
+              {
+                "id": "doi-chieu-y",
+                "text": {
+                  "vi": "Cả nhóm đọc cùng một đoạn rồi đối chiếu ghi chú.",
+                  "en": "We all read the same section and compare our notes."
+                },
+                "reply": {
+                  "vi": "Được. So ghi chú giúp mình thấy mỗi bạn chú ý đến chi tiết nào.",
+                  "en": "Sounds good. Comparing notes shows us what stood out to each person."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "closing": {
+    "vi": "Bạn đã nhận diện các chủ đề của học phần và chọn một cách cùng nhóm trao đổi về tài liệu.",
+    "en": "You’ve identified topics from the course and chosen how to discuss the reading with your group."
+  }
+}
