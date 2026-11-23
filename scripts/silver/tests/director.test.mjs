@@ -7,7 +7,6 @@ export default {
       load('/src/data/index.ts'),
       load('/src/scene/interior/layouts/b8.ts'),
     ]).then(([{ startDirector }, { getClassroom }, b8Layout]) => {
-      // Fake activity store
       let beginCalls = [];
       let seatedState = false;
       const fakeActivityStore = create((set) => ({
@@ -31,14 +30,12 @@ export default {
         end: () => set({ activity: null, seated: false, phase: 'travel' }),
       }));
 
-      // Fake walk store with real shape: playerPos { x, z, y, floor } and interior
       const fakeWalkStore = create(() => ({
         walkMode: true,
         interior: { buildingId: 'b8', floor: 4 },
         playerPos: { x: 37.95, z: -218.49, y: 0, floor: 4 },
       }));
 
-      // Fake silver store
       let exitRunCalled = false;
       const fakeSilverStore = create((set) => ({
         screen: 'home',
@@ -46,7 +43,6 @@ export default {
         exitRun: () => { exitRunCalled = true; set({ screen: 'home' }); },
       }));
 
-      // Mock 207.B8 classroom
       const mock207B8 = {
         code: '207.B8',
         name: 'Phòng lý thuyết 207.B8',
@@ -82,8 +78,8 @@ export default {
         silver: fakeSilverStore,
         activity: fakeActivityStore,
         walk: fakeWalkStore,
-        getClassroom: getRoom,
         toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
+        getClassroom: getRoom,
       });
 
       try {
@@ -118,6 +114,8 @@ export default {
         assert.equal(beginCalls[0].activity.key, 'silver:session:cse-103:lab:1');
         assert.equal(beginCalls[0].opts.teleportTo, 'arrival');
         assert.equal(beginCalls[0].opts.keepSeated, false);
+        // Sit activity must have a resolved seat (seat !== null)
+        assert.ok(beginCalls[0].activity.seat !== null);
 
         // Player interacts and sits down
         seatedState = true;
@@ -152,6 +150,7 @@ export default {
         assert.equal(beginCalls[1].activity.key, 'silver:session:cse-103:lab:2');
         assert.equal(beginCalls[1].opts.keepSeated, true);
         assert.equal(beginCalls[1].opts.teleportTo, 'none');
+        assert.ok(beginCalls[1].activity.seat !== null);
 
         // 3. Next item: MATH 112 A on different day (day: 2) in 207.B8
         const mathItem = {
@@ -184,6 +183,7 @@ export default {
         assert.equal(beginCalls[2].opts.teleportTo, 'arrival');
         assert.equal(beginCalls[2].activity.arrival.buildingId, 'b8');
         assert.equal(beginCalls[2].activity.arrival.floor, 2);
+        assert.ok(beginCalls[2].activity.seat !== null);
 
         // 4. Turning walkMode to false during play triggers silver.exitRun()
         assert.equal(exitRunCalled, false);
@@ -195,11 +195,124 @@ export default {
     });
   },
 
+  'resuming CSE 103/a from Home teleports to arrival door of 207.B8, key by RunItem.id, with seat not null'({ assert, load }) {
+    return Promise.all([
+      load('/src/silverWorld/director.ts'),
+      load('/src/data/index.ts'),
+      load('/src/scene/interior/layouts/b8.ts'),
+    ]).then(([{ startDirector }, { getClassroom }, b8Layout]) => {
+      let beginCalls = [];
+      const fakeActivityStore = create(() => ({
+        activity: null,
+        seated: false,
+        begin: (act, opts) => beginCalls.push({ activity: act, opts }),
+        end: () => {},
+      }));
+
+      const fakeWalkStore = create(() => ({
+        walkMode: true,
+        interior: null,
+        playerPos: { x: 0, z: 0, y: 0, floor: null },
+      }));
+
+      const fakeSilverStore = create(() => ({
+        screen: 'home',
+        play: null,
+        exitRun: () => {},
+      }));
+
+      const mock207B8 = {
+        code: '207.B8',
+        name: 'Phòng lý thuyết 207.B8',
+        buildingId: 'b8',
+        floor: 2,
+        frame: 'b8',
+        bounds: { minU: 80.8, maxU: 90.1, minV: -177.7, maxV: -166 },
+        door: { u: 81.9, v: -177.7 },
+        doorWorld: [39.5, -191.64],
+        centerWorld: [44.28, -186.74],
+        arrival: { u: 81.9, v: -178.9 },
+        studentFacing: [-1, 0],
+        whiteboard: { u: 80.88, v: -174.6, width: 2.2, height: 1.2, bottom: 1, facing: [1, 0] },
+        projectorScreen: { u: 80.9, v: -172.2, width: 2, height: 1.2, bottom: 1.25, facing: [1, 0] },
+        teacherDesk: { u: 82.5, v: -170.6, width: 1.4, depth: 0.7, height: 0.75, facing: [1, 0] },
+        teacherSpots: { lecture: { u: 81.8, v: -174.6 }, desk: { u: 81.7, v: -170.6 } },
+        desk: { depth: 0.5, width: 0.9, height: 0.75 },
+        chairSeatHeight: 0.45,
+        aisle: { minV: -173.65, maxV: -172.25 },
+        seats: [{ id: '207-r2-s3', u: 85.9, v: -174.1, deskU: 85.4 }],
+        playerSeat: '207-r2-s3',
+        companionSeat: '207-r2-s2',
+        standPoint: { u: 85.9, v: -172.95 },
+        npcSeats: ['207-r1-s1'],
+      };
+
+      const getRoom = (code) => {
+        if (code === '207.B8') return mock207B8;
+        return getClassroom(code);
+      };
+
+      const stopDirector = startDirector({
+        silver: fakeSilverStore,
+        activity: fakeActivityStore,
+        walk: fakeWalkStore,
+        toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
+        getClassroom: getRoom,
+      });
+
+      try {
+        const item103a = {
+          id: 'session:cse-103:theoryA:1',
+          kind: 'session',
+          meeting: { code: 'CSE 103', kind: 'theoryA', day: 2, slot: 2, length: 1 },
+          scene: { id: 'CSE 103/a', title: { vi: 'Điều kiện', en: 'Conditions' }, place: '207.B8', minutes: 45, steps: [] },
+          minutes: 45,
+        };
+
+        // Resume from Home into Play
+        fakeSilverStore.setState({
+          screen: 'play',
+          play: {
+            chapterId: '2.2',
+            itemIndex: 2,
+            itemCount: 5,
+            item: item103a,
+            stepIndex: 0,
+            stepCount: 4,
+            step: { id: 's1', type: 'say', speaker: 'teacher', text: { vi: 'If', en: 'If' } },
+            feedback: null,
+            attempts: 0,
+            hint: null,
+            canContinue: true,
+          },
+        });
+
+        assert.equal(beginCalls.length, 1);
+        // Key Activity format: silver:<RunItem.id>
+        assert.equal(beginCalls[0].activity.key, 'silver:session:cse-103:theoryA:1');
+        assert.equal(beginCalls[0].opts.teleportTo, 'arrival');
+        assert.equal(beginCalls[0].opts.keepSeated, false);
+        // Teleport to arrival of 207.B8 (39.22; -192.81)
+        assert.equal(beginCalls[0].activity.arrival.buildingId, 'b8');
+        assert.equal(beginCalls[0].activity.arrival.floor, 2);
+        assert.equal(beginCalls[0].activity.arrival.x, 39.22);
+        assert.equal(beginCalls[0].activity.arrival.z, -192.81);
+        // Seat must be resolved (not null)
+        assert.ok(beginCalls[0].activity.seat !== null);
+        assert.equal(beginCalls[0].activity.seat.spot.buildingId, 'b8');
+        assert.equal(beginCalls[0].activity.seat.spot.floor, 2);
+      } finally {
+        stopDirector();
+      }
+    });
+  },
+
   'play to week and back to same item does NOT call begin again'({ assert, load }) {
     return Promise.all([
       load('/src/silverWorld/director.ts'),
       load('/src/data/index.ts'),
-    ]).then(([{ startDirector }, { getClassroom }]) => {
+      load('/src/scene/interior/layouts/b8.ts'),
+    ]).then(([{ startDirector }, { getClassroom }, b8Layout]) => {
       let beginCalls = [];
       const fakeActivityStore = create(() => ({
         activity: null,
@@ -226,6 +339,7 @@ export default {
         silver: fakeSilverStore,
         activity: fakeActivityStore,
         walk: fakeWalkStore,
+        toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
         getClassroom,
       });
 
@@ -276,7 +390,8 @@ export default {
     return Promise.all([
       load('/src/silverWorld/director.ts'),
       load('/src/data/index.ts'),
-    ]).then(([{ startDirector }, { getClassroom }]) => {
+      load('/src/scene/interior/layouts/b8.ts'),
+    ]).then(([{ startDirector }, { getClassroom }, b8Layout]) => {
       let beginCalls = [];
       const fakeActivityStore = create(() => ({
         activity: null,
@@ -302,6 +417,7 @@ export default {
         silver: fakeSilverStore,
         activity: fakeActivityStore,
         walk: fakeWalkStore,
+        toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
         getClassroom,
       });
 
@@ -409,7 +525,8 @@ export default {
     return Promise.all([
       load('/src/silverWorld/director.ts'),
       load('/src/data/index.ts'),
-    ]).then(([{ startDirector }, { getClassroom }]) => {
+      load('/src/scene/interior/layouts/b8.ts'),
+    ]).then(([{ startDirector }, { getClassroom }, b8Layout]) => {
       let beginCalls = [];
       const fakeActivityStore = create(() => ({
         activity: null,
@@ -434,6 +551,7 @@ export default {
         silver: fakeSilverStore,
         activity: fakeActivityStore,
         walk: fakeWalkStore,
+        toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
         getClassroom,
       });
 
@@ -497,11 +615,106 @@ export default {
     });
   },
 
+  'unknown sceneId (not in stages.json) does not begin and warns once'({ assert, load }) {
+    return Promise.all([
+      load('/src/silverWorld/director.ts'),
+      load('/src/data/index.ts'),
+      load('/src/scene/interior/layouts/b8.ts'),
+    ]).then(([{ startDirector }, { getClassroom }, b8Layout]) => {
+      let beginCalls = [];
+      const fakeActivityStore = create(() => ({
+        activity: null,
+        seated: false,
+        begin: (act, opts) => beginCalls.push({ activity: act, opts }),
+        end: () => {},
+      }));
+
+      const fakeWalkStore = create(() => ({
+        walkMode: true,
+        interior: null,
+        playerPos: { x: 0, z: 0, y: 0, floor: null },
+      }));
+
+      const fakeSilverStore = create(() => ({
+        screen: 'home',
+        play: null,
+        exitRun: () => {},
+      }));
+
+      const warnings = [];
+      const originalWarn = console.warn;
+      console.warn = (...args) => warnings.push(args.join(' '));
+
+      const stopDirector = startDirector({
+        silver: fakeSilverStore,
+        activity: fakeActivityStore,
+        walk: fakeWalkStore,
+        toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
+        getClassroom,
+      });
+
+      try {
+        const unknownItem = {
+          id: 'unknown-item',
+          kind: 'scene',
+          scene: { id: 'nonexistent/scene-999', title: { vi: 'Lạ', en: 'Unknown' }, place: 'b8', minutes: 10, steps: [] },
+          minutes: 10,
+        };
+
+        // First transition to unknown scene
+        fakeSilverStore.setState({
+          screen: 'play',
+          play: {
+            chapterId: '2.2',
+            itemIndex: 0,
+            itemCount: 1,
+            item: unknownItem,
+            stepIndex: 0,
+            stepCount: 1,
+            step: { id: 's1', type: 'say', speaker: 'narrator', text: { vi: '...', en: '...' } },
+            feedback: null,
+            attempts: 0,
+            hint: null,
+            canContinue: true,
+          },
+        });
+
+        assert.equal(beginCalls.length, 0);
+        assert.equal(warnings.length, 1);
+        assert.ok(warnings[0].includes('nonexistent/scene-999'));
+
+        // Second notification with same unknown scene -> no duplicate warning
+        fakeSilverStore.setState({
+          play: {
+            chapterId: '2.2',
+            itemIndex: 0,
+            itemCount: 1,
+            item: unknownItem,
+            stepIndex: 1,
+            stepCount: 2,
+            step: { id: 's2', type: 'say', speaker: 'narrator', text: { vi: '...', en: '...' } },
+            feedback: null,
+            attempts: 0,
+            hint: null,
+            canContinue: true,
+          },
+        });
+
+        assert.equal(beginCalls.length, 0);
+        assert.equal(warnings.length, 1);
+      } finally {
+        console.warn = originalWarn;
+        stopDirector();
+      }
+    });
+  },
+
   'absent room treated as strange scene: does not begin, warns once, and ends old silver activity'({ assert, load }) {
     return Promise.all([
       load('/src/silverWorld/director.ts'),
       load('/src/data/index.ts'),
-    ]).then(([{ startDirector }, { getClassroom }]) => {
+      load('/src/scene/interior/layouts/b8.ts'),
+    ]).then(([{ startDirector }, { getClassroom }, b8Layout]) => {
       let beginCalls = [];
       let endCalled = false;
       const fakeActivityStore = create((set) => ({
@@ -532,6 +745,7 @@ export default {
         silver: fakeSilverStore,
         activity: fakeActivityStore,
         walk: fakeWalkStore,
+        toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
         getClassroom, // standard classrooms without 207.B8
       });
 
@@ -591,6 +805,109 @@ export default {
         console.warn = originalWarn;
         stopDirector();
       }
+    });
+  },
+
+  'strange or absent scene does NOT end activity when source is lesson'({ assert, load }) {
+    return Promise.all([
+      load('/src/silverWorld/director.ts'),
+      load('/src/data/index.ts'),
+      load('/src/scene/interior/layouts/b8.ts'),
+    ]).then(([{ startDirector }, { getClassroom }, b8Layout]) => {
+      let beginCalls = [];
+      let endCalled = false;
+      const initialLessonActivity = { source: 'lesson', key: 'lesson:nmlt-01' };
+      const fakeActivityStore = create((set) => ({
+        activity: initialLessonActivity,
+        seated: false,
+        begin: (act, opts) => beginCalls.push({ activity: act, opts }),
+        end: () => { endCalled = true; set({ activity: null }); },
+      }));
+
+      const fakeWalkStore = create(() => ({
+        walkMode: true,
+        interior: null,
+        playerPos: { x: 0, z: 0, y: 0, floor: null },
+      }));
+
+      const fakeSilverStore = create(() => ({
+        screen: 'home',
+        play: null,
+        exitRun: () => {},
+      }));
+
+      const originalWarn = console.warn;
+      console.warn = () => {};
+
+      const stopDirector = startDirector({
+        silver: fakeSilverStore,
+        activity: fakeActivityStore,
+        walk: fakeWalkStore,
+        toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
+        getClassroom,
+      });
+
+      try {
+        const itemAbsentRoom = {
+          id: 'session:cse-103:theoryA:1',
+          kind: 'session',
+          meeting: { code: 'CSE 103', kind: 'theoryA', day: 2, slot: 2, length: 1 },
+          scene: { id: 'CSE 103/a', title: { vi: 'Điều kiện', en: 'Conditions' }, place: '207.B8', minutes: 45, steps: [] },
+          minutes: 45,
+        };
+
+        fakeSilverStore.setState({
+          screen: 'play',
+          play: {
+            chapterId: '2.2',
+            itemIndex: 0,
+            itemCount: 1,
+            item: itemAbsentRoom,
+            stepIndex: 0,
+            stepCount: 1,
+            step: { id: 's1', type: 'say', speaker: 'teacher', text: { vi: '...', en: '...' } },
+            feedback: null,
+            attempts: 0,
+            hint: null,
+            canContinue: true,
+          },
+        });
+
+        // Must NOT end lesson activity!
+        assert.equal(endCalled, false);
+        assert.equal(fakeActivityStore.getState().activity, initialLessonActivity);
+      } finally {
+        console.warn = originalWarn;
+        stopDirector();
+      }
+    });
+  },
+
+  'sit activity throws error when seat cannot be resolved in stageContext'({ assert, load }) {
+    return Promise.all([
+      load('/src/silverWorld/stageContext.ts'),
+      load('/src/scene/interior/layouts/b8.ts'),
+    ]).then(([{ createStageActivity }, b8Layout]) => {
+      const sitStage = {
+        sceneId: 'test/sit-broken',
+        tier: 'full',
+        trigger: 'sit',
+        place: { vi: 'Phòng lạ', en: 'Unknown' },
+        roomCode: '999.B8',
+        arrival: { buildingId: 'b8', floor: 1, x: 0, z: 0, facing: [1, 0] },
+      };
+
+      assert.throws(
+        () => createStageActivity(
+          sitStage,
+          'item-1',
+          {
+            toWorld: (_frame, u, v) => b8Layout.toWorld(u, v),
+            getClassroom: () => undefined,
+          },
+        ),
+        /Không dựng được ghế cho cảnh sit: test\/sit-broken \(phòng: 999\.B8\)/,
+      );
     });
   },
 };
