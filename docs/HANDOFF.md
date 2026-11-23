@@ -1,5 +1,11 @@
 # HANDOFF — bàn giao cho đồng nghiệp
 
+## 🧪 TONG-HOP-2 (2026-11-23) — nhánh `PengWynIsMe/tong-hop-2`, dev cổng 5181
+
+Gộp fix-noi-that + fix-ngoai-canh (không xung đột) + cảnh tuyết mở đầu chỉ chạy lần đầu/phiên. Báo cáo + danh sách thử: **`docs/tasks/TONG-HOP-2-bao-cao.md`**. Chưa push/PR/main.
+
+---
+
 ## 🔧 SỬA CẦU THANG & PHÒNG MÁY T4 B8 (Task FIX-NT, 2026-11-23) — nhánh `PengWynIsMe/fix-noi-that`
 
 Báo cáo đầy đủ: **`docs/tasks/FIX-NT-sua-thang-phong-may-b8.md`**.
