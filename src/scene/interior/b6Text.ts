@@ -83,7 +83,7 @@ export const B6_TEXT = {
       en: 'Enter Block 6 (South Door)',
     },
     exitNorth: {
-      vi: 'Ra ngoài (Hành lang B3)',
+      vi: 'Ra ngoài (Cửa Bắc B6)',
       en: 'Exit (B3 Corridor)',
     },
     exitSouth: {

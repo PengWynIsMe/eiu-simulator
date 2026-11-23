@@ -4,7 +4,11 @@ import {
   Matrix4,
   BoxGeometry,
   CylinderGeometry,
+  IcosahedronGeometry,
 } from 'three';
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { Text } from "@react-three/drei";
+import BookStaircase from "./BookStaircase";
 import { FLOOR_HEIGHT } from '../../data';
 import { b6Layout, toWorld } from './layouts/b6';
 import { createInstanceMatrix } from './InteriorFurniture';
@@ -419,13 +423,25 @@ export default function B6Furniture({ floor }: B6FurnitureProps) {
 
   // Geometries dùng lại
   const colGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
-  const deskGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
-  const chairGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
+  const deskGeo = useMemo(() => {
+    const top = new BoxGeometry(1, 0.08, 1); top.translate(0, 0.46, 0);
+    const legs = [-0.43, 0.43].flatMap(x => [-0.43, 0.43].map(z => {
+      const leg = new BoxGeometry(0.06, 0.92, 0.06); leg.translate(x, -0.04, z); return leg;
+    }));
+    const result = mergeGeometries([top, ...legs]); top.dispose(); legs.forEach(leg => leg.dispose()); return result;
+  }, []);
+  const chairGeo = useMemo(() => {
+    const seat = new BoxGeometry(1, 0.12, 1); seat.translate(0, 0.02, 0);
+    const back = new BoxGeometry(1, 0.8, 0.12); back.translate(0, 0.45, -0.44);
+    const stem = new BoxGeometry(0.12, 0.5, 0.12); stem.translate(0, -0.27, 0);
+    const base = new BoxGeometry(0.8, 0.05, 0.8); base.translate(0, -0.49, 0);
+    const result = mergeGeometries([seat, back, stem, base]); [seat, back, stem, base].forEach(part => part.dispose()); return result;
+  }, []);
   const monGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
   const pcGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
   const lightGeo = useMemo(() => new BoxGeometry(1, 1, 1), []);
   const potGeo = useMemo(() => new CylinderGeometry(0.35, 0.25, 0.5, 10), []);
-  const leafGeo = useMemo(() => new CylinderGeometry(0.1, 0.65, 0.95, 8), []);
+  const leafGeo = useMemo(() => new IcosahedronGeometry(0.55, 1), []);
   const postGeo = useMemo(() => new CylinderGeometry(0.025, 0.025, 1, 8), []);
 
   // Tọa độ thế giới của mảng tường xanh 100.B6
@@ -476,7 +492,7 @@ export default function B6Furniture({ floor }: B6FurnitureProps) {
             self.instanceMatrix.needsUpdate = true;
           }}
         >
-          <meshStandardMaterial color="#e2a868" roughness={0.6} />
+          <meshStandardMaterial color="#2f3b4f" roughness={0.6} />
         </instancedMesh>
       )}
 
@@ -552,13 +568,16 @@ export default function B6Furniture({ floor }: B6FurnitureProps) {
             <meshStandardMaterial color="#ffffff" roughness={0.3} />
           </instancedMesh>
           <instancedMesh
-            args={[leafGeo, undefined, plantMatrices.length]}
+            args={[leafGeo, undefined, plantMatrices.length * 5]}
             castShadow
             receiveShadow
             onUpdate={(self) => {
               plantMatrices.forEach((m, i) => {
-                const leafM = m.clone().multiply(new Matrix4().makeTranslation(0, 0.4, 0));
-                self.setMatrixAt(i, leafM);
+                for (let leaf = 0; leaf < 5; leaf++) {
+                  const angle = leaf * Math.PI * 2 / 5;
+                  const leafM = m.clone().multiply(new Matrix4().makeTranslation(Math.cos(angle) * 0.35, 0.55 + (leaf % 2) * 0.2, Math.sin(angle) * 0.35)).multiply(new Matrix4().makeScale(0.42, 0.75, 0.24));
+                  self.setMatrixAt(i * 5 + leaf, leafM);
+                }
               });
               self.instanceMatrix.needsUpdate = true;
             }}
@@ -589,7 +608,7 @@ export default function B6Furniture({ floor }: B6FurnitureProps) {
           {/* Mảng tường XANH DƯƠNG ĐẬM điểm nhấn (như ảnh 06) */}
           <mesh position={[blueWallWorld[0], 1.9, blueWallWorld[1]]} rotation-y={-b6Layout.rotationY - Math.PI / 2}>
             <boxGeometry args={[16.0, 3.8, 0.22]} />
-            <meshStandardMaterial color="#174291" roughness={0.55} />
+            <meshStandardMaterial color="#174291" emissive="#174291" emissiveIntensity={0.2} roughness={0.55} />
           </mesh>
 
           {/* Màn hình TV lớn treo trên mảng tường xanh hiển thị Dashboard An ninh mạng */}
@@ -628,6 +647,7 @@ export default function B6Furniture({ floor }: B6FurnitureProps) {
               <boxGeometry args={[0.3, 0.22, 0.02]} />
               <meshStandardMaterial color="#ea580c" roughness={0.3} />
             </mesh>
+            <Text position={[0, -0.06, 0.065]} fontSize={0.12} color="white" anchorX="center" anchorY="middle">100</Text>
             <mesh position={[0, -0.19, 0.05]}>
               <boxGeometry args={[0.3, 0.11, 0.02]} />
               <meshStandardMaterial color="#991b1b" roughness={0.3} />
@@ -691,34 +711,6 @@ export default function B6Furniture({ floor }: B6FurnitureProps) {
             })()}
           </group>
 
-          {/* Vị trí ô chờ cầu thang gáy sách bàn giao cho Codex (u = 10.2..13.8, v = 25.0..34.0) */}
-          {(() => {
-            const [stx, stz] = toWorld(12.0, 29.5);
-            return (
-              <group position={[stx, 0.02, stz]} rotation-y={-b6Layout.rotationY}>
-                {/* Viền sàn đánh dấu khu vực thang của Codex */}
-                <mesh position={[0, 0.01, 0]} rotation-x={-Math.PI / 2}>
-                  <planeGeometry args={[3.6, 9.0]} />
-                  <meshStandardMaterial color="#334155" roughness={0.7} />
-                </mesh>
-                {/* Biển chỉ dẫn khu vực Codex */}
-                <group position={[1.6, 1.2, -4.2]}>
-                  <mesh>
-                    <cylinderGeometry args={[0.03, 0.03, 1.2, 8]} />
-                    <meshStandardMaterial color="#94a3b8" metalness={0.8} />
-                  </mesh>
-                  <mesh position={[0, 0.65, 0]}>
-                    <boxGeometry args={[0.8, 0.45, 0.04]} />
-                    <meshStandardMaterial color="#0f172a" roughness={0.3} />
-                  </mesh>
-                  <mesh position={[0, 0.65, 0.03]}>
-                    <planeGeometry args={[0.76, 0.41]} />
-                    <meshStandardMaterial color="#1e3a8a" emissive="#38bdf8" emissiveIntensity={0.2} />
-                  </mesh>
-                </group>
-              </group>
-            );
-          })()}
         </>
       )}
 
@@ -749,6 +741,25 @@ export default function B6Furniture({ floor }: B6FurnitureProps) {
         })()}
       </group>
 
+      {/* Cầu thang nối xuyên giếng trời; cao độ theo tầng đang hiển thị. */}
+      <BookStaircase position={[toWorld(12, 25.8)[0], floor === 1 ? 0 : -FLOOR_HEIGHT, toWorld(12, 25.8)[1]]} rotationY={Math.PI - b6Layout.rotationY} />
+      <group position={[toWorld(12, 34)[0], floor === 1 ? 3.8 : 0, toWorld(12, 34)[1]]} rotation-y={-b6Layout.rotationY}>
+        <mesh position={[0, -0.1, 0]}><boxGeometry args={[2.5, 0.2, 2.1]} /><meshStandardMaterial color="#64748b" roughness={0.68} /></mesh>
+      </group>
+      {floor === 1 && <group position={[toWorld(26.25, 9)[0], 0, toWorld(26.25, 9)[1]]} rotation-y={-b6Layout.rotationY}>
+        <mesh position={[0, 0.012, 0]} rotation-x={-Math.PI / 2}><planeGeometry args={[16, 18]} /><meshStandardMaterial color="#cbd5e1" roughness={0.45} /></mesh>
+        <mesh position={[0, 3.59, 0]}><boxGeometry args={[16, 0.08, 18]} /><meshBasicMaterial color="#f8fafc" /></mesh>
+        {[-4, 3].map(x => <group key={x} position={[x, 3.52, 0]}><mesh><boxGeometry args={[1.1, 0.08, 1.1]} /><meshStandardMaterial color="#e2e8f0" /></mesh><mesh position={[0, -0.045, 0]}><boxGeometry args={[0.75, 0.02, 0.75]} /><meshStandardMaterial color="#94a3b8" /></mesh></group>)}
+        <mesh position={[-2, 0.73, -6]}><cylinderGeometry args={[0.85, 0.85, 0.08, 24]} /><meshStandardMaterial color="#ffffff" /></mesh>
+        <mesh position={[-2, 0.36, -6]}><cylinderGeometry args={[0.07, 0.25, 0.72, 12]} /><meshStandardMaterial color="#cbd5e1" /></mesh>
+      </group>}
+      {/* Khung tối cho hai vách kính đầu sảnh. */}
+      {[0.08, 47.62].map(v => <group key={v} position={[toWorld(14, v)[0], floor === 1 ? 0 : -3.8, toWorld(14, v)[1]]} rotation-y={-b6Layout.rotationY}>
+        {[-3.35, 3.35].map(x => <mesh key={x} position={[x, 3.8, 0]}><planeGeometry args={[1.5, 7.4]} /><meshBasicMaterial color="#c9e4ee" transparent opacity={0.5} side={2} depthWrite={false} /></mesh>)}
+        <mesh position={[0, 5.7, 0]}><planeGeometry args={[5.3, 3.6]} /><meshBasicMaterial color="#c9e4ee" transparent opacity={0.5} side={2} depthWrite={false} /></mesh>
+        {[-4.1, -2.75, 2.75, 4.1].map(x => <mesh key={x} position={[x, 3.8, 0]}><boxGeometry args={[0.08, 7.6, 0.1]} /><meshStandardMaterial color="#334155" /></mesh>)}
+        {[3.8, 7.5].map(y => <mesh key={y} position={[0, y, 0]}><boxGeometry args={[8.2, 0.09, 0.1]} /><meshStandardMaterial color="#334155" /></mesh>)}
+      </group>)}
       {/* Buồng thang máy B6 inox */}
       <B6ElevatorBooth />
     </group>

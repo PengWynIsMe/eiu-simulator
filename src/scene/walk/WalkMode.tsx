@@ -324,6 +324,8 @@ export default function WalkMode() {
     const unsub = useWalkStore.subscribe((state) => {
       const cur = state.interior;
       const prev = prevInterior.current;
+      if (prev?.buildingId === cur?.buildingId && prev?.floor === cur?.floor) return;
+      prevInterior.current = cur ? { ...cur } : null;
 
       if (!prev && cur) {
         // Vừa bước vào bên trong tòa nhà
@@ -460,7 +462,6 @@ export default function WalkMode() {
         }
       }
 
-      prevInterior.current = cur ? { ...cur } : null;
       lastInteractiveId.current = undefined;
       lastRoomCode.current = undefined;
       currentInteractive.current = null;

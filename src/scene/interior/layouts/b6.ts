@@ -6,6 +6,7 @@ import type {
   InteriorLayout,
   ExteriorEntrance,
 } from '../types';
+import { evaluateStairHeight, isInsideAnyStairFootprint, type WalkableStairSpec } from "../stairs";
 import { B6_TEXT } from '../b6Text';
 
 /**
@@ -237,7 +238,8 @@ function generateB6Walls(floor: number): WallSegment[] {
     // South Void: u = 10.0 .. 16.2, v = 23.0 .. 35.0 (trên ô cầu thang Codex)
     walls.push({ u1: 10.0, v1: 23.0, u2: 16.2, v2: 23.0, thickness: 0.06, isRailing: true, isGlass: true, minY: 0, maxY: 1.1 });
     walls.push({ u1: 16.2, v1: 23.0, u2: 16.2, v2: 35.0, thickness: 0.06, isRailing: true, isGlass: true, minY: 0, maxY: 1.1 });
-    walls.push({ u1: 16.2, v1: 35.0, u2: 10.0, v2: 35.0, thickness: 0.06, isRailing: true, isGlass: true, minY: 0, maxY: 1.1 });
+    walls.push({ u1: 16.2, v1: 35.0, u2: 13.3, v2: 35.0, thickness: 0.06, isRailing: true, isGlass: true, minY: 0, maxY: 1.1 });
+    walls.push({ u1: 10.7, v1: 35.0, u2: 10.0, v2: 35.0, thickness: 0.06, isRailing: true, isGlass: true, minY: 0, maxY: 1.1 });
     walls.push({ u1: 10.0, v1: 35.0, u2: 10.0, v2: 23.0, thickness: 0.06, isRailing: true, isGlass: true, minY: 0, maxY: 1.1 });
   }
 
@@ -286,6 +288,19 @@ export function getFloorHoles(floor: number): Vec2[][] {
   ];
 }
 
+const B6_STAIRS: readonly WalkableStairSpec[] = [{
+  id: "book-stair", shaftMinU: 10.75, shaftMaxU: 13.25, shaftMinV: 25.8, shaftMaxV: 35.1,
+  parts: [
+    { kind: "ramp", u1: 12, v1: 25.8, y1: 0, u2: 12, v2: 32, y2: 3.8, halfWidth: 1.25 },
+    { kind: "landing", minU: 10.75, maxU: 13.25, minV: 32, maxV: 35.2, y: 3.8 },
+  ],
+}];
+
+function stepStairHeight(x: number, z: number, prevY: number, floor: number) {
+  return evaluateStairHeight(B6_STAIRS, toLocal, x, z, prevY, floor, 2,
+    (u, v) => floor === 1 ? !(u > 10.7 && u < 13.3 && v > 26.1 && v < 35.1) : !(u > 9.9 && u < 16.3 && v > 22.9 && v < 35.1));
+}
+
 // =============================================================================
 // VA CHẠM & TỌA ĐỘ DI CHUYỂN B6
 // =============================================================================
@@ -331,11 +346,13 @@ export function resolveInteriorPosition(
   if (floor === 2) {
     const inNorthHole = curU > 9.9 && curU < 16.3 && curV > 3.9 && curV < 19.1;
     const inSouthHole = curU > 9.9 && curU < 16.3 && curV > 22.9 && curV < 35.1;
-    if (inNorthHole || inSouthHole) {
+    if ((inNorthHole || inSouthHole) && !isInsideAnyStairFootprint(B6_STAIRS, curU, curV, floor, 2, currentY)) {
       curU = prevU;
       curV = prevV;
     }
   }
+
+  if (Math.abs(currentY) > 0.35 && !isInsideAnyStairFootprint(B6_STAIRS, curU, curV, floor, 2, currentY)) return toWorld(prevU, prevV);
 
   // Kiểm tra va chạm với các bức tường
   const walls = getFloorWalls(floor);
@@ -487,6 +504,7 @@ export const b6Layout: InteriorLayout = {
   getFloorRooms,
   getFloorBoundaryPts,
   getFloorHoles,
+  stepStairHeight,
   resolvePosition: resolveInteriorPosition,
   getActiveRoom,
   getNearInteractive,

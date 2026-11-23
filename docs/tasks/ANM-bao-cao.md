@@ -117,3 +117,12 @@ Tất cả 3 cổng kiểm tra đều sạch 100%.
   - `05-khu-vuc-thang-codex.png`: Khu vực chừa sẵn cho Codex dựng cầu thang gáy sách cùng biển chỉ dẫn.
   - `06-trung-tam-an-ninh-mang-eiu.png`: Cụm bàn làm việc, dàn PC và vách kính phòng 100.B6.
   - `07-tang-2-nhin-xuong-sanh.png`: Góc nhìn từ hành lang và cầu kính Tầng 2 nhìn xuống sảnh trệt.
+
+
+## Polish v2 — Codex
+
+- Gộp `PengWynIsMe/codex-phu`, đặt thang gáy sách tại u=12, v=25.8–35.1, nối chiếu nghỉ vào sàn tầng 2; dùng cùng kích thước cho mặt đi và chặn ra ngoài thang. Đã đi bằng W từ chân thang và xác nhận store chuyển sang tầng 2.
+- Phòng 100.B6 có sàn xám sáng, trần trắng, cassette và LED, tường xanh với dashboard, bàn có chân, bàn tròn, ghế văn phòng, PC và biển số 100. Sảnh có khung kính tối, lá cây, cột vuông và nền đá tối; sửa nhãn cửa Bắc B6.
+- Sửa lỗi đăng ký thay đổi nội thất trong WalkMode gây đệ quy cập nhật vị trí khi vào nhà. Ảnh v2: `02-sanh-kinh-v2.png`, `05-cau-thang-v2.png`, `06-trung-tam-v2.png`, `08-cau-thang-sanh-v2.png`.
+- Kiểm tra: `npm run typecheck`, `npm run lint`, `npm run build` thành công; console không có lỗi đỏ trong phiên kiểm tra. Thử viewport 390×844: HUD phía trên còn chồng nhau, cần xử lý riêng.
+- FPS đo bằng requestAnimationFrame trong trình duyệt nhúng Orca ở góc phòng 100.B6: 44 khung hình / 3,03 giây, khoảng **14,5 FPS**; thấp hơn mục tiêu 50 FPS, chưa xác định đóng góp của trình duyệt nhúng so với cảnh. Cần đo lại trên trình duyệt/hardware thật và tối ưu nếu còn thấp; chưa thể coi hiệu năng đã đạt.
