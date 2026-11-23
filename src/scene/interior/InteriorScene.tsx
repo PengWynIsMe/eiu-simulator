@@ -117,6 +117,51 @@ function buildB11ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, groun
   };
 }
 
+/** Cảnh quan khuôn viên bên ngoài mặt Nam B4: thảm cỏ, lối đi bộ, hàng cây xanh và ki-ốt Highlands Coffee nhìn qua vách kính. */
+function buildB4ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, groundY: number) {
+  const grassGeos = [
+    // Thảm cỏ xanh phía Nam trải dài dọc theo vách kính
+    makeOrientedLocalBox(toWorld, 33.5, 48.0, groundY - 0.14, 96.0, 0.1, 40.0),
+    // Thảm cỏ hai đầu Đông và Tây
+    makeOrientedLocalBox(toWorld, -8.0, 14.0, groundY - 0.14, 18.0, 0.1, 35.0),
+    makeOrientedLocalBox(toWorld, 75.0, 14.0, groundY - 0.14, 18.0, 0.1, 35.0),
+  ];
+  const pathGeos = [
+    // Lối đi bộ lát gạch dọc theo mặt Nam tòa nhà (v = 28.5..32)
+    makeOrientedLocalBox(toWorld, 33.5, 30.2, groundY - 0.05, 86.0, 0.08, 4.2),
+    // Lối dẫn từ sảnh chính ra ki-ốt Highlands
+    makeOrientedLocalBox(toWorld, 28.0, 40.0, groundY - 0.05, 3.6, 0.08, 18.0),
+  ];
+  const facadeGeos = [
+    // Ki-ốt Highlands Coffee (thùng xe bus đỏ + mái che pergola)
+    makeOrientedLocalBox(toWorld, 45.0, 48.0, groundY + 1.6, 9.5, 3.2, 3.4),
+    makeOrientedLocalBox(toWorld, 45.0, 48.0, groundY + 3.4, 11.5, 0.2, 5.0),
+    // Khối đế tòa B5 phía Đông
+    makeOrientedLocalBox(toWorld, 82.0, 14.0, groundY + 6.0, 24.0, 12.0, 26.0),
+  ];
+  const extSalixTrees: SalixAlbaInstance[] = [];
+  // Hàng cây xanh rợp bóng mát ngay sát vách kính mặt Nam
+  const treeUs = [6.0, 12.0, 18.0, 24.0, 34.0, 40.0, 46.0, 52.0, 58.0, 64.0];
+  treeUs.forEach((tu, idx) => {
+    const tv = 34.5 + ((idx % 2) * 2.5);
+    const [wx, wz] = toWorld(tu, tv);
+    extSalixTrees.push({
+      x: wx,
+      y: groundY - 0.1,
+      z: wz,
+      rotY: (idx * 1.37) % (Math.PI * 2),
+      scaleXZ: 0.85 + (idx % 3) * 0.08,
+      scaleY: 0.9 + (idx % 2) * 0.12,
+    });
+  });
+  return {
+    extGrassGeo: mergeAndDispose(grassGeos),
+    extPathGeo: mergeAndDispose(pathGeos),
+    extFacadeGeo: mergeAndDispose(facadeGeos),
+    extSalixTrees,
+  };
+}
+
 /** Dựng hình học bản sàn từ đa giác biên + các lỗ khoét giếng trời trong mặt phẳng (x, z). */
 function buildSlabGeometry(
   boundaryPts: readonly Vec2[],
@@ -173,8 +218,9 @@ export default function InteriorScene() {
   const isB11 = buildingId.toLowerCase() === 'b11';
   const isB6 = buildingId.toLowerCase() === 'b6';
   const isCanteen = buildingId.toLowerCase() === 'can-tin';
+  const isB4 = buildingId.toLowerCase() === 'b4';
   const isTwinWing = isB8 || isB11;
-  const isMultiFloor = isB8 || isB11 || isB6;
+  const isMultiFloor = isB8 || isB11 || isB6 || isB4;
 
   // 1. Sàn tầng hiện tại (y = -0.15 .. 0)
   const floorGeometry = useMemo(() => {
@@ -366,6 +412,14 @@ export default function InteriorScene() {
           ],
         ];
         roofOverhangGeo = buildSlabGeometry(roofOuterPts, roofHolesPts, 0.34, roofY - 0.14);
+      } else if (isB4) {
+        const roofOuterPts: Vec2[] = [
+          layout.toWorld(-0.5, -0.5),
+          layout.toWorld(67.5, -0.5),
+          layout.toWorld(67.5, 28.5),
+          layout.toWorld(-0.5, 28.5),
+        ];
+        roofOverhangGeo = buildSlabGeometry(roofOuterPts, [], 0.35, roofY - 0.15);
       }
     }
 
@@ -377,7 +431,9 @@ export default function InteriorScene() {
     solidGeos.forEach((g) => g.dispose());
     glassGeos.forEach((g) => g.dispose());
 
-    const ext = isB11
+    const ext = isB4
+      ? buildB4ExteriorBackdrop(layout.toWorld, -(floor - 1) * FLOOR_HEIGHT)
+      : isB11
       ? buildB11ExteriorBackdrop(layout.toWorld, -(floor - 1) * FLOOR_HEIGHT)
       : {
           extGrassGeo: null,
@@ -394,7 +450,7 @@ export default function InteriorScene() {
       elevatorTowerGeo,
       ...ext,
     };
-  }, [layout, floor, isB11, isB8, isMultiFloor, isTopDown]);
+  }, [layout, floor, isB11, isB8, isB4, isMultiFloor, isTopDown]);
 
   useEffect(() => {
     return () => {
@@ -541,18 +597,19 @@ export default function InteriorScene() {
     if (isB8) return layout.toWorld(64.7, -188.1);
     if (isB6) return layout.toWorld(17.0, 24.0);
     if (isCanteen) return layout.toWorld(32, 18);
+    if (isB4) return layout.toWorld(33.5, 14.0);
     return layout.toWorld(0, 20.0);
-  }, [layout, isB8, isB11, isB6, isCanteen]);
+  }, [layout, isB8, isB11, isB6, isCanteen, isB4]);
 
   // Màu tường và sàn theo tài liệu thực tế của từng tòa
   const wallColor = isTwinWing ? '#42322c' : '#f8fafc'; // B8 & B11: nâu sẫm, B3: trắng sáng
   const baseboardColor = isTwinWing ? '#261e1b' : '#334155';
-  const floorColor = isCanteen ? '#dddcd2' : isTwinWing ? '#cbd5e1' : isB6 ? '#475569' : '#f1f5f9'; // B8 & B11: gạch xám, B3: terrazzo sáng, B6: gạch xám đậm, căn tin: terra sáng
+  const floorColor = isCanteen ? '#dddcd2' : isB4 ? '#a8a29e' : isTwinWing ? '#cbd5e1' : isB6 ? '#475569' : '#f1f5f9'; // căn tin: terra sáng, B4: thảm be-xám, B8 & B11: gạch xám, B3: terrazzo sáng, B6: gạch xám đậm
 
   return (
     <>
-      <color attach="background" args={[isTwinWing || isCanteen ? '#c9e1e7' : '#0f172a']} />
-      {isTwinWing && (
+      <color attach="background" args={[isTwinWing || isCanteen ? '#c9e1e7' : isB4 ? '#8cc8f5' : '#0f172a']} />
+      {(isTwinWing || isB4) && (
         <Sky
           distance={2000}
           sunPosition={[180, 160, 100]}
@@ -594,6 +651,12 @@ export default function InteriorScene() {
           <pointLight position={[layout.toWorld(31.7, -188.5)[0], 3.6, layout.toWorld(31.7, -188.5)[1]]} intensity={0.65} distance={30} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(84.5, -188.0)[0], 3.6, layout.toWorld(84.5, -188.0)[1]]} intensity={0.65} distance={35} color="#e0f2fe" />
           <pointLight position={[layout.toWorld(53.5, -188.35)[0], 3.4, layout.toWorld(53.5, -188.35)[1]]} intensity={0.7} distance={15} color="#fffbeb" />
+        </>
+      ) : isB4 ? (
+        <>
+          <pointLight position={[layout.toWorld(16, 14)[0], 3.4, layout.toWorld(16, 14)[1]]} intensity={0.7} distance={30} color="#fffbeb" />
+          <pointLight position={[layout.toWorld(33.5, 14)[0], 3.4, layout.toWorld(33.5, 14)[1]]} intensity={0.75} distance={30} color="#ffffff" />
+          <pointLight position={[layout.toWorld(52, 14)[0], 3.4, layout.toWorld(52, 14)[1]]} intensity={0.7} distance={30} color="#e0f2fe" />
         </>
       ) : buildingId.toLowerCase() === 'b3' ? (
         <>
@@ -700,7 +763,7 @@ export default function InteriorScene() {
           <meshStandardMaterial color="#d6cec2" roughness={0.8} />
         </mesh>
       )}
-      {isB11 && multiFloorB11.extSalixTrees.length > 0 && (
+      {(isB11 || isB4) && multiFloorB11.extSalixTrees.length > 0 && (
         <SalixAlbaTrees instances={multiFloorB11.extSalixTrees} castShadow={false} />
       )}
 
