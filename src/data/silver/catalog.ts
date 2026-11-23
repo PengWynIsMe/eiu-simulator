@@ -17,6 +17,15 @@ export function parseCatalog(v: unknown): SilverCatalog {
   const catalog: SilverCatalog = { version: 1, majorId: str(root.majorId, 'catalog.majorId'), source: str(root.source, 'catalog.source'), courses, groups, specializationRule: { minCredits: num(obj(root.specializationRule, 'catalog.specializationRule').minCredits, 'catalog.specializationRule.minCredits'), completeOneOf: arr(obj(root.specializationRule, 'catalog.specializationRule').completeOneOf, 'catalog.specializationRule.completeOneOf').map((x,i)=>str(x,`catalog.specializationRule.completeOneOf[${i}]`)) } };
   const ids = new Map<string, SilverCourse>(); for (const c of courses) for (const id of [c.code, ...c.aliases]) { if (ids.has(id)) fail('catalog.courses', `mã trùng ${id}`); ids.set(id,c); }
   for (const c of courses) { if ((c.prereq.mode === 'none') !== (c.prereq.codes.length === 0) && c.prereq.mode !== 'unclear') fail(c.code, 'prerequisite hợp lệ'); if(c.prereq.mode !== 'unresolved') for(const code of c.prereq.codes) if(!ids.has(code)) fail(c.code, `mã tiên quyết ${code} tồn tại`); }
+  const reverse = new Map(courses.map(c => [c.code, new Set<string>()]));
+  for (const c of courses) if (c.prereq.mode !== 'unresolved') for (const pre of c.prereq.codes) reverse.get(pre)?.add(c.code);
+  for (const c of courses) { const expected = reverse.get(c.code) ?? new Set<string>(); if (expected.size !== c.opens.length || c.opens.some(code => !expected.has(code))) fail(c.code, 'opens là chiều ngược của prereq.codes'); }
+  const groupIds = new Set(groups.map(g => g.id));
+  for (const g of groups) for (const code of g.courses) { const c = courses.find(x => x.code === code); if (!c || c.group !== g.id) fail(`catalog.groups.${g.id}`, `${code} tồn tại và có group tương ứng`); }
+  for (const c of courses) if (c.group && !groupIds.has(c.group)) fail(c.code, `group ${c.group} tồn tại`);
+  const visiting = new Set<string>(); const visited = new Set<string>(); const chain: string[] = [];
+  const visit = (code: string): void => { if (visiting.has(code)) { const start = chain.indexOf(code); fail('catalog.courses', `vòng lặp ${[...chain.slice(start), code].join(' → ')}`); } if (visited.has(code)) return; visiting.add(code); chain.push(code); const c = courses.find(x => x.code === code); for (const pre of c?.prereq.codes ?? []) if (ids.has(pre)) visit(pre); chain.pop(); visiting.delete(code); visited.add(code); };
+  for (const c of courses) visit(c.code);
   return catalog;
 }
 export const catalog = parseCatalog(raw);
