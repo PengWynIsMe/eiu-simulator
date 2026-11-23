@@ -127,3 +127,21 @@ Không tạo dữ liệu nội dung thật; test sử dụng fixture tổng hợ
 | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run test:silver` | Bốn lệnh kiểm, gồm 7 ca mới | Đạt |
 
 BE-07 dùng `RegistrationView` và `CourseStatus` hiện hành. Kết quả trả `chapterId` từ `term.term` và dùng mã `needs-confirmation` cho “chờ xác nhận”. Hàng trong lịch thiếu nội dung hiện `no-content`. Khi đã có ba môn ngoài core được chọn, hàng chưa chọn hiện tier dự kiến `quick` theo quy tắc thêm cuối, còn các môn đã chọn luôn được xếp tier theo thứ tự hàng.
+
+## BE-11 — Store nối các luồng chơi
+
+| Tiêu chí | Kiểm chứng | Kết quả |
+|---|---|---|
+| 1–3. Hoàn tất đầu vào, mở lại cảnh thứ hai ở bước 0, thoát giữa cảnh giữ cờ chưa lưu | `store.test.mjs` ca 1–3 | Đạt |
+| 4–5. Sai, thử lại, xem đáp án, gợi ý code và bỏ qua cảnh | `store.test.mjs` ca 4–5 | Đạt. Bỏ cảnh giữ checkpoint kế tiếp và bỏ cờ tạm |
+| 6. Vào thẳng 2.2, lời dẫn, đăng ký mặc định, tuần, thi và sổ | `store.test.mjs` ca 6 | Đạt. Lịch 9 buổi. Hai cảnh lab cùng buổi dùng chung một thẻ |
+| 7–9. Kho lưu ném lỗi, bảng điểm tất định, chơi lại và giữ trang cũ | `store.test.mjs` ca 7–9 | Đạt. Chơi lại gợi ý ảnh và dòng mới theo trạng thái hiện tại |
+| Checkpoint cũ trỏ tới chương, item hoặc môn đã mất | Hai ca hồi phục trong `store.test.mjs` | Đạt. Xóa checkpoint nếu chương đã mất, về item đầu nếu item đã mất, mở lại đăng ký nếu danh sách môn thay đổi |
+| Bấm nhanh Tiếp hoặc trả lời, chuyển chương khi đang dở, nhiều cờ trong một cảnh | Các ca tương tác trong `store.test.mjs` | Đạt. Hai lần Tiếp cách nhau dưới 250 ms chỉ tiến một bước nếu chưa trả lời bước mới. Câu trả lời thứ hai trong cùng bước giữ nguyên feedback |
+| Nạp song song, lỗi lặp, hồi phục và giữ cache | Hai ca lỗi nạp trong `store.test.mjs` | Đạt. Cùng promise khi đang nạp, chỉ thử lại phần lỗi, một log mỗi chương, tiếp tục dùng được chương lành qua API. UI giữ màn lỗi toàn cục theo hợp đồng |
+| Thiếu nội dung và tham chiếu ổn định cho selector | Các ca nội dung thiếu và selector trong `store.test.mjs` | Đạt. Chương thiếu hiện `coming-soon`. Môn thiếu theo quy tắc BE-07 `no-content`; hàng core vẫn khóa và hàng ngoài core bị loại khỏi lựa chọn mặc định |
+| Nội dung thật, đi lần lượt `entrance → 1.1 → 2.2` | Script ngoài repo đọc và kiểm 3 JSON chương và 6 JSON môn từ `pompano` (`65aa678`) và `loach` (`bf18a9b`), đưa qua deps của `createSilverStore` | Đạt. Lần lượt 18, 25 và 46 bước chơi. Level 1 cho B/C/B/C với seed `eiu-1`. 2.2 vào đăng ký ngay, có 9 buổi và thi CSE 103. Lưu 27 cảnh, 5 cờ, 3 trang sổ, `run=null` |
+| Nội dung thật, vào thẳng `2.2` | Chạy luồng thứ hai với cùng dữ liệu, kho lưu mới | Đạt. Có lời dẫn, mặc định 15 tín chỉ và 31 phút, 9 buổi, 46 bước và thi CSE 103. Lưu 14 cảnh, 2 cờ, 1 trang sổ, `run=null` |
+| Bốn lệnh kiểm | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run test:silver` | Đạt cả bốn, 58 ca Silver gồm 18 ca mới |
+
+Các file BE-11 gồm `src/store/useSilverStore.ts`, `scripts/silver/tests/store.test.mjs` và báo cáo này. `SilverApi` và `UseSilver` giữ nguyên theo hợp đồng. Trước khi chốt đăng ký, checkpoint trỏ tới item mở đầu và danh sách môn rỗng. Khi tiếp tục checkpoint này, store mở đăng ký với danh sách đã lưu hoặc mặc định. Nội dung thật chỉ được đọc từ hai worktree để kiểm bằng Vite SSR middleware. Kiểm thử giao diện tích hợp nằm ở bước ghép UI.
