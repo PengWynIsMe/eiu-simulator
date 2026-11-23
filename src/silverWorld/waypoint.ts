@@ -1,6 +1,6 @@
+import type { Classroom } from '../types/lesson';
 import type { Vec2 } from '../types';
 import type { WorldSpot } from '../types/silverWorld';
-import { b8ToWorld } from './seatAnchor';
 
 export type WaypointHint = 'door' | 'elevator' | 'room' | 'target';
 
@@ -15,67 +15,43 @@ export interface RoomWaypointSpec {
   code: string;
   floor: number;
   door: { x: number; z: number };
-  /** Kiểm tra (x, z) đã vào trong phòng hay chưa */
-  isInside?: (x: number, z: number) => boolean;
-  /** Hoặc hộp bao phòng (AABB trên mặt phẳng xz) */
-  bounds?: { minX: number; maxX: number; minZ: number; maxZ: number };
+  /** Kiểm tra xem điểm (x, z) thế giới đã nằm trong phòng hay chưa */
+  isInside: (x: number, z: number) => boolean;
 }
 
 export interface BuildingWaypointLayout {
   buildingId: string;
   /** Các cửa vào ngoài trời dẫn vào tòa */
-  entrances: { x: number; z: number }[];
+  entrances: readonly { x: number; z: number }[];
   /** Vị trí thang máy trên các tầng */
   elevator: { x: number; z: number };
-  /** Cửa thoát hiểm/ra ngoài khi đang ở trong tòa */
-  exitDoor?: { x: number; z: number };
-  /** Các phòng trong tòa */
-  rooms?: RoomWaypointSpec[];
+  /** Các cửa thoát hiểm/ra ngoài khi đang ở trong tòa */
+  exitDoors?: readonly { x: number; z: number }[];
+  /** Danh sách các phòng trong tòa */
+  rooms?: readonly RoomWaypointSpec[];
 }
 
 export type WaypointLayoutMap = Record<string, BuildingWaypointLayout>;
 
-// Bố cục mặc định cho B8 (không import scene)
-// Tọa độ cửa và thang máy theo sơ đồ B8 chuẩn
-const B8_ENTRANCE_SOUTH = b8ToWorld(52.8, -163.0);
-const B8_ENTRANCE_NORTH = b8ToWorld(52.8, -213.0);
-const B8_ELEVATOR = b8ToWorld(56.65, -188.35);
-const B8_EXIT_SOUTH = b8ToWorld(52.8, -178.5);
-
-// 406.B8: u 72.5..90.0, v -209.5..-200.7
-const B8_EX = [0.97398, -0.22663] as const;
-const B8_EV = [0.22663, 0.97398] as const;
-function toB8Local(x: number, z: number): [number, number] {
-  return [
-    x * B8_EX[0] + z * B8_EX[1],
-    x * B8_EV[0] + z * B8_EV[1],
-  ];
-}
-
-export const DEFAULT_B8_LAYOUT: BuildingWaypointLayout = {
-  buildingId: 'b8',
-  entrances: [
-    { x: B8_ENTRANCE_SOUTH[0], z: B8_ENTRANCE_SOUTH[1] },
-    { x: B8_ENTRANCE_NORTH[0], z: B8_ENTRANCE_NORTH[1] },
-  ],
-  elevator: { x: B8_ELEVATOR[0], z: B8_ELEVATOR[1] },
-  exitDoor: { x: B8_EXIT_SOUTH[0], z: B8_EXIT_SOUTH[1] },
-  rooms: [
-    {
-      code: '406.B8',
-      floor: 4,
-      door: { x: 41.22, z: -213.29 },
-      isInside: (x, z) => {
-        const [u, v] = toB8Local(x, z);
-        return u >= 72.0 && u <= 90.5 && v >= -210.0 && v <= -200.5;
-      },
+/**
+ * Dựng RoomWaypointSpec từ Classroom và hàm đổi tọa độ toLocal của tòa nhà.
+ * Cửa phòng lấy chính xác từ room.doorWorld, khung phòng theo room.bounds.
+ */
+export function createRoomWaypoint(
+  room: Classroom,
+  toLocal: (x: number, z: number) => [number, number],
+): RoomWaypointSpec {
+  const { minU, maxU, minV, maxV } = room.bounds;
+  return {
+    code: room.code,
+    floor: room.floor,
+    door: { x: room.doorWorld[0], z: room.doorWorld[1] },
+    isInside: (x: number, z: number) => {
+      const [u, v] = toLocal(x, z);
+      return u >= minU && u <= maxU && v >= minV && v <= maxV;
     },
-  ],
-};
-
-export const DEFAULT_LAYOUTS: WaypointLayoutMap = {
-  b8: DEFAULT_B8_LAYOUT,
-};
+  };
+}
 
 function distanceSq(x1: number, z1: number, x2: number, z2: number): number {
   const dx = x2 - x1;
@@ -106,18 +82,18 @@ function findClosestPoint(
 
 /**
  * Tính waypoint tiếp theo trên đường đến target.
- * Dùng tham số bố cục truyền vào, không import scene.
+ * Nhận bố cục tòa nhà từ nơi gọi, không import scene.
  *
- * @param pos Vị trí hiện tại của người chơi ({ x, z } hoặc [x, z])
- * @param interior Trạng thái nội thất hiện tại ({ buildingId, floor } hoặc null)
- * @param target Đích đến (WorldSpot)
- * @param layoutMap Bản đồ bố cục các tòa nhà (mặc định dùng DEFAULT_LAYOUTS)
+ * @param pos Vị trí hiện tại ({ x, z } hoặc [x, z])
+ * @param interior Trạng thái nội thất ({ buildingId, floor } hoặc null)
+ * @param target Điểm đích (WorldSpot)
+ * @param layoutMap Bố cục các tòa nhà do caller truyền vào
  */
 export function nextWaypoint(
   pos: { x: number; z: number } | Vec2,
   interior: { buildingId: string; floor: number } | null,
   target: WorldSpot,
-  layoutMap: WaypointLayoutMap = DEFAULT_LAYOUTS,
+  layoutMap: WaypointLayoutMap,
 ): WaypointResult {
   const px = 'x' in pos ? pos.x : pos[0];
   const pz = 'z' in pos ? pos.z : pos[1];
@@ -125,9 +101,11 @@ export function nextWaypoint(
   // 1. Target ở ngoài trời
   if (!target.buildingId) {
     if (interior) {
-      // Đang ở trong tòa nhà → đi ra cửa thoát hiểm
       const currentLayout = layoutMap[interior.buildingId.toLowerCase()];
-      const exit = currentLayout?.exitDoor ?? currentLayout?.entrances[0] ?? { x: px, z: pz };
+      const exits = currentLayout?.exitDoors && currentLayout.exitDoors.length > 0
+        ? currentLayout.exitDoors
+        : currentLayout?.entrances ?? [];
+      const exit = findClosestPoint(px, pz, exits) ?? { x: px, z: pz };
       return { x: exit.x, z: exit.z, hint: 'door' };
     }
     return { x: target.x, z: target.z, hint: 'target' };
@@ -146,10 +124,13 @@ export function nextWaypoint(
     return { x: target.x, z: target.z, hint: 'door' };
   }
 
-  // 3. Người chơi ở tòa nhà khác tòa nhà của target
+  // 3. Người chơi ở tòa nhà khác tòa nhà của target -> chọn cửa ra gần nhất
   if (interior.buildingId.toLowerCase() !== targetBuildingId) {
     const currentLayout = layoutMap[interior.buildingId.toLowerCase()];
-    const exit = currentLayout?.exitDoor ?? currentLayout?.entrances[0] ?? { x: px, z: pz };
+    const exits = currentLayout?.exitDoors && currentLayout.exitDoors.length > 0
+      ? currentLayout.exitDoors
+      : currentLayout?.entrances ?? [];
+    const exit = findClosestPoint(px, pz, exits) ?? { x: px, z: pz };
     return { x: exit.x, z: exit.z, hint: 'door' };
   }
 
@@ -167,30 +148,15 @@ export function nextWaypoint(
 
   // 5. Cùng tòa nhà, đúng tầng → kiểm tra phòng và đích
   const rooms = targetLayout?.rooms ?? [];
-  // Tìm phòng khớp tầng và chứa target (hoặc gần target)
-  const room = rooms.find((r) => {
-    if (r.floor !== targetFloor) return false;
-    if (r.isInside) return r.isInside(target.x, target.z);
-    if (r.bounds) {
-      return target.x >= r.bounds.minX && target.x <= r.bounds.maxX
-        && target.z >= r.bounds.minZ && target.z <= r.bounds.maxZ;
-    }
-    return distanceSq(target.x, target.z, r.door.x, r.door.z) < 15 * 15;
-  });
+  const room = rooms.find((r) => r.floor === targetFloor && r.isInside(target.x, target.z));
 
   if (room) {
-    // Kiểm tra người chơi đã ở trong phòng chưa
-    const inRoom = room.isInside
-      ? room.isInside(px, pz)
-      : room.bounds
-        ? px >= room.bounds.minX && px <= room.bounds.maxX && pz >= room.bounds.minZ && pz <= room.bounds.maxZ
-        : distanceSq(px, pz, target.x, target.z) < 3.0 * 3.0;
-
-    if (!inRoom) {
+    // Nếu người chơi chưa vào trong phòng (đang ở hành lang hoặc phòng khác)
+    if (!room.isInside(px, pz)) {
       return { x: room.door.x, z: room.door.z, hint: 'room' };
     }
   }
 
-  // Đã trong phòng hoặc không có phòng riêng → tới target
+  // Đã trong phòng hoặc không thuộc phòng riêng nào → tới target
   return { x: target.x, z: target.z, hint: 'target' };
 }
