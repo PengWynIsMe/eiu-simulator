@@ -24,6 +24,7 @@ export default function LessonLayer() {
       if (event.key !== 'Escape') return;
       const s = useLessonStore.getState();
       if (s.phase !== 'exercise' || !s.desktopOpen) return;
+      event.stopImmediatePropagation();
       event.stopPropagation();
       s.closeDesktop();
     };
