@@ -73,7 +73,7 @@ export default function App() {
       {!isCinematicActive && <InteriorHud />}
       {!isCinematicActive && <LessonLayer />}
       {!isCinematicActive && <SilverLayer />}
-      {!isCinematicActive && <WorldLayer />}
+      <WorldLayer />
     </div>
   );
 }

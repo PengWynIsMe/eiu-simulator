@@ -28,11 +28,12 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
   const standUp = useActivityStore((s) => s.standUp);
 
   const answer = useSilver((s) => s.answer);
+  const retry = useSilver((s) => s.retry);
   const showHint = useSilver((s) => s.showHint);
   const revealAnswer = useSilver((s) => s.revealAnswer);
 
-  const [value, setValue] = useState('');
-  const [runState, setRunState] = useState<CodeLabRunState>('idle');
+  const [value, setValue] = useState<string>(() => (feedback?.kind === 'graded' && feedback.correct ? (step.answers[0] ?? '') : ''));
+  const [runState, setRunState] = useState<CodeLabRunState>(feedback?.kind === 'graded' ? 'shown' : 'idle');
   const [runId, setRunId] = useState(0);
   const prevFeedbackRef = useRef<Feedback | null>(null);
 
@@ -59,11 +60,25 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
   const graded = feedback?.kind === 'graded' ? feedback : null;
   const isCorrect = graded?.correct === true || graded?.revealed === true;
 
+  const handleValueChange = (v: string) => {
+    setValue(v);
+    if (runState === 'shown' && !isCorrect) {
+      setRunState('idle');
+    }
+  };
+
   const handleRun = () => {
     if (runState === 'compiling' || isCorrect || value.trim().length === 0) return;
+    if (feedback?.kind === 'graded' && !feedback.correct && !feedback.revealed) {
+      retry();
+    }
     setRunState('compiling');
     setTimeout(() => {
-      answer(value);
+      try {
+        answer(value);
+      } catch {
+        // noop
+      }
       setRunId((n) => n + 1);
       setRunState('shown');
     }, 400);
@@ -108,7 +123,7 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
     <>
       {/* 1. Màn máy tính ảo khi đang mở (screenOpen) */}
       <div
-        className={`fixed inset-0 z-50 items-center justify-center bg-black/65 sm:p-[3%] ${
+        className={`pointer-events-auto fixed inset-0 z-50 items-center justify-center bg-black/65 sm:p-[3%] ${
           screenOpen ? 'flex' : 'hidden'
         }`}
       >
@@ -138,7 +153,7 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
               nextLabel={tr(ST_W.next)}
               labels={codeLabLabels}
               revealed={graded?.revealed}
-              onChange={setValue}
+              onChange={handleValueChange}
               onRun={handleRun}
               onRequestHint={showHint}
               onReveal={revealAnswer}
@@ -150,7 +165,7 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
 
       {/* 2. Nút mở lại máy tính hoặc đứng dậy khi máy đang thu (screenOpen === false) */}
       {!screenOpen && (
-        <div className="fixed bottom-8 left-1/2 z-40 flex -translate-x-1/2 gap-3 select-none">
+        <div className="pointer-events-auto fixed bottom-8 left-1/2 z-40 flex -translate-x-1/2 gap-3 select-none">
           <button
             type="button"
             onClick={() => setScreenOpen(true)}

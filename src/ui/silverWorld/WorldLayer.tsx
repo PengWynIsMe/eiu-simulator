@@ -52,18 +52,17 @@ export default function WorldLayer() {
   const [chosenOptionId, setChosenOptionId] = useState<string | null>(null);
 
   const prevStepKeyRef = useRef<string | null>(null);
-  const lockedStepKeyRef = useRef<string | null>(null);
+  const lastNextClickRef = useRef(0);
 
   // Kích hoạt cửa vào dev ?silver3d=lab1 trên môi trường phát triển
   useEffect(() => {
-    void initDevSilver3DLab1(useSilver.getState());
+    void initDevSilver3DLab1(useSilver);
   }, []);
 
   const stepKey = play?.item.id && play.step.id ? `${play.item.id}:${play.step.id}` : null;
 
   useEffect(() => {
     if (stepKey && stepKey !== prevStepKeyRef.current) {
-      lockedStepKeyRef.current = null;
       setChosenOptionId(null);
       prevStepKeyRef.current = stepKey;
     }
@@ -78,9 +77,9 @@ export default function WorldLayer() {
   const isEngaged = phase === 'engaged';
 
   const handleNextClick = () => {
-    if (!play.canContinue || !stepKey) return;
-    if (lockedStepKeyRef.current === stepKey) return;
-    lockedStepKeyRef.current = stepKey;
+    const now = performance.now();
+    if (!play.canContinue || now - lastNextClickRef.current < 300) return;
+    lastNextClickRef.current = now;
     nextStep();
   };
 
@@ -93,16 +92,17 @@ export default function WorldLayer() {
 
   return (
     <>
-      {/* Ẩn các nút 📚 và 🎓 trên TopBar khi đang chơi trong 3D world để tránh xung đột */}
+      {/* Ẩn thanh TopBar chung khi đang chơi trong 3D world để tránh chồng lấn giao diện */}
       <style>{`
-        [data-silver-trigger="true"] { display: none !important; }
-        header button[aria-label*="Buổi học"], header button[aria-label*="Lesson"] { display: none !important; }
+        header:not([data-world-layer="true"]) {
+          display: none !important;
+        }
       `}</style>
 
       {/* Thanh trên: tên cảnh, môn học, tiến độ, ngôn ngữ, âm thanh, nút Đứng dậy, Thoát */}
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-2 p-2 sm:p-4">
-        <div className="pointer-events-auto flex items-center gap-2 rounded-xl bg-white/90 px-3 py-1.5 shadow-md backdrop-blur-md sm:gap-3">
-          <span className="font-bold text-[#0b3d91] text-xs sm:text-sm">
+      <header data-world-layer="true" className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-1 p-1.5 sm:gap-2 sm:p-4">
+        <div className="pointer-events-auto flex items-center gap-1.5 rounded-xl bg-white/90 px-2 py-1 shadow-md backdrop-blur-md sm:gap-3 sm:px-3 sm:py-1.5">
+          <span className="max-w-[110px] truncate font-bold text-[#0b3d91] text-xs sm:max-w-none sm:text-sm">
             {sceneTitle}
           </span>
           {play.item.courseCode && (
@@ -110,17 +110,17 @@ export default function WorldLayer() {
               · {play.item.courseCode}
             </span>
           )}
-          <span className="text-xs font-medium text-slate-600 border-l border-slate-200 pl-2">
+          <span className="text-[11px] font-medium text-slate-600 border-l border-slate-200 pl-1.5 sm:text-xs sm:pl-2">
             {fmt(tr(ST_W.stepN), { i: play.stepIndex + 1, n: play.stepCount })}
           </span>
         </div>
 
-        <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2">
+        <div className="pointer-events-auto flex items-center gap-1 sm:gap-2">
           {isEngaged && seated && !screenOpen && (
             <button
               type="button"
               onClick={standUp}
-              className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border border-slate-300 bg-white/95 px-3 text-xs font-bold text-slate-800 shadow hover:bg-slate-50 active:scale-95"
+              className="inline-flex min-h-[32px] items-center gap-1 rounded-lg border border-slate-300 bg-white/95 px-2 text-[11px] font-bold text-slate-800 shadow hover:bg-slate-50 active:scale-95 sm:min-h-[36px] sm:gap-1.5 sm:px-3 sm:text-xs"
             >
               <span>{tr(ST_W.standUp)}</span>
               <span className="hidden text-[10px] text-slate-400 sm:inline">(Esc)</span>
@@ -130,7 +130,7 @@ export default function WorldLayer() {
           <button
             type="button"
             onClick={() => setSkipConfirmOpen(true)}
-            className="inline-flex min-h-[36px] items-center rounded-lg border border-slate-300 bg-white/90 px-2.5 text-xs font-medium text-slate-700 shadow hover:bg-slate-50 active:scale-95 sm:px-3"
+            className="inline-flex min-h-[32px] items-center rounded-lg border border-slate-300 bg-white/90 px-2 text-[11px] font-medium text-slate-700 shadow hover:bg-slate-50 active:scale-95 sm:min-h-[36px] sm:px-3 sm:text-xs"
             title={tr(ST_W.skip)}
           >
             {tr(ST_W.skip)}
@@ -139,7 +139,7 @@ export default function WorldLayer() {
           <button
             type="button"
             onClick={() => setExitConfirmOpen(true)}
-            className="inline-flex min-h-[36px] items-center rounded-lg border border-slate-300 bg-white/90 px-2.5 text-xs font-medium text-red-600 shadow hover:bg-red-50 active:scale-95 sm:px-3"
+            className="inline-flex min-h-[32px] items-center rounded-lg border border-slate-300 bg-white/90 px-2 text-[11px] font-medium text-red-600 shadow hover:bg-red-50 active:scale-95 sm:min-h-[36px] sm:px-3 sm:text-xs"
             title={tr(ST_W.exit)}
           >
             {tr(ST_W.exit)}
