@@ -3,43 +3,148 @@ import { useFrame } from '@react-three/fiber';
 import type { Group } from 'three';
 import CharacterModel, { type CharacterHandle } from '../characters/CharacterModel';
 import { turnToward } from '../npc/lod';
-import { localDirToYaw } from '../npc/sitPose';
-import { b11ToWorld } from '../interior/layouts/b11';
-import { characterConfig, getClassroom } from '../../data';
-import { useLessonStore, type LessonResult } from '../../store/useLessonStore';
-import { useWalkStore } from '../../store/useWalkStore';
+import { toWorld, yawOf } from '../silver/frame';
+import { characterConfig } from '../../data';
+import type { Classroom } from '../../types';
+import type { ClassSignal } from '../../types/silverWorld';
 import type { CharacterClip } from '../../types';
 
 const WALK_SPEED = 1.2; // m/s, ứng timeScale 1 của clip walk
 const ARRIVE_EPS = 0.05;
 const TURN_RATE = 6;
-// Đường vòng phía tường Đông giữa chỗ bàn và chỗ giảng, tránh đi xuyên bàn GV (u).
-const DETOUR_U = 95.8;
+const DETOUR_DISTANCE = 0.7; // m, khoảng cách vòng phía sau bàn giáo viên
 
-function worldPoint(u: number, v: number): [number, number] {
-  return b11ToWorld(u, v);
+export interface TeacherProps {
+  room: Classroom;
+  getSignal: () => ClassSignal;
+  subscribe: (listener: () => void) => () => void;
+  crowd?: number;
 }
 
-function TeacherBody() {
-  const room = getClassroom('406.B11');
+/**
+ * Kiểm tra đoạn thẳng từ (u1, v1) tới (u2, v2) có cắt hình chữ nhật [minU, maxU] x [minV, maxV] không (thuật toán Liang-Barsky).
+ */
+export function segmentIntersectsBox(
+  u1: number,
+  v1: number,
+  u2: number,
+  v2: number,
+  minU: number,
+  maxU: number,
+  minV: number,
+  maxV: number,
+): boolean {
+  if (u1 >= minU && u1 <= maxU && v1 >= minV && v1 <= maxV) return true;
+  if (u2 >= minU && u2 <= maxU && v2 >= minV && v2 <= maxV) return true;
+
+  const du = u2 - u1;
+  const dv = v2 - v1;
+  let t0 = 0;
+  let t1 = 1;
+
+  const p = [-du, du, -dv, dv];
+  const q = [u1 - minU, maxU - u1, v1 - minV, maxV - v1];
+
+  for (let i = 0; i < 4; i++) {
+    const pi = p[i] ?? 0;
+    const qi = q[i] ?? 0;
+    if (pi === 0) {
+      if (qi < 0) return false;
+    } else {
+      const t = qi / pi;
+      if (pi < 0) {
+        if (t > t1) return false;
+        if (t > t0) t0 = t;
+      } else {
+        if (t < t0) return false;
+        if (t < t1) t1 = t;
+      }
+    }
+  }
+  return t0 <= t1;
+}
+
+/**
+ * Tính toán tuyến đi của thầy giữa bàn giáo viên và vị trí giảng.
+ * Nếu đoạn thẳng cắt bàn GV, đi vòng phía sau cách bàn 0.7 m.
+ */
+export function computeTeacherPlan(room: Classroom) {
+  const { lecture, desk } = room.teacherSpots;
+  const tDesk = room.teacherDesk;
+  const frame = room.frame;
+
+  const lectureW = toWorld(frame, lecture.u, lecture.v);
+  const deskW = toWorld(frame, desk.u, desk.v);
+  const seat = room.seats.find((s) => s.id === room.playerSeat);
+  const seatW = seat ? toWorld(frame, seat.u, seat.v) : lectureW;
+
+  // Hướng thầy nhìn lớp học khi đứng giảng: ngược hướng studentFacing
+  const frontYaw = yawOf(frame, -room.studentFacing[0], -room.studentFacing[1]);
+
+  // Kích thước bàn giáo viên theo hướng facing
+  const facing = tDesk.facing;
+  const alongU = Math.abs(facing[0]) >= Math.abs(facing[1]);
+  const halfDepth = tDesk.depth / 2;
+  const halfWidth = tDesk.width / 2;
+
+  const minU = tDesk.u - (alongU ? halfDepth : halfWidth);
+  const maxU = tDesk.u + (alongU ? halfDepth : halfWidth);
+  const minV = tDesk.v - (alongU ? halfWidth : halfDepth);
+  const maxV = tDesk.v + (alongU ? halfWidth : halfDepth);
+
+  const intersects = segmentIntersectsBox(desk.u, desk.v, lecture.u, lecture.v, minU, maxU, minV, maxV);
+
+  let toLecture: [number, number][];
+  let toDesk: [number, number][];
+
+  if (intersects) {
+    if (alongU) {
+      // Bàn xoay mặt theo trục u: phía sau bàn ở hướng -facing[0]
+      const detourU = tDesk.u - facing[0] * DETOUR_DISTANCE;
+      toLecture = [
+        toWorld(frame, detourU, desk.v),
+        toWorld(frame, detourU, lecture.v),
+        lectureW,
+      ];
+      toDesk = [
+        toWorld(frame, detourU, lecture.v),
+        toWorld(frame, detourU, desk.v),
+        deskW,
+      ];
+    } else {
+      // Bàn xoay mặt theo trục v: phía sau bàn ở hướng -facing[1]
+      const detourV = tDesk.v - facing[1] * DETOUR_DISTANCE;
+      toLecture = [
+        toWorld(frame, desk.u, detourV),
+        toWorld(frame, lecture.u, detourV),
+        lectureW,
+      ];
+      toDesk = [
+        toWorld(frame, lecture.u, detourV),
+        toWorld(frame, desk.u, detourV),
+        deskW,
+      ];
+    }
+  } else {
+    toLecture = [lectureW];
+    toDesk = [deskW];
+  }
+
+  return {
+    lectureW,
+    deskW,
+    toLecture,
+    toDesk,
+    seatW,
+    frontYaw,
+  };
+}
+
+function TeacherBody({ room, getSignal }: TeacherProps) {
   const group = useRef<Group>(null);
   const handle = useRef<CharacterHandle>(null);
 
-  const plan = useMemo(() => {
-    if (!room) return null;
-    const { lecture, desk } = room.teacherSpots;
-    const seat = room.seats.find((s) => s.id === room.playerSeat);
-    const lectureW = worldPoint(lecture.u, lecture.v);
-    const deskW = worldPoint(desk.u, desk.v);
-    return {
-      lectureW,
-      deskW,
-      toLecture: [worldPoint(DETOUR_U, desk.v), worldPoint(DETOUR_U, lecture.v), lectureW],
-      toDesk: [worldPoint(DETOUR_U, lecture.v), worldPoint(DETOUR_U, desk.v), deskW],
-      seatW: seat ? worldPoint(seat.u, seat.v) : lectureW,
-      frontYaw: localDirToYaw(-1, 0), // mặt về -u (về lớp)
-    };
-  }, [room]);
+  const plan = useMemo(() => computeTeacherPlan(room), [room]);
 
   const sim = useMemo(
     () => ({
@@ -51,10 +156,9 @@ function TeacherBody() {
       route: null as [number, number][] | null,
       wp: 0,
       moving: false,
-      step: -1,
-      phase: '' as string,
-      slide: -1,
-      result: null as LessonResult | null,
+      stepKey: '',
+      mode: 'idle' as ClassSignal['mode'],
+      resultId: -1,
       pending: null as CharacterClip | null,
     }),
     [],
@@ -65,7 +169,7 @@ function TeacherBody() {
     const h = handle.current;
     if (!g || !plan) return;
     const dt = Math.min(delta, 0.1);
-    const lesson = useLessonStore.getState();
+    const signal = getSignal();
 
     if (!sim.init) {
       sim.init = true;
@@ -74,35 +178,31 @@ function TeacherBody() {
       sim.yaw = plan.frontYaw;
     }
 
-    // Chưa vào buổi học: đứng chỗ bàn; vào học: đứng chỗ giảng cạnh màn chiếu.
-    const inLesson = lesson.phase !== 'idle' && lesson.phase !== 'goToClass' && lesson.phase !== 'findSeat';
+    // Chưa vào buổi học (idle): đứng chỗ bàn; vào học: đứng chỗ giảng cạnh màn chiếu
+    const inLesson = signal.mode !== 'idle';
     if (inLesson !== sim.atLecture) {
       sim.atLecture = inLesson;
       sim.route = inLesson ? plan.toLecture : plan.toDesk;
       sim.wp = 0;
     }
 
-    // Phản ứng theo pha / bước / slide / kết quả — hàng đợi 1 phần tử, phát khi thầy đã đứng yên.
-    if (lesson.phase !== sim.phase || lesson.stepIndex !== sim.step) {
-      sim.phase = lesson.phase;
-      sim.step = lesson.stepIndex;
-      sim.slide = lesson.slideIndex;
-      sim.result = lesson.lastResult;
-      if (lesson.phase === 'dialogue' || lesson.phase === 'summary' || lesson.phase === 'lecture') sim.pending = 'interact';
-    } else {
-      if (lesson.phase === 'lecture' && lesson.slideIndex !== sim.slide) {
-        sim.slide = lesson.slideIndex;
+    // Phản ứng theo mode / stepKey / result
+    if (signal.stepKey !== sim.stepKey) {
+      sim.stepKey = signal.stepKey;
+      sim.mode = signal.mode;
+      if (signal.mode === 'talk' || signal.mode === 'end' || signal.mode === 'slide') {
         sim.pending = 'interact';
-      }
-      if (lesson.lastResult !== sim.result) {
-        sim.result = lesson.lastResult;
-        if (lesson.lastResult && (lesson.phase === 'question' || lesson.phase === 'exercise')) {
-          sim.pending = lesson.lastResult.correct ? 'yes' : 'no';
-        }
       }
     }
 
-    // Đi theo đường vòng nếu chưa tới điểm đến.
+    if (signal.result && signal.result.id !== sim.resultId) {
+      sim.resultId = signal.result.id;
+      if (signal.mode === 'question' || signal.mode === 'exercise') {
+        sim.pending = signal.result.correct ? 'yes' : 'no';
+      }
+    }
+
+    // Đi theo tuyến nếu chưa tới điểm đến
     let tyaw = sim.yaw;
     let walking = false;
     const route = sim.route;
@@ -132,7 +232,7 @@ function TeacherBody() {
     }
 
     if (!walking) {
-      const toPlayer = lesson.phase === 'dialogue' || lesson.phase === 'summary';
+      const toPlayer = signal.mode === 'talk' || signal.mode === 'end';
       tyaw = toPlayer ? Math.atan2(plan.seatW[0] - sim.x, plan.seatW[1] - sim.z) : plan.frontYaw;
       if (sim.pending && h) {
         h.playOnce(sim.pending);
@@ -145,7 +245,6 @@ function TeacherBody() {
     g.rotation.y = sim.yaw;
   });
 
-  if (!plan) return null;
   return (
     <group ref={group} position={[plan.deskW[0], 0, plan.deskW[1]]} rotation={[0, plan.frontYaw, 0]}>
       <CharacterModel ref={handle} url={characterConfig.roles.teacher} clip="idle" />
@@ -153,13 +252,15 @@ function TeacherBody() {
   );
 }
 
-/** Thầy giảng phòng 406.B11. Chỉ mount (và chạy mixer) khi người chơi ở B11 tầng 4 — tầng khác thì tắt hẳn. */
-export default function Teacher() {
-  const active = useWalkStore((s) => s.interior?.buildingId.toLowerCase() === 'b11' && s.interior.floor === 4);
-  if (!active) return null;
+/**
+ * Thầy giảng dùng chung cho các phòng học (406.B11, 406.B8...).
+ * Nhận room, getSignal, subscribe, crowd; không import useLessonStore.
+ * Điều kiện mount do nơi gọi quản lý.
+ */
+export default function Teacher({ room, getSignal, subscribe, crowd }: TeacherProps) {
   return (
     <Suspense fallback={null}>
-      <TeacherBody />
+      <TeacherBody room={room} getSignal={getSignal} subscribe={subscribe} crowd={crowd} />
     </Suspense>
   );
 }
