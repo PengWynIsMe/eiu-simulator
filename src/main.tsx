@@ -1,7 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { b11ToWorld } from './scene/interior/layouts/b11';
+import { startLessonBridge } from './silverWorld/lessonBridge';
 import './index.css';
+
+startLessonBridge(b11ToWorld);
 
 // Chỉ chạy ở `npm run dev`: lộ store + renderer để kiểm tay / đo draw call bằng eval trong trình duyệt (build thật không có).
 if (import.meta.env.DEV) {

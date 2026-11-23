@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { useWalkStore } from '../../store/useWalkStore';
+import { useActivityStore } from '../../store/useActivityStore';
+import { useLangStore } from '../../store/useLangStore';
 import { getBuilding, getBuildingDetail } from '../../data';
 import { getInteriorLayout } from '../../scene/interior/layouts';
 
 interface ProximityState {
   interactive: {
     id: string;
-    type: 'exterior-door' | 'interior-door' | 'elevator';
+    type: 'exterior-door' | 'interior-door' | 'elevator' | 'activity';
     label: string;
     buildingId?: string;
   } | null;
@@ -20,6 +22,8 @@ interface ProximityState {
 export default function InteriorHud() {
   const walkMode = useWalkStore((s) => s.walkMode);
   const interior = useWalkStore((s) => s.interior);
+  const activity = useActivityStore((s) => s.activity);
+  const lang = useLangStore((s) => s.lang);
 
   const [proximity, setProximity] = useState<ProximityState>({ interactive: null, activeRoom: null });
   const [elevatorOpen, setElevatorOpen] = useState(false);
@@ -119,7 +123,10 @@ export default function InteriorHud() {
   const handleActionClick = () => {
     const inter = proximity.interactive;
     if (!inter) return;
-    if (inter.type === 'exterior-door' && inter.buildingId) {
+    if (inter.type === 'activity') {
+      const state = useActivityStore.getState();
+      if (state.activity?.key === inter.id) state.interact();
+    } else if (inter.type === 'exterior-door' && inter.buildingId) {
       useWalkStore.getState().enterInterior(inter.buildingId);
     } else if (inter.type === 'interior-door') {
       useWalkStore.getState().exitInterior();
@@ -232,10 +239,12 @@ export default function InteriorHud() {
             onClick={handleActionClick}
             className="flex items-center gap-2.5 rounded-full border border-sky-300/60 bg-sky-950/85 px-5 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
           >
-            <span className="hidden rounded bg-sky-500 px-2 py-0.5 text-xs font-bold text-white shadow md:inline-block">
-              E
-            </span>
-            <span>{proximity.interactive.label}</span>
+            {proximity.interactive.type !== 'activity' && (
+              <span className="hidden rounded bg-sky-500 px-2 py-0.5 text-xs font-bold text-white shadow md:inline-block">
+                E
+              </span>
+            )}
+            <span>{proximity.interactive.type === 'activity' ? activity?.prompt[lang] : proximity.interactive.label}</span>
           </button>
         </div>
       )}

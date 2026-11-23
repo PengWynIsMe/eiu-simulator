@@ -24,7 +24,7 @@ export interface RoomArea {
 
 export interface InteractivePoint {
   id: string;
-  type: 'exterior-door' | 'interior-door' | 'elevator';
+  type: 'exterior-door' | 'interior-door' | 'elevator' | 'activity';
   worldPos: Vec2;
   radius: number;
   label: string;
