@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { BoxGeometry, CanvasTexture, Color, SRGBColorSpace, type BufferGeometry, type InstancedMesh, type Matrix4 } from 'three';
+import { useFrame } from '@react-three/fiber';
+import { BoxGeometry, CanvasTexture, Color, MeshStandardMaterial, SRGBColorSpace, type BufferGeometry, type InstancedMesh, type Matrix4 } from 'three';
 import { getClassroom } from '../../data';
+import { useLessonStore } from '../../store/useLessonStore';
 import { B11_ROTATION_Y } from '../interior/layouts/b11';
 import {
   buildClassroom406Plan,
@@ -61,12 +63,41 @@ function Batch({ matrices, geometry, children, colors }: BatchProps) {
   );
 }
 
+/** Viền sáng nhấp nháy cho ghế người chơi trong pha findSeat. */
+function PlayerSeatHighlight({ u, v }: { u: number; v: number }) {
+  const matRef = useRef<MeshStandardMaterial>(null);
+  useFrame((state) => {
+    if (matRef.current) {
+      const pulse = Math.sin(state.clock.elapsedTime * 5) * 0.5 + 0.9;
+      matRef.current.emissiveIntensity = pulse * 1.5;
+    }
+  });
+  return (
+    <group position={[u, 0, v]}>
+      <mesh position={[0, 0.45, 0]}>
+        <boxGeometry args={[0.5, 0.08, 0.5]} />
+        <meshStandardMaterial
+          ref={matRef}
+          color="#f5b700"
+          emissive="#f5b700"
+          emissiveIntensity={1.2}
+          wireframe
+          transparent
+          opacity={0.85}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 /**
  * Nội thất phòng 406.B11 theo `classrooms.json`: 40 bộ bàn/ghế/màn hình/bàn phím/case, bàn GV, bảng, máy chiếu,
  * đèn tấm, điều hòa. 8 instancedMesh = 8 draw call. Group xoay B11_ROTATION_Y nên con dùng thẳng (u, y, v).
  */
 export default function Classroom406() {
   const room = getClassroom('406.B11');
+  const phase = useLessonStore((s) => s.phase);
+  const playerSeat = room?.seats.find((s) => s.id === room.playerSeat);
   const built = useMemo(() => {
     if (!room) return null;
     const plan = buildClassroom406Plan(room);
@@ -128,6 +159,9 @@ export default function Classroom406() {
       <Batch matrices={built.miscMatrices} geometry={built.unit} colors={built.miscColors}>
         <meshStandardMaterial roughness={0.6} />
       </Batch>
+      {phase === 'findSeat' && playerSeat && (
+        <PlayerSeatHighlight u={playerSeat.u} v={playerSeat.v} />
+      )}
     </group>
   );
 }

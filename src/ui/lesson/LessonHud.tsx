@@ -156,17 +156,7 @@ export default function LessonHud() {
         </>
       )}
       {phase === 'findSeat' && (
-        <>
-          <p className="text-sm text-slate-600">{TEXT.lessonFindSeatHint}</p>
-          {/* Tạm thời, đến khi scene có ghế 3D tương tác */}
-          <button
-            type="button"
-            onClick={() => useLessonStore.getState().sitDown(room.playerSeat)}
-            className="min-h-[44px] w-full rounded-xl bg-[#0b3d91] text-sm font-bold text-white hover:brightness-110"
-          >
-            {TEXT.lessonSitDown}
-          </button>
-        </>
+        <p className="text-sm text-slate-600">{TEXT.lessonFindSeatHint}</p>
       )}
     </div>
     </>

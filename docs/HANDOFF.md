@@ -6,18 +6,13 @@ Kế hoạch: **`docs/PLAN-GIAI-DOAN-2.md`**. Đã trong `main` (chưa push): W0
 
 | Việc | Ai | Trạng thái |
 | --- | --- | --- |
-| T19 thang + cây B8 | Antigravity — Orca worktree `~/orca/workspaces/eiu-simulator/t19-thang-cay` (nhánh `t19-thang-cay`) | đang làm |
+| T19 thang + cây B8 | Antigravity — Orca worktree `~/orca/workspaces/eiu-simulator/t19-thang-cay` (nhánh `t19-thang-cay`) | ✅ Xong (`docs/tasks/T19-bao-cao.md`) |
 | L3 + L6 phòng 406 + thầy + màn chiếu | Claude Sonnet | ✅ trong main (`docs/tasks/L36-bao-cao.md`) |
-| L4 ngồi + camera + đưa tới lớp (`WalkMode`) | **Antigravity, sau T19** (Claude đã dừng theo lệnh người dùng 2026-11-23 ~04:00) | brief `L346-…` Việc 2. Lưu ý từ L36: ghế người chơi nằm trong vùng va chạm bàn → khi ngồi/đứng phải đặt vị trí trực tiếp |
+| L4 ngồi + camera + đưa tới lớp (`WalkMode`) | Antigravity | ✅ Xong (`docs/tasks/L346-bao-cao.md`), đã test đủ luồng, chụp ảnh `docs/tasks/L346-anh/` |
 
-### Nếu Claude dừng (hết quota tuần) — Antigravity làm nốt một mình
-
-Người dùng chốt: hết quota thì **không dùng model Claude nào nữa**. Antigravity tự làm theo thứ tự:
-1. Xong T19 trong worktree `t19-thang-cay`, viết `docs/tasks/T19-bao-cao.md`.
-2. Trong cùng worktree: `git merge main` (lấy toàn bộ Giai đoạn 2), sửa xung đột (giữ gió của `Trees.tsx`/`SalixAlbaTrees.tsx` từ main), chạy typecheck/lint/build.
-3. L3 + L6 đã xong trên `main` — không làm lại.
-4. Làm L4 (Việc 2 cùng brief). Hợp đồng sự kiện ghế `campussim:seat-prompt` + `SIT_Y_OFFSET` ghi trong brief.
-5. Chơi thử theo checklist `docs/PLAN-GIAI-DOAN-2.md` mục 8, báo cáo `docs/tasks/L346-bao-cao.md`. **Không push**; người dùng xem rồi tự commit/merge.
+### Trạng thái hiện tại
+Giai đoạn 2 đã gộp vào `main` và push (2026-11-23): T19 + L4 từ nhánh `t19-thang-cay`, bỏ nút tạm "Ngồi vào chỗ" (giờ ngồi bằng E / nút mobile "Ngồi (E)").
+Còn lại: chơi thử checklist `docs/PLAN-GIAI-DOAN-2.md` mục 8 trên điện thoại, đo FPS, nghe âm thanh, kiểm bảo vệ chào.
 
 ---
 

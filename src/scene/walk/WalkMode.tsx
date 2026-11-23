@@ -2,14 +2,17 @@ import { useEffect, useMemo, useRef } from 'react';
 import { dampHeight, getGroundHeight } from './groundHeight';
 import { Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Vector3, type Group } from 'three';
+import { Vector3, PerspectiveCamera, type Group } from 'three';
 import { CapsuleFallback } from './PlayerCharacter';
 import PlayerCharacter from './PlayerCharacter';
-import { campus, FLOOR_HEIGHT } from '../../data';
+import { campus, FLOOR_HEIGHT, getClassroom } from '../../data';
 import { useCampusStore } from '../../store/useCampusStore';
 import { useWalkStore } from '../../store/useWalkStore';
+import { useLessonStore } from '../../store/useLessonStore';
 import type { Vec2 } from '../../types';
 import { isPointInPond } from '../zone1/pondLayout';
+import { b11ToLocal, b11ToWorld } from '../interior/layouts/b11';
+import { SIT_Y_OFFSET, localDirToYaw } from '../npc/sitPose';
 import {
   getInteriorLayout,
   getExteriorInteractive,
@@ -34,6 +37,26 @@ let globalPlayerPos: Vec2 = [START[0], START[1]];
 let globalCameraYaw: number = Math.PI;
 let globalCameraPitch = -0.08;
 let globalFacingYaw: number = Math.PI;
+
+// Tự động kích hoạt WalkMode và đặt người chơi trước thang máy tầng 4 B11 khi bắt đầu buổi học
+useLessonStore.subscribe((state, prev) => {
+  if (prev.phase === 'idle' && state.phase === 'goToClass') {
+    const room = getClassroom('406.B11');
+    if (!room) return;
+    const [arrX, arrZ] = b11ToWorld(room.arrival.u, room.arrival.v);
+    const [doorX, doorZ] = b11ToWorld(room.door.u, room.door.v);
+    const yaw = Math.atan2(doorZ - arrZ, doorX - arrX);
+    globalPlayerPos = [arrX, arrZ];
+    globalCameraYaw = yaw;
+    globalFacingYaw = yaw;
+    useWalkStore.setState({
+      walkMode: true,
+      interior: { buildingId: 'b11', floor: 4 },
+      moveInput: { x: 0, y: 0 },
+      playerPos: { x: arrX, z: arrZ, y: 0.0, floor: 4 },
+    });
+  }
+});
 
 function pointInPolygon(x: number, z: number, polygon: Vec2[]): boolean {
   let inside = false;
@@ -100,9 +123,13 @@ function resolvePosition(x: number, z: number, previousX: number, previousZ: num
 
 export default function WalkMode() {
   const { camera, gl } = useThree();
+  if (typeof window !== 'undefined') {
+    (window as unknown as { __gl?: typeof gl }).__gl = gl;
+  }
 
   const currentInterior = useWalkStore.getState().interior;
   const selectedId = useCampusStore.getState().selectedBuildingId;
+
   if (currentInterior && (globalPlayerPos[0] === START[0] && globalPlayerPos[1] === START[1])) {
     const layout = getInteriorLayout(currentInterior.buildingId);
     const defaultInside = layout?.defaultInsideEntrance ?? START;
@@ -138,7 +165,12 @@ export default function WalkMode() {
   const body = useRef<Group>(null);
   const target = useMemo(() => new Vector3(), []);
   const desiredCamera = useMemo(() => new Vector3(), []);
+  const desiredLookAt = useMemo(() => new Vector3(), []);
   const forward = useMemo(() => new Vector3(), []);
+  const wallCollisionHoldDist = useRef(4.0);
+  const wallCollisionHoldTimer = useRef(0);
+  const lastPosSyncTime = useRef(0);
+  const seatPromptVisible = useRef(false);
 
   // Danh sách các đoạn tường đặc 2D để kiểm tra camera chắn tầm nhìn
   const currentFloorWallLines = useRef<{ p1x: number; p1z: number; p2x: number; p2z: number }[]>([]);
@@ -207,6 +239,80 @@ export default function WalkMode() {
     };
   }, []);
 
+  // Lắng nghe bắt đầu buổi học (goToClass) và đứng dậy khi ngồi
+  useEffect(() => {
+    const unsubLesson = useLessonStore.subscribe((state, prev) => {
+      if (prev.phase === 'idle' && state.phase === 'goToClass') {
+        const room = getClassroom('406.B11');
+        if (!room) return;
+        useWalkStore.setState({
+          walkMode: true,
+          interior: { buildingId: 'b11', floor: 4 },
+          moveInput: { x: 0, y: 0 },
+        });
+
+        const [arrX, arrZ] = b11ToWorld(room.arrival.u, room.arrival.v);
+        const [doorX, doorZ] = b11ToWorld(room.door.u, room.door.v);
+        const yaw = Math.atan2(doorZ - arrZ, doorX - arrX);
+
+        player.current[0] = arrX;
+        player.current[1] = 0.0;
+        player.current[2] = arrZ;
+        cameraYaw.current = yaw;
+        facingYaw.current = yaw;
+        globalPlayerPos = [arrX, arrZ];
+        globalCameraYaw = yaw;
+        globalFacingYaw = yaw;
+        updateCachedWalls('b11', 4);
+        useWalkStore.getState().setPlayerPos({
+          x: arrX,
+          z: arrZ,
+          y: 0.0,
+          floor: 4,
+        });
+      } else if (prev.seatId && !state.seatId) {
+        // Đứng dậy: đặt nhân vật ở lối đi cạnh ghế
+        const room = getClassroom('406.B11');
+        if (room) {
+          const [standX, standZ] = b11ToWorld(92.2, -142.0);
+          player.current[0] = standX;
+          player.current[1] = 0.0;
+          player.current[2] = standZ;
+          globalPlayerPos = [standX, standZ];
+        }
+      }
+    });
+
+    const onEscapeCapture = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        const lesson = useLessonStore.getState();
+        if (lesson.desktopOpen) {
+          event.stopPropagation();
+          event.preventDefault();
+          lesson.closeDesktop();
+        } else if (lesson.seatId) {
+          event.stopPropagation();
+          event.preventDefault();
+          lesson.standUp();
+          const room = getClassroom('406.B11');
+          if (room) {
+            const [standX, standZ] = b11ToWorld(92.2, -142.0);
+            player.current[0] = standX;
+            player.current[1] = 0.0;
+            player.current[2] = standZ;
+            globalPlayerPos = [standX, standZ];
+          }
+        }
+      }
+    };
+    window.addEventListener('keydown', onEscapeCapture, true);
+
+    return () => {
+      unsubLesson();
+      window.removeEventListener('keydown', onEscapeCapture, true);
+    };
+  }, []);
+
   // Lắng nghe thay đổi trạng thái interior (vào / ra / đổi tầng)
   useEffect(() => {
     const unsub = useWalkStore.subscribe((state) => {
@@ -218,8 +324,23 @@ export default function WalkMode() {
         pendingStairTransition.current = null;
         const layout = getInteriorLayout(cur.buildingId);
         const lastPt = lastUsedInteractive.current;
-        const spawnPos = lastPt?.spawnPosWorld ?? layout?.defaultInsideEntrance ?? START;
-        const spawnYaw = lastPt?.spawnYaw ?? Math.PI / 2;
+        const isLessonStart = useLessonStore.getState().phase === 'goToClass' && cur.buildingId.toLowerCase() === 'b11' && cur.floor === 4;
+        let spawnPos: Vec2;
+        let spawnYaw: number;
+        if (isLessonStart) {
+          const room = getClassroom('406.B11');
+          if (room) {
+            spawnPos = b11ToWorld(room.arrival.u, room.arrival.v);
+            const doorPos = b11ToWorld(room.door.u, room.door.v);
+            spawnYaw = Math.atan2(doorPos[1] - spawnPos[1], doorPos[0] - spawnPos[0]);
+          } else {
+            spawnPos = lastPt?.spawnPosWorld ?? layout?.defaultInsideEntrance ?? START;
+            spawnYaw = lastPt?.spawnYaw ?? Math.PI / 2;
+          }
+        } else {
+          spawnPos = lastPt?.spawnPosWorld ?? layout?.defaultInsideEntrance ?? START;
+          spawnYaw = lastPt?.spawnYaw ?? Math.PI / 2;
+        }
 
         player.current[0] = spawnPos[0];
         player.current[1] = 0.0;
@@ -230,6 +351,12 @@ export default function WalkMode() {
         globalCameraYaw = spawnYaw;
         globalFacingYaw = spawnYaw;
         updateCachedWalls(cur.buildingId, cur.floor);
+        useWalkStore.getState().setPlayerPos({
+          x: spawnPos[0],
+          z: spawnPos[1],
+          y: 0.0,
+          floor: cur.floor,
+        });
       } else if (prev && !cur) {
         // Vừa bước ra ngoài khuôn viên
         pendingStairTransition.current = null;
@@ -255,6 +382,29 @@ export default function WalkMode() {
           player.current[1] += stairTx.deltaY;
           updateCachedWalls(cur.buildingId, cur.floor);
           stairArrival.current = null;
+        } else if (useLessonStore.getState().phase === 'goToClass' && cur.buildingId.toLowerCase() === 'b11' && cur.floor === 4) {
+          const room = getClassroom('406.B11');
+          if (room) {
+            const arrPos = b11ToWorld(room.arrival.u, room.arrival.v);
+            const doorPos = b11ToWorld(room.door.u, room.door.v);
+            const spawnYaw = Math.atan2(doorPos[1] - arrPos[1], doorPos[0] - arrPos[0]);
+            player.current[0] = arrPos[0];
+            player.current[1] = 0.0;
+            player.current[2] = arrPos[1];
+            cameraYaw.current = spawnYaw;
+            facingYaw.current = spawnYaw;
+            globalPlayerPos = [arrPos[0], arrPos[1]];
+            globalCameraYaw = spawnYaw;
+            globalFacingYaw = spawnYaw;
+            updateCachedWalls(cur.buildingId, cur.floor);
+            useWalkStore.getState().setPlayerPos({
+              x: arrPos[0],
+              z: arrPos[1],
+              y: 0.0,
+              floor: cur.floor,
+            });
+            stairArrival.current = null;
+          }
         } else {
           pendingStairTransition.current = null;
           const layout = getInteriorLayout(cur.buildingId);
@@ -331,8 +481,17 @@ export default function WalkMode() {
       if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'shift'].includes(key)) event.preventDefault();
       keys.current.add(key);
 
-      // Phím E để tương tác cửa hoặc thang máy
+      // Phím E để tương tác ghế hoặc cửa hoặc thang máy
       if (key === 'e' && !event.repeat) {
+        const lesson = useLessonStore.getState();
+        if (seatPromptVisible.current && !lesson.seatId) {
+          const room = getClassroom('406.B11');
+          if (room) {
+            lesson.sitDown(room.playerSeat);
+            return;
+          }
+        }
+
         const interactive = currentInteractive.current;
         if (interactive && !(currentActiveRoom.current?.code.startsWith('Thang bộ') && interactive.type === 'elevator')) {
           lastUsedInteractive.current = interactive;
@@ -418,9 +577,9 @@ export default function WalkMode() {
     };
     const onWheel = (event: WheelEvent) => {
       if (useWalkStore.getState().interior !== null) {
-        indoorDesiredDistance.current = Math.max(2.5, Math.min(7.0, indoorDesiredDistance.current + event.deltaY * 0.005));
+        indoorDesiredDistance.current = Math.max(2.0, Math.min(6.0, indoorDesiredDistance.current + event.deltaY * 0.005));
       } else {
-        outdoorDistance.current = Math.max(4.0, Math.min(20.0, outdoorDistance.current + event.deltaY * 0.01));
+        outdoorDistance.current = Math.max(3.0, Math.min(12.0, outdoorDistance.current + event.deltaY * 0.01));
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -443,11 +602,14 @@ export default function WalkMode() {
     };
   }, [gl, gl.domElement]);
 
-  // Thoát chế độ đi bộ khi đang ở trong nhà: trả near về giá trị ngoài trời cho CameraRig.
+  // Thoát chế độ đi bộ khi đang ở trong nhà: trả near và fov về giá trị ngoài trời cho CameraRig.
   useEffect(() => {
     return () => {
       camera.near = OUTDOOR_CAMERA_NEAR;
       camera.far = OUTDOOR_CAMERA_FAR;
+      if ('fov' in camera) {
+        (camera as PerspectiveCamera).fov = 45;
+      }
       camera.updateProjectionMatrix();
       if (document.pointerLockElement === gl.domElement) document.exitPointerLock();
     };
@@ -459,6 +621,112 @@ export default function WalkMode() {
     const input = useWalkStore.getState().moveInput;
     const interiorState = useWalkStore.getState().interior;
     const isInterior = interiorState !== null;
+
+    // 1. Ghi playerPos tối đa 5 lần/giây
+    const nowMs = performance.now();
+    if (nowMs - lastPosSyncTime.current >= 200) {
+      lastPosSyncTime.current = nowMs;
+      useWalkStore.getState().setPlayerPos({
+        x: player.current[0],
+        z: player.current[2],
+        y: player.current[1],
+        floor: isInterior ? interiorState.floor : null,
+      });
+    }
+
+    // 2. Kiểm tra tới lớp (406.B11) & nhắc ghế
+    const room406 = getClassroom('406.B11');
+    if (isInterior && interiorState.buildingId.toLowerCase() === 'b11' && interiorState.floor === 4 && room406) {
+      const [localU, localV] = b11ToLocal(player.current[0], player.current[2]);
+      const inBounds =
+        localU >= room406.bounds.minU &&
+        localU <= room406.bounds.maxU &&
+        localV >= room406.bounds.minV &&
+        localV <= room406.bounds.maxV;
+      if (inBounds && useLessonStore.getState().phase === 'goToClass') {
+        useLessonStore.getState().arriveAtClass();
+      }
+
+      const seat = room406.seats.find((s) => s.id === room406.playerSeat);
+      if (seat) {
+        const [seatWorldX, seatWorldZ] = b11ToWorld(seat.u, seat.v);
+        const distToSeat = Math.hypot(player.current[0] - seatWorldX, player.current[2] - seatWorldZ);
+        const lesson = useLessonStore.getState();
+        const canSit = !lesson.seatId && (lesson.phase === 'findSeat' || lesson.phase === 'goToClass');
+        const isNear = distToSeat <= 1.2 && canSit;
+
+        if (isNear !== seatPromptVisible.current) {
+          seatPromptVisible.current = isNear;
+          window.dispatchEvent(new CustomEvent('campussim:seat-prompt', { detail: { visible: isNear } }));
+        }
+      }
+    } else if (seatPromptVisible.current) {
+      seatPromptVisible.current = false;
+      window.dispatchEvent(new CustomEvent('campussim:seat-prompt', { detail: { visible: false } }));
+    }
+
+    // 3. Lerp FOV khi chạy nhanh (Shift) (+5 độ)
+    if ('fov' in camera) {
+      const persCam = camera as PerspectiveCamera;
+      const lesson = useLessonStore.getState();
+      const targetFov = running.current && moving.current && !lesson.seatId ? 50 : 45;
+      if (Math.abs(persCam.fov - targetFov) > 0.02) {
+        persCam.fov += (targetFov - persCam.fov) * (1 - Math.exp(-8 * dt));
+        persCam.updateProjectionMatrix();
+      }
+    }
+
+    // 4. Nếu đang ngồi vào máy: khóa di chuyển, cố định vị trí & điều khiển camera ngồi
+    const lesson = useLessonStore.getState();
+    const isSitting = Boolean(lesson.seatId);
+
+    if (isSitting && room406) {
+      moving.current = false;
+      running.current = false;
+
+      const seat = room406.seats.find((s) => s.id === room406.playerSeat);
+      if (seat) {
+        const [seatX, seatZ] = b11ToWorld(seat.u, seat.v);
+        player.current[0] = seatX;
+        player.current[1] = SIT_Y_OFFSET;
+        player.current[2] = seatZ;
+
+        const yaw = localDirToYaw(room406.studentFacing[0], room406.studentFacing[1]);
+        facingYaw.current = -yaw + Math.PI / 2;
+
+        if (body.current) {
+          body.current.visible = viewMode.current !== 1;
+          body.current.position.set(seatX, SIT_Y_OFFSET, seatZ);
+          body.current.rotation.y = yaw;
+        }
+
+        // Camera ngồi:
+        // Desktop open: tiến sát màn hình
+        // Normal sitting: sau vai ngang mắt 1.55 m, nhìn màn hình + bảng
+        const camU = lesson.desktopOpen ? 92.05 : 92.85;
+        const camY = lesson.desktopOpen ? 1.08 : 1.55;
+        const camV = lesson.desktopOpen ? -140.8 : -140.65;
+
+        const tgtU = lesson.desktopOpen ? 91.57 : 89.2;
+        const tgtY = lesson.desktopOpen ? 1.05 : 1.35;
+        const tgtV = lesson.desktopOpen ? -140.8 : -142.0;
+
+        const [camX, camZ] = b11ToWorld(camU, camV);
+        const [tgtX, tgtZ] = b11ToWorld(tgtU, tgtV);
+
+        desiredCamera.set(camX, camY, camZ);
+        desiredLookAt.set(tgtX, tgtY, tgtZ);
+
+        const sitSpeed = 1 - Math.exp(-6 * dt);
+        camera.position.lerp(desiredCamera, sitSpeed);
+        target.lerp(desiredLookAt, sitSpeed);
+        camera.lookAt(target.x, target.y, target.z);
+
+        globalPlayerPos[0] = seatX;
+        globalPlayerPos[1] = seatZ;
+        return;
+      }
+    }
 
     const xInput = Math.max(-1, Math.min(1, input.x + Number(pressed.has('d') || pressed.has('arrowright')) - Number(pressed.has('a') || pressed.has('arrowleft'))));
     const yInput = Math.max(-1, Math.min(1, input.y + Number(pressed.has('w') || pressed.has('arrowup')) - Number(pressed.has('s') || pressed.has('arrowdown'))));
@@ -645,10 +913,16 @@ export default function WalkMode() {
         }
       }
 
-      // Kéo camera sát nhân vật nếu có tường chắn phía sau
-      const targetDist = minT < 0.999
-        ? Math.max(0.45, minT * desiredDist - 0.28)
-        : desiredDist;
+      // Kéo camera sát nhân vật nếu có tường chắn phía sau (giữ khoảng cách nhỏ nhất trong 0.3 s rồi mới nới ra)
+      let targetDist = desiredDist;
+      if (minT < 0.999) {
+        targetDist = Math.max(0.45, minT * desiredDist - 0.28);
+        wallCollisionHoldDist.current = targetDist;
+        wallCollisionHoldTimer.current = 0.3;
+      } else if (wallCollisionHoldTimer.current > 0) {
+        wallCollisionHoldTimer.current -= dt;
+        targetDist = Math.min(desiredDist, wallCollisionHoldDist.current);
+      }
 
       const lerpSpeed = targetDist < indoorActualDistance.current ? 25 : 10;
       indoorActualDistance.current += (targetDist - indoorActualDistance.current) * (1 - Math.exp(-lerpSpeed * dt));
@@ -663,14 +937,15 @@ export default function WalkMode() {
         camY,
         pz - forward.z * horizDist
       );
-      camera.position.copy(desiredCamera);
+      camera.position.lerp(desiredCamera, 1 - Math.exp(-14 * dt));
 
       const lookDist = Math.max(4.0, actualDist);
-      target.set(
+      desiredLookAt.set(
         desiredCamera.x + forward.x * cosP * lookDist,
         desiredCamera.y + sinP * lookDist,
         desiredCamera.z + forward.z * cosP * lookDist
       );
+      target.lerp(desiredLookAt, 1 - Math.exp(-16 * dt));
       camera.lookAt(target.x, target.y, target.z);
     } else {
       // Ngoài khuôn viên: camera góc nghiêng bình thường
@@ -680,7 +955,7 @@ export default function WalkMode() {
         player.current[1] + 3.4,
         player.current[2] - forward.z * outdoorDistance.current
       );
-      camera.position.lerp(desiredCamera, 1 - Math.exp(-4 * dt));
+      camera.position.lerp(desiredCamera, 1 - Math.exp(-6 * dt));
       camera.lookAt(target.x, target.y + 0.4, target.z);
     }
 
@@ -694,6 +969,16 @@ export default function WalkMode() {
         interactive = layout.getNearInteractive(player.current[0], player.current[2], interiorState.floor);
         if (interactive?.type === 'interior-door' && Math.abs(player.current[1]) > 0.8) {
           interactive = null;
+        }
+        if (seatPromptVisible.current && !interactive) {
+          interactive = {
+            id: 'seat-406',
+            type: 'interior-door',
+            label: 'Ngồi vào máy (E)',
+            buildingId: 'b11',
+            worldPos: [player.current[0], player.current[2]],
+            radius: 1.2,
+          };
         }
         activeRoom = layout.getActiveRoom(player.current[0], player.current[2], interiorState.floor);
       }

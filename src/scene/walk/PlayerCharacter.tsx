@@ -4,6 +4,7 @@ import { useGLTF } from '@react-three/drei';
 import CharacterModel, { type CharacterHandle } from '../characters/CharacterModel';
 import { characterConfig } from '../../data';
 import { useWalkStore } from '../../store/useWalkStore';
+import { useLessonStore } from '../../store/useLessonStore';
 
 type PlayerCharacterProps = {
   moving: MutableRefObject<boolean>;
@@ -32,11 +33,16 @@ export function CapsuleFallback() {
 
 export default function PlayerCharacter({ moving, running, visible }: PlayerCharacterProps) {
   const skin = useWalkStore((s) => s.playerSkin);
+  const seatId = useLessonStore((s) => s.seatId);
   const url = skin === 'playerAlt' ? characterConfig.roles.playerAlt : characterConfig.roles.player;
   const handle = useRef<CharacterHandle>(null);
 
   useFrame(() => {
-    handle.current?.play(moving.current ? (running.current ? 'run' : 'walk') : 'idle');
+    if (seatId) {
+      handle.current?.play('sit');
+    } else {
+      handle.current?.play(moving.current ? (running.current ? 'run' : 'walk') : 'idle');
+    }
   });
 
   return (

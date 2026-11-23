@@ -79,7 +79,6 @@ export const TEXT = {
   lessonDistanceLeft: 'còn',
   lessonGoToFloor: 'Lên tầng',
   lessonFindSeatHint: 'Tìm ghế có viền sáng và bấm E để ngồi',
-  lessonSitDown: 'Ngồi vào chỗ',
   lessonNext: 'Tiếp ›',
   lessonYou: 'Bạn',
   lessonReopenDesktop: '🖥 Mở máy tính',
