@@ -3,6 +3,7 @@ import { BoxGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { POND_BASINS, POND_ROTATION_Y } from './pondLayout';
 import { useSnowStore } from '../../store/useSnowStore';
+import { GRASS, POND_RIM } from '../groundLevels';
 
 export default function Pond() {
   const isSnowing = useSnowStore((s) => s.isSnowing);
@@ -11,9 +12,9 @@ export default function Pond() {
     const waterGeos: BufferGeometry[] = [];
     const floorGeos: BufferGeometry[] = [];
 
-    const groundY = 0.15;
-    const rimHeight = 0.6; // Cao ~0.6m so với mặt đất
-    const rimTopY = groundY + rimHeight;
+    const groundY = GRASS;
+    const rimTopY = POND_RIM;
+    const rimHeight = rimTopY - groundY; // Cao ~0.53m so với mặt đất/cỏ
     const rimThickness = 0.4;
     const waterY = rimTopY - 0.08; // Mặt nước thấp hơn thành hồ 8cm
 

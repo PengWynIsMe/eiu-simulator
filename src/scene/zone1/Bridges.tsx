@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { BoxGeometry, BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { BRIDGE } from '../groundLevels';
 
 interface BridgeLine {
   start: [number, number];
@@ -22,7 +23,7 @@ export default function Bridges() {
     const pergolas: BufferGeometry[] = [];
 
     const deckW = 3.2;
-    const deckY = 0.8; // Cầu nằm ngay trên mặt hồ (thành hồ 0.75m)
+    const deckY = BRIDGE; // Cầu nằm ngay trên mặt hồ (thành hồ 0.55m)
     const roofH = 3.2;
     const roofTopY = deckY + roofH;
 

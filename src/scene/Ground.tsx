@@ -7,7 +7,7 @@ import { useReviewStore } from '../store/useReviewStore';
 import { useCampusStore } from '../store/useCampusStore';
 import { useSnowStore } from '../store/useSnowStore';
 import { getCameraPose } from './cameraUtils';
-import { FOOTWAY, FOOTWAY_WIDTH, GRASS, INTERNAL, PARKING, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUNDABOUT_ROAD, ROUNDABOUT_ROAD_WIDTH, STREET, STREET_LANE_WIDTH, GROUND, BRIDGE_WIDTH } from './groundLevels';
+import { FOOTWAY, FOOTWAY_WIDTH, GRASS, INTERNAL, PARKING, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUNDABOUT_ROAD, ROUNDABOUT_ROAD_WIDTH, STREET, STREET_LANE_WIDTH, GROUND, BRIDGE_WIDTH, KERB_HEIGHT } from './groundLevels';
 import {
   ASPHALT_TILE_LENGTH,
   BRICK_TILE_LENGTH,
@@ -105,7 +105,7 @@ export default function Ground() {
       allRoads: layout.roads,
       halfWidth: ROAD_WIDTH / 2,
       baseY: INTERNAL,
-      height: 0.15,
+      height: KERB_HEIGHT,
       thickness: 0.2,
       maxRadius: 600,
       onRoundabout: (x, z) => {

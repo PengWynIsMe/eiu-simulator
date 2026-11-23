@@ -354,8 +354,8 @@ export function buildKerbGeometry(opts: KerbOptions): BufferGeometry | null {
             const i1: [number, number, number] = [bx + nx * inner, y1, bz + nz * inner];
             // mặt trên
             quad(o0, o1, i1, i0, 0, 1, 0);
-            // mặt ngoài (về phía vỉa/cỏ) và mặt trong (về phía lòng đường)
-            quad([o0[0], y0, o0[2]], [o1[0], y0, o1[2]], o1, o0, nx * side, 0, nz * side);
+            // mặt ngoài (về phía vỉa/cỏ) kéo xuống y = 0 để cắm chặt vào đất, triệt tiêu khe hở và bóng rỗng; mặt trong về phía lòng đường
+            quad([o0[0], 0, o0[2]], [o1[0], 0, o1[2]], o1, o0, nx * side, 0, nz * side);
             quad([i0[0], y0, i0[2]], [i1[0], y0, i1[2]], i1, i0, -nx * side, 0, -nz * side);
           }
         }

@@ -3,6 +3,7 @@ import { BoxGeometry, CylinderGeometry, type BufferGeometry } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { Vec2 } from '../../types';
 import { addBox, addCylinder } from '../kit/geometryHelpers';
+import { GRASS, INTERNAL } from '../groundLevels';
 
 const ALL_CORRIDORS: readonly { readonly points: readonly Vec2[]; readonly roofH: number; readonly width: number }[] = [
   // B9 ↔ B10
@@ -208,9 +209,9 @@ export default function CampusGreenery() {
       const offset = (i - (numStripes - 1) * 0.5) * 0.95;
       const zx = archCenterX + Math.sin(roadAngle) * offset;
       const zz = archCenterZ - Math.cos(roadAngle) * offset;
-      const stripe = new BoxGeometry(3.6, 0.02, 0.45);
+      const stripe = new BoxGeometry(3.6, 0.01, 0.45);
       stripe.rotateY(-roadAngle);
-      stripe.translate(zx, 0.17, zz);
+      stripe.translate(zx, INTERNAL + 0.005, zz);
       zebras.push(stripe);
     }
 
@@ -292,7 +293,7 @@ export default function CampusGreenery() {
       // 5. Lối đi lát gạch đỏ kết nối sân vườn (t029s)
       const pathW = 0.9;
       const pathLen = 5.2;
-      addBox(brickPaths, p.cx - pathW * 0.5, p.cx + pathW * 0.5, 0.15, 0.18, p.cz + 1.2, p.cz + 1.2 + pathLen);
+      addBox(brickPaths, p.cx - pathW * 0.5, p.cx + pathW * 0.5, GRASS, GRASS + 0.02, p.cz + 1.2, p.cz + 1.2 + pathLen);
     });
 
     const safe = (arrGeos: BufferGeometry[]) => (arrGeos.length > 0 ? BufferGeometryUtils.mergeGeometries(arrGeos) : null);

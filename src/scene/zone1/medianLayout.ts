@@ -1,3 +1,5 @@
+import { STREET } from '../groundLevels';
+
 // Bồn cây dải phân cách trên đường vào từ cổng chính — dùng chung cho Zone1 (dựng hình) và walk/groundHeight (độ cao).
 export interface MedianPlanter {
   x: number;
@@ -14,8 +16,8 @@ export const MEDIAN_PLANTERS: readonly MedianPlanter[] = [
   { x: 236, z: -8, w: 22, d: 2.2 },
 ];
 
-/** Bồn cây đặt trên mặt đường phố (0.45 m), cao 0.35 m → mặt trên 0.8 m. */
-export const MEDIAN_BASE = 0.45;
+/** Bồn cây đặt trên mặt đường phố, cao 0.35 m. */
+export const MEDIAN_BASE = STREET;
 export const MEDIAN_HEIGHT = 0.35;
 export const MEDIAN_TOP = MEDIAN_BASE + MEDIAN_HEIGHT;
 
