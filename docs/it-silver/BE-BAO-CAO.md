@@ -34,3 +34,18 @@ Bổ sung test tại commit của đợt này. Không push. Không làm BE-03.
 | typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
 
 Ghi chú: spec nêu rõ 7 môn lab phải lỗi dù lịch 6 ngày × 2 khối có thể chứa hơn 6 lab; hiện thực áp giới hạn 6 lab để tuân theo ví dụ E.
+
+## Điều chỉnh BE-04
+
+| Tiêu chí | Test | Kết quả |
+|---|---|---|
+| Bỏ giới hạn lab cứng; bảy lab × hai lý thuyết hết ca theo thuật toán | `timetable.test.mjs` — D project, E seven labs and course conversion | Đạt |
+
+## BE-05 — Điểm bốn kỹ năng
+
+| Tiêu chí / ví dụ | Test | Kết quả |
+|---|---|---|
+| Ba vector FNV-1a mẫu, bao gồm chuỗi ghép | `grades.test.mjs` — FNV-1a known UTF-8 examples | Đạt |
+| Năm bộ điểm seed demo và eiu-1 đúng theo thứ tự kỹ năng | `grades.test.mjs` — demo and eiu-1 grades by level | Đạt |
+| Tối đa hai D; 1000 seed × 5 level đều qua | `grades.test.mjs` — passing threshold and 1000 deterministic seeds | Đạt |
+| typecheck, lint, build, test:silver | Chạy đủ bốn lệnh | Đạt |
