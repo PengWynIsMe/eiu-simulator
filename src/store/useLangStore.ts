@@ -5,6 +5,9 @@ const KEY = 'campussim.lang';
 
 function readLang(): Lang {
   try {
+    // ?lang=en|vi (liên kết chia sẻ) thắng giá trị đã lưu
+    const q = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('lang') : null;
+    if (q === 'en' || q === 'vi') return q;
     const v = localStorage.getItem(KEY);
     return v === 'en' ? 'en' : 'vi';
   } catch {

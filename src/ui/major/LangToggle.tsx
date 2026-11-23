@@ -14,7 +14,7 @@ export default function LangToggle() {
   const tr = useT();
 
   return (
-    <div role="group" aria-label={tr(UI_TEXT.langSwitch)} className="flex shrink-0 overflow-hidden rounded-lg bg-white/85 text-sm font-semibold shadow backdrop-blur-sm">
+    <div role="group" aria-label={tr(UI_TEXT.langSwitch)} className="flex shrink-0 overflow-hidden rounded-lg bg-white/85 font-semibold shadow backdrop-blur-sm">
       {OPTIONS.map((o) => (
         <button
           key={o.lang}
@@ -22,7 +22,7 @@ export default function LangToggle() {
           aria-pressed={lang === o.lang}
           aria-label={o.name}
           onClick={() => setLang(o.lang)}
-          className={`px-2.5 py-1.5 transition-colors ${
+          className={`px-2 py-1.5 text-xs transition-colors sm:px-2.5 sm:text-sm ${
             lang === o.lang ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-white hover:text-slate-900'
           }`}
         >

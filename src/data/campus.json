@@ -13,7 +13,7 @@
         "floors": 3,
         "color": "#8a7a86",
         "detailLevel": 2,
-        "majorIds": [],
+        "majorIds": ["qtkd"],
         "notes": "3 tầng (OSM + tour có tầng 1–3). Văn phòng khoa QTKD 105.B3. Ảnh: tour campus_2,3,6,7,8,9,11"
       },
       {
@@ -52,7 +52,7 @@
         "floors": 2,
         "color": "#857a84",
         "detailLevel": 1,
-        "majorIds": [],
+        "majorIds": ["mmt"],
         "notes": "Số tầng CHƯA CHẮC. Trung tâm An ninh mạng 100.B6. Nằm sau Block 3 (phía Nam), nối B3 bằng hành lang (hanh-lang-b3-b6)"
       },
       {
@@ -65,7 +65,7 @@
         "floors": 4,
         "color": "#7e7280",
         "detailLevel": 1,
-        "majorIds": [],
+        "majorIds": ["dien"],
         "notes": "4 tầng (người dùng xác nhận)"
       },
       {
@@ -104,7 +104,7 @@
         "floors": 4,
         "color": "#7e7280",
         "detailLevel": 1,
-        "majorIds": ["mau-a", "mau-b"],
+        "majorIds": ["ktpm", "mmt", "tdh", "dien", "cdt", "dtvt", "cokhi"],
         "notes": "4 tầng. Văn phòng khoa CNTT, Kỹ thuật, Sức khỏe. Hành lang mái che nối hông B11 ↔ đầu B4 và B11 ↔ B10. Ảnh: campus_16–20,23,24"
       },
       {

@@ -47,49 +47,10 @@
           "yearSource": "ma-mon"
         },
         {
-          "code": "POLS 136",
-          "name": {
-            "vi": "Lịch sử Đảng Cộng sản Việt Nam",
-            "en": "History of Vietnamese Communist Party"
-          },
-          "credits": 3,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "POLS 132",
-          "name": {
-            "vi": "Tư tưởng Hồ Chí Minh",
-            "en": "Ho Chi Minh's Ideology"
-          },
-          "credits": 3,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
           "code": "BUS 101",
           "name": {
             "vi": "Quản trị Kinh doanh căn bản",
             "en": "Fundamentals of Business Administration"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "MATH 103",
-          "name": {
-            "vi": "Đại số tuyến tính",
-            "en": "Linear Algebra"
           },
           "credits": 4,
           "block": "dai-cuong",
@@ -138,45 +99,6 @@
           "yearSource": "ma-mon"
         },
         {
-          "code": "MATH 122",
-          "name": {
-            "vi": "Phương trình vi phân",
-            "en": "Differential Equations"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "MATH 123",
-          "name": {
-            "vi": "Tính toán kỹ thuật",
-            "en": "Engineering Computation"
-          },
-          "credits": 3,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "PHYS 100",
-          "name": {
-            "vi": "Vật lí đại cương",
-            "en": "General Physics"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 1,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
           "code": "PHYS 101",
           "name": {
             "vi": "Vật lý I",
@@ -216,19 +138,6 @@
           "yearSource": "ma-mon"
         },
         {
-          "code": "CHEM 100",
-          "name": {
-            "vi": "Hóa học đại cương",
-            "en": "General Chemistry"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 1,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
           "code": "BIO 110",
           "name": {
             "vi": "Sinh học tế bào",
@@ -238,19 +147,6 @@
           "block": "dai-cuong",
           "lt": 3,
           "th": 1,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "STAT 101",
-          "name": {
-            "vi": "Xác suất thống kê I",
-            "en": "Probability and Statistics I"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
           "year": 1,
           "yearSource": "ma-mon"
         },
@@ -378,6 +274,84 @@
       "year": 2,
       "courses": [
         {
+          "code": "POLS 136",
+          "name": {
+            "vi": "Lịch sử Đảng Cộng sản Việt Nam",
+            "en": "History of Vietnamese Communist Party"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 132",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Ho Chi Minh's Ideology"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 103",
+          "name": {
+            "vi": "Đại số tuyến tính",
+            "en": "Linear Algebra"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 122",
+          "name": {
+            "vi": "Phương trình vi phân",
+            "en": "Differential Equations"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 123",
+          "name": {
+            "vi": "Tính toán kỹ thuật",
+            "en": "Engineering Computation"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "PHYS 100",
+          "name": {
+            "vi": "Vật lí đại cương",
+            "en": "General Physics"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
           "code": "STAT 202",
           "name": {
             "vi": "Xác suất thống kê II",
@@ -460,7 +434,34 @@
     },
     {
       "year": 3,
-      "courses": [],
+      "courses": [
+        {
+          "code": "CHEM 100",
+          "name": {
+            "vi": "Hóa học đại cương",
+            "en": "General Chemistry"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "STAT 101",
+          "name": {
+            "vi": "Xác suất thống kê I",
+            "en": "Probability and Statistics I"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        }
+      ],
       "electiveSlots": []
     },
     {
@@ -645,7 +646,7 @@
           "block": "dai-cuong",
           "lt": 3,
           "th": 1,
-          "year": 1,
+          "year": 2,
           "yearSource": "ma-mon"
         },
         {
@@ -760,7 +761,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "ACTG 360",
@@ -770,7 +772,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "ACTG 381",
@@ -780,7 +783,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "ACTG 382",
@@ -790,7 +794,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "ACTG 383",
@@ -800,7 +805,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "ACTG 498",
@@ -810,7 +816,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         }
       ],
       "electiveGroupIds": [
@@ -832,7 +839,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "FIN 352",
@@ -842,7 +850,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "FIN 443",
@@ -852,7 +861,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "FIN 449",
@@ -862,7 +872,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "FIN 456",
@@ -872,7 +883,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "FIN 465",
@@ -882,7 +894,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         }
       ],
       "electiveGroupIds": [
@@ -904,7 +917,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "HRM 461",
@@ -914,7 +928,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "HRM 471",
@@ -924,7 +939,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "HRM 491",
@@ -934,7 +950,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "HRM 492",
@@ -944,7 +961,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "HRM 493",
@@ -954,7 +972,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         }
       ],
       "electiveGroupIds": [
@@ -976,7 +995,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "MKTG 363",
@@ -986,7 +1006,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "MKTG 460",
@@ -996,7 +1017,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "MKTG 461",
@@ -1006,7 +1028,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "MKTG 462",
@@ -1016,7 +1039,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "MKTG 466",
@@ -1026,7 +1050,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "MKTG 467",
@@ -1036,7 +1061,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         }
       ],
       "electiveGroupIds": [
@@ -1058,7 +1084,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "SCLM 439",
@@ -1068,7 +1095,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "SCLM 449",
@@ -1078,7 +1106,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "SCLM 459",
@@ -1088,7 +1117,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "SCLM 479",
@@ -1098,7 +1128,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         }
       ],
       "electiveGroupIds": [
@@ -1120,7 +1151,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "HMGT 358",
@@ -1130,7 +1162,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "HMGT 361",
@@ -1140,7 +1173,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "HMGT 401",
@@ -1150,7 +1184,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "HMGT 410",
@@ -1160,7 +1195,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "HMGT 434",
@@ -1170,7 +1206,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "HMGT 482",
@@ -1180,7 +1217,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         }
       ],
       "electiveGroupIds": [
@@ -1202,7 +1240,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "IEPS 361",
@@ -1212,7 +1251,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "IEPS 371",
@@ -1222,7 +1262,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "IEPS 385",
@@ -1232,7 +1273,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "IEPS 450",
@@ -1242,7 +1284,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "IEPS 488",
@@ -1252,7 +1295,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         }
       ],
       "electiveGroupIds": [
@@ -1274,7 +1318,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "MIS 311",
@@ -1284,7 +1329,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "MIS 315",
@@ -1294,7 +1340,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 3
         },
         {
           "code": "MIS 443",
@@ -1304,7 +1351,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "MIS 446",
@@ -1314,7 +1362,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "MIS 451",
@@ -1324,7 +1373,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         },
         {
           "code": "MIS 495",
@@ -1334,7 +1384,8 @@
           },
           "credits": 4,
           "block": "chuyen-nganh",
-          "yearSource": "ma-mon"
+          "yearSource": "ma-mon",
+          "year": 4
         }
       ],
       "electiveGroupIds": [

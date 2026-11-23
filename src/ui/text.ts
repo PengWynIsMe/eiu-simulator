@@ -143,6 +143,21 @@ export const UI_TEXT = {
   reviewBadgeActive: { vi: 'Đang bật', en: 'On' },
   reviewBtnTip: { vi: 'Bật/tắt chế độ để lại ghi chú góp ý', en: 'Toggle feedback note mode' },
   lessonOpenBtn: { vi: '📚 Buổi học', en: '📚 Lessons' },
+  // Tuyết rơi + cảnh mở đầu
+  snowBtn: { vi: 'Tuyết rơi', en: 'Snow' },
+  snowBtnActive: { vi: 'Tắt tuyết', en: 'Stop snow' },
+  snowBtnTip: { vi: 'Bật/tắt hiệu ứng tuyết rơi & khuôn viên mùa đông', en: 'Toggle winter snow effect & cold aesthetics' },
+  cinematicTitle: { vi: 'Tuyết rơi ở EIU', en: 'Snow at EIU' },
+  cinematicSubtitle: {
+    vi: 'Khuôn viên Đại học Quốc tế Miền Đông trong làn tuyết trắng',
+    en: 'Eastern International University campus in a magical winter snowfall',
+  },
+  enterCampus: { vi: 'Vào tham quan', en: 'Explore Campus' },
+  skipIntro: { vi: 'Bỏ qua', en: 'Skip intro' },
+  replayIntro: { vi: 'Xem lại cảnh tuyết', en: 'Replay intro' },
+  shareSnow: { vi: 'Chia sẻ cảnh tuyết', en: 'Share snow view' },
+  shareCopied: { vi: 'Đã sao chép liên kết (?snow=1) vào bộ nhớ tạm!', en: 'Shareable link (?snow=1) copied to clipboard!' },
+  winterBadge: { vi: 'Mùa đông EIU', en: 'EIU Winter' },
   langSwitch: { vi: 'Đổi ngôn ngữ (Tiếng Việt / English)', en: 'Switch language (Tiếng Việt / English)' },
 
   // Panel tòa nhà (chuyển từ BUILDING_PANEL_TEXT cũ)
@@ -186,6 +201,10 @@ export const UI_TEXT = {
   requiredCourses: { vi: 'Môn bắt buộc', en: 'Required courses' },
   electiveGroups: { vi: 'Nhóm tự chọn', en: 'Elective groups' },
   noCourses: { vi: 'Chưa có môn nào trong năm này', en: 'No courses listed for this year' },
+  pickSpecHint: {
+    vi: 'Năm này còn môn riêng của từng chuyên ngành — chọn một chuyên ngành ở trên để xem.',
+    en: 'This year also has track-specific courses — pick a specialization above to see them.',
+  },
   yearsInferredNote: {
     vi: 'Năm học suy từ mã môn (bản khung không chia theo năm)',
     en: 'Years are inferred from course codes (the framework does not split by year)',

@@ -8,19 +8,6 @@
       "year": 1,
       "courses": [
         {
-          "code": "POLS 132",
-          "name": {
-            "vi": "Tư tưởng Hồ Chí Minh",
-            "en": "Ho Chi Minh's Ideology"
-          },
-          "credits": 3,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
           "code": "POLS 133",
           "name": {
             "vi": "Triết học Mác- Lênin",
@@ -51,19 +38,6 @@
           "name": {
             "vi": "Chủ nghĩa xã hội khoa học",
             "en": "Scientific socialism"
-          },
-          "credits": 3,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "POLS 136",
-          "name": {
-            "vi": "Lịch sử Đảng Cộng sản Việt Nam",
-            "en": "History of Vietnamese Communist Party"
           },
           "credits": 3,
           "block": "dai-cuong",
@@ -125,71 +99,6 @@
           "yearSource": "ma-mon"
         },
         {
-          "code": "MATH 114",
-          "name": {
-            "vi": "Giải tích IV",
-            "en": "Calculus IV"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "MATH 103",
-          "name": {
-            "vi": "Đại số tuyến tính",
-            "en": "Linear Algebra"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "STAT 101",
-          "name": {
-            "vi": "Xác suất thống kê I",
-            "en": "Probability and Statistics I"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "MATH 122",
-          "name": {
-            "vi": "Phương trình vi phân",
-            "en": "Differential Equations"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 4,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "MATH 123",
-          "name": {
-            "vi": "Tính toán kỹ thuật",
-            "en": "Engineering Computation"
-          },
-          "credits": 3,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 0,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
           "code": "PHYS 101",
           "name": {
             "vi": "Vật lý I",
@@ -220,32 +129,6 @@
           "name": {
             "vi": "Vật lý III",
             "en": "Physics III"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 1,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "CHEM 100",
-          "name": {
-            "vi": "Hóa đại cương",
-            "en": "General Chemistry"
-          },
-          "credits": 4,
-          "block": "dai-cuong",
-          "lt": 3,
-          "th": 1,
-          "year": 1,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "ECE 106",
-          "name": {
-            "vi": "Nhập môn lập trình",
-            "en": "Introduction to Programming"
           },
           "credits": 4,
           "block": "dai-cuong",
@@ -292,6 +175,19 @@
           "th": 2,
           "year": 1,
           "yearSource": "ma-mon"
+        },
+        {
+          "code": "EBS 101",
+          "name": {
+            "vi": "Quản lý dự án",
+            "en": "Project Management"
+          },
+          "credits": 3,
+          "block": "bo-tro",
+          "lt": 3,
+          "th": 0,
+          "year": 1,
+          "yearSource": "ma-mon"
         }
       ],
       "electiveSlots": []
@@ -299,6 +195,97 @@
     {
       "year": 2,
       "courses": [
+        {
+          "code": "POLS 132",
+          "name": {
+            "vi": "Tư tưởng Hồ Chí Minh",
+            "en": "Ho Chi Minh's Ideology"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "POLS 136",
+          "name": {
+            "vi": "Lịch sử Đảng Cộng sản Việt Nam",
+            "en": "History of Vietnamese Communist Party"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 114",
+          "name": {
+            "vi": "Giải tích IV",
+            "en": "Calculus IV"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 103",
+          "name": {
+            "vi": "Đại số tuyến tính",
+            "en": "Linear Algebra"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 122",
+          "name": {
+            "vi": "Phương trình vi phân",
+            "en": "Differential Equations"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "MATH 123",
+          "name": {
+            "vi": "Tính toán kỹ thuật",
+            "en": "Engineering Computation"
+          },
+          "credits": 3,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 0,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECE 106",
+          "name": {
+            "vi": "Nhập môn lập trình",
+            "en": "Introduction to Programming"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
         {
           "code": "ECE 201",
           "name": {
@@ -417,14 +404,27 @@
           "yearSource": "ma-mon"
         },
         {
-          "code": "ECE 300",
+          "code": "ECE 222",
           "name": {
-            "vi": "Trường điện từ",
-            "en": "Electromagnetics"
+            "vi": "Lập trình hướng đối tượng",
+            "en": "Object-Oriented Programming"
           },
           "credits": 4,
-          "block": "co-so-nganh",
-          "lt": 4,
+          "block": "nganh",
+          "lt": 3,
+          "th": 1,
+          "year": 2,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "WRT 230",
+          "name": {
+            "vi": "Viết kỹ thuật và thuyết trình",
+            "en": "Technical writing and Presentation"
+          },
+          "credits": 3,
+          "block": "bo-tro",
+          "lt": 3,
           "th": 0,
           "year": 2,
           "yearSource": "ma-mon"
@@ -436,15 +436,41 @@
       "year": 3,
       "courses": [
         {
-          "code": "ECE 222",
+          "code": "STAT 101",
           "name": {
-            "vi": "Lập trình hướng đối tượng",
-            "en": "Object-Oriented Programming"
+            "vi": "Xác suất thống kê I",
+            "en": "Probability and Statistics I"
           },
           "credits": 4,
-          "block": "nganh",
+          "block": "dai-cuong",
+          "lt": 4,
+          "th": 0,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "CHEM 100",
+          "name": {
+            "vi": "Hóa đại cương",
+            "en": "General Chemistry"
+          },
+          "credits": 4,
+          "block": "dai-cuong",
           "lt": 3,
           "th": 1,
+          "year": 3,
+          "yearSource": "ma-mon"
+        },
+        {
+          "code": "ECE 300",
+          "name": {
+            "vi": "Trường điện từ",
+            "en": "Electromagnetics"
+          },
+          "credits": 4,
+          "block": "co-so-nganh",
+          "lt": 4,
+          "th": 0,
           "year": 3,
           "yearSource": "ma-mon"
         },
@@ -510,32 +536,6 @@
           "block": "nganh",
           "lt": 0,
           "th": 1,
-          "year": 3,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "WRT 230",
-          "name": {
-            "vi": "Viết kỹ thuật và thuyết trình",
-            "en": "Technical writing and Presentation"
-          },
-          "credits": 3,
-          "block": "bo-tro",
-          "lt": 3,
-          "th": 0,
-          "year": 3,
-          "yearSource": "ma-mon"
-        },
-        {
-          "code": "EBS 101",
-          "name": {
-            "vi": "Quản lý dự án",
-            "en": "Project Management"
-          },
-          "credits": 3,
-          "block": "bo-tro",
-          "lt": 3,
-          "th": 0,
           "year": 3,
           "yearSource": "ma-mon"
         }
@@ -711,7 +711,7 @@
           "block": "dai-cuong",
           "lt": 4,
           "th": 0,
-          "year": 1,
+          "year": 2,
           "yearSource": "ma-mon"
         },
         {
@@ -786,7 +786,7 @@
           "block": "dai-cuong",
           "lt": 4,
           "th": 0,
-          "year": 1,
+          "year": 2,
           "yearSource": "ma-mon"
         },
         {
@@ -799,7 +799,7 @@
           "block": "dai-cuong",
           "lt": 4,
           "th": 0,
-          "year": 1,
+          "year": 2,
           "yearSource": "ma-mon"
         },
         {
@@ -861,7 +861,7 @@
           "block": "dai-cuong",
           "lt": 4,
           "th": 0,
-          "year": 1,
+          "year": 2,
           "yearSource": "ma-mon"
         },
         {
@@ -900,7 +900,7 @@
           "block": "dai-cuong",
           "lt": 4,
           "th": 0,
-          "year": 1,
+          "year": 2,
           "yearSource": "ma-mon"
         }
       ]
@@ -1015,7 +1015,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         }
       ]
@@ -1039,7 +1039,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1217,7 +1217,7 @@
           "block": "chuyen-nganh",
           "lt": 4,
           "th": 0,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1230,7 +1230,7 @@
           "block": "chuyen-nganh",
           "lt": 4,
           "th": 0,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1332,7 +1332,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1397,7 +1397,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         }
       ]
@@ -1421,7 +1421,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1434,7 +1434,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         }
       ],
@@ -1459,7 +1459,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1472,7 +1472,7 @@
           "block": "chuyen-nganh",
           "lt": 4,
           "th": 0,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         }
       ],
@@ -1497,7 +1497,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1510,7 +1510,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         }
       ],
@@ -1535,7 +1535,7 @@
           "block": "chuyen-nganh",
           "lt": 4,
           "th": 0,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1548,7 +1548,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         }
       ],
@@ -1573,7 +1573,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         },
         {
@@ -1586,7 +1586,7 @@
           "block": "chuyen-nganh",
           "lt": 3,
           "th": 1,
-          "year": 4,
+          "year": 3,
           "yearSource": "ma-mon"
         }
       ],

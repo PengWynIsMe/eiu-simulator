@@ -33,6 +33,7 @@ export default function MajorCourses({ major, year, specId, otherGroups, onYear,
     return {
       courses: plan?.courses ?? [],
       specCourses: spec ? spec.requiredCourses.filter((c) => c.year === year) : [],
+      hasSpecCourses: specId === null && cur.specializations.some((s) => s.requiredCourses.some((c) => c.year === year)),
       slots: (plan?.electiveSlots ?? []).flatMap((s) => {
         const group = groupById.get(s.groupId);
         return group ? [{ slot: s, group }] : [];
@@ -89,7 +90,8 @@ export default function MajorCourses({ major, year, specId, otherGroups, onYear,
         ))}
       </ul>
 
-      {empty && <p className="text-xs text-slate-400">{tr(UI_TEXT.noCourses)}</p>}
+      {view.hasSpecCourses && <p className="text-[11px] text-slate-400">{tr(UI_TEXT.pickSpecHint)}</p>}
+      {empty && !view.hasSpecCourses && <p className="text-xs text-slate-400">{tr(UI_TEXT.noCourses)}</p>}
       {anyMark && <p className="text-[11px] text-slate-400">{tr(UI_TEXT.yearFromCodeMark)}</p>}
 
       {otherGroups.length > 0 && (
