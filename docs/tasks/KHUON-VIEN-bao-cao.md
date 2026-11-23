@@ -8,36 +8,41 @@
 
 ---
 
-## 1. Tóm tắt kết quả
+## 1. Tóm tắt kết quả & Phân công công việc
 
-Toàn bộ 5 hạng mục nâng cấp ngoại cảnh theo thứ tự ưu tiên (từ `(a)` đến `(e)`) đã được hoàn thành 100%, tuân thủ nghiêm ngặt nguyên tắc **Low-poly**, **gộp vật liệu (merged geometries)**, **instancing**, và **không vi phạm các nhánh chạy song song** (`tuyet-roi-eiu`, `thu-vien-b4`, `phong-may-406`, giữ nguyên `Campus.tsx`):
+Theo điều chỉnh phân công từ Coordinator:
+- **Gemini sở hữu chính**: Hoàn thành trọn vẹn 100% mục **(a) Highlands**, **(b) Mặt tiền & sân trước Căn tin**, và **(c) Hành lang mái che + giàn dây leo + vườn bưởi**.
+- **Chuyển bàn giao cho Codex**: Mục **(d) Nhà xe mái răng cưa**, **(e) Bậc thang + chậu hoa quanh hồ (kèm lối đi qua hồ mái kính `w017s-loi-di-qua-ho-mai-kinh.jpg`)**, và **Bên trong sảnh ăn Căn tin**. Gemini đã dựng sẵn toàn bộ khung hình học cơ bản (mái răng cưa zigzag trắng B5 & nhà xe căn tin, bậc hồ giật cấp mép vàng hoa giấy, khung quầy ăn & bàn ghế) bảo đảm build sạch 0 lỗi để Codex tiếp tục tinh chỉnh chi tiết.
 
-1. **(a) Highlands Coffee Kiosk toa tàu đỏ (t041s, t045s, t049s)**:
+### Chi tiết các hạng mục:
+
+1. **(a) Highlands Coffee Kiosk toa tàu đỏ (t041s, t045s, t049s) — [ĐÃ HOÀN THÀNH 100%]**:
    - Thân ki-ốt bo góc kiểu toa tàu sơn đỏ đặc trưng (`#b3262a`), fascia đỏ với chữ nổi 3D `HIGHLANDS` màu trắng kem tương phản nổi bật.
    - Sàn gỗ đỏ ngoài trời (`#991b1b`), khu bàn cafe kèm ghế tựa và laptop/cốc nước sinh viên ngồi học.
    - Giàn pergola thép đen với rèm dây leo rủ tự nhiên phía trước và vách gạch hoa gió mỹ thuật bên hông.
-   - Logo tròn nhận diện phong cách Highlands (chỉ dùng hình khối tròn đỏ/trắng, không vi phạm bản quyền thương hiệu).
+   - Logo tròn nhận diện phong cách Highlands (hình khối tròn đỏ/trắng, không logo bản quyền).
 
-2. **(b) Mặt tiền & Sân trước Căn tin EIU (t061s, t065s, t069s, t073s)**:
+2. **(b) Mặt tiền & Sân trước Căn tin EIU (t061s, t065s, t069s, t073s) — [ĐÃ HOÀN THÀNH 100%]**:
    - Dải fascia màu nâu đỏ mận (`#6b2626`) với chữ 3D nổi bật `EIU CANTEEN` màu trắng sáng.
    - Mảng tường cây xanh đứng (living green walls) xen kẽ lam hoa văn caro màu gỗ và xanh ngọc (teal).
    - Sân trước: Bãi cỏ xanh, ghế đá khối bê tông mài phẳng, xích đu đôi kiểu công viên, cây bóng mát với cọc chống thép 3 chân.
-   - Bên trong sảnh ăn: Dãy quầy phục vụ có các biển hiệu màu sắc rực rỡ (`GIẢI KHÁT`, `MÓN CƠM`, `MÓN NƯỚC`, `CASHIER`) và các dãy bàn ăn học sinh ngăn nắp.
 
-3. **(c) Hành lang mái che dây leo & giàn vòm đường nội bộ & Vườn cây ăn trái (t017s, t021s, t025s, t029s, t033s, t037s)**:
+3. **(c) Hành lang mái che dây leo & giàn vòm đường nội bộ & Vườn cây ăn trái (t017s, t021s, t025s, t029s, t033s, t037s, w001s) — [ĐÃ HOÀN THÀNH 100%]**:
    - Dọc tất cả các tuyến hành lang mái che nối các Block: Bổ sung rèm dây leo rủ 2 bên với độ rủ biến thiên tự nhiên, kèm hệ thống đèn thả trần tròn phát sáng ban đêm.
    - Giàn vòm dây leo vắt ngang đường nội bộ giữa B10–B11 (khung thép đen, tán leo rủ râm mát) kết hợp vạch sang đường ngựa vằn (zebra crossing) cho người đi bộ.
    - Vườn cây ăn trái sinh thái giữa các block: Cây bưởi trĩu quả tròn xanh (`#84cc16`), cây hồng xiêm, cọc chống tre 3 chân (tripod bamboo stakes) đặc trưng của EIU, cùng các lối đi lát gạch đỏ kết nối sân vườn.
 
-4. **(d) Nhà xe máy mái răng cưa (t093s, t097s)**:
+4. **(d) Nhà xe máy mái răng cưa (t093s, t097s) — [ĐÃ DỰNG KHUNG CƠ BẢN, CHUYỂN CODEX]**:
    - Nâng cấp nhà xe Block 5 (`nha-xe-b5`) và nhà xe cạnh căn tin (`nha-xe-can-tin`): Hệ nhịp mái đầu hồi tam giác răng cưa (sawtooth / zigzag gables) màu trắng sáng (`#f8fafc`).
-   - Hàng rào song sắt màu trắng bao quanh mép bãi xe có chừa lối vào ra.
-   - Dày đặc các hàng xe máy đậu thẳng hàng bên trong và hàng cây xanh cao vút phía sau.
+   - Hàng rào song sắt màu trắng bao quanh mép bãi xe có chừa lối vào ra, các hàng xe máy đậu san sát và hàng cây cao vút phía sau.
+   - Sẵn sàng bàn giao cho Codex tiếp tục tinh chỉnh nếu cần.
 
-5. **(e) Bờ hồ nước bậc thang bê tông & hoa giấy (t001s, t005s, t009s)**:
-   - Bờ hồ phía Tây quảng trường: 3 tầng bậc thang bê tông giật cấp xuống mép nước.
-   - Mép bậc thang sơn viền vàng an toàn chống trượt (`#eab308`).
-   - Dọc các bậc thang xếp các chậu hoa gốm tròn lớn với chùm hoa giấy màu hồng cánh sen (`#db2777`) và cam tươi rực rỡ (`#ea580c`), cùng chậu đá cảnh góc hồ.
+5. **(e) Bờ hồ nước & Lối đi qua hồ mái kính — [ĐÃ DỰNG BẬC HỒ & HOA GIẤY, CHUYỂN CODEX]**:
+   - Bờ hồ phía Tây quảng trường: 3 tầng bậc thang bê tông giật cấp xuống mép nước, mép bậc sơn viền vàng an toàn chống trượt (`#eab308`), xếp các chậu hoa gốm tròn lớn với chùm hoa giấy hồng/cam rực rỡ và chậu đá cảnh.
+   - Ảnh mới `w017s-loi-di-qua-ho-mai-kinh.jpg` (lối đi bê tông qua hồ mái kính khung thép xanh đen) chuyển tiếp cho Codex thực hiện.
+
+6. **Bên trong Căn tin — [ĐÃ DỰNG KHUNG QUẦY & BÀN GHẾ, CHUYỂN CODEX]**:
+   - Dãy quầy phục vụ có các biển hiệu màu sắc rực rỡ (`GIẢI KHÁT`, `MÓN CƠM`, `MÓN NƯỚC`, `CASHIER`) và các dãy bàn ăn học sinh đã dựng sẵn, chuyển cho Codex tinh chỉnh chi tiết hơn nếu cần.
 
 ---
 
