@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
-import type { BufferGeometry } from 'three';
+import { BufferGeometry, Float32BufferAttribute, DoubleSide } from 'three';
 import type { Building } from '../../types';
 import { addBox, addCylinder, safeMerge } from '../kit/geometryHelpers';
 import { add3DTextAlongZ } from '../kit/blockText';
+import { getOrCreateVineTexture, addVineCurtain } from '../nature/vineTexture';
 
 interface KioskProps {
   building: Building;
@@ -46,7 +47,6 @@ export function HighlandsKiosk({ building, isHovered, isSelected }: KioskProps) 
     const menus: BufferGeometry[] = [];
     const seatings: BufferGeometry[] = [];
     const steels: BufferGeometry[] = [];
-    const vines: BufferGeometry[] = [];
     const screens: BufferGeometry[] = [];
 
     // ==========================================
@@ -206,29 +206,47 @@ export function HighlandsKiosk({ building, isHovered, isSelected }: KioskProps) 
     // Mái kính / lam che nắng phía trên
     addBox(glass, deckMinX + 0.1, kMinX + 0.1, kBaseY + pergolaH, kBaseY + pergolaH + 0.05, deckMinZ + 0.3, deckMaxZ - 0.3);
 
-    // Rèm dây leo buông rủ (hanging vines) từ xà mép hiên xuống (t041s, t045s)
-    const numVineStrands = 28;
-    for (let v = 0; v < numVineStrands; v++) {
-      const vz = deckMinZ + 0.5 + (v / (numVineStrands - 1)) * (deckMaxZ - deckMinZ - 1.0);
-      // Chiều dài rủ ngẫu nhiên từ 0.7m đến 1.8m
-      const vineLen = 0.7 + Math.sin(v * 1.7) * 0.45 + Math.cos(v * 0.9) * 0.25;
-      const topY = kBaseY + pergolaH;
-      const vx = deckMinX + 0.18 + Math.sin(v * 2.3) * 0.08;
+    // Rèm dây leo buông rủ (hanging vines) từ xà mép hiên và khu bàn cafe (t041s, t045s) — Quad lá mỏng, texture alpha rủ mềm
+    const vPos: number[] = [];
+    const vNorm: number[] = [];
+    const vUvs: number[] = [];
+    const vInd: number[] = [];
 
-      // Dải dây leo rủ
-      addBox(vines, vx - 0.06, vx + 0.06, topY - vineLen, topY, vz - 0.08, vz + 0.08);
-      // Điểm xuyết chồi lá nhô ra
-      addBox(vines, vx - 0.12, vx + 0.12, topY - vineLen * 0.6, topY - vineLen * 0.2, vz - 0.12, vz + 0.12);
+    const topY = kBaseY + pergolaH;
+    const numEavesPanels = 14;
+    const eavesSpanZ = (deckMaxZ - 0.4) - (deckMinZ + 0.4);
+    const eavesStepZ = eavesSpanZ / numEavesPanels;
+    const vx = deckMinX + 0.18;
+
+    for (let v = 0; v < numEavesPanels; v++) {
+      const z0 = deckMinZ + 0.4 + v * eavesStepZ;
+      const z1 = z0 + eavesStepZ;
+      const vLen = 0.85 + Math.sin(v * 1.8) * 0.45 + Math.cos(v * 1.1) * 0.25;
+
+      addVineCurtain(vPos, vNorm, vUvs, vInd, [vx, z0], [vx, z1], topY, vLen, -1, 0, 0);
+      // Dải so le lùi vào trong một chút
+      const vLen2 = 0.70 + Math.cos(v * 1.6) * 0.35;
+      addVineCurtain(vPos, vNorm, vUvs, vInd, [vx, z0], [vx, z1], topY, vLen2, -1, 0, 0.06);
     }
 
-    // Thêm hàng rèm dây leo buông rủ rủ xuống phía trước bàn cafe (t041s, t045s)
-    for (let v = 0; v < 18; v++) {
-      const vz = -3.2 + (v / 17) * 6.4;
-      const vLen = 0.65 + Math.sin(v * 2.5) * 0.35;
-      const topY = kBaseY + pergolaH;
-      const vx = -1.6 + Math.sin(v * 3.1) * 0.08;
-      addBox(vines, vx - 0.05, vx + 0.05, topY - vLen, topY, vz - 0.06, vz + 0.06);
+    // Hàng rèm dây leo rủ trước dãy bàn cafe
+    const tableSpanZ = 6.4;
+    const numTablePanels = 8;
+    const tableStepZ = tableSpanZ / numTablePanels;
+    const tx = -1.6;
+
+    for (let v = 0; v < numTablePanels; v++) {
+      const z0 = -3.2 + v * tableStepZ;
+      const z1 = z0 + tableStepZ;
+      const vLen = 0.80 + Math.sin(v * 2.2) * 0.40;
+      addVineCurtain(vPos, vNorm, vUvs, vInd, [tx, z0], [tx, z1], topY, vLen, -1, 0, 0);
     }
+
+    const vinesGeo = new BufferGeometry();
+    vinesGeo.setAttribute('position', new Float32BufferAttribute(vPos, 3));
+    vinesGeo.setAttribute('normal', new Float32BufferAttribute(vNorm, 3));
+    vinesGeo.setAttribute('uv', new Float32BufferAttribute(vUvs, 2));
+    vinesGeo.setIndex(vInd);
 
     // ==========================================
     // 7. VÁCH GẠCH HOA GIÓ (BREEZE BLOCK SCREEN)
@@ -248,10 +266,12 @@ export function HighlandsKiosk({ building, isHovered, isSelected }: KioskProps) 
       menuGeo: safeMerge(menus),
       seatingGeo: safeMerge(seatings),
       steelGeo: safeMerge(steels),
-      vinesGeo: safeMerge(vines),
+      vinesGeo,
       screenGeo: safeMerge(screens),
     };
   }, []);
+
+  const vineTexture = useMemo(() => getOrCreateVineTexture(), []);
 
   return (
     <group position={[cx, 0, cz]}>
@@ -317,10 +337,15 @@ export function HighlandsKiosk({ building, isHovered, isSelected }: KioskProps) 
         </mesh>
       )}
 
-      {/* 9. Rèm dây leo buông rủ xanh mướt */}
+      {/* 9. Rèm dây leo buông rủ xanh mướt (t041s, t045s) */}
       {vinesGeo && (
         <mesh geometry={vinesGeo} castShadow>
-          <meshStandardMaterial color="#3f6212" roughness={0.85} />
+          <meshStandardMaterial
+            map={vineTexture ?? undefined}
+            alphaTest={0.3}
+            side={DoubleSide}
+            roughness={0.85}
+          />
         </mesh>
       )}
 
