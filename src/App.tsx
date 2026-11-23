@@ -8,6 +8,7 @@ import WalkHud from './ui/walk/WalkHud';
 import InteriorHud from './ui/interior/InteriorHud';
 import LessonLayer from './ui/lesson/LessonLayer';
 import SilverLayer from './ui/silver/SilverLayer';
+import WorldLayer from './ui/silverWorld/WorldLayer';
 import BuildingPanel from './ui/BuildingPanel';
 import SnowIntroOverlay from './ui/snow/SnowIntroOverlay';
 import { useWalkStore } from './store/useWalkStore';
@@ -72,6 +73,7 @@ export default function App() {
       {!isCinematicActive && <InteriorHud />}
       {!isCinematicActive && <LessonLayer />}
       {!isCinematicActive && <SilverLayer />}
+      <WorldLayer />
     </div>
   );
 }
