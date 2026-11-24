@@ -53,20 +53,30 @@ export default function LessonLayer() {
   const exercise = phase === 'exercise';
   return (
     <>
-      <div className="fixed left-3 top-14 z-[45] flex flex-col items-start gap-2 sm:left-4 sm:top-16">
+      {/* Bốn góc: Góc phải trên = nút hệ thống (Mute, Exit) ngay dưới TopBar */}
+      <div className="fixed right-3 top-14 z-[45] flex items-center gap-2 sm:right-4 sm:top-16">
         <MuteButton />
-        {(phase === 'goToClass' || phase === 'findSeat') && <LessonHud />}
         {!(exercise && desktopOpen) && <ExitButton />}
-        {exercise && !desktopOpen && (
+      </div>
+
+      {/* Góc trái trên: trạng thái buổi học + chỉ đường */}
+      <div className="fixed left-3 top-14 z-[45] flex flex-col items-start gap-2 sm:left-4 sm:top-16">
+        {(phase === 'goToClass' || phase === 'findSeat') && <LessonHud />}
+      </div>
+
+      {/* Khi máy ảo đang thu: nút mở lại máy tính ở giữa dưới */}
+      {exercise && !desktopOpen && (
+        <div className="fixed bottom-8 left-1/2 z-40 -translate-x-1/2 select-none">
           <button
             type="button"
             onClick={() => useLessonStore.getState().openDesktop()}
-            className="min-h-[44px] rounded-xl bg-[#0b3d91] px-4 text-sm font-semibold text-white shadow-lg hover:brightness-110"
+            className="flex min-h-[48px] items-center gap-2 rounded-2xl bg-[#0b3d91] px-5 py-3 text-sm font-bold text-white shadow-2xl transition hover:brightness-110 active:scale-95"
           >
-            {TEXT.lessonReopenDesktop}
+            <span>🖥</span>
+            <span>{TEXT.lessonReopenDesktop}</span>
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {phase === 'dialogue' && <DialogueBox />}
       {phase === 'lecture' && <SlideViewer />}
@@ -76,3 +86,8 @@ export default function LessonLayer() {
     </>
   );
 }
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).__LESSON_STORE__ = useLessonStore;
+}
+

@@ -33,7 +33,7 @@ export default function EiuDesktop({ open, exitSlot }: { open: boolean; exitSlot
   const slides = lecture?.type === 'lecture' ? lecture.slides : undefined;
 
   return (
-    <div className={`fixed inset-0 z-50 items-center justify-center bg-black/65 sm:p-[4%] ${open ? 'flex' : 'hidden'}`}>
+    <div className={`fixed inset-0 z-50 items-center justify-center bg-black/40 backdrop-blur-[1px] p-2 sm:p-[2.5%] ${open ? 'flex' : 'hidden'}`}>
       <DesktopView
         labels={LABELS}
         exitSlot={exitSlot}

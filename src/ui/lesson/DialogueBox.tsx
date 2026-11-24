@@ -15,8 +15,8 @@ export default function DialogueBox() {
   const speakerName = step.speaker === 'teacher' ? teacherName : TEXT.lessonYou;
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 p-3 sm:p-4">
-      <div className="mx-auto max-w-3xl">
+    <div className="pointer-events-none fixed inset-x-0 bottom-3 z-40 px-3 sm:bottom-5 sm:px-4">
+      <div className="mx-auto w-full max-w-[640px]">
         <TeacherBubble key={step.id} teacherName={teacherName} />
         <DialogueView
           speakerName={speakerName}

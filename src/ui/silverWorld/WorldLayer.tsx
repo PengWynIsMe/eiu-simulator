@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useT } from '../text';
+import { UI_TEXT, useT } from '../text';
 import { useSilver } from '../silver/adapter';
 import { useSilverPresentation } from '../silver/presentation';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useWalkStore } from '../../store/useWalkStore';
+import { useLangStore } from '../../store/useLangStore';
 import LangToggle from '../major/LangToggle';
 import MuteButton from '../lesson/MuteButton';
 import ConfirmDialog from '../silver/parts/ConfirmDialog';
@@ -18,11 +19,16 @@ import WorldNavigationCard from './WorldNavigationCard';
 import WorldDesktop from './WorldDesktop';
 import HomeExtraSlot from './HomeExtraSlot';
 import WorldDayCard from './WorldDayCard';
+import { useTrackRightColumn } from '../ActionPrompt';
 import { fmt, ST_W } from './text';
 
 /**
  * Lớp UI 2D phục vụ trải nghiệm 3D world của IT Silver.
  * Chỉ hiển thị khi screen === 'play' và presentation.mode === 'world'.
+ * Bố cục mép màn hình:
+ * - Thoại: dải thấp mỏng ở đáy màn hình (max 640px).
+ * - Câu hỏi / Slide / Đề: cột mép phải 360–400 px trên desktop; tấm đáy max 45% trên mobile.
+ * - Khoảng giữa 55–60% luôn trống để quan sát lớp học, màn hình TV 3D và giảng viên.
  */
 export default function WorldLayer() {
   const tr = useT();
@@ -39,9 +45,12 @@ export default function WorldLayer() {
   const seated = useActivityStore((s) => s.seated);
   const screenOpen = useActivityStore((s) => s.screenOpen);
   const standUp = useActivityStore((s) => s.standUp);
+  const lang = useLangStore((s) => s.lang);
 
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobilePanelCollapsed, setIsMobilePanelCollapsed] = useState(false);
 
   const lastNextClickRef = useRef(0);
 
@@ -83,14 +92,24 @@ export default function WorldLayer() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [mode, screen, phase, screenOpen, play?.canContinue, handleNextClick]);
 
+  const isEngaged = phase === 'engaged';
+  const isRightCol = isEngaged && Boolean(
+    play && (play.step.type === 'choice' || play.step.type === 'slide' || play.step.type === 'question' || play.step.type === 'order')
+  );
+  const rightColRef = useTrackRightColumn(isRightCol);
+
+  const stepKey = play?.item.id && play?.step.id ? `${play.item.id}:${play.step.id}` : null;
+  useEffect(() => {
+    setIsMobilePanelCollapsed(false);
+    setMobileMenuOpen(false);
+  }, [stepKey]);
+
   // Chỉ hiển thị phần 3D Play layer khi đang ở màn chơi của chế độ 3D world
   if (screen !== 'play' || mode !== 'world' || !play) {
     return <HomeExtraSlot />;
   }
 
-  const stepKey = play.item.id && play.step.id ? `${play.item.id}:${play.step.id}` : null;
   const isLastStep = play.stepIndex + 1 >= play.stepCount;
-  const isEngaged = phase === 'engaged';
 
   const sceneTitle = play.item.scene ? tr(play.item.scene.title) : '';
   const currentSpeaker = 'speaker' in play.step ? play.step.speaker : 'narrator';
@@ -120,7 +139,7 @@ export default function WorldLayer() {
           </span>
         </div>
 
-        <div className="pointer-events-auto flex shrink-0 items-center gap-1 sm:gap-2">
+        <div className="pointer-events-auto relative flex shrink-0 items-center gap-1 sm:gap-2">
           {isEngaged && seated && !screenOpen && (
             <button
               type="button"
@@ -132,28 +151,7 @@ export default function WorldLayer() {
             </button>
           )}
 
-          {week && play.item.meeting && (
-            <button
-              type="button"
-              data-silver-open-week="true"
-              onClick={openWeek}
-              className="inline-flex min-h-[30px] items-center gap-0.5 rounded-lg border border-slate-300 bg-white/90 px-1.5 text-[10px] font-medium text-slate-700 shadow hover:bg-slate-50 active:scale-95 sm:min-h-[36px] sm:gap-1 sm:px-2.5 sm:text-xs"
-              title={tr(ST.weekTitle)}
-            >
-              <span aria-hidden="true">📅</span>
-              <span className="hidden sm:inline">{tr(ST.weekTitle)}</span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setSkipConfirmOpen(true)}
-            className="inline-flex min-h-[30px] items-center rounded-lg border border-slate-300 bg-white/90 px-1.5 text-[10px] font-medium text-slate-700 shadow hover:bg-slate-50 active:scale-95 sm:min-h-[36px] sm:px-3 sm:text-xs"
-            title={tr(ST_W.skip)}
-          >
-            {tr(ST_W.skip)}
-          </button>
-
+          {/* Nút Thoát: luôn hiển thị ở cả mobile lẫn desktop */}
           <button
             type="button"
             onClick={() => setExitConfirmOpen(true)}
@@ -163,8 +161,78 @@ export default function WorldLayer() {
             {tr(ST_W.exit)}
           </button>
 
-          <LangToggle />
-          <MuteButton />
+          {/* Màn hình nhỏ (<sm / 360 px): Gom nút phụ vào nút "⋯" mở menu */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((v) => !v)}
+            aria-expanded={mobileMenuOpen}
+            aria-label="Tùy chọn khác"
+            className="inline-flex min-h-[30px] min-w-[30px] items-center justify-center rounded-lg border border-slate-300 bg-white/90 px-2 text-xs font-black text-slate-700 shadow hover:bg-slate-50 active:scale-95 sm:hidden"
+          >
+            ⋯
+          </button>
+
+          {mobileMenuOpen && (
+            <div className="absolute right-0 top-9 z-50 flex w-36 flex-col gap-1.5 rounded-xl border border-slate-200 bg-white/95 p-2 shadow-2xl backdrop-blur-md sm:hidden">
+              {week && play.item.meeting && (
+                <button
+                  type="button"
+                  data-silver-open-week="true"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    openWeek();
+                  }}
+                  className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                >
+                  <span aria-hidden="true">📅</span>
+                  <span>{tr(ST.weekTitle)}</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setSkipConfirmOpen(true);
+                }}
+                className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+              >
+                <span>⏭</span>
+                <span>{tr(ST_W.skip)}</span>
+              </button>
+              <div className="flex items-center justify-between border-t border-slate-100 pt-1.5 px-1">
+                <LangToggle />
+                <MuteButton />
+              </div>
+            </div>
+          )}
+
+          {/* Màn hình lớn (>=sm): Hiển thị đầy đủ thanh nút như trước */}
+          {week && play.item.meeting && (
+            <button
+              type="button"
+              data-silver-open-week="true"
+              onClick={openWeek}
+              className="hidden min-h-[36px] items-center gap-1 rounded-lg border border-slate-300 bg-white/90 px-2.5 text-xs font-medium text-slate-700 shadow hover:bg-slate-50 active:scale-95 sm:inline-flex"
+              title={tr(ST.weekTitle)}
+            >
+              <span aria-hidden="true">📅</span>
+              <span>{tr(ST.weekTitle)}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setSkipConfirmOpen(true)}
+            className="hidden min-h-[36px] items-center rounded-lg border border-slate-300 bg-white/90 px-3 text-xs font-medium text-slate-700 shadow hover:bg-slate-50 active:scale-95 sm:inline-flex"
+            title={tr(ST_W.skip)}
+          >
+            {tr(ST_W.skip)}
+          </button>
+
+          <div className="hidden items-center gap-2 sm:flex">
+            <LangToggle />
+            <MuteButton />
+          </div>
         </div>
       </header>
 
@@ -178,10 +246,10 @@ export default function WorldLayer() {
 
       {/* Giai đoạn engaged: hiển thị view tương ứng theo play.step */}
       {isEngaged && (
-        <main className="pointer-events-none fixed inset-0 z-30 flex flex-col justify-end p-4 pb-6 sm:p-6 sm:pb-8">
-          {/* say -> DialogueView */}
+        <>
+          {/* say -> DialogueView ở dải thấp đáy màn hình phụ đề */}
           {play.step.type === 'say' && (
-            <div className="mx-auto w-full max-w-2xl">
+            <div className="pointer-events-none fixed inset-x-0 bottom-3 z-30 px-3 sm:bottom-5 sm:px-4">
               <DialogueView
                 key={stepKey ?? undefined}
                 speakerName={speakerName}
@@ -201,70 +269,152 @@ export default function WorldLayer() {
             </div>
           )}
 
-          {/* choice -> Choice của đồng đội trong khung thẻ */}
-          {play.step.type === 'choice' && (
-            <div className="pointer-events-auto mx-auto w-full max-w-2xl rounded-2xl bg-white p-5 shadow-2xl">
-              <Choice key={stepKey ?? undefined} step={play.step} feedback={play.feedback} />
-              {play.canContinue && (
-                <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
+          {/* Cột mép phải (desktop/tablet ngang) hoặc tấm dưới (mobile): choice, slide, question, order */}
+          {(play.step.type === 'choice' || play.step.type === 'slide' || play.step.type === 'question' || play.step.type === 'order') && (
+            <div
+              ref={rightColRef}
+              className="pointer-events-none fixed bottom-0 inset-x-0 z-30 p-2.5 sm:p-4 sm:landscape:bottom-4 sm:landscape:top-16 sm:landscape:right-4 sm:landscape:left-auto sm:landscape:w-[320px] sm:landscape:max-h-none lg:bottom-4 lg:top-16 lg:right-4 lg:left-auto lg:w-[380px] xl:w-[400px] lg:max-h-none flex flex-col justify-end"
+            >
+              {/* choice -> Choice của đồng đội trong khung thẻ */}
+              {play.step.type === 'choice' && (
+                <div className="pointer-events-auto max-h-[45vh] sm:max-h-[calc(100vh-6rem)] w-full overflow-y-auto rounded-2xl bg-white p-4 sm:p-5 shadow-2xl">
+                  {/* Nút kéo/gập trên mobile */}
                   <button
                     type="button"
-                    onClick={handleNextClick}
-                    className="min-h-[40px] rounded-xl bg-[#f5b700] px-5 text-sm font-bold text-slate-900 shadow hover:brightness-105 active:scale-95"
+                    onClick={() => setIsMobilePanelCollapsed((v) => !v)}
+                    className="mx-auto mb-2 flex h-4 w-full cursor-pointer items-center justify-center sm:hidden"
+                    aria-label={isMobilePanelCollapsed ? tr(UI_TEXT.expand) : tr(UI_TEXT.collapse)}
                   >
-                    {isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
+                    <span className="h-1.5 w-12 rounded-full bg-slate-300" />
                   </button>
+
+                  <div className={isMobilePanelCollapsed ? 'hidden sm:block' : 'block'}>
+                    <Choice key={stepKey ?? undefined} step={play.step} feedback={play.feedback} />
+                    {play.canContinue && (
+                      <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
+                        <button
+                          type="button"
+                          onClick={handleNextClick}
+                          className="min-h-[44px] rounded-xl bg-[#f5b700] px-5 text-sm font-bold text-slate-900 shadow hover:brightness-105 active:scale-95"
+                        >
+                          {isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {isMobilePanelCollapsed && (
+                    <div
+                      onClick={() => setIsMobilePanelCollapsed(false)}
+                      className="flex cursor-pointer items-center justify-between py-1 text-xs text-slate-700 sm:hidden"
+                    >
+                      <span className="font-bold text-[#0b3d91]">
+                        {tr(ST_W.talk)}
+                      </span>
+                      <span className="text-[11px] font-semibold text-[#0b3d91]">{tr(UI_TEXT.expand)} ▴</span>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
 
-          {/* slide -> SlideView compact + TV */}
-          {play.step.type === 'slide' && (
-            <div className="mx-auto w-full max-w-lg">
-              <SlideView
-                key={stepKey ?? undefined}
-                title={tr(play.step.title)}
-                body={tr(play.step.body)}
-                code={play.step.code}
-                compact={true}
-                nextLabel={isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
-                onNext={play.canContinue ? handleNextClick : undefined}
-              />
-            </div>
-          )}
-
-          {/* question -> Question của đồng đội trong khung thẻ tờ đề dạng giấy */}
-          {play.step.type === 'question' && (
-            <div data-silver-paper="true" className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-amber-200/80 bg-[#fffdfa] p-5 shadow-2xl">
-              <Question key={stepKey ?? undefined} step={play.step} feedback={play.feedback} />
-              {play.canContinue && (
-                <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
-                  <button
-                    type="button"
-                    onClick={handleNextClick}
-                    className="min-h-[40px] rounded-xl bg-[#f5b700] px-5 text-sm font-bold text-slate-900 shadow hover:brightness-105 active:scale-95"
-                  >
-                    {isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
-                  </button>
+              {/* slide -> SlideView compact + TV */}
+              {play.step.type === 'slide' && (
+                <div className="pointer-events-auto w-full">
+                  <SlideView
+                    key={stepKey ?? undefined}
+                    title={tr(play.step.title)}
+                    body={tr(play.step.body)}
+                    code={play.step.code}
+                    compact={true}
+                    zoomInLabel={tr(ST_W.zoomSlide)}
+                    zoomOutLabel={tr(ST_W.minimizeSlide)}
+                    expandLabel={tr(ST_W.expandNav)}
+                    collapseLabel={tr(ST_W.collapseNav)}
+                    seeAllLabel={tr(UI_TEXT.seeAll)}
+                    nextLabel={isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
+                    onNext={play.canContinue ? handleNextClick : undefined}
+                  />
                 </div>
               )}
-            </div>
-          )}
 
-          {/* order -> Order của đồng đội trong khung thẻ tờ đề dạng giấy */}
-          {play.step.type === 'order' && (
-            <div data-silver-paper="true" className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-amber-200/80 bg-[#fffdfa] p-5 shadow-2xl">
-              <Order key={stepKey ?? undefined} step={play.step} feedback={play.feedback} />
-              {play.canContinue && (
-                <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
+              {/* question -> Question của đồng đội trong khung thẻ tờ đề dạng giấy */}
+              {play.step.type === 'question' && (
+                <div data-silver-paper="true" className="pointer-events-auto max-h-[45vh] sm:max-h-[calc(100vh-6rem)] w-full overflow-y-auto rounded-2xl border border-amber-200/80 bg-[#fffdfa] p-4 sm:p-5 shadow-2xl">
+                  {/* Nút kéo/gập trên mobile */}
                   <button
                     type="button"
-                    onClick={handleNextClick}
-                    className="min-h-[40px] rounded-xl bg-[#f5b700] px-5 text-sm font-bold text-slate-900 shadow hover:brightness-105 active:scale-95"
+                    onClick={() => setIsMobilePanelCollapsed((v) => !v)}
+                    className="mx-auto mb-2 flex h-4 w-full cursor-pointer items-center justify-center sm:hidden"
+                    aria-label={isMobilePanelCollapsed ? tr(UI_TEXT.expand) : tr(UI_TEXT.collapse)}
                   >
-                    {isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
+                    <span className="h-1.5 w-12 rounded-full bg-slate-300" />
                   </button>
+
+                  <div className={isMobilePanelCollapsed ? 'hidden sm:block' : 'block'}>
+                    <Question key={stepKey ?? undefined} step={play.step} feedback={play.feedback} />
+                    {play.canContinue && (
+                      <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
+                        <button
+                          type="button"
+                          onClick={handleNextClick}
+                          className="min-h-[44px] rounded-xl bg-[#f5b700] px-5 text-sm font-bold text-slate-900 shadow hover:brightness-105 active:scale-95"
+                        >
+                          {isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {isMobilePanelCollapsed && (
+                    <div
+                      onClick={() => setIsMobilePanelCollapsed(false)}
+                      className="flex cursor-pointer items-center justify-between py-1 text-xs text-slate-700 sm:hidden"
+                    >
+                      <span className="font-bold text-[#0b3d91]">
+                        {lang === 'vi' ? 'Câu hỏi bài học' : 'Question'}
+                      </span>
+                      <span className="text-[11px] font-semibold text-[#0b3d91]">{tr(UI_TEXT.expand)} ▴</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* order -> Order của đồng đội trong khung thẻ tờ đề dạng giấy */}
+              {play.step.type === 'order' && (
+                <div data-silver-paper="true" className="pointer-events-auto max-h-[45vh] sm:max-h-[calc(100vh-6rem)] w-full overflow-y-auto rounded-2xl border border-amber-200/80 bg-[#fffdfa] p-4 sm:p-5 shadow-2xl">
+                  {/* Nút kéo/gập trên mobile */}
+                  <button
+                    type="button"
+                    onClick={() => setIsMobilePanelCollapsed((v) => !v)}
+                    className="mx-auto mb-2 flex h-4 w-full cursor-pointer items-center justify-center sm:hidden"
+                    aria-label={isMobilePanelCollapsed ? tr(UI_TEXT.expand) : tr(UI_TEXT.collapse)}
+                  >
+                    <span className="h-1.5 w-12 rounded-full bg-slate-300" />
+                  </button>
+
+                  <div className={isMobilePanelCollapsed ? 'hidden sm:block' : 'block'}>
+                    <Order key={stepKey ?? undefined} step={play.step} feedback={play.feedback} />
+                    {play.canContinue && (
+                      <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
+                        <button
+                          type="button"
+                          onClick={handleNextClick}
+                          className="min-h-[44px] rounded-xl bg-[#f5b700] px-5 text-sm font-bold text-slate-900 shadow hover:brightness-105 active:scale-95"
+                        >
+                          {isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {isMobilePanelCollapsed && (
+                    <div
+                      onClick={() => setIsMobilePanelCollapsed(false)}
+                      className="flex cursor-pointer items-center justify-between py-1 text-xs text-slate-700 sm:hidden"
+                    >
+                      <span className="font-bold text-[#0b3d91]">
+                        {lang === 'vi' ? 'Sắp xếp thứ tự' : 'Ordering'}
+                      </span>
+                      <span className="text-[11px] font-semibold text-[#0b3d91]">{tr(UI_TEXT.expand)} ▴</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -280,7 +430,7 @@ export default function WorldLayer() {
               onNext={handleNextClick}
             />
           )}
-        </main>
+        </>
       )}
 
       {/* Hộp thoại xác nhận bỏ qua cảnh */}
@@ -309,3 +459,12 @@ export default function WorldLayer() {
     </>
   );
 }
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).__SILVER_DEV__ = {
+    useSilver,
+    useActivityStore,
+    useWalkStore,
+  };
+}
+
