@@ -160,8 +160,10 @@ export default function LessonHud() {
 
       {!expanded ? (
         /* Dạng gập 1 dòng */
-        <div
+        <button
+          type="button"
           onClick={toggleExpanded}
+          aria-expanded={false}
           className="flex max-w-[calc(100vw-1.5rem)] cursor-pointer select-none items-center gap-2 rounded-xl border border-white/70 bg-white/95 px-3 py-1.5 shadow-lg backdrop-blur-md transition-all hover:bg-white active:scale-95"
           title="Mở rộng"
         >
@@ -173,7 +175,7 @@ export default function LessonHud() {
             {distance} m
           </span>
           <span className="text-xs text-slate-400">▾</span>
-        </div>
+        </button>
       ) : (
         /* Dạng mở rộng đầy đủ */
         <div className="w-64 space-y-2 rounded-2xl border border-white/70 bg-white/95 p-3.5 shadow-xl backdrop-blur-sm">
@@ -184,6 +186,7 @@ export default function LessonHud() {
             <button
               type="button"
               onClick={toggleExpanded}
+              aria-expanded={true}
               className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
               title="Thu gọn"
             >

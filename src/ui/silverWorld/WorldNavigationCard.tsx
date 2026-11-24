@@ -127,8 +127,10 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
       {/* Thẻ góc trái màn hình (trái trên) */}
       {!expanded ? (
         /* Dạng gập 1 dòng: mục tiêu · số mét · la bàn */
-        <div
+        <button
+          type="button"
           onClick={toggleExpanded}
+          aria-expanded={false}
           className="fixed left-3 top-14 z-30 flex max-w-[calc(100vw-1.5rem)] cursor-pointer select-none items-center gap-2 rounded-xl border border-white/70 bg-white/95 px-3 py-1.5 shadow-lg backdrop-blur-md transition-all hover:bg-white active:scale-95 sm:left-4 sm:top-16"
           title={tr(ST_W.expandNav)}
         >
@@ -140,7 +142,7 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
             {fmt(tr(ST_W.dist), { n: distance })}
           </span>
           <span className="text-xs text-slate-400 hover:text-slate-700">▾</span>
-        </div>
+        </button>
       ) : (
         /* Dạng mở rộng: đầy đủ chặng + nút điều hướng */
         <div className="fixed left-3 top-14 z-30 w-72 max-w-[calc(100vw-1.5rem)] select-none rounded-2xl border border-white/70 bg-white/95 p-3.5 shadow-xl backdrop-blur-md transition-all sm:left-4 sm:top-16">
@@ -157,6 +159,7 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
             <button
               type="button"
               onClick={toggleExpanded}
+              aria-expanded={true}
               className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
               title={tr(ST_W.collapseNav)}
             >
