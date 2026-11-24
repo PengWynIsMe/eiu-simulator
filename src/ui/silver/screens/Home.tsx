@@ -67,7 +67,7 @@ export default function Home() {
           <p className="mt-1 text-[13px] leading-5 text-slate-600">{tr(ST.sim)}</p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <div data-silver-slot="home-extra" />
+          <div data-silver-slot="home-extra" className="empty:hidden" />
           <SecondaryButton onClick={openNotebook} className="shrink-0">
             <span aria-hidden="true" className="mr-1.5">
               📖

@@ -139,40 +139,40 @@ export default {
     });
   },
 
-  'presentation tracks webglLost and notifies immediately on mode switch': async ({ assert, load }) => {
+  'presentation tracks webglLost and cleans up legacy stored mode': async ({ assert, load }) => {
     const {
-      setSilverUserMode,
-      getSilverUserMode,
       onPresentationChange,
       setWebglContextLostForTest,
       isWebglContextLost,
       getSilverPresentationMode,
+      cleanupStoredMode,
     } = await load('/src/ui/silver/presentation.ts');
+
+    // 1. Mặc định là mode world
+    assert.equal(getSilverPresentationMode(), 'world', 'Mặc định presentation mode phải là world (3D)');
+
+    // 2. Dọn dẹp khóa cũ trong localStorage nếu có
+    if (typeof globalThis.window !== 'undefined' && globalThis.window.localStorage) {
+      globalThis.window.localStorage.setItem('campussim.silver.mode', 'overlay');
+      cleanupStoredMode();
+      assert.equal(globalThis.window.localStorage.getItem('campussim.silver.mode'), null, 'cleanupStoredMode phải xóa khóa');
+    }
 
     let notified = 0;
     const unsub = onPresentationChange(() => {
       notified++;
     });
 
-    // 1. Chuyển sang 2D overlay thông báo listener ngay lập tức
-    setSilverUserMode('overlay');
-    assert.equal(getSilverUserMode(), 'overlay');
-    assert.equal(getSilverPresentationMode(), 'overlay');
-    assert.ok(notified >= 1, 'onPresentationChange phải bắn đồng bộ khi gọi setSilverUserMode');
-
-    // Quay lại world
-    setSilverUserMode('world');
-    assert.equal(getSilverUserMode(), 'world');
-
-    // 2. WebGL lost tự động chuyển presentation mode sang overlay và bắn notify
+    // 3. WebGL lost tự động chuyển presentation mode sang overlay và bắn notify
     setWebglContextLostForTest(true);
     assert.equal(isWebglContextLost(), true);
     assert.equal(getSilverPresentationMode(), 'overlay', 'WebGL lost phải chuyển sang mode overlay');
+    assert.ok(notified >= 1, 'onPresentationChange phải bắn đồng bộ khi WebGL lost');
 
-    // WebGL restored
+    // WebGL restored quay lại world
     setWebglContextLostForTest(false);
     assert.equal(isWebglContextLost(), false);
-    assert.equal(getSilverPresentationMode(), 'world');
+    assert.equal(getSilverPresentationMode(), 'world', 'WebGL restored phải quay lại world');
 
     unsub();
   },

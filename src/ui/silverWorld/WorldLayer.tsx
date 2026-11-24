@@ -17,7 +17,6 @@ import Choice from '../silver/steps/Choice';
 import Order from '../silver/steps/Order';
 import WorldNavigationCard from './WorldNavigationCard';
 import WorldDesktop from './WorldDesktop';
-import HomeExtraSlot from './HomeExtraSlot';
 import WorldDayCard from './WorldDayCard';
 import { useTrackRightColumn } from '../ActionPrompt';
 import { fmt, ST_W } from './text';
@@ -108,7 +107,7 @@ export default function WorldLayer() {
 
   // Chỉ hiển thị phần 3D Play layer khi đang ở màn chơi của chế độ 3D world
   if (screen !== 'play' || mode !== 'world' || !play) {
-    return <HomeExtraSlot />;
+    return null;
   }
 
   const isLastStep = play.stepIndex + 1 >= play.stepCount;
@@ -122,7 +121,6 @@ export default function WorldLayer() {
 
   return (
     <>
-      <HomeExtraSlot />
       <WorldDayCard />
 
       {/* Thanh trên: tên cảnh, môn học, tiến độ, ngôn ngữ, âm thanh, nút Đứng dậy, Thoát */}

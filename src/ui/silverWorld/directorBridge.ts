@@ -1,5 +1,5 @@
 import type { SubscribableSilverStore } from '../../silverWorld/director';
-import { getSilverUserMode } from '../silver/presentation';
+import { getSilverPresentationMode } from '../silver/presentation';
 
 /**
  * Type guard kiểm tra xem store useSilverStore có hỗ trợ subscribe và getState hay không.
@@ -26,6 +26,6 @@ export function isSubscribableSilver(store: unknown): store is SubscribableSilve
 export function isWorldActive(screen?: string | null): boolean {
   if (typeof window === 'undefined') return false;
   if (!screen || screen === 'closed') return false;
-  if (getSilverUserMode() === 'overlay') return false;
+  if (getSilverPresentationMode() === 'overlay') return false;
   return true;
 }
