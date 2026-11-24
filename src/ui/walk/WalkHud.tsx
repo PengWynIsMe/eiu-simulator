@@ -82,10 +82,12 @@ export default function WalkHud() {
         <>
           <button
             type="button"
-            className="fixed right-6 top-20 z-50 rounded-xl bg-slate-950/80 px-4 py-3 font-semibold text-white shadow-lg [@media(pointer:fine)]:hidden min-h-[44px]"
+            className="fixed right-3 top-28 z-50 flex items-center gap-1 rounded-xl bg-slate-950/85 px-3 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-md [@media(pointer:fine)]:hidden min-h-[36px]"
             onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c' }))}
+            aria-label={`Góc nhìn: ${['Sau vai', 'Thứ nhất', 'Trên xuống'][viewMode]} · C`}
           >
-            Góc nhìn: {['Sau vai', 'Thứ nhất', 'Trên xuống'][viewMode]} · C
+            <span>🎥</span>
+            <span>{['Sau vai', 'FPS', 'Trên'][viewMode]} · C</span>
           </button>
           <div
             role="group"
