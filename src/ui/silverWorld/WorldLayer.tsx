@@ -77,6 +77,8 @@ export default function WorldLayer() {
       // Chỉ khi đang trò chuyện/ngồi học trong 3D: đang đi lại thì Enter không được nhảy bước
       if (mode !== 'world' || screen !== 'play' || phase !== 'engaged' || screenOpen) return;
       if (e.defaultPrevented) return;
+      // Nếu bước hiện tại là say, DialogueView và useDialogueAdvance đã xử lý Enter/Space
+      if (play?.step.type === 'say') return;
       // Không kích hoạt khi alertdialog đang mở
       if (typeof document !== 'undefined' && document.querySelector('[role="alertdialog"]')) return;
       // Không kích hoạt khi đang gõ trong ô nhập
@@ -90,7 +92,7 @@ export default function WorldLayer() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [mode, screen, phase, screenOpen, play?.canContinue, handleNextClick]);
+  }, [mode, screen, phase, screenOpen, play?.step.type, play?.canContinue, handleNextClick]);
 
   const isEngaged = phase === 'engaged';
   const isRightCol = isEngaged && Boolean(
@@ -264,6 +266,7 @@ export default function WorldLayer() {
                 reply={null}
                 nextLabel={isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
                 hotkeys={true}
+                disabled={skipConfirmOpen || exitConfirmOpen || mobileMenuOpen}
                 onNext={play.canContinue ? handleNextClick : undefined}
               />
             </div>
