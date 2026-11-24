@@ -26,6 +26,13 @@ import {
   type InteractivePoint,
   type RoomArea,
 } from '../interior/layouts';
+import {
+  checkSeamlessEnter,
+  checkSeamlessExit,
+  isInB11ExteriorDoorPocket,
+  resolveB4ExteriorCollision,
+  type SeamlessPortalHit,
+} from '../interior/layouts/seamlessPortals';
 
 /** Phải khớp `near` của <Canvas> trong App.tsx. */
 const OUTDOOR_CAMERA_NEAR = 0.35;
@@ -39,11 +46,17 @@ const BRIDGES: readonly { start: Vec2; end: Vec2 }[] = [
   { start: [106.8, -70.8], end: [118.5, 40.1] },
 ];
 
-// Lưu vị trí nhân vật xuyên suốt các lần mount/unmount của WalkMode khi chuyển cảnh
+// Lưu vị trí & trạng thái điều khiển nhân vật xuyên suốt các lần mount/unmount của WalkMode khi chuyển cảnh
 let globalPlayerPos: Vec2 = [START[0], START[1]];
 let globalCameraYaw: number = Math.PI;
 let globalCameraPitch = -0.08;
 let globalFacingYaw: number = Math.PI;
+const globalPressedKeys = new Set<string>();
+let globalViewMode: 0 | 1 | 2 = 0;
+let globalPortalCooldownUntil = 0;
+let globalPendingSeamlessPortal: SeamlessPortalHit | null = null;
+let globalSnapCameraOnMount = false;
+let globalSnapCameraDistance: number | null = null;
 
 let lastTeleportId = 0;
 let applyingTeleport = false;
@@ -62,6 +75,10 @@ useActivityStore.subscribe(({ teleport }) => {
   globalCameraYaw = yaw;
   globalFacingYaw = yaw;
   globalCameraPitch = 0;
+  globalPendingSeamlessPortal = null;
+  globalSnapCameraOnMount = false;
+  globalSnapCameraDistance = null;
+  globalPortalCooldownUntil = performance.now() + 850;
 
   applyingTeleport = true;
   try {
@@ -121,6 +138,13 @@ function resolvePosition(x: number, z: number, previousX: number, previousZ: num
   }
 
   for (const building of campus.buildings) {
+    if (building.id === 'b4') {
+      resolveB4ExteriorCollision(output[0], output[1], PLAYER_RADIUS, output);
+      continue;
+    }
+    if (building.id === 'b11' && isInB11ExteriorDoorPocket(output[0], output[1])) {
+      continue;
+    }
     const inside = pointInPolygon(output[0], output[1], building.shape.outer);
     let closestDistance = Number.POSITIVE_INFINITY;
     let closestX = previousX;
@@ -177,14 +201,14 @@ export default function WalkMode() {
   const player = useRef<[number, number, number]>([globalPlayerPos[0], initialY, globalPlayerPos[1]]);
   const cameraYaw = useRef(globalCameraYaw);
   const cameraPitch = useRef(globalCameraPitch);
-  const viewMode = useRef<0 | 1 | 2>(0); // sau vai → FPS → từ trên xuống
+  const viewMode = useRef<0 | 1 | 2>(globalViewMode); // sau vai → FPS → từ trên xuống
   const facingYaw = useRef(globalFacingYaw);
   const outdoorDistance = useRef(8);
   const indoorDesiredDistance = useRef(4.0);
   const indoorActualDistance = useRef(4.0);
   const moving = useRef(false);
   const running = useRef(false);
-  const keys = useRef(new Set<string>());
+  const keys = useRef(globalPressedKeys);
   const resolvedPosition = useRef<Vec2>([globalPlayerPos[0], globalPlayerPos[1]]);
   const isDragging = useRef(false);
   const previousPointerX = useRef(0);
@@ -254,8 +278,41 @@ export default function WalkMode() {
   const currentInteractive = useRef<InteractivePoint | null>(null);
   const currentActiveRoom = useRef<RoomArea | null>(null);
   const lastUsedInteractive = useRef<InteractivePoint | null>(null);
-  const isTopDownView = useRef(false);
+  const isTopDownView = useRef(globalViewMode === 2);
   const stairArrival = useRef<{ stairCode: string; floor: number } | null>(null);
+
+  useEffect(() => {
+    const fx = Math.cos(cameraYaw.current);
+    const fz = Math.sin(cameraYaw.current);
+    const isIndoorMount = useWalkStore.getState().interior !== null;
+    if (globalSnapCameraOnMount) {
+      globalSnapCameraOnMount = false;
+      if (!isIndoorMount && globalSnapCameraDistance !== null) {
+        outdoorDistance.current = globalSnapCameraDistance;
+      }
+      globalSnapCameraDistance = null;
+      const dist = isIndoorMount ? indoorActualDistance.current : outdoorDistance.current;
+      const heightOffset = isIndoorMount ? 1.55 : 3.4;
+      camera.position.set(
+        player.current[0] - fx * dist,
+        player.current[1] + heightOffset,
+        player.current[2] - fz * dist
+      );
+      target.set(
+        player.current[0] + fx * 4,
+        player.current[1] + 1.45,
+        player.current[2] + fz * 4
+      );
+      camera.lookAt(target);
+    } else {
+      globalSnapCameraDistance = null;
+      target.set(
+        player.current[0] + fx * 4,
+        player.current[1] + 1.45,
+        player.current[2] + fz * 4
+      );
+    }
+  }, [camera, target]);
 
   // Lắng nghe sự kiện chuyển góc nhìn từ trên xuống để so sánh sơ đồ
   useEffect(() => {
@@ -278,6 +335,11 @@ export default function WalkMode() {
       wallCollisionHoldTimer.current = 0;
       wallCollisionHoldDist.current = 4.0;
       indoorActualDistance.current = 4.0;
+      target.set(
+        player.current[0] + Math.cos(cameraYaw.current) * 4,
+        player.current[1] + 1.45,
+        player.current[2] + Math.sin(cameraYaw.current) * 4
+      );
     };
     const onStairMove = (event: Event) => {
       const custom = event as CustomEvent<{ stairCode: string; floor: number }>;
@@ -294,7 +356,7 @@ export default function WalkMode() {
       window.removeEventListener('campussim:stair-move', onStairMove);
       window.removeEventListener('campussim:elevator-move', onElevatorMove);
     };
-  }, []);
+  }, [target]);
 
   useEffect(() => {
     applyTeleportToMounted = (x, y, z, yaw) => {
@@ -310,9 +372,10 @@ export default function WalkMode() {
       isDragging.current = false;
       currentInteractive.current = null;
       lastInteractiveId.current = undefined;
+      target.set(x + Math.cos(yaw) * 4, y + 1.45, z + Math.sin(yaw) * 4);
     };
     return () => { applyTeleportToMounted = undefined; };
-  }, []);
+  }, [target]);
 
   // Lắng nghe thay đổi trạng thái interior (vào / ra / đổi tầng)
   useEffect(() => {
@@ -331,19 +394,23 @@ export default function WalkMode() {
       } else if (!prev && cur) {
         // Vừa bước vào bên trong tòa nhà
         pendingStairTransition.current = null;
+        const seamless = globalPendingSeamlessPortal;
+        globalPendingSeamlessPortal = null;
         const layout = getInteriorLayout(cur.buildingId);
         const lastPt = lastUsedInteractive.current;
-        const spawnPos = lastPt?.spawnPosWorld ?? layout?.defaultInsideEntrance ?? START;
-        const spawnYaw = lastPt?.spawnYaw ?? Math.PI / 2;
+        const spawnPos = seamless ? seamless.spawnPos : (lastPt?.spawnPosWorld ?? layout?.defaultInsideEntrance ?? START);
+        const spawnYaw = seamless ? (seamless.overrideYaw ?? cameraYaw.current) : (lastPt?.spawnYaw ?? Math.PI / 2);
+        const targetFacing = seamless ? (seamless.overrideYaw ?? facingYaw.current) : spawnYaw;
 
         player.current[0] = spawnPos[0];
         player.current[1] = 0.0;
         player.current[2] = spawnPos[1];
         cameraYaw.current = spawnYaw;
-        facingYaw.current = spawnYaw;
+        facingYaw.current = targetFacing;
         globalPlayerPos = [spawnPos[0], spawnPos[1]];
         globalCameraYaw = spawnYaw;
-        globalFacingYaw = spawnYaw;
+        globalCameraPitch = cameraPitch.current;
+        globalFacingYaw = targetFacing;
         updateCachedWalls(cur.buildingId, cur.floor);
         useWalkStore.getState().setPlayerPos({
           x: spawnPos[0],
@@ -354,20 +421,31 @@ export default function WalkMode() {
       } else if (prev && !cur) {
         // Vừa bước ra ngoài khuôn viên
         pendingStairTransition.current = null;
+        const seamless = globalPendingSeamlessPortal;
+        globalPendingSeamlessPortal = null;
         const prevLayout = getInteriorLayout(prev.buildingId);
         const lastPt = lastUsedInteractive.current;
-        const spawnPos = lastPt?.spawnPosWorld ?? prevLayout?.defaultOutsideEntrance ?? START;
-        const spawnYaw = lastPt?.spawnYaw ?? -Math.PI / 2;
+        const spawnPos = seamless ? seamless.spawnPos : (lastPt?.spawnPosWorld ?? prevLayout?.defaultOutsideEntrance ?? START);
+        const spawnYaw = seamless ? (seamless.overrideYaw ?? cameraYaw.current) : (lastPt?.spawnYaw ?? -Math.PI / 2);
+        const targetFacing = seamless ? (seamless.overrideYaw ?? facingYaw.current) : spawnYaw;
+        const groundY = getGroundHeight(spawnPos[0], spawnPos[1]);
 
         player.current[0] = spawnPos[0];
-        player.current[1] = getGroundHeight(spawnPos[0], spawnPos[1]);
+        player.current[1] = groundY;
         player.current[2] = spawnPos[1];
         cameraYaw.current = spawnYaw;
-        facingYaw.current = spawnYaw;
+        facingYaw.current = targetFacing;
         globalPlayerPos = [spawnPos[0], spawnPos[1]];
         globalCameraYaw = spawnYaw;
-        globalFacingYaw = spawnYaw;
+        globalCameraPitch = cameraPitch.current;
+        globalFacingYaw = targetFacing;
         currentFloorWallLines.current = [];
+        useWalkStore.getState().setPlayerPos({
+          x: spawnPos[0],
+          z: spawnPos[1],
+          y: groundY,
+          floor: null,
+        });
       } else if (prev && cur && prev.floor !== cur.floor) {
         const stairTx = pendingStairTransition.current;
         if (stairTx && stairTx.targetFloor === cur.floor) {
@@ -481,6 +559,7 @@ export default function WalkMode() {
       if (key === 'c' && !event.repeat) {
         if (viewMode.current === 1 && document.pointerLockElement === gl.domElement) document.exitPointerLock();
         viewMode.current = ((viewMode.current + 1) % 3) as 0 | 1 | 2;
+        globalViewMode = viewMode.current;
         isTopDownView.current = viewMode.current === 2;
         cameraPitch.current = 0;
         window.dispatchEvent(new CustomEvent('campussim:view-mode', { detail: { mode: viewMode.current } }));
@@ -573,25 +652,31 @@ export default function WalkMode() {
       window.removeEventListener('pointerup', onPointerUp);
       gl.domElement.removeEventListener('wheel', onWheel);
       gl.domElement.style.touchAction = originalTouchAction;
-      useWalkStore.getState().setMoveInput(0, 0);
+      if (!useWalkStore.getState().walkMode) {
+        useWalkStore.getState().setMoveInput(0, 0);
+        globalPressedKeys.clear();
+        globalViewMode = 0;
+      }
     };
   }, [gl, gl.domElement]);
 
-  // Thoát chế độ đi bộ khi đang ở trong nhà: trả near và fov về giá trị ngoài trời cho CameraRig.
+  // Thoát chế độ đi bộ khi đang ở trong nhà: trả near, fov và viewOffset về giá trị ngoài trời cho CameraRig.
   useEffect(() => {
     return () => {
-      camera.near = OUTDOOR_CAMERA_NEAR;
-      camera.far = OUTDOOR_CAMERA_FAR;
-      if ('fov' in camera) {
-        (camera as PerspectiveCamera).fov = 45;
+      if (!useWalkStore.getState().walkMode) {
+        camera.near = OUTDOOR_CAMERA_NEAR;
+        camera.far = OUTDOOR_CAMERA_FAR;
+        if ('fov' in camera) {
+          (camera as PerspectiveCamera).fov = 45;
+        }
+        if ('clearViewOffset' in camera) {
+          (camera as PerspectiveCamera).clearViewOffset();
+        }
+        currentViewOffset.current = 0;
+        hasViewOffset.current = false;
+        camera.updateProjectionMatrix();
+        if (document.pointerLockElement === gl.domElement) document.exitPointerLock();
       }
-      if ('clearViewOffset' in camera) {
-        (camera as PerspectiveCamera).clearViewOffset();
-      }
-      currentViewOffset.current = 0;
-      hasViewOffset.current = false;
-      camera.updateProjectionMatrix();
-      if (document.pointerLockElement === gl.domElement) document.exitPointerLock();
     };
   }, [camera, gl.domElement]);
 
@@ -916,6 +1001,33 @@ export default function WalkMode() {
       const targetFacingYaw = Math.atan2(dz, dx);
       const yawDifference = Math.atan2(Math.sin(targetFacingYaw - facingYaw.current), Math.cos(targetFacingYaw - facingYaw.current));
       facingYaw.current += yawDifference * (1 - Math.exp(-10 * dt));
+
+      // Đi thông tự động qua các ngưỡng cửa mở của Block 4 & Block 11 (không cần bấm E)
+      if (nowMs >= globalPortalCooldownUntil) {
+        const portalHit = isInterior
+          ? interiorState.floor === 1 && Math.abs(player.current[1]) <= 0.6
+            ? checkSeamlessExit(interiorState.buildingId, player.current[0], player.current[2])
+            : null
+          : checkSeamlessEnter(player.current[0], player.current[2]);
+
+        if (portalHit) {
+          globalPortalCooldownUntil = nowMs + 850;
+          globalPendingSeamlessPortal = portalHit;
+          globalSnapCameraOnMount = Boolean(portalHit.snapCamera);
+          globalSnapCameraDistance = portalHit.snapCameraDistance ?? null;
+          globalPlayerPos = [portalHit.spawnPos[0], portalHit.spawnPos[1]];
+          globalCameraYaw = portalHit.overrideYaw ?? cameraYaw.current;
+          globalCameraPitch = cameraPitch.current;
+          globalFacingYaw = portalHit.overrideYaw ?? facingYaw.current;
+          window.dispatchEvent(new CustomEvent('campussim:seamless-portal'));
+          if (isInterior) {
+            useWalkStore.getState().exitInterior();
+          } else {
+            useWalkStore.getState().enterInterior(portalHit.buildingId);
+          }
+          return;
+        }
+      }
     }
 
     // Trong nhà: đi theo cầu thang bộ nhiều tầng (stepStairHeight) hoặc bám sàn y = 0.

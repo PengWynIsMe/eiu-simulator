@@ -11,6 +11,7 @@ import {
 import { useFrame } from '@react-three/fiber';
 import { campus } from '../../data';
 import { BRIDGE_WIDTH, FOOTWAY_WIDTH, GRASS, ROAD_WIDTH, ROUNDABOUT_GRASS, ROUNDABOUT_ROAD_WIDTH, STREET_LANE_WIDTH } from '../groundLevels';
+import { isPointInB4Plaza } from '../zone1/Block4Library';
 import { isPointInPond } from '../zone1/pondLayout';
 import { ZONE2_WALKWAYS } from '../zone2/Zone2Walkways';
 import { buildGrassMask, type GrassMaskRoad } from './grassMask';
@@ -101,6 +102,8 @@ export default function Grass() {
       isBlocked: (x, z) => {
         // Hồ nước & bậc thềm kè hồ
         if (isPointInPond(x, z, 2.2)) return true;
+        // Sân bê tông hành lang, sảnh đón & pergola mặt Nam/Bắc Block 4
+        if (isPointInB4Plaza(x, z)) return true;
         // Sàn gỗ cafe ngoài trời Highlands
         if (x >= 135 && x <= 149 && z >= -70 && z <= -57) return true;
         // Sàn Fami Pizza

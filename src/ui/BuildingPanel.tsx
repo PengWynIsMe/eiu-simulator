@@ -243,7 +243,7 @@ function PanelContent({
               }
               requestAnimationFrame(() => {
                 useWalkStore.getState().enterInterior('b4');
-                const [x, z] = b4LocalToWorld(64.2, 14.0);
+                const [x, z] = b4LocalToWorld(61.8, 14.0);
                 const yaw = b4WalkYaw(-1, 0);
                 requestAnimationFrame(() => {
                   window.dispatchEvent(

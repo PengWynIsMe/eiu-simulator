@@ -1081,26 +1081,12 @@ export function getNearInteractive(
   worldZ: number,
   floor: number | null
 ): InteractivePoint | null {
+  // Block 11 đi thông tự động qua 6 cửa tầng trệt, không hiện gợi ý nhấn E ở cửa
   if (floor === null) {
-    for (const ent of b11ExteriorEntrances) {
-      const dist = Math.hypot(worldX - ent.worldPos[0], worldZ - ent.worldPos[1]);
-      if (dist <= ent.radius) {
-        return {
-          id: ent.id,
-          type: 'exterior-door',
-          worldPos: ent.worldPos,
-          radius: ent.radius,
-          label: ent.label,
-          buildingId: 'b11',
-          spawnPosWorld: ent.spawnInsideWorld,
-          spawnYaw: ent.spawnInsideYaw,
-        };
-      }
-    }
     return null;
   }
 
-  // 1. Thang máy Block 11 (chỉ thang máy mới mở bảng chọn tầng; cầu thang bộ đi trực tiếp từng bậc)
+  // Chỉ giữ thang máy Block 11 (cầu thang bộ & 6 cửa tầng trệt đều đi trực tiếp)
   const distElev = Math.hypot(worldX - B11_ELEVATOR_WORLD[0], worldZ - B11_ELEVATOR_WORLD[1]);
   if (distElev <= 3.4) {
     return {
@@ -1111,25 +1097,6 @@ export function getNearInteractive(
       label: 'Thang máy Block 11 (Chọn tầng 1–4)',
       buildingId: 'b11',
     };
-  }
-
-  // 2. 5 cửa ra ngoài khuôn viên (trên tầng 1)
-  if (floor === 1) {
-    for (const ent of b11ExteriorEntrances) {
-      const dist = Math.hypot(worldX - ent.spawnInsideWorld[0], worldZ - ent.spawnInsideWorld[1]);
-      if (dist <= 3.4) {
-        return {
-          id: `${ent.id}-exit`,
-          type: 'interior-door',
-          worldPos: ent.spawnInsideWorld,
-          radius: 3.4,
-          label: 'Ra ngoài khuôn viên',
-          buildingId: 'b11',
-          spawnPosWorld: ent.spawnOutsideWorld,
-          spawnYaw: ent.spawnOutsideYaw,
-        };
-      }
-    }
   }
 
   return null;

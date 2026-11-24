@@ -62,10 +62,12 @@ export default function InteriorHud() {
     window.addEventListener('campussim:interior-proximity', handleProximity);
     window.addEventListener('campussim:open-elevator', handleOpenElevator);
     window.addEventListener('campussim:stair-walk-floor', handleStairWalkFloor);
+    window.addEventListener('campussim:seamless-portal', handleStairWalkFloor);
     return () => {
       window.removeEventListener('campussim:interior-proximity', handleProximity);
       window.removeEventListener('campussim:open-elevator', handleOpenElevator);
       window.removeEventListener('campussim:stair-walk-floor', handleStairWalkFloor);
+      window.removeEventListener('campussim:seamless-portal', handleStairWalkFloor);
     };
   }, []);
 
