@@ -260,5 +260,62 @@ export default {
     assert.ok(sKey2, 'Phải có sessionKey mới');
     assert.notEqual(sKey1, sKey2, 'Lượt chơi mới phải có sessionKey khác lượt cũ');
     assert.equal(departureManager.isCompleted(sKey2, 'entrance/meet-thanh:thanh'), false, 'Chơi lại chương Thành phải có mặt');
+
+    // 3.5 Test store subscription lifecycle:
+    // meet-thanh xong → cảnh khác → exitRun → startChapter restart → Thành có mặt; mount lại giữa cảnh không chạy lại
+    departureManager.reset();
+    let storeState = {
+      screen: 'play',
+      play: { chapterId: 'entrance', item: { id: 'entrance/meet-thanh' } },
+    };
+    const storeListeners = new Set();
+    const fakeStore = {
+      getState: () => storeState,
+      subscribe: (fn) => {
+        storeListeners.add(fn);
+        return () => storeListeners.delete(fn);
+      },
+    };
+    const unsub = departureManager.subscribeToStore(fakeStore);
+    const key1 = departureManager.getSessionKey();
+    assert.ok(key1, 'Phải có sessionKey từ store subscription');
+    assert.equal(departureManager.isCompleted(key1, 'entrance/meet-thanh:thanh'), false);
+
+    // Thành hoàn tất rời đi
+    departureManager.markCompleted(key1, 'entrance/meet-thanh:thanh');
+    assert.equal(departureManager.isCompleted(key1, 'entrance/meet-thanh:thanh'), true);
+
+    // Mount lại giữa cảnh (cùng key1): vẫn ghi nhận đã rời đi, không chạy lại
+    assert.equal(departureManager.isCompleted(key1, 'entrance/meet-thanh:thanh'), true, 'Mount lại giữa cảnh không chạy lại');
+
+    // Cảnh khác không có diễn viên Thành: listening
+    storeState = {
+      screen: 'play',
+      play: { chapterId: 'entrance', item: { id: 'entrance/listening' } },
+    };
+    storeListeners.forEach((fn) => fn());
+    const keyOther = departureManager.getSessionKey();
+    assert.notEqual(keyOther, key1);
+
+    // exitRun: screen trở về home
+    storeState = {
+      screen: 'home',
+      play: null,
+    };
+    storeListeners.forEach((fn) => fn());
+    assert.equal(departureManager.getSessionKey(), null, 'Sau exitRun sessionKey là null');
+
+    // startChapter restart: vào lại meet-thanh từ Home
+    storeState = {
+      screen: 'play',
+      play: { chapterId: 'entrance', item: { id: 'entrance/meet-thanh' } },
+    };
+    storeListeners.forEach((fn) => fn());
+    const keyRestart = departureManager.getSessionKey();
+    assert.ok(keyRestart);
+    assert.notEqual(keyRestart, key1);
+    assert.equal(departureManager.isCompleted(keyRestart, 'entrance/meet-thanh:thanh'), false, 'Thành có mặt lại sau restart');
+
+    unsub();
   },
 };

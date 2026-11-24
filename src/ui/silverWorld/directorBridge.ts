@@ -1,5 +1,4 @@
 import type { SubscribableSilverStore } from '../../silverWorld/director';
-import { useWalkStore } from '../../store/useWalkStore';
 import { getSilverUserMode } from '../silver/presentation';
 
 /**
@@ -18,22 +17,15 @@ export function isSubscribableSilver(store: unknown): store is SubscribableSilve
 }
 
 /**
- * Kiểm tra trạng thái kích hoạt của director Silver 3D:
+ * Kiểm tra trạng thái kích hoạt của director Silver 3D (hàm thuần, không chứa side-effect):
  * - Director chạy suốt lượt chơi 3D (từ home, recap, registration, week, play, ...)
  * - Không dừng khi chuyển qua màn tuần (week) để bảo toàn prevItem, ngày học và keepSeated.
  * - Chỉ dừng khi đóng Silver (screen === 'closed') hoặc người chơi chọn chế độ 2D overlay.
  * - Trong môi trường SSR test (typeof window === 'undefined'), trả về false.
  */
-export function isWorldActive(screen?: string | null, _sceneId?: string | null): boolean {
-  void _sceneId;
+export function isWorldActive(screen?: string | null): boolean {
   if (typeof window === 'undefined') return false;
   if (!screen || screen === 'closed') return false;
   if (getSilverUserMode() === 'overlay') return false;
-
-  // Khi vào màn play trong lượt 3D, tự bật walkMode nếu chưa bật
-  if (screen === 'play' && !useWalkStore.getState().walkMode) {
-    useWalkStore.setState({ walkMode: true });
-  }
-
   return true;
 }

@@ -11,6 +11,7 @@ import SilverLayer from './ui/silver/SilverLayer';
 import WorldLayer from './ui/silverWorld/WorldLayer';
 import BuildingPanel from './ui/BuildingPanel';
 import SnowIntroOverlay from './ui/snow/SnowIntroOverlay';
+import { attachWebglCanvas } from './ui/silver/presentation';
 import { useWalkStore } from './store/useWalkStore';
 import { useReviewStore } from './store/useReviewStore';
 import { useSnowStore } from './store/useSnowStore';
@@ -49,6 +50,7 @@ export default function App() {
         shadows
         dpr={[1, 2]}
         onCreated={({ gl, scene }) => {
+          attachWebglCanvas(gl.domElement);
           if (import.meta.env.DEV) {
             (window as unknown as Record<string, unknown>).__gl = gl;
             (window as unknown as Record<string, unknown>).__scene = scene;

@@ -186,6 +186,7 @@ function TeacherBody({ room, getSignal }: TeacherProps) {
     }
 
     // Phản ứng theo mode / stepKey / result
+    const isExam = signal.stepKey.toLowerCase().includes('exam');
     if (signal.stepKey !== sim.stepKey) {
       sim.stepKey = signal.stepKey;
       sim.resultId = signal.result ? signal.result.id : -1;
@@ -194,7 +195,8 @@ function TeacherBody({ room, getSignal }: TeacherProps) {
       }
     } else if (signal.result && signal.result.id !== sim.resultId) {
       sim.resultId = signal.result.id;
-      if (signal.mode === 'question' || signal.mode === 'exercise') {
+      // Chế độ exam: thầy không gật/lắc đến khi nộp (signal.mode === 'end')
+      if (!isExam && (signal.mode === 'question' || signal.mode === 'exercise')) {
         sim.pending = signal.result.correct ? 'yes' : 'no';
       }
     }
