@@ -204,3 +204,109 @@ Kiểm tra tại 4 trạng thái cốt lõi: Lúc ngồi (`seated`), Thoại (`s
 | 13 | `13-768x1024-question.jpg` | 71 KB | Màn hình 768×1024 (Tablet): Giao diện câu hỏi hiển thị đầy đủ, không bị đè nút. |
 | 14 | `14-1440x900-question.jpg` | 95 KB | Màn hình 1440×900 (Desktop): Giao diện chuẩn, thoáng đãng, cân đối. |
 
+---
+
+## PHẦN 3 — WEBGL MẤT NGỮ CẢNH, KHÔNG CÓ WEBGL, STORAGE BỊ CHẶN & PREFERS-REDUCED-MOTION
+
+### 1. WebGL mất ngữ cảnh (`WEBGL_lose_context`) và Không có WebGL
+
+#### A. WebGL mất ngữ cảnh qua extension `WEBGL_lose_context`
+- **Cách thức thực nghiệm:**
+  - Lấy ngữ cảnh WebGL qua `gl = window.__gl.getContext()`.
+  - Lấy extension chuẩn `ext = gl.getExtension('WEBGL_lose_context')`.
+  - Kích hoạt `ext.loseContext()`.
+- **Kết quả quan sát & Phân tích kỹ thuật:**
+  1. `gl.isContextLost()` chuyển ngay sang `true`.
+  2. Sự kiện `webglcontextlost` được phát và bắt thành công bởi `attachWebglCanvas` trong `src/ui/silver/presentation.ts` (dòng 48–51) cũng như listener trên `window` (dòng 66–72). Biến cờ `webglLost` chuyển thành `true`.
+  3. `useSilverPresentation().mode` tự động chuyển từ `'world'` sang `'overlay'` (2D).
+  4. Three.js / R3F ngừng vẽ nhưng **không gây lỗi đỏ console** (console error bắt được: `[]`).
+- **Phát hiện thiếu sót kỹ thuật (Bug khôi phục ngữ cảnh):**
+  - Trong `src/ui/silver/presentation.ts` (dòng 48–51 và 66–72):
+    ```ts
+    const onLost = () => {
+      webglLost = true;
+      notify();
+    };
+    canvas.addEventListener('webglcontextlost', onLost);
+    ```
+  - **Lỗi:** Listener bắt sự kiện `webglcontextlost` **KHÔNG gọi `event.preventDefault()`**.
+  - **Hậu quả:** Theo đặc tả chính thức của Khronos WebGL Specification:
+    > *"If the webglcontextlost event is not cancelled by calling preventDefault(), the default action is that the context will NOT be restored."*
+    Do thiếu `event.preventDefault()`, trình duyệt tự động hủy bỏ vĩnh viễn ngữ cảnh đồ họa. Khi gọi `ext.restoreContext()`, ngữ cảnh không bao giờ có thể tự khôi phục lại được, canvas 3D bị vô hiệu hóa hoàn toàn cho đến khi người dùng F5 tải lại trang.
+  - **Đề xuất sửa:**
+    ```ts
+    const onLost = (event: Event) => {
+      event.preventDefault(); // Cho phép WebGL tự khôi phục ngữ cảnh khi GPU sẵn sàng
+      webglLost = true;
+      notify();
+    };
+    ```
+
+#### B. Môi trường không có WebGL (No WebGL Support)
+- **Kiểm tra kiến trúc:**
+  - Trong `src/App.tsx` (dòng 49–67), component `<Canvas>` của `@react-three/fiber` được đặt trực tiếp trong JSX mà **không có bất kỳ `<ErrorBoundary>` nào bao bọc**.
+- **Hậu quả khi WebGL bị vô hiệu hóa / không hỗ trợ:**
+  - Nếu trình duyệt không hỗ trợ WebGL hoặc GPU bị blacklist, Three.js `WebGLRenderer` sẽ ném ngoại lệ nghiêm trọng:
+    `Error: THREE.WebGLRenderer: A WebGL context could not be created.`
+  - Do không có React ErrorBoundary bắt lỗi, lỗi này sẽ làm sập toàn bộ cây component React của trang web (trắng trang hoàn toàn), ngăn cản người dùng sử dụng cả chế độ 2D overlay lẫn xem thông tin giới thiệu trường.
+- **Đề xuất sửa:** Bọc `<Canvas>` trong một `CanvasErrorBoundary` có giao diện fallback 2D (ví dụ hiển thị chế độ 2D sơ đồ hoặc dải cảnh báo nâng cấp trình duyệt).
+
+---
+
+### 2. LocalStorage và SessionStorage bị chặn (Chế độ riêng tư nghiêm ngặt)
+
+#### A. Kiểm tra `localStorage`
+- **Thực nghiệm:** Thiết lập `Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Access denied', 'SecurityError'); } })`.
+- **Kết quả:**
+  - `src/store/useSilverStore.ts` (dòng 454–460): Hàm `browserStorage()` có khối `try/catch` bắt an toàn, fallback về `kv = null`. Hệ thống chuyển sang lưu trữ tạm trong bộ nhớ (in-memory) và hiển thị cảnh báo `saveWarning = 'blocked'`. Game vẫn chơi và hoàn thành bài học bình thường mà không bị gián đoạn.
+  - `src/store/useLangStore.ts` (dòng 6–16, 34–42): Bọc `try/catch` đầy đủ. Chuyển đổi ngôn ngữ VI ↔ EN hoạt động trơn tru trong phiên hiện tại, console không có lỗi.
+  - `src/ui/audio/sfx.ts` và `src/data/reviewNotes.ts`: Đều có `try/catch` bọc an toàn.
+
+#### B. Phát hiện lỗi nghiêm trọng với `sessionStorage` trong `src/App.tsx`
+- **Mã nguồn:** Trong `src/App.tsx` (dòng 29 và dòng 44):
+  ```tsx
+  // Dòng 29 (useEffect khi mount):
+  const savedReviewMode = sessionStorage.getItem('campussim.reviewMode');
+
+  // Dòng 44 (useEffect khi reviewMode thay đổi):
+  sessionStorage.setItem('campussim.reviewMode', String(reviewMode));
+  ```
+- **Lỗi:** Hai lệnh gọi `sessionStorage` này **hoàn toàn KHÔNG có khối `try/catch`**.
+- **Bằng chứng thực nghiệm:**
+  - Khi chặn Storage và người dùng tương tác với nút "Chế độ góp ý" (`toggleReviewMode`), trình duyệt lập tức ném lỗi không bắt được:
+    `Uncaught SecurityError: Access is denied for this document` (bắt được qua listener `window.onerror`).
+  - Khi người dùng tải lại trang trong môi trường chặn Storage hoàn toàn, `sessionStorage.getItem` tại dòng 29 sẽ ném ngoại lệ làm gián đoạn chuỗi khởi tạo của `useEffect` trong `App.tsx`.
+- **Đề xuất sửa:** Bọc `sessionStorage` trong `App.tsx` bằng `try/catch`:
+  ```tsx
+  try {
+    const saved = sessionStorage.getItem('campussim.reviewMode');
+    if (saved === 'true' && !useReviewStore.getState().reviewMode) {
+      useReviewStore.getState().toggleReviewMode();
+    }
+  } catch {
+    /* bỏ qua lỗi storage bị chặn */
+  }
+  ```
+
+---
+
+### 3. Kiểm tra `prefers-reduced-motion`
+
+- **Hiện trạng hỗ trợ:**
+  - Được cài đặt tại `src/ui/silver/steps/Say.tsx` (dòng 23–37) và `src/ui/silver/steps/Code.tsx` (dòng 27–30):
+    ```tsx
+    const [reducedMotion] = useState(() =>
+      typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false,
+    );
+    const { shown, done, skip } = useTypewriter(fullText, 30, true);
+    const isImmediate = reducedMotion || langSwitched;
+    const displayText = isImmediate ? fullText : shown;
+    ```
+- **Kết quả thực nghiệm:**
+  - Khi hệ điều hành hoặc trình duyệt bật chế độ giảm chuyển động (`prefers-reduced-motion: reduce`), biến `isImmediate` luôn là `true`.
+  - Hiệu ứng máy đánh chữ (typewriter) gõ từng ký tự bị tắt hoàn toàn: Toàn bộ câu thoại được hiển thị ngay lập tức 100%, không bị chớp hay trễ nhịp. Console hoàn toàn sạch (0 lỗi).
+- **Hạn chế còn tồn tại:**
+  - Hiệu ứng tuyết rơi (`SnowIntroOverlay` và hạt tuyết 3D `SnowFall`) cùng chuyển động bay lượn của camera (`CameraRig.tsx`) chưa kiểm tra cờ `prefers-reduced-motion`, vẫn thực hiện hoạt ảnh bay lượn và xoay vòng bình thường.
+
+---
+
