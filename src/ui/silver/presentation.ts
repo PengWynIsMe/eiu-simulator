@@ -6,26 +6,30 @@ export type SilverPresentationMode = 'overlay' | 'world';
 
 const MODE_STORAGE_KEY = 'campussim.silver.mode';
 
-function readStoredUserMode(): SilverPresentationMode {
-  if (typeof window === 'undefined') return 'world';
-  try {
-    const val = window.localStorage.getItem(MODE_STORAGE_KEY);
-    if (val === 'overlay' || val === '2d') return 'overlay';
-    return 'world';
-  } catch {
-    return 'world';
+/**
+ * Xóa khóa lưu trữ chế độ cũ nếu người dùng đã từng chọn 'overlay' / '2d' trước đây,
+ * đưa tất cả về chế độ mặc định 3D ('world').
+ */
+export function cleanupStoredMode(): void {
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage.removeItem(MODE_STORAGE_KEY);
+    } catch {
+      // bỏ qua lỗi storage bị chặn
+    }
   }
 }
 
-let userMode: SilverPresentationMode = readStoredUserMode();
+// Chạy dọn dẹp ngay khi nạp module
+cleanupStoredMode();
+
 let webglLost = false;
 const listeners = new Set<() => void>();
-
-let presentationSnapshot = { userMode, webglLost };
-const SSR_SNAPSHOT = { userMode: 'world' as SilverPresentationMode, webglLost: false };
+let presentationSnapshot = { webglLost };
+const SSR_SNAPSHOT = { webglLost: false };
 
 function notify(): void {
-  presentationSnapshot = { userMode, webglLost };
+  presentationSnapshot = { webglLost };
   for (const fn of listeners) {
     fn();
   }
@@ -93,27 +97,7 @@ export function setWebglContextLostForTest(lost: boolean): void {
   notify();
 }
 
-export function getSilverUserMode(): SilverPresentationMode {
-  return userMode;
-}
-
-export function setSilverUserMode(mode: SilverPresentationMode): void {
-  userMode = mode;
-  if (typeof window !== 'undefined') {
-    try {
-      if (mode === 'world') {
-        window.localStorage.removeItem(MODE_STORAGE_KEY);
-      } else {
-        window.localStorage.setItem(MODE_STORAGE_KEY, 'overlay');
-      }
-    } catch {
-      // ignore localStorage errors
-    }
-  }
-  notify();
-}
-
-export function useSilverPresentationState(): { userMode: SilverPresentationMode; webglLost: boolean } {
+export function useSilverPresentationState(): { webglLost: boolean } {
   return useSyncExternalStore(
     (onStoreChange) => {
       listeners.add(onStoreChange);
@@ -126,24 +110,19 @@ export function useSilverPresentationState(): { userMode: SilverPresentationMode
   );
 }
 
-export function useSilverUserMode(): SilverPresentationMode {
-  return useSilverPresentationState().userMode;
-}
-
 /**
  * Hook xác định chế độ trình bày UI Silver:
  * - Mặc định luôn là 'world' (3D).
- * - 'overlay' (2D) khi:
- *   1. Người chơi chọn "Chơi nhanh 2D" (localStorage['campussim.silver.mode'] === 'overlay')
- *   2. WebGL context bị mất (tự động re-render khi webglLost thay đổi)
- *   3. Đang ở màn screen === 'play' nhưng cảnh hiện tại chưa có stage/phòng khả dụng (lùi 2D riêng cảnh đó).
+ * - 'overlay' (2D) tự động khi:
+ *   1. WebGL context bị mất (tự động re-render khi webglLost thay đổi).
+ *   2. Đang ở màn screen === 'play' nhưng cảnh hiện tại chưa có stage/phòng khả dụng (lùi 2D riêng cảnh đó).
  */
 export function useSilverPresentation(): { mode: SilverPresentationMode } {
-  const { userMode: currentMode, webglLost: isLost } = useSilverPresentationState();
+  const { webglLost: isLost } = useSilverPresentationState();
   const screen = useSilver((s) => s.screen);
   const sceneId = useSilver((s) => (s.screen === 'play' ? s.play?.item.scene?.id ?? s.play?.item.id ?? null : null));
 
-  if (currentMode === 'overlay' || isLost) {
+  if (isLost) {
     return { mode: 'overlay' };
   }
   if (screen === 'play') {
@@ -156,7 +135,7 @@ export function useSilverPresentation(): { mode: SilverPresentationMode } {
 
 /** Đọc trực tiếp presentation mode từ state mà không qua hook React. */
 export function getSilverPresentationMode(): SilverPresentationMode {
-  if (userMode === 'overlay' || webglLost) return 'overlay';
+  if (webglLost) return 'overlay';
   const s = useSilver.getState();
   if (s.screen === 'play') {
     const sceneId = s.play?.item.scene?.id ?? s.play?.item.id ?? null;

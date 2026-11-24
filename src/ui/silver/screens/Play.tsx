@@ -141,7 +141,12 @@ export default function Play({ exitHandlerRef }: PlayProps) {
       >
         <Panel className={play.step.type === 'slide' ? 'mx-auto max-w-2xl' : 'mx-auto max-w-3xl'}>
           {play.step.type === 'say' && (
-            <Say step={play.step} fullyShownRef={sayFullyShownRef} revealRef={revealSayRef} />
+            <Say
+              step={play.step}
+              fullyShownRef={sayFullyShownRef}
+              revealRef={revealSayRef}
+              onNext={handleNextClick}
+            />
           )}
           {play.step.type === 'choice' && <Choice step={play.step} feedback={play.feedback} />}
           {play.step.type === 'slide' && <Slide step={play.step} />}

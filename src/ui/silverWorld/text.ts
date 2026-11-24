@@ -45,8 +45,6 @@ export const ST_W = {
   confirm: { vi: 'Đồng ý', en: 'Confirm' },
   stepN: { vi: 'Bước {i}/{n}', en: 'Step {i}/{n}' },
   sceneN: { vi: 'Cảnh {i}/{n}', en: 'Scene {i}/{n}' },
-  modeFast2D: { vi: 'Chơi nhanh 2D', en: 'Play 2D' },
-  mode3D: { vi: 'Chơi 3D', en: 'Play 3D' },
 
   // Nhãn màn hình Desktop và CodeLab theo ngôn ngữ đang chọn
   loginStudentId: { vi: 'Mã số sinh viên', en: 'Student ID' },

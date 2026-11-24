@@ -3,17 +3,18 @@ import type { SayStep } from '../../../types/silver';
 import { useLangStore } from '../../../store/useLangStore';
 import { useT } from '../../text';
 import { useTypewriter } from '../../desktop/useTypewriter';
-import { ST } from '../text';
+import { useDialogueAdvance } from '../../dialogueAdvance';
 import Avatar, { LABEL_BY_SPEAKER } from '../parts/Avatar';
 
 interface SayProps {
   step: SayStep;
   fullyShownRef: MutableRefObject<boolean>;
   revealRef: MutableRefObject<(() => void) | null>;
+  onNext?: () => void;
 }
 
-/** Bước hội thoại: hiện chữ dần 30 ký tự/giây, bấm thẻ hoặc bấm Tiếp lần đầu để hiện hết. */
-export default function Say({ step, fullyShownRef, revealRef }: SayProps) {
+/** Bước hội thoại: hiện chữ dần 30 ký tự/giây, bấm thẻ hoặc bấm Tiếp lần đầu để hiện hết; bấm lần sau để sang câu tiếp. */
+export default function Say({ step, fullyShownRef, revealRef, onNext }: SayProps) {
   const tr = useT();
   const lang = useLangStore((s) => s.lang);
   const fullText = tr(step.text);
@@ -35,6 +36,14 @@ export default function Say({ step, fullyShownRef, revealRef }: SayProps) {
   const displayText = isImmediate ? fullText : shown;
   const isDone = isImmediate || done;
 
+  const { hintText } = useDialogueAdvance({
+    isTyping: !isDone,
+    onSkip: skip,
+    onNext,
+    hasOptions: false,
+    canContinue: Boolean(onNext),
+  });
+
   useEffect(() => {
     fullyShownRef.current = isDone;
     revealRef.current = skip;
@@ -48,20 +57,15 @@ export default function Say({ step, fullyShownRef, revealRef }: SayProps) {
       <div
         role="button"
         tabIndex={0}
-        onClick={skip}
-        onKeyDown={(e) => {
-          if ((e.key === 'Enter' || e.key === ' ') && !isDone) {
-            e.preventDefault();
-            skip();
-          }
-        }}
+        data-dialogue-advance="true"
+        aria-label={displayText}
         className="w-full max-h-[48dvh] cursor-pointer select-text overflow-y-auto px-2 py-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         <p className="whitespace-pre-line text-[15px] italic leading-6 text-slate-700">
           {displayText}
         </p>
-        {!isDone && (
-          <p className="mt-2 text-xs font-medium text-slate-400">{tr(ST.tapReveal)}</p>
+        {hintText && (
+          <p className="mt-2 text-xs font-medium text-slate-400 select-none">{hintText}</p>
         )}
       </div>
     );
@@ -73,13 +77,8 @@ export default function Say({ step, fullyShownRef, revealRef }: SayProps) {
     <div
       role="button"
       tabIndex={0}
-      onClick={skip}
-      onKeyDown={(e) => {
-        if ((e.key === 'Enter' || e.key === ' ') && !isDone) {
-          e.preventDefault();
-          skip();
-        }
-      }}
+      data-dialogue-advance="true"
+      aria-label={speakerLabel}
       className="w-full max-h-[48dvh] cursor-pointer overflow-y-auto rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
     >
       <div className="flex items-start gap-3">
@@ -89,8 +88,8 @@ export default function Say({ step, fullyShownRef, revealRef }: SayProps) {
           <p className="mt-1 whitespace-pre-line text-[15px] leading-6 text-slate-800">
             {displayText}
           </p>
-          {!isDone && (
-            <p className="mt-2 text-xs font-medium text-slate-400">{tr(ST.tapReveal)}</p>
+          {hintText && (
+            <p className="mt-2 text-xs font-medium text-slate-400 select-none">{hintText}</p>
           )}
         </div>
       </div>
