@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
 import { getLesson } from '../../data';
 import { getCurrentStep, useLessonStore } from '../../store/useLessonStore';
-import { TEXT } from '../text';
+import { TEXT, UI_TEXT, useT } from '../text';
 import TeacherBubble from './TeacherBubble';
 import SlideView from './views/SlideView';
 import { setRightColumnWidth } from '../ActionPrompt';
 
 /** Bản 2D của màn chiếu: cột mép phải hiển thị ghi chú ngắn, nút Phóng to và nút Tiếp. */
 export default function SlideViewer() {
+  const tr = useT();
   const lessonId = useLessonStore((s) => s.lessonId);
   const step = useLessonStore(getCurrentStep);
   const slideIndex = useLessonStore((s) => s.slideIndex);
@@ -46,6 +47,9 @@ export default function SlideViewer() {
         compact={true}
         zoomInLabel={TEXT.lessonZoomSlide}
         zoomOutLabel={TEXT.lessonMinimizeSlide}
+        expandLabel={tr(UI_TEXT.expand)}
+        collapseLabel={tr(UI_TEXT.collapse)}
+        seeAllLabel={tr(UI_TEXT.seeAll)}
         nextLabel={TEXT.lessonNext}
         onNext={() => useLessonStore.getState().nextSlide()}
       />

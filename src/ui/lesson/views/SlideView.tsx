@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import CodeBlock from '../../desktop/CodeBlock';
 
 export interface SlideViewProps {
@@ -13,6 +14,9 @@ export interface SlideViewProps {
   extraAction?: ReactNode;
   zoomInLabel?: string;
   zoomOutLabel?: string;
+  expandLabel?: string;
+  collapseLabel?: string;
+  seeAllLabel?: string;
   onNext?: () => void;
 }
 
@@ -34,6 +38,9 @@ export default function SlideView({
   extraAction,
   zoomInLabel = 'Phóng to',
   zoomOutLabel = 'Thu nhỏ',
+  expandLabel = 'Mở rộng',
+  collapseLabel = 'Thu gọn',
+  seeAllLabel = 'Xem đủ',
   onNext,
 }: SlideViewProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -54,15 +61,19 @@ export default function SlideView({
     return () => window.removeEventListener('keydown', onKeyDown, true);
   }, [isExpanded]);
 
-  // Trích xuất 2–4 gạch đầu dòng ngắn gọn từ nội dung body
-  const bulletNotes = useMemo(() => {
+  // Trích xuất 2–4 gạch đầu dòng ngắn gọn từ nội dung body, đếm tổng số câu/gạch để hiển thị "Xem đủ"
+  const { bulletNotes, totalCount, hasMore } = useMemo(() => {
     const rawLines = body
       .split(/\n+/)
       .map((s) => s.trim().replace(/^[-*•]\s*/, ''))
       .filter((s) => s.length > 0);
 
     if (rawLines.length > 1) {
-      return rawLines.slice(0, 4);
+      return {
+        bulletNotes: rawLines.slice(0, 4),
+        totalCount: rawLines.length,
+        hasMore: rawLines.length > 4,
+      };
     }
     // Nếu chỉ là 1 đoạn văn, tách theo câu
     const sentences = body
@@ -70,7 +81,11 @@ export default function SlideView({
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
 
-    return sentences.slice(0, 4);
+    return {
+      bulletNotes: sentences.slice(0, 4),
+      totalCount: sentences.length,
+      hasMore: sentences.length > 4,
+    };
   }, [body]);
 
   return (
@@ -86,7 +101,7 @@ export default function SlideView({
           type="button"
           onClick={() => setIsMobileCollapsed((v) => !v)}
           className="mx-auto mb-2 flex h-4 w-full cursor-pointer items-center justify-center sm:hidden"
-          aria-label={isMobileCollapsed ? 'Mở rộng' : 'Thu gọn'}
+          aria-label={isMobileCollapsed ? expandLabel : collapseLabel}
         >
           <span className="h-1.5 w-12 rounded-full bg-slate-300" />
         </button>
@@ -117,8 +132,24 @@ export default function SlideView({
                 ))}
               </ul>
 
+              {/* Dấu hiệu Xem đủ nếu còn nội dung */}
+              {hasMore && (
+                <div className="pt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsExpanded(true)}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#0b3d91] hover:underline"
+                  >
+                    <span>+{totalCount - 4} ·</span>
+                    <span>{seeAllLabel}</span>
+                    <span>🔍</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Khối code cuộn cả 2 chiều, không mất chữ */}
               {code && (
-                <div className="max-h-32 overflow-hidden rounded-lg opacity-90">
+                <div className="max-h-48 overflow-auto rounded-lg opacity-95">
                   <CodeBlock code={code} />
                 </div>
               )}
@@ -155,12 +186,12 @@ export default function SlideView({
         </div>
       </div>
 
-      {/* 2. Modal phóng to slide giữa màn hình khi người dùng bấm "Phóng to" */}
-      {isExpanded && (
+      {/* 2. Modal phóng to slide giữa màn hình dùng createPortal ra document.body */}
+      {isExpanded && typeof document !== 'undefined' && createPortal(
         <div
           role="alertdialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm sm:p-8"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm sm:p-8"
         >
           <div className="max-h-[90vh] w-full max-w-3xl space-y-4 overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:p-8">
             <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
@@ -176,7 +207,11 @@ export default function SlideView({
               </button>
             </div>
 
-            {code && <CodeBlock code={code} />}
+            {code && (
+              <div className="max-h-80 overflow-auto rounded-lg">
+                <CodeBlock code={code} />
+              </div>
+            )}
 
             <div className="text-sm leading-relaxed sm:text-base sm:leading-loose text-slate-800 whitespace-pre-line">
               {body}
@@ -219,7 +254,8 @@ export default function SlideView({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

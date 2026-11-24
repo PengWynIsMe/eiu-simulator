@@ -222,4 +222,7 @@ export const UI_TEXT = {
   facultyKinhTe: { vi: 'Khoa Kinh tế', en: 'Faculty of Business & Economics' },
   expandSheet: { vi: 'Mở rộng bảng thông tin', en: 'Expand panel' },
   collapseSheet: { vi: 'Thu gọn bảng thông tin', en: 'Collapse panel' },
+  seeAll: { vi: 'Xem đủ', en: 'View all' },
+  expand: { vi: 'Mở rộng', en: 'Expand' },
+  collapse: { vi: 'Thu gọn', en: 'Collapse' },
 } as const satisfies Record<string, LocalizedText>;

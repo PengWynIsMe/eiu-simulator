@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useT } from '../text';
+import { UI_TEXT, useT } from '../text';
 import { useSilver } from '../silver/adapter';
 import { useSilverPresentation } from '../silver/presentation';
 import { useActivityStore } from '../../store/useActivityStore';
@@ -264,6 +264,9 @@ export default function WorldLayer() {
                     compact={true}
                     zoomInLabel={tr(ST_W.zoomSlide)}
                     zoomOutLabel={tr(ST_W.minimizeSlide)}
+                    expandLabel={tr(ST_W.expandNav)}
+                    collapseLabel={tr(ST_W.collapseNav)}
+                    seeAllLabel={tr(UI_TEXT.seeAll)}
                     nextLabel={isLastStep ? tr(ST_W.finish) : tr(ST_W.next)}
                     onNext={play.canContinue ? handleNextClick : undefined}
                   />
