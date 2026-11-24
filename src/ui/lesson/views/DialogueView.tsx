@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useTypewriter } from '../../desktop/useTypewriter';
+import { useDialogueAdvance } from '../../dialogueAdvance';
 
 /** Ảnh đại diện tròn: chữ cái đầu của tên hoặc chữ + màu chỉ định. */
 export function Avatar({
@@ -52,6 +53,7 @@ export interface DialogueViewProps {
   reply?: string | null;
   nextLabel?: string;
   hotkeys?: boolean;
+  disabled?: boolean;
   onChoose?: (optionId: string) => void;
   onNext?: () => void;
 }
@@ -61,6 +63,7 @@ export interface DialogueViewProps {
  * - Dải thấp, mỏng ở đáy, rộng tối đa 640 px.
  * - Mobile (<640px): cao khoảng 30–35% màn hình, cuộn bên trong nếu nhiều dòng.
  * - Lựa chọn câu đáp bố trí hàng gọn hoặc cột phải.
+ * - Hỗ trợ bấm nhanh (click bất kỳ trên khung / cảnh 3D hoặc Enter/Space) qua useDialogueAdvance.
  */
 export default function DialogueView({
   speakerName,
@@ -76,10 +79,22 @@ export default function DialogueView({
   reply = null,
   nextLabel = 'Tiếp ›',
   hotkeys = false,
+  disabled = false,
   onChoose,
   onNext,
 }: DialogueViewProps) {
   const { shown, done, skip } = useTypewriter(text, 30);
+  const hasOptions = options.length > 0;
+  const showNextBtn = Boolean(onNext) && (!hasOptions || selectedOptionId !== null);
+
+  const { hintText } = useDialogueAdvance({
+    isTyping: !done,
+    onSkip: skip,
+    onNext,
+    hasOptions: hasOptions && selectedOptionId === null,
+    canContinue: showNextBtn,
+    disabled,
+  });
 
   useEffect(() => {
     if (!hotkeys || !done || options.length === 0 || selectedOptionId !== null || !onChoose) return;
@@ -98,15 +113,16 @@ export default function DialogueView({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [hotkeys, done, options, selectedOptionId, onChoose]);
 
-  const hasOptions = options.length > 0;
-  const showNextBtn = Boolean(onNext) && (!hasOptions || selectedOptionId !== null);
-
   return (
-    <div className="pointer-events-auto mx-auto w-full max-w-[640px] max-h-[35vh] sm:max-h-none overflow-y-auto rounded-2xl border border-slate-200/90 bg-white/95 p-3 sm:p-4 shadow-2xl backdrop-blur-md">
-      <button
-        type="button"
-        onClick={skip}
-        className="flex w-full cursor-pointer items-start gap-2.5 text-left sm:gap-3"
+    <div
+      data-dialogue-advance="true"
+      className="pointer-events-auto relative mx-auto w-full max-w-[640px] max-h-[35vh] sm:max-h-none overflow-y-auto rounded-2xl border border-slate-200/90 bg-white/95 p-3 sm:p-4 shadow-2xl backdrop-blur-md"
+    >
+      <div
+        role="button"
+        tabIndex={0}
+        data-dialogue-advance="true"
+        className="flex w-full cursor-pointer select-text items-start gap-2.5 text-left focus:outline-none sm:gap-3"
         aria-label={speakerName || undefined}
       >
         {showAvatar && (
@@ -133,7 +149,7 @@ export default function DialogueView({
             {shown}
           </span>
         </span>
-      </button>
+      </div>
 
       {/* Lựa chọn câu đáp: hàng gọn hoặc lưới 2 cột */}
       {hasOptions && (
@@ -145,6 +161,7 @@ export default function DialogueView({
               <button
                 key={o.id}
                 type="button"
+                data-dialogue-option="true"
                 disabled={selectedOptionId !== null}
                 onClick={() => onChoose?.(o.id)}
                 className={`min-h-[44px] flex-1 rounded-xl border-2 px-3.5 py-1.5 text-xs font-semibold transition sm:text-sm active:scale-95 ${
@@ -167,23 +184,21 @@ export default function DialogueView({
         <p className="mt-2.5 rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-700 sm:text-sm">{reply}</p>
       )}
 
-      {showNextBtn && (
-        <div className={`mt-2.5 flex justify-end ${done || hasOptions ? '' : 'invisible'}`}>
+      {/* Chân khung thoại: Gợi ý nhỏ ở góc (Chạm để hiện hết / Chạm để tiếp) + Nút Tiếp */}
+      <div className="mt-2.5 flex min-h-[38px] items-center justify-between gap-2">
+        <span className="text-[11px] font-medium text-slate-400 select-none">
+          {hintText}
+        </span>
+        {showNextBtn && (
           <button
             type="button"
-            onClick={() => {
-              if (!done && !hasOptions) {
-                skip();
-                return;
-              }
-              onNext?.();
-            }}
+            data-dialogue-advance="true"
             className="min-h-[44px] rounded-xl bg-[#f5b700] px-5 text-xs font-bold text-slate-900 shadow hover:brightness-105 active:scale-95 sm:min-h-[38px] sm:px-6 sm:text-sm"
           >
             {nextLabel}
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
