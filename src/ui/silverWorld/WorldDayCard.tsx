@@ -38,7 +38,7 @@ export default function WorldDayCard() {
   const lastChapterRef = useRef<string | null>(null);
   const lastSceneIdRef = useRef<string | null>(null);
 
-  // Quản lý timer tự tắt 1,8s (1,2s in + 0,6s out) bền vững với StrictMode
+  // Quản lý timer tự tắt 1,8s (1,2s in + 0,6s out) bền vững với StrictMode và đổi cảnh lúc đang mờ
   useEffect(() => {
     if (!activeCard) {
       setFadeState('hidden');
@@ -46,16 +46,21 @@ export default function WorldDayCard() {
     }
 
     setFadeState('in');
+    let timerHide: ReturnType<typeof setTimeout> | null = null;
     const timerOut = setTimeout(() => {
       setFadeState('out');
-      const timerHide = setTimeout(() => {
+      timerHide = setTimeout(() => {
         setFadeState('hidden');
         setActiveCard(null);
       }, 600);
-      return () => clearTimeout(timerHide);
     }, 1200);
 
-    return () => clearTimeout(timerOut);
+    return () => {
+      clearTimeout(timerOut);
+      if (timerHide) {
+        clearTimeout(timerHide);
+      }
+    };
   }, [activeCard]);
 
   useEffect(() => {
