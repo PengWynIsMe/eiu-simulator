@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { getBuilding, getBuildingDetail, getMajor, getMajorsOfBuilding } from '../data';
 import { useCampusStore } from '../store/useCampusStore';
+import { useWalkStore } from '../store/useWalkStore';
 import type { Building, BuildingDetail, RoomEntry } from '../types';
 import { useLangStore } from '../store/useLangStore';
 import MajorPicker from './major/MajorPicker';
 import MajorView from './major/MajorView';
+import { b4LocalToWorld, b4WalkYaw } from './interior/libraryTourData';
 import { UI_TEXT, useT } from './text';
 
 function RoomList({ rooms }: { rooms: readonly RoomEntry[] }) {
@@ -230,7 +232,32 @@ function PanelContent({
         )}
       </div>
 
-      <div className="border-t border-white/10 px-4 py-2.5">
+      <div className="space-y-2 border-t border-white/10 px-4 py-2.5">
+        {building.id === 'b4' && (
+          <button
+            type="button"
+            onClick={() => {
+              useCampusStore.getState().clearSelection();
+              if (!useWalkStore.getState().walkMode) {
+                useWalkStore.getState().toggleWalkMode();
+              }
+              requestAnimationFrame(() => {
+                useWalkStore.getState().enterInterior('b4');
+                const [x, z] = b4LocalToWorld(64.2, 14.0);
+                const yaw = b4WalkYaw(-1, 0);
+                requestAnimationFrame(() => {
+                  window.dispatchEvent(
+                    new CustomEvent('campussim:set-player-pose', { detail: { x, z, y: 0, yaw } })
+                  );
+                  useWalkStore.getState().setPlayerPos({ x, z, y: 0, floor: 1 });
+                });
+              });
+            }}
+            className="w-full rounded-xl bg-[#A88753] py-2.5 text-xs font-bold text-white shadow-lg transition hover:bg-[#967643]"
+          >
+            {tr(UI_TEXT.enterLibrary3d)}
+          </button>
+        )}
         <button
           type="button"
           onClick={onClose}
