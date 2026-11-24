@@ -9,6 +9,8 @@ import { useSilverStore } from './store/useSilverStore';
 import { useActivityStore } from './store/useActivityStore';
 import { useWalkStore } from './store/useWalkStore';
 import { isSubscribableSilver, isWorldActive } from './ui/silverWorld/directorBridge';
+import { onPresentationChange } from './ui/silver/presentation';
+import { departureManager } from './scene/silver/departureState';
 import './index.css';
 
 startLessonBridge(b11ToWorld);
@@ -22,8 +24,7 @@ const silverStore = silverCandidate;
 let stopDirector: (() => void) | null = null;
 const syncDirector = () => {
   const s = silverStore.getState();
-  const sceneId = s.screen === 'play' ? s.play?.item.scene?.id ?? s.play?.item.id ?? null : null;
-  const worldActive = isWorldActive(s.screen, sceneId);
+  const worldActive = isWorldActive(s.screen);
 
   if (worldActive && !stopDirector) {
     stopDirector = startDirector({
@@ -40,9 +41,16 @@ const syncDirector = () => {
       useActivityStore.getState().end();
     }
   }
+
+  // Tách hành động bật walkMode ra nơi gọi khi vào màn play ở chế độ 3D world
+  if (worldActive && s.screen === 'play' && !useWalkStore.getState().walkMode) {
+    useWalkStore.setState({ walkMode: true });
+  }
 };
 
 silverStore.subscribe(syncDirector);
+onPresentationChange(syncDirector);
+departureManager.subscribeToStore(silverStore);
 syncDirector();
 
 // Chỉ chạy ở `npm run dev`: lộ store + renderer để kiểm tay / đo draw call bằng eval trong trình duyệt (build thật không có).
@@ -60,6 +68,8 @@ if (import.meta.env.DEV) {
       lesson: lesson.useLessonStore,
       snow: snow.useSnowStore,
       lang: lang.useLangStore,
+      silver: silverStore,
+      activity: useActivityStore,
     };
   });
 }

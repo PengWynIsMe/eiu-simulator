@@ -17,6 +17,7 @@ import Order from '../silver/steps/Order';
 import WorldNavigationCard from './WorldNavigationCard';
 import WorldDesktop from './WorldDesktop';
 import HomeExtraSlot from './HomeExtraSlot';
+import WorldDayCard from './WorldDayCard';
 import { fmt, ST_W } from './text';
 
 /**
@@ -101,6 +102,7 @@ export default function WorldLayer() {
   return (
     <>
       <HomeExtraSlot />
+      <WorldDayCard />
 
       {/* Thanh trên: tên cảnh, môn học, tiến độ, ngôn ngữ, âm thanh, nút Đứng dậy, Thoát */}
       <header data-world-layer="true" className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between gap-1 p-1.5 sm:gap-2 sm:p-4">

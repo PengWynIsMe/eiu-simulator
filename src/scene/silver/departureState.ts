@@ -12,6 +12,8 @@
  *    - Nếu nhân vật đang là người nói ở bước cuối: ở lại, không rời đi khi đang nói.
  */
 
+import { useSyncExternalStore } from 'react';
+
 export interface DepartureSessionKeyParams {
   screen: string;
   chapterId?: string | null;
@@ -86,12 +88,33 @@ class DepartureManager {
   private currentTurnIndex = 0;
   private lastPlayItemId: string | null = null;
   private lastScreen: string = 'closed';
+  private currentSessionKey: string | null = null;
+  private listeners = new Set<() => void>();
+  private unsubscribeStore: (() => void) | null = null;
+
+  public getSessionKey(): string | null {
+    return this.currentSessionKey;
+  }
+
+  public onSessionChange(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  private notify(): void {
+    for (const fn of this.listeners) {
+      fn();
+    }
+  }
 
   /**
    * Cập nhật thông tin session dựa trên trạng thái SilverStore.
    * Tăng turnIndex khi vào lại play từ ngoài hoặc đổi itemId.
    */
   public updateSession(screen: string, chapterId: string | null, itemId: string | null): string | null {
+    let nextKey: string | null = null;
     if (screen !== 'play') {
       // Thoát lượt (home, closed, etc.): xóa toàn bộ trạng thái đã lưu
       if (this.lastScreen === 'play') {
@@ -99,25 +122,60 @@ class DepartureManager {
         this.lastPlayItemId = null;
       }
       this.lastScreen = screen;
-      return null;
+      nextKey = null;
+    } else {
+      // Khi ở màn hình 'play'
+      const isNewItem = itemId !== this.lastPlayItemId;
+      const isEnterFromOutside = this.lastScreen !== 'play';
+
+      if (isEnterFromOutside || isNewItem) {
+        this.currentTurnIndex += 1;
+        this.lastPlayItemId = itemId;
+      }
+
+      this.lastScreen = screen;
+      nextKey = computeSessionKey({
+        screen,
+        chapterId,
+        itemId,
+        turnIndex: this.currentTurnIndex,
+      });
     }
 
-    // Khi ở màn hình 'play'
-    const isNewItem = itemId !== this.lastPlayItemId;
-    const isEnterFromOutside = this.lastScreen !== 'play';
+    if (nextKey !== this.currentSessionKey) {
+      this.currentSessionKey = nextKey;
+      this.notify();
+    }
+    return this.currentSessionKey;
+  }
 
-    if (isEnterFromOutside || isNewItem) {
-      this.currentTurnIndex += 1;
-      this.lastPlayItemId = itemId;
+  /**
+   * Nghe store của Silver ở nơi luôn chạy (subscription dùng chung, có hủy).
+   */
+  public subscribeToStore(store: {
+    getState: () => { screen: string; play?: { chapterId?: string | null; item?: { id: string } | null } | null };
+    subscribe: (fn: () => void) => () => void;
+  }): () => void {
+    if (this.unsubscribeStore) {
+      this.unsubscribeStore();
+      this.unsubscribeStore = null;
     }
 
-    this.lastScreen = screen;
-    return computeSessionKey({
-      screen,
-      chapterId,
-      itemId,
-      turnIndex: this.currentTurnIndex,
-    });
+    const onStateChange = () => {
+      const s = store.getState();
+      const screen = s.screen;
+      const chapterId = s.play?.chapterId ?? null;
+      const itemId = s.play?.item?.id ?? null;
+      this.updateSession(screen, chapterId, itemId);
+    };
+
+    onStateChange();
+    const unsub = store.subscribe(onStateChange);
+    this.unsubscribeStore = () => {
+      unsub();
+      this.unsubscribeStore = null;
+    };
+    return this.unsubscribeStore;
   }
 
   /**
@@ -150,7 +208,20 @@ class DepartureManager {
     this.currentTurnIndex = 0;
     this.lastPlayItemId = null;
     this.lastScreen = 'closed';
+    this.currentSessionKey = null;
+    this.notify();
   }
 }
 
 export const departureManager = new DepartureManager();
+
+/**
+ * Hook đọc sessionKey rời đi cho component React, không chứa side-effect trong useMemo.
+ */
+export function useDepartureSessionKey(): string | null {
+  return useSyncExternalStore(
+    (onStoreChange) => departureManager.onSessionChange(onStoreChange),
+    () => departureManager.getSessionKey(),
+    () => null,
+  );
+}

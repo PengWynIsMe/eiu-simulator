@@ -21,25 +21,73 @@ let userMode: SilverPresentationMode = readStoredUserMode();
 let webglLost = false;
 const listeners = new Set<() => void>();
 
+let presentationSnapshot = { userMode, webglLost };
+const SSR_SNAPSHOT = { userMode: 'world' as SilverPresentationMode, webglLost: false };
+
 function notify(): void {
+  presentationSnapshot = { userMode, webglLost };
   for (const fn of listeners) {
     fn();
   }
 }
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('webglcontextlost', () => {
+/**
+ * Đăng ký listener khi presentation mode hoặc webglLost thay đổi.
+ */
+export function onPresentationChange(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+/**
+ * Gắn listener trực tiếp vào canvas element vì webglcontextlost không bubble lên window.
+ */
+export function attachWebglCanvas(canvas: HTMLCanvasElement): () => void {
+  const onLost = () => {
     webglLost = true;
     notify();
-  });
-  window.addEventListener('webglcontextrestored', () => {
+  };
+  const onRestored = () => {
     webglLost = false;
     notify();
-  });
+  };
+  canvas.addEventListener('webglcontextlost', onLost);
+  canvas.addEventListener('webglcontextrestored', onRestored);
+  return () => {
+    canvas.removeEventListener('webglcontextlost', onLost);
+    canvas.removeEventListener('webglcontextrestored', onRestored);
+  };
+}
+
+if (typeof window !== 'undefined') {
+  // Bắt ở capture phase trên window phòng trường hợp sự kiện phát từ canvas
+  window.addEventListener(
+    'webglcontextlost',
+    () => {
+      webglLost = true;
+      notify();
+    },
+    true,
+  );
+  window.addEventListener(
+    'webglcontextrestored',
+    () => {
+      webglLost = false;
+      notify();
+    },
+    true,
+  );
 }
 
 export function isWebglContextLost(): boolean {
   return webglLost;
+}
+
+export function setWebglContextLostForTest(lost: boolean): void {
+  webglLost = lost;
+  notify();
 }
 
 export function getSilverUserMode(): SilverPresentationMode {
@@ -62,7 +110,7 @@ export function setSilverUserMode(mode: SilverPresentationMode): void {
   notify();
 }
 
-export function useSilverUserMode(): SilverPresentationMode {
+export function useSilverPresentationState(): { userMode: SilverPresentationMode; webglLost: boolean } {
   return useSyncExternalStore(
     (onStoreChange) => {
       listeners.add(onStoreChange);
@@ -70,9 +118,13 @@ export function useSilverUserMode(): SilverPresentationMode {
         listeners.delete(onStoreChange);
       };
     },
-    () => userMode,
-    () => 'world',
+    () => presentationSnapshot,
+    () => SSR_SNAPSHOT,
   );
+}
+
+export function useSilverUserMode(): SilverPresentationMode {
+  return useSilverPresentationState().userMode;
 }
 
 /**
@@ -80,15 +132,15 @@ export function useSilverUserMode(): SilverPresentationMode {
  * - Mặc định luôn là 'world' (3D).
  * - 'overlay' (2D) khi:
  *   1. Người chơi chọn "Chơi nhanh 2D" (localStorage['campussim.silver.mode'] === 'overlay')
- *   2. WebGL context bị mất
+ *   2. WebGL context bị mất (tự động re-render khi webglLost thay đổi)
  *   3. Đang ở màn screen === 'play' nhưng cảnh hiện tại chưa có stage/phòng khả dụng (lùi 2D riêng cảnh đó).
  */
 export function useSilverPresentation(): { mode: SilverPresentationMode } {
-  const currentMode = useSilverUserMode();
+  const { userMode: currentMode, webglLost: isLost } = useSilverPresentationState();
   const screen = useSilver((s) => s.screen);
   const sceneId = useSilver((s) => (s.screen === 'play' ? s.play?.item.scene?.id ?? s.play?.item.id ?? null : null));
 
-  if (currentMode === 'overlay' || webglLost) {
+  if (currentMode === 'overlay' || isLost) {
     return { mode: 'overlay' };
   }
   if (screen === 'play') {

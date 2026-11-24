@@ -10,7 +10,7 @@ import { useLangStore } from '../../store/useLangStore';
 import { useSilverStore } from '../../store/useSilverStore';
 import type { Classroom } from '../../types';
 import type { ClassSignal, StageActor, StageSpec } from '../../types/silverWorld';
-import { departureManager, shouldTriggerDeparture } from './departureState';
+import { departureManager, shouldTriggerDeparture, useDepartureSessionKey } from './departureState';
 
 const SPEAKER_NAMES: Record<string, { vi: string; en: string }> = {
   han: { vi: 'Han', en: 'Han' },
@@ -63,6 +63,15 @@ function getDepartureConfig(sceneId: string, speaker: string): {
       speed: 1.5,
     };
   }
+  if (sceneId === '2.2/opening' && speaker === 'quyen') {
+    // Quyền đi về thang máy sau 2.2/opening (đi thẳng 4 m rồi ẩn)
+    return {
+      key: `${sceneId}:${speaker}`,
+      dir: [-0.22663, -0.97398], // Hướng Bắc dọc trục hành lang B8 về phía thang máy
+      maxDist: 4.0,
+      speed: 1.4,
+    };
+  }
   return null;
 }
 
@@ -76,11 +85,7 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
     return getDepartureConfig(stage.sceneId, actor.speaker);
   }, [stage.sceneId, actor.speaker]);
 
-  const screen = useSilverStore((s) => s.screen);
-  const play = useSilverStore((s) => s.play);
-  const sessionKey = useMemo(() => {
-    return departureManager.updateSession(screen, play?.chapterId ?? null, play?.item.id ?? null);
-  }, [screen, play?.chapterId, play?.item.id]);
+  const sessionKey = useDepartureSessionKey();
 
   // Nếu diễn viên này đã hoàn thành rời đi ở lượt chơi này, không render lại
   const alreadyDeparted = departConfig ? departureManager.isCompleted(sessionKey, departConfig.key) : false;
@@ -250,23 +255,27 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
     }
 
     // 3. Cử chỉ riêng cho Han: giơ tay một lần khi cảnh bắt đầu, phản ứng yes khi đúng bài tập
+    // Trong chế độ exam: không cử chỉ báo đáp án
+    const isExam = stage.sceneId.toLowerCase().includes('exam') || signal.stepKey.toLowerCase().includes('exam');
     if (actor.speaker === 'han') {
-      if (!hasRaisedHandRef.current) {
-        hasRaisedHandRef.current = true;
-        isRaisingRef.current = true;
-        raiseStartRef.current = now;
-        handle.current?.playUpper('raiseHand', { loop: false, timeScale: 0.6 });
-      }
-      if (isRaisingRef.current && now - raiseStartRef.current > 1.8) {
-        isRaisingRef.current = false;
-        handle.current?.stopUpper();
-      }
+      if (!isExam) {
+        if (!hasRaisedHandRef.current) {
+          hasRaisedHandRef.current = true;
+          isRaisingRef.current = true;
+          raiseStartRef.current = now;
+          handle.current?.playUpper('raiseHand', { loop: false, timeScale: 0.6 });
+        }
+        if (isRaisingRef.current && now - raiseStartRef.current > 1.8) {
+          isRaisingRef.current = false;
+          handle.current?.stopUpper();
+        }
 
-      if (signal.result && signal.result.id !== seenResultIdRef.current) {
-        seenResultIdRef.current = signal.result.id;
-        if (signal.result.correct && signal.mode === 'exercise') {
-          handle.current?.playUpper('yes');
-          nextTypingRef.current = now + 4;
+        if (signal.result && signal.result.id !== seenResultIdRef.current) {
+          seenResultIdRef.current = signal.result.id;
+          if (signal.result.correct && signal.mode === 'exercise') {
+            handle.current?.playUpper('yes');
+            nextTypingRef.current = now + 4;
+          }
         }
       }
 

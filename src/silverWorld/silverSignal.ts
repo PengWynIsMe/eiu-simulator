@@ -1,6 +1,7 @@
 import type { Lang } from '../types';
 import type { Feedback, PlayView, SpeakerId } from '../types/silver';
 import type { ClassSignal } from '../types/silverWorld';
+import { getCourse } from '../data/silver/catalog';
 
 export const DEFAULT_IDLE_SIGNAL: ClassSignal = {
   mode: 'idle',
@@ -60,7 +61,16 @@ export function toClassSignal(
     code: step.code,
   } : null;
 
-  const coverTitle = view.item.scene?.title[lang] ?? view.item.courseCode ?? 'CampusSim';
+  // Phòng lý thuyết: bìa TV = tên môn theo ngôn ngữ (các phòng khác giữ tên cảnh)
+  const isTheory = view.item.meeting?.kind === 'theoryA'
+    || view.item.meeting?.kind === 'theoryB'
+    || view.item.scene?.id.includes('theory')
+    || view.item.id.includes('theory');
+  const course = view.item.courseCode ? getCourse(view.item.courseCode) : undefined;
+  const courseName = course ? course.name[lang] : undefined;
+  const coverTitle = (isTheory && courseName)
+    ? courseName
+    : (view.item.scene?.title[lang] ?? courseName ?? view.item.courseCode ?? 'CampusSim');
   const coverSubtitle = view.item.courseCode ?? view.chapterId;
 
   return {
