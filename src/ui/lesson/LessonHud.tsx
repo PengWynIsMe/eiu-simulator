@@ -5,6 +5,9 @@ import { useWalkStore } from '../../store/useWalkStore';
 import { TEXT } from '../text';
 import { useLessonUi } from './lessonUi';
 import MuteButton from './MuteButton';
+import ActionPrompt from '../ActionPrompt';
+
+const STORAGE_KEY = 'campussim:lesson-nav-expanded';
 
 /** Thẻ lịch học (pha idle), mở từ nút "Buổi học" ở TopBar. */
 export function LessonStarter() {
@@ -75,11 +78,11 @@ export function LessonStarter() {
   );
 }
 
-/** Mũi tên la bàn: Bắc bản đồ = hướng lên màn hình (chưa có hướng camera trong store). */
-function Compass({ dx, dz }: { dx: number; dz: number }) {
+/** Mũi tên la bàn: Bắc bản đồ = hướng lên màn hình. */
+function Compass({ dx, dz, size = 40 }: { dx: number; dz: number; size?: number }) {
   const deg = (Math.atan2(dx, -dz) * 180) / Math.PI;
   return (
-    <svg viewBox="0 0 40 40" className="h-10 w-10 shrink-0" aria-hidden="true">
+    <svg viewBox="0 0 40 40" style={{ width: size, height: size }} className="shrink-0 select-none" aria-hidden="true">
       <circle cx="20" cy="20" r="18" fill="#0b3d91" opacity="0.1" stroke="#0b3d91" strokeWidth="1.5" />
       <text x="20" y="8" textAnchor="middle" fontSize="7" fill="#0b3d91" fontWeight="700">
         B
@@ -91,12 +94,37 @@ function Compass({ dx, dz }: { dx: number; dz: number }) {
   );
 }
 
-/** Thẻ nhỏ góc trên-trái: lịch + la bàn (goToClass) hoặc gợi ý ngồi (findSeat). */
+/**
+ * Thẻ nhỏ góc trên-trái:
+ * - Mặc định gập 1 dòng: phòng · số mét · la bàn.
+ * - Mở rộng: lịch học, la bàn lớn, số mét, nút "Tới lớp ngay".
+ * - Nhớ trạng thái gập/mở trong localStorage (bọc try/catch).
+ */
 export default function LessonHud() {
   const lessonId = useLessonStore((s) => s.lessonId);
   const phase = useLessonStore((s) => s.phase);
   const pos = useWalkStore((s) => s.playerPos);
   const [seatPrompt, setSeatPrompt] = useState(false);
+  const [expanded, setExpanded] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleExpanded = () => {
+    setExpanded((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(STORAGE_KEY, String(next));
+      } catch {
+        // bỏ qua lỗi storage
+      }
+      return next;
+    });
+  };
+
   const lesson = lessonId ? getLesson(lessonId) : undefined;
   const room = lesson ? getClassroom(lesson.roomCode) : undefined;
 
@@ -121,44 +149,77 @@ export default function LessonHud() {
   return (
     <>
       {phase === 'findSeat' && seatPrompt && (
-        <button
-          type="button"
-          className="fixed bottom-24 right-6 z-50 min-h-[48px] rounded-xl bg-[#f5b700] px-5 py-3 font-bold text-slate-900 shadow-lg [@media(pointer:fine)]:hidden"
-          onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e' }))}
+        <ActionPrompt
+          label="Ngồi"
+          hotkey="E"
+          onAction={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e' }))}
+          touchPosition="bottom-right"
+        />
+      )}
+
+      {!expanded ? (
+        /* Dạng gập 1 dòng */
+        <div
+          onClick={toggleExpanded}
+          className="flex max-w-[calc(100vw-1.5rem)] cursor-pointer select-none items-center gap-2 rounded-xl border border-white/70 bg-white/95 px-3 py-1.5 shadow-lg backdrop-blur-md transition-all hover:bg-white active:scale-95"
+          title="Mở rộng"
         >
-          Ngồi (E)
-        </button>
-      )}
-    <div className="w-64 space-y-2 rounded-2xl bg-white/95 p-3 shadow-xl backdrop-blur-sm">
-      <div className="text-sm font-semibold text-slate-800">
-        {lesson.time} · {lesson.course} · {room.code}
-      </div>
-      {phase === 'goToClass' && (
-        <>
-          <div className="flex items-center gap-3">
-            <Compass dx={dx} dz={dz} />
-            <div className="text-sm text-slate-600">
-              {TEXT.lessonDistanceLeft} <b className="text-slate-900">{distance} m</b>
-              {wrongFloor && (
-                <div className="text-xs text-amber-700">
-                  {TEXT.lessonGoToFloor} {room.floor}
-                </div>
-              )}
+          <Compass dx={dx} dz={dz} size={24} />
+          <span className="truncate max-w-[140px] text-xs font-bold text-[#0b3d91] sm:max-w-[180px]">
+            {room.code}
+          </span>
+          <span className="text-xs font-semibold text-slate-600 border-l border-slate-200 pl-2">
+            {distance} m
+          </span>
+          <span className="text-xs text-slate-400">▾</span>
+        </div>
+      ) : (
+        /* Dạng mở rộng đầy đủ */
+        <div className="w-64 space-y-2 rounded-2xl border border-white/70 bg-white/95 p-3.5 shadow-xl backdrop-blur-sm">
+          <div className="flex items-start justify-between gap-2">
+            <div className="text-sm font-semibold text-slate-800">
+              {lesson.time} · {lesson.course} · {room.code}
             </div>
+            <button
+              type="button"
+              onClick={toggleExpanded}
+              className="flex h-6 w-6 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              title="Thu gọn"
+            >
+              ▴
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => useLessonStore.getState().arriveAtClass()}
-            className="min-h-[44px] w-full rounded-xl bg-[#f5b700] text-sm font-bold text-slate-900 hover:brightness-105"
-          >
-            {TEXT.lessonArriveNow}
-          </button>
-        </>
+
+          {phase === 'goToClass' && (
+            <>
+              <div className="flex items-center gap-3 border-t border-slate-100 pt-2">
+                <Compass dx={dx} dz={dz} size={36} />
+                <div className="flex-1 text-sm text-slate-600">
+                  {TEXT.lessonDistanceLeft} <b className="text-slate-900">{distance} m</b>
+                  {wrongFloor && (
+                    <div className="text-xs font-semibold text-amber-700">
+                      {TEXT.lessonGoToFloor} {room.floor}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => useLessonStore.getState().arriveAtClass()}
+                className="min-h-[44px] w-full rounded-xl bg-[#f5b700] text-sm font-bold text-slate-900 shadow hover:brightness-105 active:scale-95"
+              >
+                {TEXT.lessonArriveNow}
+              </button>
+            </>
+          )}
+
+          {phase === 'findSeat' && (
+            <p className="border-t border-slate-100 pt-2 text-sm text-slate-600">
+              {TEXT.lessonFindSeatHint}
+            </p>
+          )}
+        </div>
       )}
-      {phase === 'findSeat' && (
-        <p className="text-sm text-slate-600">{TEXT.lessonFindSeatHint}</p>
-      )}
-    </div>
     </>
   );
 }
