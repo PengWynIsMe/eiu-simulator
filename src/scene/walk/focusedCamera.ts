@@ -1,24 +1,29 @@
 export interface WallLine {
-  p1x?: number;
-  p1z?: number;
-  p2x?: number;
-  p2z?: number;
-  x1?: number;
-  z1?: number;
-  x2?: number;
-  z2?: number;
+  p1x: number;
+  p1z: number;
+  p2x: number;
+  p2z: number;
 }
 
 export interface FocusedCameraParams {
   playerPos: readonly [number, number, number];
   targetPos: readonly [number, number, number];
   wallLines?: readonly WallLine[];
+  /** Kiểm tra tia nhìn từ camera tới mặt nhân vật có bị che bởi vật cản 3D (cột, thân cây...) hay không */
+  isObstacleBetween?: (from: [number, number, number], to: [number, number, number]) => boolean;
 }
 
 export interface FocusedCameraResult {
   camPos: [number, number, number];
   lookAt: [number, number, number];
 }
+
+/** Chiều cao mắt thật của model nhân vật chibi (scale 2.0) */
+export const CHIBI_EYE_HEIGHT = 1.05;
+/** Điểm nhìn ngang ngực để tâm mặt nằm ở 35–45% chiều cao màn hình (FOV 45°) */
+export const CHIBI_LOOK_HEIGHT = 0.87;
+/** Khoảng cách chuẩn quan sát nhân vật chibi (2.0–2.4 m) */
+export const DIALOGUE_CAMERA_DIST = 2.2;
 
 /** Kiểm tra giao điểm giữa 2 đoạn thẳng 2D trên mặt phẳng X-Z. */
 export function lineSegmentsIntersect(
@@ -34,55 +39,69 @@ export function lineSegmentsIntersect(
 }
 
 /**
- * Camera nói chuyện góc nhìn thứ nhất (nhìn bằng mắt người chơi):
- * - Mắt người chơi: cao 1.5 m so với sàn người chơi đứng.
- * - Điểm nhìn (lookAt): vào mặt người nói, cao 1.3 m so với sàn người nói.
- * - Khoảng cách: nếu gần hơn 1.6 m thì lùi camera tối đa tới 1.8 m (khoảng 1.6–2.0 m) nhưng không xuyên tường.
+ * Camera nói chuyện góc nhìn thứ nhất (nhìn bằng mắt thật của nhân vật chibi):
+ * - Camera cao bằng mắt thật: cao 1.05 m so với sàn người chơi đứng.
+ * - Điểm nhìn (lookAt): cao 0.87 m so với sàn người nói để tâm mặt ở 35–45% chiều cao màn.
+ * - Khoảng cách: 2.0–2.4 m (chuẩn 2.2 m).
+ * - Tránh vật cản (cột, thân cây che mặt): xoay quanh người nói theo từng 20 độ tới 120 độ,
+ *   chọn góc đầu tiên thông; trong nhà vẫn không xuyên tường.
  */
 export function selectFocusedCameraPosition({
   playerPos,
   targetPos,
   wallLines = [],
+  isObstacleBetween,
 }: FocusedCameraParams): FocusedCameraResult {
-  const lookAt: [number, number, number] = [targetPos[0], targetPos[1] + 1.3, targetPos[2]];
-  const eyeY = playerPos[1] + 1.5;
+  const lookAt: [number, number, number] = [targetPos[0], targetPos[1] + CHIBI_LOOK_HEIGHT, targetPos[2]];
+  const targetFace: [number, number, number] = [targetPos[0], targetPos[1] + CHIBI_EYE_HEIGHT, targetPos[2]];
+  const eyeY = playerPos[1] + CHIBI_EYE_HEIGHT;
 
   const dx = playerPos[0] - targetPos[0];
   const dz = playerPos[2] - targetPos[2];
   const dist = Math.hypot(dx, dz);
+  const baseAngle = dist > 1e-4 ? Math.atan2(dx, dz) : 0;
+  const desiredDist = DIALOGUE_CAMERA_DIST;
 
-  if (dist >= 1.6) {
-    return { camPos: [playerPos[0], eyeY, playerPos[2]], lookAt };
-  }
+  // Các góc lệch thử nghiệm: 0°, 20°, -20°, 40°, -40°... tới 120°, -120°
+  const angleOffsetsDeg = [0, 20, -20, 40, -40, 60, -60, 80, -80, 100, -100, 120, -120];
 
-  const dirX = dist > 1e-4 ? dx / dist : 0;
-  const dirZ = dist > 1e-4 ? dz / dist : 1;
-  const desiredDist = 1.8;
+  let fallbackCamPos: [number, number, number] | null = null;
 
-  let chosenDist = desiredDist;
-  const startX = playerPos[0];
-  const startZ = playerPos[2];
-  const endX = targetPos[0] + dirX * desiredDist;
-  const endZ = targetPos[2] + dirZ * desiredDist;
+  for (const offsetDeg of angleOffsetsDeg) {
+    const angle = baseAngle + (offsetDeg * Math.PI) / 180;
+    const camX = targetPos[0] + desiredDist * Math.sin(angle);
+    const camZ = targetPos[2] + desiredDist * Math.cos(angle);
+    const candidateCamPos: [number, number, number] = [camX, eyeY, camZ];
 
-  // Kiểm tra va chạm với tường/lan can trên đường lùi
-  for (const w of wallLines) {
-    const wx1 = w.p1x ?? w.x1 ?? 0;
-    const wz1 = w.p1z ?? w.z1 ?? 0;
-    const wx2 = w.p2x ?? w.x2 ?? 0;
-    const wz2 = w.p2z ?? w.z2 ?? 0;
-    if (lineSegmentsIntersect(startX, startZ, endX, endZ, wx1, wz1, wx2, wz2)) {
-      // Có tường cản: không lùi qua tường, giữ nguyên vị trí mắt an toàn
-      chosenDist = dist;
-      break;
+    // 1. Kiểm tra va chạm với tường trong nhà (đoạn nối camPos -> targetPos không cắt tường)
+    let hitsWall = false;
+    for (const w of wallLines) {
+      if (lineSegmentsIntersect(camX, camZ, targetPos[0], targetPos[2], w.p1x, w.p1z, w.p2x, w.p2z)) {
+        hitsWall = true;
+        break;
+      }
     }
+    if (hitsWall) continue;
+
+    // Lưu candidate đầu tiên không xuyên tường làm fallback nếu mọi góc đều bị cây/cột che
+    if (!fallbackCamPos) {
+      fallbackCamPos = candidateCamPos;
+    }
+
+    // 2. Kiểm tra vật cản 3D (cột, thân cây) chắn tia nhìn từ camera tới mặt người nói
+    if (isObstacleBetween && isObstacleBetween(candidateCamPos, targetFace)) {
+      continue;
+    }
+
+    // Góc này hoàn toàn thông suốt!
+    return { camPos: candidateCamPos, lookAt };
   }
 
-  const camPos: [number, number, number] = [
-    targetPos[0] + dirX * chosenDist,
-    eyeY,
-    targetPos[2] + dirZ * chosenDist,
-  ];
+  // Nếu mọi góc đều bị che, dùng vị trí fallback không xuyên tường đầu tiên
+  if (fallbackCamPos) {
+    return { camPos: fallbackCamPos, lookAt };
+  }
 
-  return { camPos, lookAt };
+  // Fallback an toàn tuyệt đối tại vị trí hiện tại của người chơi
+  return { camPos: [playerPos[0], eyeY, playerPos[2]], lookAt };
 }

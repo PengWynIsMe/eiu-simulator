@@ -1,53 +1,74 @@
 export default {
-  'focused camera: cao do mat nguoi choi 1.5m va mat nguoi noi 1.3m'({ assert, load }) {
+  'focused camera: cao do mat nguoi choi 1.05m va diem nhin 0.87m'({ assert, load }) {
     return load('/src/scene/walk/focusedCamera.ts').then(({ selectFocusedCameraPosition }) => {
       const playerPos = [20.0, 3.8, 10.0];
       const targetPos = [20.0, 3.8, 12.0];
 
       const result = selectFocusedCameraPosition({ playerPos, targetPos });
 
-      // Camera ở mắt người chơi: cao 1.5 m so với sàn
-      assert.equal(result.camPos[1], 3.8 + 1.5);
-      // Điểm nhìn: vào mặt người nói, cao 1.3 m so với sàn người nói
-      assert.equal(result.lookAt[1], 3.8 + 1.3);
+      // Camera ở mắt người chơi: cao 1.05 m so với sàn người chơi
+      assert.equal(Math.round(result.camPos[1] * 100) / 100, 3.8 + 1.05);
+      // Điểm nhìn: cao 0.87 m so với sàn người nói để tâm mặt ở 35-45% chiều cao màn
+      assert.equal(Math.round(result.lookAt[1] * 100) / 100, 3.8 + 0.87);
       assert.equal(result.lookAt[0], 20.0);
       assert.equal(result.lookAt[2], 12.0);
     });
   },
 
-  'focused camera: khoang cach >= 1.6m giu nguyen mat nguoi choi, < 1.6m lui toi 1.8m'({ assert, load }) {
+  'focused camera: khoang cach chuan 2.2m (trong khoang 2.0-2.4m)'({ assert, load }) {
     return load('/src/scene/walk/focusedCamera.ts').then(({ selectFocusedCameraPosition }) => {
-      // Trường hợp 1: Người nói cách 2.0 m (>= 1.6 m)
       const p1 = [10.0, 0, 10.0];
       const t1 = [10.0, 0, 12.0];
       const r1 = selectFocusedCameraPosition({ playerPos: p1, targetPos: t1 });
-      assert.equal(r1.camPos[0], 10.0);
-      assert.equal(r1.camPos[2], 10.0);
-
-      // Trường hợp 2: Người nói cách 1.0 m (< 1.6 m)
-      const p2 = [10.0, 0, 11.0];
-      const t2 = [10.0, 0, 12.0];
-      const r2 = selectFocusedCameraPosition({ playerPos: p2, targetPos: t2 });
-      const dist2 = Math.hypot(r2.camPos[0] - t2[0], r2.camPos[2] - t2[2]);
-      // Lùi tối đa tới 1.8 m (nằm trong 1.6–2.0 m)
-      assert.ok(dist2 >= 1.6 && dist2 <= 2.0, `dist ${dist2} outside 1.6-2.0m`);
-      assert.equal(Math.round(dist2 * 10) / 10, 1.8);
+      const dist = Math.hypot(r1.camPos[0] - t1[0], r1.camPos[2] - t1[2]);
+      assert.ok(dist >= 2.0 && dist <= 2.4, `dist ${dist} outside 2.0-2.4m`);
+      assert.equal(Math.round(dist * 10) / 10, 2.2);
     });
   },
 
-  'focused camera: khong xuyen qua tuong hoac lan can khi lui'({ assert, load }) {
+  'focused camera: khong xuyen qua tuong hoac lan can (dung kieu WallLine p1/p2)'({ assert, load }) {
     return load('/src/scene/walk/focusedCamera.ts').then(({ selectFocusedCameraPosition }) => {
-      // Người nói ở [10, 0, 12], người chơi ở [10, 0, 11] (cách 1.0m)
-      // Hướng lùi là về phía z = 10.2 (đạt 1.8m tại z = 10.2)
-      // Đặt một bức tường cắt ngang tại z = 10.5 (giữa 11 và 10.2)
+      // Người nói ở [10, 0, 12], người chơi ở [10, 0, 10]
+      // Đặt một bức tường bao quanh phía sau người chơi z <= 10.5
+      // Và các góc khác bị chặn chỉ còn một phía thông
       const playerPos = [10.0, 0, 11.0];
       const targetPos = [10.0, 0, 12.0];
-      const wallLines = [{ x1: 8.0, z1: 10.5, x2: 12.0, z2: 10.5 }];
+      // Tường chắn ở góc 0 độ (tại z = 10.5, chắn tia từ [10, 0, 9.8] tới [10, 0, 12])
+      const wallLines = [{ p1x: 8.0, p1z: 10.5, p2x: 12.0, p2z: 10.5 }];
 
       const result = selectFocusedCameraPosition({ playerPos, targetPos, wallLines });
-      // Không lùi qua tường tại z = 10.5, giữ nguyên tại z = 11.0
-      assert.ok(result.camPos[2] >= 10.5, `camPos[2] ${result.camPos[2]} crossed wall at 10.5`);
-      assert.equal(result.camPos[2], 11.0);
+      // Góc 0 độ bị tường cản, camera tự xoay sang góc thông khác hoặc không cắt tường
+      let cutsWall = false;
+      const ccw = (ax, az, bx, bz, cx, cz) => (cz - az) * (bx - ax) > (bz - az) * (cx - ax);
+      const intersects = (x1, z1, x2, z2, x3, z3, x4, z4) =>
+        ccw(x1, z1, x3, z3, x4, z4) !== ccw(x2, z2, x3, z3, x4, z4) &&
+        ccw(x1, z1, x2, z2, x3, z3) !== ccw(x1, z1, x2, z2, x4, z4);
+
+      for (const w of wallLines) {
+        if (intersects(result.camPos[0], result.camPos[2], targetPos[0], targetPos[2], w.p1x, w.p1z, w.p2x, w.p2z)) {
+          cutsWall = true;
+        }
+      }
+      assert.equal(cutsWall, false, 'Camera position cuts through wall');
+    });
+  },
+
+  'focused camera: xoay quanh nguoi noi theo tung 20 do khi co vat can 3D'({ assert, load }) {
+    return load('/src/scene/walk/focusedCamera.ts').then(({ selectFocusedCameraPosition }) => {
+      const playerPos = [10.0, 0, 7.8];
+      const targetPos = [10.0, 0, 10.0];
+
+      // Giả lập vật cản ở góc 0° (thẳng hàng giữa playerPos và targetPos)
+      const isObstacleBetween = (from) => {
+        // Nếu góc nhìn gần trục X = 10 (góc 0 độ), coi như bị cột/cây che
+        return Math.abs(from[0] - 10.0) < 0.2;
+      };
+
+      const result = selectFocusedCameraPosition({ playerPos, targetPos, isObstacleBetween });
+      // Camera phải xoay khỏi X = 10 sang góc 20 độ đầu tiên thông suốt
+      assert.ok(Math.abs(result.camPos[0] - 10.0) > 0.5, `camPos X was not rotated: ${result.camPos[0]}`);
+      const dist = Math.hypot(result.camPos[0] - targetPos[0], result.camPos[2] - targetPos[2]);
+      assert.ok(dist >= 2.0 && dist <= 2.4, `dist ${dist} outside 2.0-2.4m`);
     });
   },
 

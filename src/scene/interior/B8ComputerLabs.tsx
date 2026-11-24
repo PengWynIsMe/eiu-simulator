@@ -452,21 +452,22 @@ export default function B8ComputerLabs() {
       {/* Nguồn sáng ambient trắng nhẹ bổ trợ */}
       <ambientLight intensity={0.4} color="#ffffff" />
 
-      {/* Đèn trần trung tâm dịu nhẹ trong mỗi phòng lab (không bóng, distance ngắn không loang ra hành lang) */}
-      {B8_COMPUTER_LAB_ROOMS.map((r) => {
+      {/* Đèn trần trung tâm dịu nhẹ chỉ bật ở phòng lab đang có hoạt cảnh Silver (tránh bật 10 đèn cùng lúc) */}
+      {isSilverActive && stageRoomCode && (() => {
+        const r = B8_COMPUTER_LAB_ROOMS.find((room) => room.code === stageRoomCode);
+        if (!r) return null;
         const [lx, lz] = toWorld((r.minU + r.maxU) * 0.5, -205.1);
         return (
           <pointLight
-            key={r.code}
             position={[lx, 3.25, lz]}
             intensity={0.65}
-            distance={9.0}
+            distance={10.0}
             decay={1.6}
             color="#ffffff"
             castShadow={false}
           />
         );
-      })}
+      })()}
 
       {/* 1. Bàn sinh viên gỗ sáng sồi */}
       <Batch matrices={batches.desks} geometry={deskGeom}>

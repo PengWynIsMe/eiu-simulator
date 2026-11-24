@@ -99,11 +99,12 @@ export default function App() {
         <Canvas
           shadows
           dpr={[1, 2]}
-          onCreated={({ gl, scene }) => {
+          onCreated={({ gl, scene, camera }) => {
             attachWebglCanvas(gl.domElement);
             if (import.meta.env.DEV) {
               (window as unknown as Record<string, unknown>).__gl = gl;
               (window as unknown as Record<string, unknown>).__scene = scene;
+              (window as unknown as Record<string, unknown>).__camera = camera;
             }
           }}
           camera={{

@@ -23,6 +23,9 @@ const SPEAKER_NAMES: Record<string, { vi: string; en: string }> = {
   guide: { vi: 'Hướng dẫn viên', en: 'Guide' },
 };
 
+/** Sổ theo dõi vị trí thực tế của diễn viên lúc chạy (world coordinates) cho camera nói chuyện */
+export const liveActorPositions = new Map<string, [number, number, number]>();
+
 export interface StoryActorsProps {
   room?: Classroom | null;
   stage: StageSpec;
@@ -179,6 +182,7 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
       g.position.set(poseInfo.pos[0], poseInfo.pos[1], poseInfo.pos[2]);
       g.rotation.y = poseInfo.defaultYaw;
       g.visible = true;
+      liveActorPositions.set(actor.speaker, [poseInfo.pos[0], poseInfo.pos[1], poseInfo.pos[2]]);
       if (labelRef.current) {
         labelRef.current.style.display = 'block';
       }
@@ -187,13 +191,14 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
       isFinishedDepartRef.current = false;
     }
     return () => {
+      liveActorPositions.delete(actor.speaker);
       // Khi unmount đưa vị trí về đúng chỗ
       if (g && poseInfo) {
         g.position.set(poseInfo.pos[0], poseInfo.pos[1], poseInfo.pos[2]);
         g.rotation.y = poseInfo.defaultYaw;
       }
     };
-  }, [poseInfo, alreadyDeparted, sessionKey]);
+  }, [poseInfo, alreadyDeparted, sessionKey, actor.speaker]);
 
   const nameConfig = SPEAKER_NAMES[actor.speaker];
   const actorName = nameConfig ? nameConfig[lang] : actor.speaker;
@@ -201,6 +206,11 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
   useFrame((state, delta) => {
     const g = group.current;
     if (!g || !poseInfo || isFinishedDepartRef.current) return;
+
+    const cur = liveActorPositions.get(actor.speaker);
+    if (!cur || Math.abs(cur[0] - g.position.x) > 0.01 || Math.abs(cur[2] - g.position.z) > 0.01) {
+      liveActorPositions.set(actor.speaker, [g.position.x, g.position.y, g.position.z]);
+    }
 
     const dt = Math.min(delta, 0.1);
     const now = state.clock.elapsedTime;
