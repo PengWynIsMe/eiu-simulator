@@ -19,6 +19,7 @@ export interface TeacherProps {
   getSignal: () => ClassSignal;
   subscribe: (listener: () => void) => () => void;
   crowd?: number;
+  modelUrl?: string;
 }
 
 /**
@@ -140,7 +141,7 @@ export function computeTeacherPlan(room: Classroom) {
   };
 }
 
-function TeacherBody({ room, getSignal }: TeacherProps) {
+function TeacherBody({ room, getSignal, modelUrl }: TeacherProps) {
   const group = useRef<Group>(null);
   const handle = useRef<CharacterHandle>(null);
 
@@ -246,20 +247,20 @@ function TeacherBody({ room, getSignal }: TeacherProps) {
 
   return (
     <group ref={group} position={[plan.deskW[0], 0, plan.deskW[1]]} rotation={[0, plan.frontYaw, 0]}>
-      <CharacterModel ref={handle} url={characterConfig.roles.teacher} clip="idle" />
+      <CharacterModel ref={handle} url={modelUrl ?? characterConfig.roles.teacher} clip="idle" />
     </group>
   );
 }
 
 /**
  * Thầy giảng dùng chung cho các phòng học (406.B11, 406.B8...).
- * Nhận room, getSignal, subscribe, crowd; không import useLessonStore.
+ * Nhận room, getSignal, subscribe, crowd, modelUrl; không import useLessonStore.
  * Điều kiện mount do nơi gọi quản lý.
  */
-export default function Teacher({ room, getSignal, subscribe, crowd }: TeacherProps) {
+export default function Teacher({ room, getSignal, subscribe, crowd, modelUrl }: TeacherProps) {
   return (
     <Suspense fallback={null}>
-      <TeacherBody room={room} getSignal={getSignal} subscribe={subscribe} crowd={crowd} />
+      <TeacherBody room={room} getSignal={getSignal} subscribe={subscribe} crowd={crowd} modelUrl={modelUrl} />
     </Suspense>
   );
 }

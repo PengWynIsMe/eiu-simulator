@@ -254,9 +254,20 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
       return;
     }
 
-    // 3. Cử chỉ riêng cho Han: giơ tay một lần khi cảnh bắt đầu, phản ứng yes khi đúng bài tập
-    // Trong chế độ exam: không cử chỉ báo đáp án
+    // 3. Phản ứng kết quả / lựa chọn
     const isExam = stage.sceneId.toLowerCase().includes('exam') || signal.stepKey.toLowerCase().includes('exam');
+    if (signal.result && signal.result.id !== seenResultIdRef.current) {
+      seenResultIdRef.current = signal.result.id;
+      // 1-on-1 choice: người đối diện gật đầu khi người chơi chọn
+      if (signal.mode === 'talk' && signal.speaker === actor.speaker) {
+        handle.current?.playUpper('yes');
+      } else if (actor.speaker === 'han' && !isExam && signal.result.correct && signal.mode === 'exercise') {
+        handle.current?.playUpper('yes');
+        nextTypingRef.current = now + 4;
+      }
+    }
+
+    // Cử chỉ riêng cho Han: giơ tay một lần khi cảnh bắt đầu, gõ máy lúc rảnh
     if (actor.speaker === 'han') {
       if (!isExam) {
         if (!hasRaisedHandRef.current) {
@@ -268,14 +279,6 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
         if (isRaisingRef.current && now - raiseStartRef.current > 1.8) {
           isRaisingRef.current = false;
           handle.current?.stopUpper();
-        }
-
-        if (signal.result && signal.result.id !== seenResultIdRef.current) {
-          seenResultIdRef.current = signal.result.id;
-          if (signal.result.correct && signal.mode === 'exercise') {
-            handle.current?.playUpper('yes');
-            nextTypingRef.current = now + 4;
-          }
         }
       }
 
@@ -349,10 +352,10 @@ export default function StoryActors({
   getSignal,
   sitYOffset = 0.4,
 }: StoryActorsProps) {
-  // Lọc bỏ teacher vì teacher do component Teacher riêng đảm nhiệm
+  // Lọc bỏ teacher (và examiner đứng lớp không có spot) vì do component Teacher riêng đảm nhiệm
   const nonTeacherActors = useMemo(() => {
-    return stage.actors.filter((a) => a.speaker !== 'teacher');
-  }, [stage.actors]);
+    return stage.actors.filter((a) => a.speaker !== 'teacher' && !(a.speaker === 'examiner' && !a.spot && room));
+  }, [stage.actors, room]);
 
   // Tìm diễn viên đứng gần stage.target nhất để gắn dấu "!" khi trigger === 'talk'
   const targetActorSpeaker = useMemo(() => {

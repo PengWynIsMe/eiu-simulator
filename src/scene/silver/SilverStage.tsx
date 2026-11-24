@@ -82,9 +82,16 @@ function SilverStageContent({ stage, room, sitYOffset }: SilverStageContentProps
     return createSafeClassroomForStage(room, stage);
   }, [room, stage]);
 
-  const hasTeacher = useMemo(() => {
-    return stage.actors.some((a) => a.speaker === 'teacher');
+  const instructorActor = useMemo(() => {
+    return stage.actors.find((a) => (a.speaker === 'teacher' || a.speaker === 'examiner') && !a.spot);
   }, [stage.actors]);
+
+  const instructorModelUrl = useMemo(() => {
+    if (!instructorActor) return undefined;
+    return instructorActor.speaker === 'examiner'
+      ? (characterConfig.story?.examiner ?? characterConfig.roles.teacher)
+      : characterConfig.roles.teacher;
+  }, [instructorActor]);
 
   if (!handle) {
     return null;
@@ -103,13 +110,14 @@ function SilverStageContent({ stage, room, sitYOffset }: SilverStageContentProps
         <ProjectorScreen room={room} getSignal={handle.getSignal} subscribe={handle.subscribe} />
       )}
 
-      {/* 2. Thầy giảng đi lại và phản ứng với bài học (chỉ dựng khi stage có teacher và có phòng học) */}
-      {room && hasTeacher && (
+      {/* 2. Thầy giảng / Giám thị đi lại và phản ứng với bài học (khi stage có teacher hoặc examiner đứng lớp) */}
+      {room && instructorActor && (
         <Teacher
           room={room}
           getSignal={handle.getSignal}
           subscribe={handle.subscribe}
           crowd={effectiveCrowd}
+          modelUrl={instructorModelUrl}
         />
       )}
 
