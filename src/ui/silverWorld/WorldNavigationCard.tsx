@@ -204,13 +204,14 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
         </div>
       )}
 
-      {/* Gợi ý tương tác dùng chung khi trong tầm (inRange) */}
+      {/* Nút tương tác chạm cho thiết bị màn hình cảm ứng khi trong tầm (trên PC chuột đã có InteriorHud vẽ) */}
       {inRange && (
         <ActionPrompt
           label={activity.prompt[lang]}
           hotkey="E"
           onAction={interact}
           touchPosition="bottom-right"
+          touchOnly={true}
         />
       )}
     </>

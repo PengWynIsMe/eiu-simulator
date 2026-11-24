@@ -154,6 +154,7 @@ export default function LessonHud() {
           hotkey="E"
           onAction={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e' }))}
           touchPosition="bottom-right"
+          touchOnly={true}
         />
       )}
 

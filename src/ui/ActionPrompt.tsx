@@ -37,6 +37,7 @@ export interface ActionPromptProps {
   onAction?: () => void;
   className?: string;
   touchPosition?: 'bottom-right' | 'bottom-center';
+  touchOnly?: boolean;
 }
 
 export default function ActionPrompt({
@@ -45,18 +46,21 @@ export default function ActionPrompt({
   onAction,
   className = '',
   touchPosition = 'bottom-right',
+  touchOnly = false,
 }: ActionPromptProps) {
   return (
     <>
       {/* 1. Màn hình chuột/bàn phím (PC/Laptop): Gợi ý ở giữa dưới màn hình */}
-      <div
-        className={`pointer-events-none fixed bottom-8 left-1/2 z-40 hidden -translate-x-1/2 select-none [@media(pointer:fine)]:flex items-center gap-2.5 rounded-full border border-sky-300/40 bg-slate-950/90 px-5 py-2.5 text-sm font-semibold text-white shadow-2xl backdrop-blur-md ${className}`}
-      >
-        <span className="rounded bg-[#f5b700] px-2 py-0.5 text-xs font-black text-slate-900 shadow">
-          {hotkey}
-        </span>
-        <span>{label}</span>
-      </div>
+      {!touchOnly && (
+        <div
+          className={`pointer-events-none fixed bottom-8 left-1/2 z-40 hidden -translate-x-1/2 select-none [@media(pointer:fine)]:flex items-center gap-2.5 rounded-full border border-sky-300/40 bg-slate-950/90 px-5 py-2.5 text-sm font-semibold text-white shadow-2xl backdrop-blur-md ${className}`}
+        >
+          <span className="rounded bg-[#f5b700] px-2 py-0.5 text-xs font-black text-slate-900 shadow">
+            {hotkey}
+          </span>
+          <span>{label}</span>
+        </div>
+      )}
 
       {/* 2. Màn hình chạm (Mobile/Tablet): Nút bấm nổi ở góc phải dưới hoặc giữa dưới */}
       <div
