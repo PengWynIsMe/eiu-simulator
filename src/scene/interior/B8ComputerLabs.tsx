@@ -34,7 +34,6 @@ import {
   TV_FRAME,
   AC_WHITE,
   AC_GRILL,
-  CONCRETE_LIGHT_GRAY,
   WINDOW_GLASS_BLUE,
 } from '../lesson/classroom406Plan';
 
@@ -280,7 +279,6 @@ export default function B8ComputerLabs() {
       const roomDepth = 10.1; // từ v = -210.15 đến -200.05
       const roomWidth = r.maxU - r.minU;
       const roomMidU = (r.minU + r.maxU) * 0.5;
-      const frontU = r.maxU - 0.05;
 
       // --- Biển phòng ngoài hành lang (gắn sát tường bên cạnh cửa phòng) ---
       const [signX, signZ] = toWorld(r.minU + 2.05, -199.94);
@@ -291,47 +289,51 @@ export default function B8ComputerLabs() {
         yaw: signYaw,
       });
 
-      // --- 1. ỐP TƯỜNG & TRẦN BÊ TÔNG XÁM NHẠT (#abaaa5) THEO CHUẨN 406.B11 ---
+      // --- 1. ỐP TƯỜNG & TRẦN BÊ TÔNG XÁM SÁNG THEO CHUẨN PHÒNG LAB ---
+      // Tường ngăn B8 dày 0.2 m (tâm r.maxU và r.minU) -> mép trong phòng ở r.maxU - 0.10 và r.minU + 0.10
+      // Tường hành lang dày 0.2 m (tâm v = -200.0) -> mép trong phòng ở v = -200.10
+      // Đặt các mảng ốp áp sát mặt trong để che hoàn toàn tường nâu #42322c mà không bị chìm hay z-fighting
+
       // A. Trần bê tông xám nhạt (y = 3.79 m, phủ toàn bộ phòng)
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, roomMidU, vCenter, 3.79, 0, roomWidth - 0.04, 0.02, roomDepth)
+        createInstanceMatrix(toWorld, roomMidU, vCenter, 3.79, 0, roomWidth - 0.22, 0.02, roomDepth)
       );
 
-      // B. Tường trước (Tường Đông, u = r.maxU): Ốp bê tông xám nhạt
+      // B. Tường trước (Tường Đông, u = r.maxU): Ốp bê tông trắng xám sáng che tường nâu
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, r.maxU - 0.02, vCenter, 1.89, 0, 0.02, 3.78, roomDepth)
+        createInstanceMatrix(toWorld, r.maxU - 0.105, vCenter, 1.89, 0, 0.02, 3.78, roomDepth)
       );
 
-      // C. Tường sau (Tây, u = r.minU): Ốp bê tông xám nhạt
+      // C. Tường sau (Tây, u = r.minU): Ốp bê tông trắng xám sáng che tường nâu
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, r.minU + 0.02, vCenter, 1.89, 0, 0.02, 3.78, roomDepth)
+        createInstanceMatrix(toWorld, r.minU + 0.105, vCenter, 1.89, 0, 0.02, 3.78, roomDepth)
       );
 
-      // D. Tường hành lang phía Nam (v = -200.05): Ốp bê tông xám nhạt trong phòng, chừa cửa
-      // Đoạn Tây cửa 1 (u = r.minU .. r.minU + 0.6)
+      // D. Tường hành lang phía Nam (v = -200.11): Ốp bê tông trắng xám sáng trong phòng, chừa cửa
+      // Đoạn Tây cửa 1 (u = r.minU + 0.1 .. r.minU + 0.6)
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, r.minU + 0.3, -200.05, 1.89, 0, 0.6, 3.78, 0.02)
+        createInstanceMatrix(toWorld, r.minU + 0.35, -200.11, 1.89, 0, 0.5, 3.78, 0.02)
       );
       // Đoạn giữa 2 cửa (u = r.minU + 1.6 .. r.maxU - 1.6)
       const midWallLen = Math.max(0.1, roomWidth - 3.2);
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, roomMidU, -200.05, 1.89, 0, midWallLen, 3.78, 0.02)
+        createInstanceMatrix(toWorld, roomMidU, -200.11, 1.89, 0, midWallLen, 3.78, 0.02)
       );
-      // Đoạn Đông cửa 2 (u = r.maxU - 0.6 .. r.maxU)
+      // Đoạn Đông cửa 2 (u = r.maxU - 0.6 .. r.maxU - 0.1)
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, r.maxU - 0.3, -200.05, 1.89, 0, 0.6, 3.78, 0.02)
+        createInstanceMatrix(toWorld, r.maxU - 0.35, -200.11, 1.89, 0, 0.5, 3.78, 0.02)
       );
       // Lanh-tô trên 2 cửa (y = 2.4 .. 3.78, cao 1.38, tâm 3.09)
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, r.minU + 1.1, -200.05, 3.09, 0, 1.0, 1.38, 0.02)
+        createInstanceMatrix(toWorld, r.minU + 1.1, -200.11, 3.09, 0, 1.0, 1.38, 0.02)
       );
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, r.maxU - 1.1, -200.05, 3.09, 0, 1.0, 1.38, 0.02)
+        createInstanceMatrix(toWorld, r.maxU - 1.1, -200.11, 3.09, 0, 1.0, 1.38, 0.02)
       );
 
-      // E. Tường Bắc dưới bậu cửa sổ (v = -210.15, cao 0.85 m, tâm 0.425)
+      // E. Tường Bắc dưới bậu cửa sổ (v = -210.12, cao 0.85 m, tâm 0.425)
       concreteSurfaces.push(
-        createInstanceMatrix(toWorld, roomMidU, -210.15, 0.425, 0, roomWidth - 0.04, 0.85, 0.06)
+        createInstanceMatrix(toWorld, roomMidU, -210.12, 0.425, 0, roomWidth - 0.22, 0.85, 0.06)
       );
 
       // --- 2. MÁY LẠNH ÂM TRẦN CASSETTE 4 HƯỚNG THỔI (CEILING CASSETTE AC) ---
@@ -344,22 +346,23 @@ export default function B8ComputerLabs() {
       }
 
       // --- 3. TƯỜNG TRƯỚC (TƯỜNG ĐÔNG): TV + 2 BẢNG TRẮNG SÁNG KHUNG NHÔM + BÀN GV ---
-      // Khung viền TV đen & Màn hình TV
-      tvFrames.push(createInstanceMatrix(toWorld, frontU, vCenter, 2.15, 0, 0.05, 1.3, 2.2));
+      // Khung viền TV đen & Màn hình TV đặt trước mặt ốp tường Đông (u = r.maxU - 0.13)
+      const frontTVU = r.maxU - 0.13;
+      tvFrames.push(createInstanceMatrix(toWorld, frontTVU, vCenter, 2.15, 0, 0.04, 1.3, 2.2));
       // Chỉ bỏ tvScreens khi phòng đang là sân khấu Silver để tránh z-fighting với ProjectorScreen
       const isStageRoom = isSilverActive && stageRoomCode === r.code;
       if (!isStageRoom) {
-        tvScreens.push(createInstanceMatrix(toWorld, frontU - 0.03, vCenter, 2.15, 0, 0.02, 1.2, 2.1));
+        tvScreens.push(createInstanceMatrix(toWorld, frontTVU - 0.022, vCenter, 2.15, 0, 0.005, 1.2, 2.1));
       }
 
       // 2 Bảng trắng sáng hai bên TV (Left & Right Whiteboard)
       for (const wbV of [-207.8, -202.4]) {
         // Mặt bảng trắng tinh khiết
-        whiteboards.push(createInstanceMatrix(toWorld, frontU - 0.045, wbV, 1.7, 0, 0.015, 1.2, 2.2));
+        whiteboards.push(createInstanceMatrix(toWorld, frontTVU - 0.015, wbV, 1.7, 0, 0.015, 1.2, 2.2));
         // Khung nhôm viền ngoài
-        metalFrames.push(createInstanceMatrix(toWorld, frontU - 0.035, wbV, 1.7, 0, 0.02, 1.24, 2.24));
+        metalFrames.push(createInstanceMatrix(toWorld, frontTVU - 0.01, wbV, 1.7, 0, 0.02, 1.24, 2.24));
         // Máng đựng bút / khăn lau ở đáy bảng
-        metalFrames.push(createInstanceMatrix(toWorld, frontU - 0.07, wbV, 1.08, 0, 0.06, 0.02, 2.1));
+        metalFrames.push(createInstanceMatrix(toWorld, frontTVU - 0.04, wbV, 1.08, 0, 0.06, 0.02, 2.1));
       }
 
       // Bàn giáo viên gỗ sồi sáng & khung chân kim loại
@@ -446,8 +449,24 @@ export default function B8ComputerLabs() {
 
   return (
     <group>
-      {/* Nguồn sáng ambient trắng giúp phòng máy sáng bừng, tôn vẻ đẹp bê tông xám nhạt và gỗ sồi */}
+      {/* Nguồn sáng ambient trắng nhẹ bổ trợ */}
       <ambientLight intensity={0.4} color="#ffffff" />
+
+      {/* Đèn trần trung tâm dịu nhẹ trong mỗi phòng lab (không bóng, distance ngắn không loang ra hành lang) */}
+      {B8_COMPUTER_LAB_ROOMS.map((r) => {
+        const [lx, lz] = toWorld((r.minU + r.maxU) * 0.5, -205.1);
+        return (
+          <pointLight
+            key={r.code}
+            position={[lx, 3.25, lz]}
+            intensity={0.65}
+            distance={9.0}
+            decay={1.6}
+            color="#ffffff"
+            castShadow={false}
+          />
+        );
+      })}
 
       {/* 1. Bàn sinh viên gỗ sáng sồi */}
       <Batch matrices={batches.desks} geometry={deskGeom}>
@@ -495,9 +514,9 @@ export default function B8ComputerLabs() {
         <meshStandardMaterial color={BEAM_BLACK} roughness={0.8} />
       </Batch>
 
-      {/* 9. Tường & trần bê tông xám nhạt (#abaaa5) mộc chuẩn 406.B11 */}
+      {/* 9. Tường & trần bê tông trắng xám sáng (#dcdbd6) mộc chuẩn phòng lab */}
       <Batch matrices={batches.concreteSurfaces} geometry={unitBoxGeom}>
-        <meshStandardMaterial color={CONCRETE_LIGHT_GRAY} roughness={0.85} />
+        <meshStandardMaterial color="#dcdbd6" roughness={0.6} />
       </Batch>
 
       {/* 10. Vỏ ngoài máy lạnh cassette 4 hướng màu trắng sạch */}
