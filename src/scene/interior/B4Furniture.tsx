@@ -1167,9 +1167,9 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
         }
         plantPots.push(createInstanceMatrix(toWorld, 35.5, 14.0, dy + 0.23, 0, 0.68, 0.46, 0.68));
 
-        // 2 ghế sofa xanh dương: (1) áp sát mặt Tây vách ngăn xám, (2) cạnh cột Nam ngang đầu quầy
-        addLightBlueSofa(lightBlueSofas, oakWood, 42.35, 7.6, dy, Math.PI / 2);
-        addLightBlueSofa(lightBlueSofas, oakWood, 41.2, 19.0, dy, Math.PI);
+        // 2 ghế sofa xanh dương: xoay vuông góc vách xám (quay ra lối đi) & đối xứng thẳng hàng qua quầy lễ tân
+        addLightBlueSofa(lightBlueSofas, oakWood, 41.78, 9.1, dy, 0);
+        addLightBlueSofa(lightBlueSofas, oakWood, 41.78, 18.9, dy, Math.PI);
 
         // E. Các cụm bàn tự học gỗ sồi + ghế Tolix đen (6 cụm hai bên + 2 bàn giữa)
         for (const u of [16.8, 27.2, 37.5]) {

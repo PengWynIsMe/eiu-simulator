@@ -83,8 +83,8 @@ export const B4_ELEVATOR_SPAWN_WORLD: Vec2 = toWorld(B4_ELEVATOR_SPAWN_LOCAL[0],
 // Tất cả tọa độ ngoài đều nằm ngoài polygon B4 & B5 để người chơi không bị kẹt.
 // =============================================================================
 
-// 1. Cửa chính phía Đông (tiếp cận từ đầu Đông Nam sảnh cột B4–B5 cạnh Highlands)
-export const B4_ENTRANCE_MAIN_OUTSIDE = toWorld(61.5, 29.8);
+// 1. Cửa chính phía Đông (bên trong sảnh lớn B4–B5 đối diện hồ nước trung tâm)
+export const B4_ENTRANCE_MAIN_OUTSIDE = toWorld(56.2, 14.0);
 export const B4_ENTRANCE_MAIN_INSIDE = toWorld(61.8, 14.0);
 export const B4_ENTRANCE_MAIN_VESTIBULE = toWorld(66.2, 14.0);
 
@@ -96,8 +96,8 @@ export const B4_ENTRANCE_SOUTH_INSIDE = toWorld(48.5, 25.0);
 export const B4_ENTRANCE_NORTH_OUTSIDE = toWorld(48.5, -1.8);
 export const B4_ENTRANCE_NORTH_INSIDE = toWorld(48.5, 3.0);
 
-// 4. Cửa phụ phía Tây (sảnh thang máy, nối cầu đi bộ mái che sang Block 11)
-export const B4_ENTRANCE_WEST_OUTSIDE = toWorld(-1.8, 14.0);
+// 4. Cửa phụ phía Tây (sảnh thang máy, hành lang Tây hướng sang Block 11)
+export const B4_ENTRANCE_WEST_OUTSIDE = toWorld(2.1, 14.0);
 export const B4_ENTRANCE_WEST_INSIDE = toWorld(2.2, 14.0);
 
 export const b4ExteriorEntrances: readonly ExteriorEntrance[] = [
@@ -110,7 +110,7 @@ export const b4ExteriorEntrances: readonly ExteriorEntrance[] = [
     spawnInsideWorld: B4_ENTRANCE_MAIN_INSIDE,
     spawnInsideYaw: getLocalWalkYaw(-1, 0), // Quay vào hướng Tây, đối diện cầu thang gáy sách
     spawnOutsideWorld: B4_ENTRANCE_MAIN_OUTSIDE,
-    spawnOutsideYaw: getLocalWalkYaw(0, 1), // Quay ra hướng Nam nhìn hồ & Highlands
+    spawnOutsideYaw: getLocalWalkYaw(1, 0), // Quay ra hướng Đông nhìn hồ nước lớn B4–B5
   },
   {
     id: 'b4-door-south',
@@ -634,9 +634,9 @@ export function getFloorWalls(floor: number): readonly WallSegment[] {
     walls.push({ u1: 37.5, v1: 13.15, u2: 46.3, v2: 13.15, thickness: 0.65, isRailing: true });
     walls.push({ u1: 37.5, v1: 14.85, u2: 46.3, v2: 14.85, thickness: 0.65, isRailing: true });
     walls.push({ u1: 46.15, v1: 13.0, u2: 46.15, v2: 15.0, thickness: 0.55, isRailing: true });
-    // Sofa 1 áp sát mặt Tây vách ngăn xám & Sofa 2 cạnh cột Nam (u = 43.0) ngang đầu bàn lễ tân
-    walls.push({ u1: 42.35, v1: 6.65, u2: 42.35, v2: 8.55, thickness: 0.78, isRailing: true });
-    walls.push({ u1: 40.25, v1: 19.0, u2: 42.15, v2: 19.0, thickness: 0.78, isRailing: true });
+    // 2 ghế sofa xanh dương: xoay vuông góc vách xám & đặt đối xứng thẳng hàng qua lối đi
+    walls.push({ u1: 40.78, v1: 9.1, u2: 42.78, v2: 9.1, thickness: 0.78, isRailing: true });
+    walls.push({ u1: 40.78, v1: 18.9, u2: 42.78, v2: 18.9, thickness: 0.78, isRailing: true });
 
     // Bàn máy tính tra cứu OPAC (2 phòng máy hai bên cầu thang trung tâm: 4 dãy bàn/bên)
     for (const u of [54.2, 57.6, 61.0, 64.4]) {

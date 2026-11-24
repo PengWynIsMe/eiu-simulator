@@ -31,6 +31,7 @@ import {
   checkSeamlessExit,
   isInB11ExteriorDoorPocket,
   resolveB4ExteriorCollision,
+  resolveB5ExteriorCollision,
   type SeamlessPortalHit,
 } from '../interior/layouts/seamlessPortals';
 
@@ -140,6 +141,10 @@ function resolvePosition(x: number, z: number, previousX: number, previousZ: num
   for (const building of campus.buildings) {
     if (building.id === 'b4') {
       resolveB4ExteriorCollision(output[0], output[1], PLAYER_RADIUS, output);
+      continue;
+    }
+    if (building.id === 'b5') {
+      resolveB5ExteriorCollision(output[0], output[1], PLAYER_RADIUS, output);
       continue;
     }
     if (building.id === 'b11' && isInB11ExteriorDoorPocket(output[0], output[1])) {

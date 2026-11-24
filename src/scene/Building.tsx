@@ -13,6 +13,7 @@ import TwinWingBlock from './kit/TwinWingBlock';
 import ParkingShed from './zone1/ParkingShed';
 import MainGate from './zone1/MainGate';
 import Block4Library from './zone1/Block4Library';
+import Block5Admin from './zone1/Block5Admin';
 import { Block6BBI, CoveredB3B6Corridor } from './zone1/Block6BBI';
 import { HighlandsKiosk, FamiPizzaKiosk } from './zone1/Kiosks';
 import CanteenBlock from './zone2/CanteenBlock';
@@ -295,6 +296,8 @@ export default function BuildingView({ building }: { building: Building }) {
     content = <Block6BBI building={building} isHovered={isHovered} isSelected={isSelected} />;
   } else if (building.id === 'b4') {
     content = <Block4Library building={building} isHovered={isHovered} isSelected={isSelected} />;
+  } else if (building.id === 'b5') {
+    content = <Block5Admin building={building} isHovered={isHovered} isSelected={isSelected} />;
   } else if (building.id === 'can-tin') {
     content = <CanteenBlock building={building} isHovered={isHovered} isSelected={isSelected} />;
   } else if (
