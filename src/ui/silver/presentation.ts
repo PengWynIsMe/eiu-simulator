@@ -45,7 +45,9 @@ export function onPresentationChange(listener: () => void): () => void {
  * Gắn listener trực tiếp vào canvas element vì webglcontextlost không bubble lên window.
  */
 export function attachWebglCanvas(canvas: HTMLCanvasElement): () => void {
-  const onLost = () => {
+  const onLost = (e: Event) => {
+    // Ngăn chặn hành vi mặc định của trình duyệt hủy vĩnh viễn WebGL context
+    e.preventDefault();
     webglLost = true;
     notify();
   };
@@ -65,7 +67,8 @@ if (typeof window !== 'undefined') {
   // Bắt ở capture phase trên window phòng trường hợp sự kiện phát từ canvas
   window.addEventListener(
     'webglcontextlost',
-    () => {
+    (e: Event) => {
+      e.preventDefault();
       webglLost = true;
       notify();
     },
