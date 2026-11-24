@@ -30,13 +30,6 @@ import { fmt, ST_W } from './text';
  * - Khoảng giữa 55–60% luôn trống để quan sát lớp học, màn hình TV 3D và giảng viên.
  */
 export default function WorldLayer() {
-  if (typeof window !== 'undefined') {
-    (window as unknown as Record<string, unknown>).__SILVER_DEV__ = {
-      useSilver,
-      useActivityStore,
-      useWalkStore,
-    };
-  }
   const tr = useT();
   const { mode } = useSilverPresentation();
   const screen = useSilver((s) => s.screen);
@@ -354,3 +347,12 @@ export default function WorldLayer() {
     </>
   );
 }
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).__SILVER_DEV__ = {
+    useSilver,
+    useActivityStore,
+    useWalkStore,
+  };
+}
+

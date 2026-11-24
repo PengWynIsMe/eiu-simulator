@@ -14,9 +14,6 @@ import SlideViewer from './SlideViewer';
 
 /** Lớp UI 2D của buổi học: chọn thành phần theo `phase` của useLessonStore. */
 export default function LessonLayer() {
-  if (typeof window !== 'undefined') {
-    (window as unknown as Record<string, unknown>).__LESSON_STORE__ = useLessonStore;
-  }
   const phase = useLessonStore((s) => s.phase);
   const desktopOpen = useLessonStore((s) => s.desktopOpen);
   const reviewMode = useReviewStore((s) => s.reviewMode);
@@ -89,3 +86,8 @@ export default function LessonLayer() {
     </>
   );
 }
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as unknown as Record<string, unknown>).__LESSON_STORE__ = useLessonStore;
+}
+
