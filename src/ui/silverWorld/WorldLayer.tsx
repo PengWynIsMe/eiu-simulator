@@ -18,7 +18,7 @@ import WorldNavigationCard from './WorldNavigationCard';
 import WorldDesktop from './WorldDesktop';
 import HomeExtraSlot from './HomeExtraSlot';
 import WorldDayCard from './WorldDayCard';
-import { setRightColumnWidth } from '../ActionPrompt';
+import { useTrackRightColumn } from '../ActionPrompt';
 import { fmt, ST_W } from './text';
 
 /**
@@ -89,31 +89,10 @@ export default function WorldLayer() {
   }, [mode, screen, phase, screenOpen, play?.canContinue, handleNextClick]);
 
   const isEngaged = phase === 'engaged';
-
-  // Phần D: Ghi nhận bề rộng cột phải để camera 3D dùng khi cần
-  useEffect(() => {
-    if (!isEngaged || !play) {
-      setRightColumnWidth(0);
-      return;
-    }
-    const type = play.step.type;
-    const isRightCol = type === 'choice' || type === 'slide' || type === 'question' || type === 'order';
-    if (isRightCol) {
-      const w = typeof window !== 'undefined' ? window.innerWidth : 1024;
-      if (w >= 1024) {
-        setRightColumnWidth(380);
-      } else if (w >= 640 && typeof window !== 'undefined' && window.matchMedia('(orientation: landscape)').matches) {
-        setRightColumnWidth(320);
-      } else {
-        setRightColumnWidth(0);
-      }
-    } else {
-      setRightColumnWidth(0);
-    }
-    return () => {
-      setRightColumnWidth(0);
-    };
-  }, [isEngaged, play]);
+  const isRightCol = isEngaged && Boolean(
+    play && (play.step.type === 'choice' || play.step.type === 'slide' || play.step.type === 'question' || play.step.type === 'order')
+  );
+  const rightColRef = useTrackRightColumn(isRightCol);
 
   // Chỉ hiển thị phần 3D Play layer khi đang ở màn chơi của chế độ 3D world
   if (screen !== 'play' || mode !== 'world' || !play) {
@@ -234,7 +213,10 @@ export default function WorldLayer() {
 
           {/* Cột mép phải (desktop/tablet ngang) hoặc tấm dưới (mobile): choice, slide, question, order */}
           {(play.step.type === 'choice' || play.step.type === 'slide' || play.step.type === 'question' || play.step.type === 'order') && (
-            <div className="pointer-events-none fixed bottom-0 inset-x-0 z-30 p-2.5 sm:p-4 sm:landscape:bottom-4 sm:landscape:top-16 sm:landscape:right-4 sm:landscape:left-auto sm:landscape:w-[320px] sm:landscape:max-h-none lg:bottom-4 lg:top-16 lg:right-4 lg:left-auto lg:w-[380px] xl:w-[400px] lg:max-h-none flex flex-col justify-end">
+            <div
+              ref={rightColRef}
+              className="pointer-events-none fixed bottom-0 inset-x-0 z-30 p-2.5 sm:p-4 sm:landscape:bottom-4 sm:landscape:top-16 sm:landscape:right-4 sm:landscape:left-auto sm:landscape:w-[320px] sm:landscape:max-h-none lg:bottom-4 lg:top-16 lg:right-4 lg:left-auto lg:w-[380px] xl:w-[400px] lg:max-h-none flex flex-col justify-end"
+            >
               {/* choice -> Choice của đồng đội trong khung thẻ */}
               {play.step.type === 'choice' && (
                 <div className="pointer-events-auto max-h-[45vh] sm:max-h-[calc(100vh-6rem)] w-full overflow-y-auto rounded-2xl bg-white p-4 sm:p-5 shadow-2xl">

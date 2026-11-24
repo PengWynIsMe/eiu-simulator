@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // =======================================================================
 // Phần D: Lưu bề rộng cột mép phải (px) để camera hoặc hệ thống 3D dùng sau
@@ -26,6 +26,49 @@ export function useRightColumnWidth(): number {
     };
   }, []);
   return width;
+}
+
+/**
+ * Hook gắn vào container cột phải để tự động đo bề rộng THẬT (getBoundingClientRect)
+ * và cập nhật cho camera 3D qua ResizeObserver + window resize event.
+ * Chỉ ghi nhận bề rộng khi ở layout cột bên (w >= 1024 hoặc landscape >= 640).
+ */
+export function useTrackRightColumn(active: boolean = true) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!active || typeof window === 'undefined') {
+      setRightColumnWidth(0);
+      return;
+    }
+    const el = ref.current;
+    if (!el) return;
+
+    const updateWidth = () => {
+      const w = window.innerWidth;
+      const isSideCol = w >= 1024 || (w >= 640 && window.matchMedia('(orientation: landscape)').matches);
+      if (isSideCol) {
+        const measured = Math.round(el.getBoundingClientRect().width);
+        setRightColumnWidth(measured);
+      } else {
+        setRightColumnWidth(0);
+      }
+    };
+
+    updateWidth();
+
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateWidth) : null;
+    ro?.observe(el);
+    window.addEventListener('resize', updateWidth);
+
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', updateWidth);
+      setRightColumnWidth(0);
+    };
+  }, [active]);
+
+  return ref;
 }
 
 // =======================================================================
