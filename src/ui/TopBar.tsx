@@ -132,7 +132,7 @@ export default function TopBar() {
           )}
 
           {/* Nút IT Silver */}
-          {lessonIdle && !reviewMode && (
+          {lessonIdle && silverClosed && !reviewMode && !scheduleOpen && (
             <button
               type="button"
               data-silver-trigger="true"

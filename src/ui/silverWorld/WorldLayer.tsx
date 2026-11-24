@@ -234,9 +234,9 @@ export default function WorldLayer() {
             </div>
           )}
 
-          {/* question -> Question của đồng đội trong khung thẻ */}
+          {/* question -> Question của đồng đội trong khung thẻ tờ đề dạng giấy */}
           {play.step.type === 'question' && (
-            <div className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl bg-white p-5 shadow-2xl">
+            <div data-silver-paper="true" className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-amber-200/80 bg-[#fffdfa] p-5 shadow-2xl">
               <Question key={stepKey ?? undefined} step={play.step} feedback={play.feedback} />
               {play.canContinue && (
                 <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
@@ -252,9 +252,9 @@ export default function WorldLayer() {
             </div>
           )}
 
-          {/* order -> Order của đồng đội trong khung thẻ */}
+          {/* order -> Order của đồng đội trong khung thẻ tờ đề dạng giấy */}
           {play.step.type === 'order' && (
-            <div className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl bg-white p-5 shadow-2xl">
+            <div data-silver-paper="true" className="pointer-events-auto mx-auto w-full max-w-xl rounded-2xl border border-amber-200/80 bg-[#fffdfa] p-5 shadow-2xl">
               <Order key={stepKey ?? undefined} step={play.step} feedback={play.feedback} />
               {play.canContinue && (
                 <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
