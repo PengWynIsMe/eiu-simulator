@@ -79,7 +79,7 @@ export default function DialogueView({
   onChoose,
   onNext,
 }: DialogueViewProps) {
-  const { shown, done, skip } = useTypewriter(text, 25);
+  const { shown, done, skip } = useTypewriter(text, 30);
 
   useEffect(() => {
     if (!hotkeys || !done || options.length === 0 || selectedOptionId !== null || !onChoose) return;
