@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { dampHeight, getGroundHeight } from './groundHeight';
 import { Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Vector3, Matrix4, Quaternion, PerspectiveCamera, type Group } from 'three';
+import { Vector3, PerspectiveCamera, type Group } from 'three';
 import { CapsuleFallback } from './PlayerCharacter';
 import PlayerCharacter from './PlayerCharacter';
 import { campus, FLOOR_HEIGHT } from '../../data';
@@ -194,10 +194,6 @@ export default function WalkMode() {
   const wallCollisionHoldTimer = useRef(0);
   const lastPosSyncTime = useRef(0);
   const focus = useRef<Activity | null>(null);
-  const focusTime = useRef(0);
-  const focusFrom = useMemo(() => new Quaternion(), []);
-  const focusTo = useMemo(() => new Quaternion(), []);
-  const focusMatrix = useMemo(() => new Matrix4(), []);
   const activity = useActivityStore((state) => state.activity);
   const activityPoint = useMemo<InteractivePoint | null>(() => {
     if (!activity || activity.trigger === 'none') return null;
@@ -696,23 +692,42 @@ export default function WalkMode() {
       moving.current = false;
       running.current = false;
       const { x, z } = focused.target;
-      const yaw = Math.atan2(x - player.current[0], z - player.current[2]);
+      const dx = x - player.current[0];
+      const dz = z - player.current[2];
+      const yaw = Math.atan2(dx, dz);
       if (body.current) body.current.rotation.y = yaw;
       facingYaw.current = Math.PI / 2 - yaw;
 
-      if (focus.current !== focused) {
-        focus.current = focused;
-        focusTime.current = 0;
-        focusFrom.copy(camera.quaternion);
-        camera.up.set(0, 1, 0);
-        const height = isInterior ? 0 : getGroundHeight(x, z);
-        desiredLookAt.set(x, height + 1.35, z);
-        focusMatrix.lookAt(camera.position, desiredLookAt, camera.up);
-        focusTo.setFromRotationMatrix(focusMatrix);
-      }
-      focusTime.current = Math.min(1, focusTime.current + delta / 0.6);
-      const t = focusTime.current;
-      camera.quaternion.slerpQuaternions(focusFrom, focusTo, t * t * (3 - 2 * t));
+      const dist = Math.hypot(dx, dz) || 1;
+      const fx = dx / dist;
+      const fz = dz / dist;
+      const rx = -fz;
+      const rz = fx;
+
+      const px = player.current[0];
+      const pz = player.current[2];
+      const py = isInterior ? player.current[1] : getGroundHeight(px, pz);
+      const ty = isInterior ? player.current[1] : getGroundHeight(x, z);
+
+      // Camera đối thoại ngoài trời / trong nhà: lại gần (~3m) và thấp dưới mái (cao mắt ~1.7m),
+      // góc nhìn over-the-shoulder lệch phải thấy cả người chơi và NPC, không bị mái che
+      desiredCamera.set(
+        px - fx * 2.0 + rx * 1.2,
+        py + 1.7,
+        pz - fz * 2.0 + rz * 1.2
+      );
+      desiredLookAt.set(
+        px * 0.3 + x * 0.7,
+        ty + 1.4,
+        pz * 0.3 + z * 0.7
+      );
+
+      const focusSpeed = 1 - Math.exp(-6 * dt);
+      camera.up.set(0, 1, 0);
+      camera.position.lerp(desiredCamera, focusSpeed);
+      target.lerp(desiredLookAt, focusSpeed);
+      camera.lookAt(target);
+
       updateProximity(true);
       return;
     }
