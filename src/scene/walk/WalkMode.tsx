@@ -9,13 +9,15 @@ import { campus, FLOOR_HEIGHT } from '../../data';
 import { useCampusStore } from '../../store/useCampusStore';
 import { useWalkStore } from '../../store/useWalkStore';
 import { useActivityStore } from '../../store/useActivityStore';
+import { useSilverStore } from '../../store/useSilverStore';
+import { getStage } from '../../data/silver/stages';
 import type { Activity } from '../../types/silverWorld';
 import type { Vec2 } from '../../types';
 import { isPointInPond } from '../zone1/pondLayout';
 import { isOnPondPot } from '../zone1/pondTerraceLayout';
 import { SIT_Y_OFFSET } from '../npc/sitPose';
 import { activityRadius, focusActivity, handleActivityEscape, syncActivityRange } from './activityControl';
-import { selectFocusedCameraPosition, OUTDOOR_FOCUS_TREES } from './focusedCamera';
+import { selectFocusedCameraPosition } from './focusedCamera';
 import {
   getInteriorLayout,
   getExteriorInteractive,
@@ -195,7 +197,7 @@ export default function WalkMode() {
   const wallCollisionHoldTimer = useRef(0);
   const lastPosSyncTime = useRef(0);
   const focus = useRef<Activity | null>(null);
-  const wasFocused = useRef(false);
+  const lastFocusKey = useRef<string | null>(null);
   const chosenCamPos = useRef(new Vector3());
   const chosenLookAt = useRef(new Vector3());
   const activity = useActivityStore((state) => state.activity);
@@ -695,32 +697,51 @@ export default function WalkMode() {
     if (focused) {
       moving.current = false;
       running.current = false;
-      const { x, z } = focused.target;
-      const dx = x - player.current[0];
-      const dz = z - player.current[2];
-      const yaw = Math.atan2(dx, dz);
-      if (body.current) body.current.rotation.y = yaw;
-      facingYaw.current = Math.PI / 2 - yaw;
 
-      const px = player.current[0];
-      const pz = player.current[2];
-      const py = isInterior ? player.current[1] : getGroundHeight(px, pz);
-      const ty = isInterior ? player.current[1] : getGroundHeight(x, z);
+      // 1. Khi focused: ẩn thân người chơi (như lúc ngồi), camera ở mắt người chơi
+      if (body.current) {
+        body.current.visible = false;
+      }
 
-      if (!wasFocused.current) {
-        wasFocused.current = true;
+      // Xác định đối tượng đang nói (người nói hiện tại theo speaker hoặc target của stage)
+      const silverPlay = useSilverStore.getState().play;
+      const stage = silverPlay?.item?.id ? getStage(silverPlay.item.id) : null;
+      const currentStep = silverPlay?.item?.scene?.steps?.[silverPlay.stepIndex];
+      const speaker = currentStep && 'speaker' in currentStep ? currentStep.speaker : undefined;
+      const speakingActor = stage?.actors.find((a) => a.speaker === speaker);
+
+      let tx = focused.target.x;
+      let tz = focused.target.z;
+      let ty = isInterior ? player.current[1] : getGroundHeight(tx, tz);
+
+      if (speakingActor?.spot) {
+        tx = speakingActor.spot.x;
+        tz = speakingActor.spot.z;
+        ty = isInterior ? player.current[1] : getGroundHeight(tx, tz);
+      }
+
+      const focusTargetKey = `${tx.toFixed(2)},${tz.toFixed(2)}`;
+      if (focusTargetKey !== lastFocusKey.current) {
+        lastFocusKey.current = focusTargetKey;
+        const px = player.current[0];
+        const pz = player.current[2];
+        const py = isInterior ? player.current[1] : getGroundHeight(px, pz);
+
         const result = selectFocusedCameraPosition({
           playerPos: [px, py, pz],
-          targetPos: [x, ty, z],
-          isInterior: Boolean(isInterior),
+          targetPos: [tx, ty, tz],
           wallLines: currentFloorWallLines.current,
-          trees: isInterior ? [] : OUTDOOR_FOCUS_TREES,
-          canopyY: 3.04,
         });
         chosenCamPos.current.set(...result.camPos);
         chosenLookAt.current.set(...result.lookAt);
       }
 
+      const dx = tx - player.current[0];
+      const dz = tz - player.current[2];
+      const yaw = Math.atan2(dx, dz);
+      facingYaw.current = Math.PI / 2 - yaw;
+
+      // Chuyển mượt 0.6 s
       const focusSpeed = 1 - Math.exp(-dt / 0.6);
       camera.up.set(0, 1, 0);
       camera.position.lerp(chosenCamPos.current, focusSpeed);
@@ -731,8 +752,11 @@ export default function WalkMode() {
       return;
     }
 
-    if (wasFocused.current) {
-      wasFocused.current = false;
+    if (lastFocusKey.current !== null) {
+      lastFocusKey.current = null;
+      if (body.current) {
+        body.current.visible = viewMode.current !== 1;
+      }
     }
 
     const xInput = Math.max(-1, Math.min(1, input.x + Number(pressed.has('d') || pressed.has('arrowright')) - Number(pressed.has('a') || pressed.has('arrowleft'))));

@@ -291,23 +291,20 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
       }
     }
 
-    // 4. Quay mặt về phía người chơi khi đang nói chuyện hoặc khi focused
+    // 4. Quay mặt về phía người chơi: người nói chính trong cảnh luôn quay về người chơi
     const actState = useActivityStore.getState();
     const isFocused = focusActivity(actState) !== null || actState.phase === 'engaged';
     let targetYaw = poseInfo.defaultYaw;
 
     if (poseInfo.clip !== 'sit') {
-      if (isFocused) {
-        const pPos = useWalkStore.getState().playerPos;
-        const dx = pPos.x - g.position.x;
-        const dz = pPos.z - g.position.z;
-        const dist = Math.hypot(dx, dz);
-        const isMainSpeaker = isTalkTarget || signal.speaker === actor.speaker;
-        if (isMainSpeaker || dist <= 4.0) {
-          targetYaw = Math.atan2(dx, dz);
-        }
-      } else if (signal.speaker === actor.speaker) {
-        targetYaw = poseInfo.playerYaw;
+      const pPos = useWalkStore.getState().playerPos;
+      const dx = pPos.x - g.position.x;
+      const dz = pPos.z - g.position.z;
+      const dist = Math.hypot(dx, dz);
+      const isMainSpeaker = isTalkTarget || signal.speaker === actor.speaker;
+
+      if (isMainSpeaker || isFocused || dist <= 3.5) {
+        targetYaw = Math.atan2(dx, dz);
       }
     }
 

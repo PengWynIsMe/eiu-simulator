@@ -165,12 +165,11 @@ export default function ResultBoard({ stage }: ResultBoardProps) {
   }, [texture]);
 
   // Hình học bảng và khung
-  const { boardGeom, postGeom, frameMat, backMat } = useMemo(() => {
+  const { boardGeom, postGeom, frameMat } = useMemo(() => {
     const bg = new PlaneGeometry(BOARD_WIDTH, BOARD_HEIGHT);
     const pg = new BoxGeometry(POST_WIDTH, POST_HEIGHT, POST_WIDTH);
     const fm = new MeshStandardMaterial({ color: '#334155', roughness: 0.6, metalness: 0.2 });
-    const bm = new MeshStandardMaterial({ color: '#475569', roughness: 0.7, metalness: 0.1 });
-    return { boardGeom: bg, postGeom: pg, frameMat: fm, backMat: bm };
+    return { boardGeom: bg, postGeom: pg, frameMat: fm };
   }, []);
 
   useEffect(() => {
@@ -178,9 +177,8 @@ export default function ResultBoard({ stage }: ResultBoardProps) {
       boardGeom.dispose();
       postGeom.dispose();
       frameMat.dispose();
-      backMat.dispose();
     };
-  }, [boardGeom, postGeom, frameMat, backMat]);
+  }, [boardGeom, postGeom, frameMat]);
 
   // Vị trí và góc quay theo stage.target
   const targetX = stage.target.x;
@@ -193,11 +191,14 @@ export default function ResultBoard({ stage }: ResultBoardProps) {
       <mesh geometry={postGeom} material={frameMat} position={[-BOARD_WIDTH / 2 - POST_WIDTH / 2, POST_HEIGHT / 2, 0]} />
       <mesh geometry={postGeom} material={frameMat} position={[BOARD_WIDTH / 2 + POST_WIDTH / 2, POST_HEIGHT / 2, 0]} />
 
-      {/* Mặt lưng bảng */}
-      <mesh geometry={boardGeom} material={backMat} position={[0, BOARD_CENTER_Y, -0.01]} rotation={[0, Math.PI, 0]} />
-
-      {/* Mặt trước vẽ kết quả qua canvas */}
+      {/* Cả 2 mặt bảng thông báo đều hiển thị kết quả thi (chuẩn bảng ngoài trời 2 mặt) */}
+      {/* Mặt trước (+Z) */}
       <mesh geometry={boardGeom} position={[0, BOARD_CENTER_Y, 0.005]}>
+        <meshBasicMaterial map={texture} toneMapped={false} />
+      </mesh>
+
+      {/* Mặt sau (-Z) */}
+      <mesh geometry={boardGeom} position={[0, BOARD_CENTER_Y, -0.005]} rotation={[0, Math.PI, 0]}>
         <meshBasicMaterial map={texture} toneMapped={false} />
       </mesh>
     </group>
