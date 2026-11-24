@@ -68,6 +68,8 @@ if (import.meta.env.DEV) {
       lesson: lesson.useLessonStore,
       snow: snow.useSnowStore,
       lang: lang.useLangStore,
+      silver: silverStore,
+      activity: useActivityStore,
     };
   });
 }
