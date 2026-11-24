@@ -158,7 +158,7 @@ export default function SlideView({
       {/* 2. Modal phóng to slide giữa màn hình khi người dùng bấm "Phóng to" */}
       {isExpanded && (
         <div
-          role="dialog"
+          role="alertdialog"
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm sm:p-8"
         >
