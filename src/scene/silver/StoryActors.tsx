@@ -8,6 +8,9 @@ import { toWorld, yawOf } from './frame';
 import { characterConfig } from '../../data';
 import { useLangStore } from '../../store/useLangStore';
 import { useSilverStore } from '../../store/useSilverStore';
+import { useActivityStore } from '../../store/useActivityStore';
+import { useWalkStore } from '../../store/useWalkStore';
+import { focusActivity } from '../walk/activityControl';
 import type { Classroom } from '../../types';
 import type { ClassSignal, StageActor, StageSpec } from '../../types/silverWorld';
 import { departureManager, shouldTriggerDeparture, useDepartureSessionKey } from './departureState';
@@ -288,10 +291,28 @@ function ActorInstance({ actor, room, stage, getSignal, sitYOffset, isTalkTarget
       }
     }
 
-    // 4. Quay mặt về phía người chơi khi đang nói chuyện
-    const isSpeaking = signal.speaker === actor.speaker;
-    const targetYaw = isSpeaking ? poseInfo.playerYaw : poseInfo.defaultYaw;
-    currentYawRef.current = turnToward(currentYawRef.current, targetYaw, Math.min(1, dt * 8));
+    // 4. Quay mặt về phía người chơi khi đang nói chuyện hoặc khi focused
+    const actState = useActivityStore.getState();
+    const isFocused = focusActivity(actState) !== null || actState.phase === 'engaged';
+    let targetYaw = poseInfo.defaultYaw;
+
+    if (poseInfo.clip !== 'sit') {
+      if (isFocused) {
+        const pPos = useWalkStore.getState().playerPos;
+        const dx = pPos.x - g.position.x;
+        const dz = pPos.z - g.position.z;
+        const dist = Math.hypot(dx, dz);
+        const isMainSpeaker = isTalkTarget || signal.speaker === actor.speaker;
+        if (isMainSpeaker || dist <= 4.0) {
+          targetYaw = Math.atan2(dx, dz);
+        }
+      } else if (signal.speaker === actor.speaker) {
+        targetYaw = poseInfo.playerYaw;
+      }
+    }
+
+    const turnRate = 1 - Math.exp(-dt / 0.15);
+    currentYawRef.current = turnToward(currentYawRef.current, targetYaw, turnRate);
     g.rotation.y = currentYawRef.current;
 
     // 5. Cập nhật ẩn/hiện nhãn tên theo khoảng cách camera <= 6.0 m

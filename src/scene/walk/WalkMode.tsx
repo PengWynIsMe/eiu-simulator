@@ -15,6 +15,7 @@ import { isPointInPond } from '../zone1/pondLayout';
 import { isOnPondPot } from '../zone1/pondTerraceLayout';
 import { SIT_Y_OFFSET } from '../npc/sitPose';
 import { activityRadius, focusActivity, handleActivityEscape, syncActivityRange } from './activityControl';
+import { selectFocusedCameraPosition, OUTDOOR_FOCUS_TREES } from './focusedCamera';
 import {
   getInteriorLayout,
   getExteriorInteractive,
@@ -194,6 +195,9 @@ export default function WalkMode() {
   const wallCollisionHoldTimer = useRef(0);
   const lastPosSyncTime = useRef(0);
   const focus = useRef<Activity | null>(null);
+  const wasFocused = useRef(false);
+  const chosenCamPos = useRef(new Vector3());
+  const chosenLookAt = useRef(new Vector3());
   const activity = useActivityStore((state) => state.activity);
   const activityPoint = useMemo<InteractivePoint | null>(() => {
     if (!activity || activity.trigger === 'none') return null;
@@ -698,38 +702,37 @@ export default function WalkMode() {
       if (body.current) body.current.rotation.y = yaw;
       facingYaw.current = Math.PI / 2 - yaw;
 
-      const dist = Math.hypot(dx, dz) || 1;
-      const fx = dx / dist;
-      const fz = dz / dist;
-      const rx = -fz;
-      const rz = fx;
-
       const px = player.current[0];
       const pz = player.current[2];
       const py = isInterior ? player.current[1] : getGroundHeight(px, pz);
       const ty = isInterior ? player.current[1] : getGroundHeight(x, z);
 
-      // Camera đối thoại ngoài trời / trong nhà: lại gần (~3m) và thấp dưới mái (cao mắt ~1.7m),
-      // góc nhìn over-the-shoulder lệch phải thấy cả người chơi và NPC, không bị mái che
-      desiredCamera.set(
-        px - fx * 2.0 + rx * 1.2,
-        py + 1.7,
-        pz - fz * 2.0 + rz * 1.2
-      );
-      desiredLookAt.set(
-        px * 0.3 + x * 0.7,
-        ty + 1.4,
-        pz * 0.3 + z * 0.7
-      );
+      if (!wasFocused.current) {
+        wasFocused.current = true;
+        const result = selectFocusedCameraPosition({
+          playerPos: [px, py, pz],
+          targetPos: [x, ty, z],
+          isInterior: Boolean(isInterior),
+          wallLines: currentFloorWallLines.current,
+          trees: isInterior ? [] : OUTDOOR_FOCUS_TREES,
+          canopyY: 3.04,
+        });
+        chosenCamPos.current.set(...result.camPos);
+        chosenLookAt.current.set(...result.lookAt);
+      }
 
-      const focusSpeed = 1 - Math.exp(-6 * dt);
+      const focusSpeed = 1 - Math.exp(-dt / 0.6);
       camera.up.set(0, 1, 0);
-      camera.position.lerp(desiredCamera, focusSpeed);
-      target.lerp(desiredLookAt, focusSpeed);
+      camera.position.lerp(chosenCamPos.current, focusSpeed);
+      target.lerp(chosenLookAt.current, focusSpeed);
       camera.lookAt(target);
 
       updateProximity(true);
       return;
+    }
+
+    if (wasFocused.current) {
+      wasFocused.current = false;
     }
 
     const xInput = Math.max(-1, Math.min(1, input.x + Number(pressed.has('d') || pressed.has('arrowright')) - Number(pressed.has('a') || pressed.has('arrowleft'))));

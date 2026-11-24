@@ -49,35 +49,67 @@
 
 ---
 
-## 3. Camera đối thoại ngoài trời (meet-thanh, result, after, club)
+## 3. Camera đối thoại focused và cơ chế quay mặt NPC thông minh
 
-### Hiện trạng trước sửa
-- Khi bắt đầu đối thoại ngoài trời (`focused` có giá trị), camera đứng xa và cao (`py + 2.4m`, cự ly > 4.5m), bị hệ mái hiên đón (canopy) của B8 che khuất toàn bộ tầm nhìn xuống nhân vật Thành và người chơi.
+### Hiện trạng và các vấn đề phát hiện ở đợt kiểm tra trước
+- Ở cảnh `entrance/meet-thanh`, vị trí camera cũ lùi thẳng về phía sau vai người chơi bị tán cây liễu trước cửa Nam B8 tại tọa độ `[17.36, -167.78]` che kín tầm nhìn.
+- Báo cáo trước đó có sự nhầm lẫn giữa cảnh thi trên máy và bảng kết quả `entrance/result`, và giữa cảnh mở đầu kỳ học `2.2/opening` với cảnh câu lạc bộ `2.2/club`.
+- Khi đối thoại, NPC chưa quay mặt về người chơi hoặc quay lưng do tính yaw theo target tĩnh.
 
-### Sửa đổi thực tế
-- File `src/scene/walk/WalkMode.tsx` (dòng 691–709):
-  - Khi có đối thoại `focused`:
-    - Cự ly camera đặt tại vị trí Two-shot gần: `cx = px - fx * 2.0 + rx * 1.2`, `cz = pz - fz * 2.0 + rz * 1.2` (cự ly thực tế ~2.33m).
-    - Cao độ mắt người: `cy = py + 1.7m` (thấp hơn mép dưới mái che 3.04m tới 1.34m, hoàn toàn nằm dưới mái).
-    - Điểm nhìn `lookAt`: hướng vào trọng tâm cuộc trò chuyện giữa người chơi và nhân vật (`lx = px * 0.3 + x * 0.7`, `lz = pz * 0.3 + z * 0.7`, `ly = py + 1.4m`).
-    - Dùng `camera.position.lerp(targetCamPos.current, 0.1)` và `currentLookAt.current.lerp(targetLookAt.current, 0.1)` để chuyển camera mượt mà.
-  - Khi thoát đối thoại (`focused = null`): Camera tự động lerp trả về góc nhìn ngoài trời bình thường.
-  - Giữ nguyên vị trí của Thành (`x: 17.91, z: -164.85`), không dời vị trí nhân vật.
-- **Commit:** `367f168` - `fix(walk): camera doi thoai focused lai gan 3m cao mat 1.7m khong bi mai che`.
+### Giải pháp kỹ thuật đã triển khai
 
-### Kết quả kiểm tra 4 cảnh đối thoại
-1. **`entrance/meet-thanh` (Gặp Thành ở sân trước B8):**
-   - Camera cận cảnh ~2.3m, cao 1.7m, thấy rõ cả Thành và người chơi trong khung hình, không bị mái hiên che.
-   - Ảnh minh chứng: `01-meet-thanh-after.jpg` (125 KB).
-2. **`entrance/result` (Bảng kết quả thi tiếng Anh ngoài trời):**
-   - Camera nhìn thấy Thành, Quyền, người chơi và bảng kết quả dán trước B8, góc nhìn thông thoáng.
-   - Ảnh minh chứng: `02-result-after.jpg` (45 KB).
-3. **`1.1/after` (Giờ nghỉ sau buổi thi — Gặp Han ở hành lang tầng 2 B8):**
-   - Camera bố trí ngang tầm mắt, thấy rõ Han và người chơi nói chuyện ở hành lang, không bị trần/dầm che.
-   - Ảnh minh chứng: `03-after-han-corridor.jpg` (77 KB).
-4. **`2.2/club` (Ngày đầu kỳ — Sảnh giữa tầng 1 B8):**
-   - Camera quay cận Thành, Quyền và người chơi ở sảnh trệt, bố cục rõ ràng, camera chuyển mượt khi thoát.
-   - Ảnh minh chứng: `04-club-hall-after.jpg` (59 KB).
+#### a) Quay mặt NPC mượt 0.4s (`StoryActors.tsx`)
+- Trong `src/scene/silver/StoryActors.tsx`, khi trạng thái là `isFocused` (`focusActivity(useActivityStore.getState()) !== null || actState.phase === 'engaged'`):
+  - Lấy tọa độ thực tế của người chơi từ `useWalkStore.getState().playerPos`.
+  - Đối với các nhân vật không ngồi (`poseInfo.clip !== 'sit'`): nếu là người nói chính (`isTalkTarget || signal.speaker === actor.speaker`) hoặc đứng trong bán kính 4.0 m so với người chơi (`dist <= 4.0`), mục tiêu quay mặt là `targetYaw = Math.atan2(pPos.x - g.position.x, pPos.z - g.position.z)`.
+  - Các nhân vật ở xa hơn 4m giữ hướng mặc định `poseInfo.defaultYaw`.
+  - Khi thoát đối thoại: quay trở lại hướng mặc định ban đầu (`poseInfo.defaultYaw`).
+  - Tốc độ xoay mượt mà với hằng số thời gian: `turnRate = 1 - Math.exp(-dt / 0.15)` (đạt trên 93% góc xoay trong ~0.4s), dùng hàm `turnToward` bảo đảm góc quay ngắn nhất.
+
+#### b) Thuật toán chọn vị trí camera thông minh (`focusedCamera.ts`)
+- Tạo module thuần `src/scene/walk/focusedCamera.ts` cung cấp hàm `selectFocusedCameraPosition`:
+  - Sinh 10 vị trí ứng viên (`generateFocusCandidates`): qua vai phải (`ots_right`), qua vai trái (`ots_left`), ngang hai người 2.0m (`profile_right_2m`, `profile_left_2m`), ngang hai người 1.8m (`profile_right_1.8m`, `profile_left_1.8m`), trực diện chếch 2.1m (`frontal_right_2.1m`, `frontal_left_2.1m`), và qua vai thấp 1.5m (`ots_right_low`, `ots_left_low`).
+  - Tất cả ứng viên đều thỏa mãn cự ly 1.8–3.0 m và độ cao 1.5–1.7 m.
+  - Hàm đánh giá `evaluateCandidate` kiểm tra toàn diện:
+    1. **Tường trong nhà:** kiểm tra giao cắt đoạn thẳng giữa camera và người nói với các đoạn tường của tầng; không cho camera đặt ngoài phòng hoặc xuyên tường.
+    2. **Mái che / trần:** không vượt qua trần phòng học (cao 3.2m) và không bị mái đón canopy ngoài trời B8 (cao 3.04m) che.
+    3. **Cây cối ngoài trời:** danh sách `OUTDOOR_FOCUS_TREES` định vị chính xác các cây liễu trước cửa Nam B8 (`[18.04, -162.42]` và `[17.36, -167.78]`). Tự động phát hiện nếu camera nằm trong tán cây hoặc tia nhìn đâm xuyên qua tán lá cây liễu.
+    4. **Diễn viên khác:** không bị đầu hoặc thân diễn viên thứ ba đứng chắn tia nhìn.
+    5. **Thân người chơi:** kiểm tra góc nhìn, không để đầu/thân người chơi đè lên mặt người nói quá 20%.
+    6. **Bố cục khung hình:** đảm bảo mặt người nói nằm trong vùng 60% trung tâm khung hình (góc lệch so với trục nhìn < 13.5° với FOV 45°).
+  - Chọn vị trí ứng viên đầu tiên hoàn toàn thông thoáng (`isClear = true`); nếu tất cả đều có vật cản, chọn vị trí có penalty thấp nhất (ít che nhất).
+
+#### c) Tích hợp camera trong `WalkMode.tsx`
+- Chỉ gọi `selectFocusedCameraPosition` **MỘT LẦN DUY NHẤT** khi bắt đầu `focused` (`!wasFocused.current`).
+- Không raycast mỗi khung hình, không tạo object mới trong `useFrame`.
+- Di chuyển camera mượt mà với hằng số thời gian 0.6s: `focusSpeed = 1 - Math.exp(-dt / 0.6)`.
+- Khi thoát đối thoại: tự động chuyển mượt trả về góc nhìn bình thường của `WalkMode`.
+
+#### d) Bộ kiểm thử độc lập (`scripts/silver/tests/focused-camera.test.mjs`)
+- 5 ca test kiểm tra chặt chẽ:
+  1. Mặc định chọn `ots_right` khi không có vật cản, cự ly 1.8–3.0m, cao 1.5–1.7m.
+  2. Tự động né cây liễu tại cửa Nam B8 trong kịch bản `entrance/meet-thanh`.
+  3. Không xuyên qua tường hành lang/phòng học trong nhà.
+  4. Tự động đổi góc nhìn khi có diễn viên thứ 3 đứng chắn tầm nhìn.
+  5. Đảm bảo mặt người nói luôn nằm trong 60% giữa màn hình.
+
+---
+
+### Kết quả kiểm tra thực nghiệm đủ 7 cảnh đối thoại focused (không ngồi)
+
+Toàn bộ 7 cảnh được kiểm tra trực tiếp trên trình duyệt ở cổng 5199 qua Orca tab (`browserPageId: 9a063834-bd71-4376-936c-37fff0b866e8`), chụp tại thời điểm chữ chạy xong và tiêu đề cảnh đọc được rõ ràng.
+
+| STT | Cảnh (Scene ID) | Tiêu đề trên màn hình | Địa điểm | Thấy mặt ai | Vật cản / Che khuất | Đánh giá | Ảnh minh chứng |
+|:---:|:---|:---|:---|:---|:---|:---:|:---|
+| 1 | `entrance/meet-thanh` | Trước cửa B8 (Bước 1/4) | Sân trước B8 cửa Nam | Thấy rõ Thành từ thắt lưng trở lên, nhãn tên "Thành" và dấu chấm than vàng. Thành quay mặt trực diện về người chơi. Thân người chơi ở góc dưới trái chiếm ~12% khung hình. | Không bị cành cây liễu che; camera tự động né tán cây `[17.36, -167.78]`. Không bị mái hiên canopy che. | **ĐẠT** | `docs/it-silver/anh-3d/camera/01-meet-thanh.jpg` (74 KB) |
+| 2 | `entrance/result` | Bảng kết quả (Bước 1/5) | Sân trước B8 ngoài trời | Thấy rõ người chơi đứng trước bảng dán kết quả thi xếp lớp tiếng Anh, không gian ngoài trời thoáng đãng. | Không bị che khuất. Khắc phục hoàn toàn lỗi nhầm sang màn hình máy tính của đợt trước. | **ĐẠT** | `docs/it-silver/anh-3d/camera/02-result.jpg` (61 KB) |
+| 3 | `1.1/pe` | Giờ thể chất đầu tiên (Bước 1/2) | Sân thể chất ngoài trời cạnh B8 | Thấy rõ sinh viên tập thể dục trên sân cỏ. Nhóm bạn tập trung ngoài trời khởi động. | Không bị cây hoặc công trình che khuất. | **ĐẠT** | `docs/it-silver/anh-3d/camera/03-pe.jpg` (70 KB) |
+| 4 | `1.1/after` | Giờ nghỉ sau buổi thi (Bước 1/5) | Hành lang tầng 2 B8 | Thấy rõ Han và Thành đứng ở hành lang. Han quay mặt đối diện người chơi, nhãn "Han" và "Thành" rõ ràng. | Không bị tường hành lang hay dầm trần che khuất. Camera nằm hoàn toàn bên trong không gian hành lang. | **ĐẠT** | `docs/it-silver/anh-3d/camera/04-after.jpg` (109 KB) |
+| 5 | `2.2/opening` | Ngày đầu kỳ (Bước 1/3) | Sảnh trệt B8 | Thấy rõ Thành và Quyền. Cả hai bạn đứng trong bán kính 4m đều quay mặt về phía người chơi, nhãn "Thành" và "Quyền" hiển thị rõ. | Không bị cột sảnh hay người chơi che mặt. Bố cục hai nhân vật cân đối. | **ĐẠT** | `docs/it-silver/anh-3d/camera/05-opening.jpg` (57 KB) |
+| 6 | `2.2/closing` | Hết buổi, cả nhóm so kết quả (Bước 1/4) | Phòng lab / sảnh tầng 1 B8 | Thấy rõ Han và Quyền đứng trao đổi bài thi với người chơi. Cả hai quay mặt hướng về người chơi. | Không bị che khuất. Góc nhìn thông thoáng thấy rõ cả 3 người. | **ĐẠT** | `docs/it-silver/anh-3d/camera/06-closing.jpg` (73 KB) |
+| 7 | `2.2/club` | Bàn đăng ký câu lạc bộ (Bước 1/1) | Sảnh trệt B8 bàn đăng ký CLB | Thấy rõ Han đứng trước bàn đăng ký CLB, quay mặt đối diện người chơi, nhãn "Han" hiển thị rõ cùng bảng 3 lựa chọn câu lạc bộ. | Không bị che khuất. Khắc phục triệt để lỗi chụp nhầm cảnh `2.2/opening` của đợt trước. | **ĐẠT** | `docs/it-silver/anh-3d/camera/07-club.jpg` (87 KB) |
+
+Tất cả 7 ảnh đều có dung lượng ≤ 109 KB (thỏa mãn yêu cầu ≤ 150 KB), tiêu đề cảnh và nội dung chữ hoàn toàn khớp với thực tế.
 
 ---
 
