@@ -14,6 +14,9 @@ import SlideViewer from './SlideViewer';
 
 /** Lớp UI 2D của buổi học: chọn thành phần theo `phase` của useLessonStore. */
 export default function LessonLayer() {
+  if (typeof window !== 'undefined') {
+    (window as unknown as Record<string, unknown>).__LESSON_STORE__ = useLessonStore;
+  }
   const phase = useLessonStore((s) => s.phase);
   const desktopOpen = useLessonStore((s) => s.desktopOpen);
   const reviewMode = useReviewStore((s) => s.reviewMode);
@@ -53,8 +56,8 @@ export default function LessonLayer() {
   const exercise = phase === 'exercise';
   return (
     <>
-      {/* Bốn góc: Góc phải trên = nút hệ thống (Mute, Exit) */}
-      <div className="fixed right-3 top-3 z-[45] flex items-center gap-2 sm:right-4 sm:top-4">
+      {/* Bốn góc: Góc phải trên = nút hệ thống (Mute, Exit) ngay dưới TopBar */}
+      <div className="fixed right-3 top-14 z-[45] flex items-center gap-2 sm:right-4 sm:top-16">
         <MuteButton />
         {!(exercise && desktopOpen) && <ExitButton />}
       </div>
