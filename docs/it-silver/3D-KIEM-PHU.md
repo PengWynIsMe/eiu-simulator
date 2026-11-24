@@ -139,3 +139,68 @@
 | 7 | `07-406-b8-seated-view1.jpg` | 98 KB | Cảnh phòng 406.B8 (*2.2 Lab 1*) góc nhìn FPS: Khối tối biến mất, màn hình máy tính, bàn học và bạn học Han hiển thị rõ ràng. |
 | 8 | `08-406-b8-seated-view0-sauvai.jpg` | 79 KB | Cảnh phòng 406.B8 chu kỳ phím C quay lại Sau vai: Khối đen lại xuất hiện che màn hình. |
 | 9 | `09-406-b8-player-hidden-proof.jpg` | 98 KB | Bằng chứng thực nghiệm tại 406.B8 góc nhìn Sau vai: Khi ẩn mesh `character-male-a`, khối tối biến mất hoàn toàn, chứng minh 100% khối tối là người chơi. |
+
+---
+
+## Phần 2 — Cỡ màn hình & Xung đột giao diện (360×780, 768×1024, 1440×900)
+
+Đã kiểm tra giả lập hiển thị 3 kích thước màn hình theo yêu cầu:
+1. **360 × 780 (Mobile Portrait)**
+2. **768 × 1024 (Tablet Portrait)**
+3. **1440 × 900 (Desktop Landscape)**
+
+Kiểm tra tại 4 trạng thái cốt lõi: Lúc ngồi (`seated`), Thoại (`say`), Câu hỏi (`question`), Máy ảo/Code (`code`).
+
+### 1. Phân tích xung đột & Đè giao diện ("Cái gì đè cái gì")
+
+#### A. Cỡ màn hình 360 × 780 (Mobile — Bị lỗi đè nghiêm trọng nhất)
+1. **Xung đột nút đi bộ ảo và nút điều hướng học tập:**
+   - Khi ở trạng thái ngồi (`seated = true`) trong lớp học hoặc đang thoại/trả lời câu hỏi:
+     - `WalkHud.tsx` vẫn render cần điều khiển ảo (Virtual Joystick `group "Cần điều khiển đi bộ"`) ở góc dưới bên trái (`bottom-6 left-6 z-50`).
+     - `WalkHud.tsx` vẫn render nút **"Thoát đi bộ"** ở góc dưới bên phải (`bottom-6 right-6 z-50`).
+   - **Hậu quả:**
+     - **Ở bước Thoại (`say`):** Vòng tròn cần joystick đè thẳng lên card nội dung văn bản bên trái. Nút **"Thoát đi bộ"** màu đen đè **TRỰC DIỆN LÊN NÚT VÀNG "Tiếp ›"**, người dùng không thể bấm "Tiếp ›" bằng ngón tay bình thường (xem ảnh `10-360x780-seated-say.jpg`).
+     - **Ở bước Câu hỏi (`question`):** Vòng tròn joystick đè đè trọn lên lựa chọn đáp án số 3 (`3 · 10:00`), khiến sinh viên bấm chọn đáp án 3 sẽ bị nhận nhầm thành cử chỉ di chuyển. Nút "Thoát đi bộ" đè lên góc phải card câu hỏi (xem ảnh `12-360x780-question.jpg`).
+     - **Ở bước Code (`code`):** Giao diện máy tính ảo EIU Desktop mở lên toàn màn hình, nhưng Joystick ảo và nút "Thoát đi bộ" vẫn nổi lên đè thanh Taskbar / nút Start EIU của máy tính ảo (xem ảnh `11-360x780-code.jpg`).
+2. **Tràn thanh tiêu đề (Top Header Banner Overflow):**
+   - Hàng tiêu đề trên cùng gom toàn bộ: Tên bài học + Bước x/y + Nút "Đứng dậy" + Nút "Tuần học" + Nút "Bỏ qua cảnh" + Nút "Thoát" + Chuyển ngữ "VI/EN" + Nút âm thanh "🔊".
+   - Bề rộng 360 px không đủ chứa hàng nút này:
+     - Nhãn "Bước 1/6" và nút "Đứng dậy" bị co kéo đè lên nhau, chữ "Bước" bị cắt cụt mép trái màn hình.
+     - Tiêu đề dài ("Lab 1 — Máy biết chào") bị rút ngắn thành `"L..."`.
+3. **Nút đổi góc nhìn lơ lửng (`Góc nhìn: Sau vai · C`):**
+   - Nút `fixed right-6 top-20` hiển thị trên mobile chiếm không gian phía trên màn hình, che khuất một phần slide bài giảng hoặc cửa sổ đăng nhập máy ảo.
+
+#### B. Cỡ màn hình 768 × 1024 (Tablet Portrait)
+- Card câu hỏi, thoại và code hiển thị đầy đủ, cân đối ở giữa màn hình (xem ảnh `13-768x1024-question.jpg`).
+- Vì trình duyệt nhận diện `pointer: fine`, joystick ảo và nút "Thoát đi bộ" không xuất hiện.
+- Thanh tiêu đề trên cùng đủ độ rộng để trải ngang toàn bộ các nút chức năng mà không bị chồng lấn.
+- Điểm tồn tại duy nhất: Ở góc nhìn Sau vai (`viewMode = 0`), khối người chơi vẫn che nửa bên trái nền 3D phía sau card câu hỏi.
+
+#### C. Cỡ màn hình 1440 × 900 (Desktop Landscape)
+- Tỉ lệ hiển thị chuẩn nhất, không có hiện tượng UI 2D đè lên nhau (xem ảnh `14-1440x900-question.jpg`).
+- Thanh công cụ trên cùng rộng rãi, card câu hỏi đặt gọn gàng ở nửa dưới màn hình, người chơi quan sát được cả bảng trình chiếu và thầy cô/bạn học bên cạnh.
+
+---
+
+### 2. Đề xuất khắc phục xung đột giao diện Mobile
+1. Trong `src/ui/walk/WalkHud.tsx`:
+   - Ẩn toàn bộ Joystick và nút "Thoát đi bộ" khi người chơi đang ngồi hoặc đang trong bài học/Silver run:
+     ```tsx
+     const isSeated = useActivityStore((s) => s.seated);
+     const hasActivity = Boolean(useActivityStore((s) => s.activity));
+     if (isSeated || hasActivity) return null; // Ẩn điều khiển đi bộ khi đang làm bài hoặc đang ngồi
+     ```
+2. Trong thanh banner bài học (`src/ui/silver/parts/` hoặc `SilverLayer.tsx`):
+   - Trên màn hình hẹp (`< 640px`), gom các nút phụ ("Tuần học", "Bỏ qua cảnh", "VI/EN") vào một menu dropdown 3 chấm (kebab menu) để tránh vỡ layout hàng ngang.
+
+---
+
+### Danh sách ảnh minh chứng Phần 2:
+| STT | Tên file ảnh | Dung lượng | Mô tả nội dung kiểm tra thực tế |
+|---|---|---|---|
+| 10 | `10-360x780-seated-say.jpg` | 45 KB | Màn hình 360×780 (Mobile): Nút "Thoát đi bộ" đè trực tiếp lên nút vàng "Tiếp ›"; Cần joystick ảo đè card thoại. |
+| 11 | `11-360x780-code.jpg` | 44 KB | Màn hình 360×780 (Mobile): Ở màn hình máy ảo Code, cần joystick và nút thoát đi bộ vẫn nổi lên đè thanh taskbar. |
+| 12 | `12-360x780-question.jpg` | 48 KB | Màn hình 360×780 (Mobile): Cần joystick ảo đè lên đáp án 3 (`3 · 10:00`); Header trên cùng bị tràn đè nút. |
+| 13 | `13-768x1024-question.jpg` | 71 KB | Màn hình 768×1024 (Tablet): Giao diện câu hỏi hiển thị đầy đủ, không bị đè nút. |
+| 14 | `14-1440x900-question.jpg` | 95 KB | Màn hình 1440×900 (Desktop): Giao diện chuẩn, thoáng đãng, cân đối. |
+
