@@ -310,3 +310,69 @@ Kiểm tra tại 4 trạng thái cốt lõi: Lúc ngồi (`seated`), Thoại (`s
 
 ---
 
+## PHẦN 4 — THƯ VIỆN B4: TRẢI NGHIỆM 3 TẦNG, BẢNG DỊCH VỤ, PHÍM ESC VÀ TÁCH BIỆT KHỎI B8
+
+### 1. Quy trình kiểm tra thực tế
+1. **Truy cập từ panel tòa B4:**
+   - Trên bản đồ tổng quan, click chọn tòa Block 4 (Thư viện).
+   - Panel bên phải hiển thị cấu trúc kiến trúc 3 tầng, 11.4 m, 24 tấm pin mặt trời và nút hành động vàng đồng: `Vào tham quan Thư viện EIU 3D` (`src/ui/BuildingPanel.tsx` dòng 236–259).
+   - Bấm nút: Game chuyển mượt mà vào góc nhìn đi bộ nội thất Tầng 1 Thư viện B4 tại tọa độ `[x: 91.5, z: -97.4]`.
+2. **Tham quan 3 tầng thư viện:**
+   - **Tầng 1 (Trệt):** Hiển thị sảnh chính, quầy thông tin, khu vực máy tính, khu vực in ấn, khu tự học và góc trao đổi sách. Sơ đồ SVG mini và menu sidebar Accordion cập nhật vị trí chính xác (ảnh `15-b4-library-floor1-1440.jpg`).
+   - **Tầng 2:** Bấm nút chuyển nhanh `TẦNG 2` trên thanh công cụ góc phải dưới: Nhân vật chuyển tầng tức thì lên Tầng 2, sơ đồ SVG mini chuyển sang layout phòng học nhóm 01..09, khu tự học Bắc và phòng máy chủ 202.
+   - **Tầng 3:** Bấm nút `TẦNG 3`: Nội thất chuyển sang khu vực kệ sách tập trung, quầy lưu hành, cổng kiểm soát an ninh RFID và sảnh thang bộ thoát hiểm.
+3. **Modal Bảng dịch vụ & Tiện ích Thư viện EIU (`LibraryHud.tsx`):**
+   - Mở modal qua nút `ⓘ DỊCH VỤ & TIỆN ÍCH` hoặc nút tròn `i` góc phải dưới.
+   - Modal hiển thị chuẩn 5 tab nghiệp vụ theo thư viện EIU: `Mượn / Trả sách (OPAC)`, `Phòng học nhóm & Nghiên cứu`, `Cơ sở dữ liệu điện tử`, `Khu tự học & Không gian sáng tạo`, `Ứng dụng EIU Library & Liên hệ` (ảnh `16-b4-library-services-modal.jpg`).
+4. **Kiểm tra phím Escape (Đóng modal vs Thoát ra ngoài):**
+   - Khi modal Dịch vụ đang mở, nhấn phím `Escape`:
+     - Nhờ logic `e.stopImmediatePropagation()` trong `LibraryHud.tsx` (dòng 215–224), sự kiện Esc được cô lập hoàn toàn: **Modal dịch vụ đóng ngay lập tức (`modalStillOpen: false`)**.
+     - Trạng thái đi bộ trong thư viện **VẪN ĐƯỢC GIỮ NGUYÊN (`isLibraryStillActive: true`)**, người chơi không bị văng ra ngoài khuôn viên.
+   - Khi nhấn phím `Escape` lần thứ hai (khi modal đã đóng):
+     - Handler thoát toàn cục trong `WalkHud.tsx` kích hoạt: Người chơi thoát hoàn toàn khỏi chế độ đi bộ và quay trở về bản đồ khuôn viên tổng thể.
+   - Bấm phím `E` tại cửa sảnh: Kích hoạt nút `Ra ngoài khuôn viên (Nhấn E)`, thoát ra ngoài an toàn.
+
+---
+
+### 2. Đánh giá xung đột giao diện tại 1440 × 900 và 360 × 780
+
+#### A. Tại 1440 × 900 (Desktop)
+- Menu sidebar bên trái (`w-[258px]`) đặt cố định `top-16 bottom-16 left-3`.
+- Sơ đồ thu nhỏ đặt ở `bottom-28 right-4`.
+- Thanh đổi tầng nhanh đặt ở `bottom-16 right-4`.
+- **Đánh giá:** Không có bất kỳ sự đè lấn nào giữa các nút giao diện thư viện với nút điều khiển hay nút thoát của hệ thống. Người chơi có tầm nhìn 3D bao quát toàn bộ nội thất.
+
+#### B. Tại 360 × 780 (Mobile)
+- Trên mobile, menu sidebar bên trái ban đầu tự động thu gọn thành nút tròn nhỏ `☰ Thư viện` (`bottom-44 left-3`), không choán màn hình (ảnh `17-b4-library-360x780.jpg`).
+- Thanh chuyển tầng đặt ở `bottom-44 right-3` (cách đáy 176px), sơ đồ mini đặt ở `bottom-56 right-3` (cách đáy 224px).
+- Nút "Thoát đi bộ" / "Ra ngoài" nằm ở `bottom-6 right-6` và phím ảo joystick ở `bottom-6 left-6`.
+- **Kết quả:** Các nút công cụ thư viện được bố trí cao hơn khu vực điều khiển đáy màn hình (cách nhau > 100px), **KHÔNG BỊ ĐÈ LÊN NÚT ĐI BỘ / THOÁT**.
+- Khi người dùng chủ động mở menu sidebar (chiều rộng 258px trên màn 360px): Sidebar chiếm 72% chiều ngang màn hình nhưng có nút thu gọn `‹` rõ ràng ở góc trên cùng bên phải để đóng lại bất kỳ lúc nào.
+
+---
+
+### 3. Kiểm tra tính tách biệt: Đi một lượt 2.2 Lab 1 trong B8
+
+- **Thực nghiệm:** Truy cập tiến trình IT Silver -> Kỳ 2.2 (Chuyên ngành) -> Bài Lab 1 (`CSE 103`) tại phòng máy 406.B8.
+- **Mã nguồn bảo vệ:** Trong `src/ui/interior/LibraryHud.tsx` (dòng 157 & 226):
+  ```tsx
+  const isLibrary = Boolean(walkMode && interior?.buildingId.toLowerCase() === 'b4');
+  if (!isLibrary) return null;
+  ```
+- **Kết quả kiểm tra thực tế trong phòng 406.B8:**
+  - `document.querySelector('[aria-label="Menu tham quan Thư viện EIU"]')` trả về `null`.
+  - Toàn bộ thanh đổi tầng, sơ đồ mini, nút Dịch vụ thư viện hoàn toàn **BIẾN MẤT 100%** (xem ảnh `18-2.2-lab1-b8-no-library-hud.jpg`).
+  - Giao diện phòng học 406.B8 hoàn toàn sạch sẽ, chỉ hiển thị HUD điều khiển của lớp học và bài giảng CSE 103, không bị lẫn bất kỳ thành phần nào của Thư viện B4.
+
+---
+
+### Danh sách ảnh minh chứng Phần 4:
+| STT | Tên file ảnh | Dung lượng | Mô tả nội dung kiểm tra thực tế |
+|---|---|---|---|
+| 15 | `15-b4-library-floor1-1440.jpg` | 112 KB | Thư viện B4 Tầng 1 (Desktop 1440×900): Sảnh chính, menu tham quan bên trái, sơ đồ SVG mini góc phải, thanh chuyển tầng. |
+| 16 | `16-b4-library-services-modal.jpg` | 62 KB | Thư viện B4 (1440×900): Modal "Dịch vụ & Tiện ích Thư viện EIU" mở với 5 tab nghiệp vụ chuẩn. |
+| 17 | `17-b4-library-360x780.jpg` | 88 KB | Thư viện B4 trên Mobile 360×780: Nút chuyển tầng và công cụ bố trí ở `bottom-44`, không đè nút thoát/đi bộ. |
+| 18 | `18-2.2-lab1-b8-no-library-hud.jpg` | 62 KB | Phòng máy 406.B8 (Kỳ 2.2 Lab 1): Bảng thư viện B4 hoàn toàn không hiển thị, đảm bảo tính tách biệt tuyệt đối. |
+
+---
+
