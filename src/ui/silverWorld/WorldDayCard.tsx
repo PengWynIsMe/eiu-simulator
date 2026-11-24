@@ -20,10 +20,10 @@ interface ActiveCard {
 }
 
 /**
- * Thẻ ngày / thẻ chuyển cảnh fade 0,6 s hiển thị tên thứ hoặc tên cảnh từ scene.title.
- * - Chỉ hiện khi đổi ngày hoặc đổi cảnh (hai môn/bài cùng phòng, cùng ngày, đang ngồi không hiện lại).
- * - Không hiện lại khi mở lịch tuần rồi quay lại cùng ngày.
- * - Tự biến mất sau 1,8 s (0,6 s fade-in -> giữ 0,6 s -> 0,6 s fade-out).
+ * Thẻ ngày / thẻ chuyển cảnh fade:
+ * - Nhỏ phía trên giữa màn hình, KHÔNG làm mờ nền.
+ * - Tự biến mất sau 1,8 s (1,2 s hiển thị -> 0,6 s fade-out).
+ * - Sửa lỗi React StrictMode: effect quản lý timer dựa trên activeCard để cleanup/remount không làm kẹt thẻ.
  */
 export default function WorldDayCard() {
   const lang = useLangStore((s) => s.lang);
@@ -37,7 +37,26 @@ export default function WorldDayCard() {
   const lastDayRef = useRef<number | null>(null);
   const lastChapterRef = useRef<string | null>(null);
   const lastSceneIdRef = useRef<string | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Quản lý timer tự tắt 1,8s (1,2s in + 0,6s out) bền vững với StrictMode
+  useEffect(() => {
+    if (!activeCard) {
+      setFadeState('hidden');
+      return;
+    }
+
+    setFadeState('in');
+    const timerOut = setTimeout(() => {
+      setFadeState('out');
+      const timerHide = setTimeout(() => {
+        setFadeState('hidden');
+        setActiveCard(null);
+      }, 600);
+      return () => clearTimeout(timerHide);
+    }, 1200);
+
+    return () => clearTimeout(timerOut);
+  }, [activeCard]);
 
   useEffect(() => {
     // Chỉ reset trạng thái ghi nhớ khi ra ngoài home/closed hoặc sang chương khác
@@ -45,8 +64,6 @@ export default function WorldDayCard() {
       lastDayRef.current = null;
       lastSceneIdRef.current = null;
       lastChapterRef.current = null;
-      if (timerRef.current) clearTimeout(timerRef.current);
-      setFadeState('hidden');
       setActiveCard(null);
       return;
     }
@@ -59,27 +76,12 @@ export default function WorldDayCard() {
 
     // Khi ở màn phụ khác (ví dụ: 'week'), tạm ẩn thẻ nhưng KHÔNG xóa lastDayRef
     if (screen !== 'play' || !playItem) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      setFadeState('hidden');
       setActiveCard(null);
       return;
     }
 
     const meeting = playItem.meeting;
     const scene = playItem.scene;
-
-    const triggerCard = (card: ActiveCard) => {
-      setActiveCard(card);
-      setFadeState('in');
-
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        setFadeState('out');
-        timerRef.current = setTimeout(() => {
-          setFadeState('hidden');
-        }, 600);
-      }, 1200);
-    };
 
     // 1. Trường hợp có lịch học theo ngày (chương 2.2): đổi ngày -> hiện thẻ ngày
     if (meeting && meeting.day !== undefined) {
@@ -88,7 +90,7 @@ export default function WorldDayCard() {
         lastDayRef.current = newDay;
         const dayInfo = DAY_NAMES[newDay];
         if (dayInfo) {
-          triggerCard({
+          setActiveCard({
             primary: dayInfo,
             icon: '📅',
             dayIndex: newDay,
@@ -112,7 +114,7 @@ export default function WorldDayCard() {
 
         // Nếu giữ nguyên ghế ngồi trong cùng phòng thì không làm phiền bằng fade
         if (!isKeepSeated) {
-          triggerCard({
+          setActiveCard({
             primary: scene.title,
             icon: '🎓',
           });
@@ -121,39 +123,34 @@ export default function WorldDayCard() {
     }
   }, [screen, chapterId, playItem]);
 
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
   if (fadeState === 'hidden' || activeCard === null) {
     return null;
   }
 
   const primaryName = lang === 'vi' ? activeCard.primary.vi : activeCard.primary.en;
   const secondaryName = lang === 'vi' ? activeCard.primary.en : activeCard.primary.vi;
-
   const isVisible = fadeState === 'in';
 
   return (
     <div
       data-silver-day-card="true"
       data-silver-day-index={activeCard.dayIndex}
-      className={`pointer-events-none fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-opacity duration-[600ms] ease-out ${
-        isVisible ? 'opacity-100' : 'opacity-0'
+      className={`pointer-events-none fixed top-16 left-1/2 z-40 -translate-x-1/2 select-none transition-all duration-500 ease-out ${
+        isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95'
       }`}
     >
-      <div className="mx-4 max-w-sm rounded-2xl border border-sky-400/30 bg-gradient-to-b from-[#0b3d91]/95 to-[#082b66]/95 px-8 py-6 text-center shadow-2xl sm:px-12 sm:py-8">
-        <div className="mb-2 text-2xl sm:text-3xl" aria-hidden="true">
+      <div className="flex items-center gap-2.5 rounded-2xl border border-sky-400/40 bg-gradient-to-r from-[#0b3d91]/95 to-[#082b66]/95 px-5 py-2.5 shadow-xl backdrop-blur-md">
+        <span className="text-xl" aria-hidden="true">
           {activeCard.icon}
+        </span>
+        <div>
+          <h2 className="text-sm font-extrabold tracking-wide text-white sm:text-base">
+            {primaryName}
+          </h2>
+          <p className="text-[10px] font-semibold tracking-wider text-sky-200 uppercase sm:text-xs">
+            {secondaryName}
+          </p>
         </div>
-        <h2 className="text-2xl font-extrabold tracking-wide text-white sm:text-3xl">
-          {primaryName}
-        </h2>
-        <p className="mt-1.5 text-xs font-semibold tracking-widest text-sky-200 uppercase sm:text-sm">
-          {secondaryName}
-        </p>
       </div>
     </div>
   );

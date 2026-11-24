@@ -1,25 +1,29 @@
 import { useEffect } from 'react';
 import { useTypewriter } from '../../desktop/useTypewriter';
 
-/** Ảnh đại diện tròn: chữ cái đầu của tên (bỏ danh xưng "Thầy/Cô") hoặc chữ + màu chỉ định. */
+/** Ảnh đại diện tròn: chữ cái đầu của tên hoặc chữ + màu chỉ định. */
 export function Avatar({
   name,
   tone = 'blue',
   bg,
   textColor,
   initial: customInitial,
+  size = 'md',
 }: {
   name: string;
   tone?: 'blue' | 'gold';
   bg?: string;
   textColor?: string;
   initial?: string;
+  size?: 'sm' | 'md';
 }) {
   const parts = name.trim().split(/\s+/);
   const initial = customInitial ?? (parts[parts.length - 1] ?? name).charAt(0).toUpperCase();
+  const dimClass = size === 'sm' ? 'h-9 w-9 text-base' : 'h-10 w-10 text-lg sm:h-11 sm:w-11';
+
   return (
     <div
-      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl font-bold shadow ${
+      className={`flex shrink-0 items-center justify-center rounded-full font-bold shadow ${dimClass} ${
         bg ? '' : tone === 'blue' ? 'bg-[#0b3d91] text-white' : 'bg-[#f5b700] text-slate-900'
       }`}
       style={bg ? { backgroundColor: bg, color: textColor ?? '#ffffff' } : undefined}
@@ -52,7 +56,12 @@ export interface DialogueViewProps {
   onNext?: () => void;
 }
 
-/** Khung thoại dùng chung (không `fixed`, không import store). */
+/**
+ * Khung thoại kiểu phụ đề:
+ * - Dải thấp, mỏng ở đáy, rộng tối đa 640 px.
+ * - Mobile (<640px): cao khoảng 30–35% màn hình, cuộn bên trong nếu nhiều dòng.
+ * - Lựa chọn câu đáp bố trí hàng gọn hoặc cột phải.
+ */
 export default function DialogueView({
   speakerName,
   avatarTone = 'blue',
@@ -70,7 +79,7 @@ export default function DialogueView({
   onChoose,
   onNext,
 }: DialogueViewProps) {
-  const { shown, done, skip } = useTypewriter(text, 30);
+  const { shown, done, skip } = useTypewriter(text, 25);
 
   useEffect(() => {
     if (!hotkeys || !done || options.length === 0 || selectedOptionId !== null || !onChoose) return;
@@ -93,11 +102,11 @@ export default function DialogueView({
   const showNextBtn = Boolean(onNext) && (!hasOptions || selectedOptionId !== null);
 
   return (
-    <div className="pointer-events-auto rounded-2xl bg-white p-4 shadow-2xl">
+    <div className="pointer-events-auto mx-auto w-full max-w-[640px] max-h-[35vh] sm:max-h-none overflow-y-auto rounded-2xl border border-slate-200/90 bg-white/95 p-3 sm:p-4 shadow-2xl backdrop-blur-md">
       <button
         type="button"
         onClick={skip}
-        className="flex w-full cursor-pointer items-start gap-3 text-left"
+        className="flex w-full cursor-pointer items-start gap-2.5 text-left sm:gap-3"
         aria-label={speakerName || undefined}
       >
         {showAvatar && (
@@ -107,12 +116,17 @@ export default function DialogueView({
             bg={avatarBg}
             textColor={avatarTextColor}
             initial={avatarInitial}
+            size="sm"
           />
         )}
         <span className={`min-w-0 flex-1 ${!showAvatar && italic ? 'text-center' : ''}`}>
-          {speakerName && <span className="block text-sm font-bold text-[#0b3d91]">{speakerName}</span>}
+          {speakerName && (
+            <span className="block text-xs font-bold uppercase tracking-wider text-[#0b3d91] sm:text-sm">
+              {speakerName}
+            </span>
+          )}
           <span
-            className={`block min-h-[3rem] text-[15px] leading-6 text-slate-800 ${
+            className={`block min-h-[2.5rem] text-[13px] leading-snug sm:text-[14px] sm:leading-relaxed text-slate-800 ${
               italic ? 'italic text-slate-700' : ''
             }`}
           >
@@ -121,8 +135,9 @@ export default function DialogueView({
         </span>
       </button>
 
+      {/* Lựa chọn câu đáp: hàng gọn hoặc lưới 2 cột */}
       {hasOptions && (
-        <div className={`mt-3 flex flex-col gap-2 sm:flex-row ${done ? '' : 'invisible'}`}>
+        <div className={`mt-2.5 flex flex-wrap gap-2 ${done ? '' : 'invisible'}`}>
           {options.map((o) => {
             const isSelected = selectedOptionId === o.id;
             const lockedOut = selectedOptionId !== null && !isSelected;
@@ -132,9 +147,9 @@ export default function DialogueView({
                 type="button"
                 disabled={selectedOptionId !== null}
                 onClick={() => onChoose?.(o.id)}
-                className={`min-h-[44px] flex-1 rounded-xl border-2 px-4 py-2 text-sm font-medium ${
+                className={`min-h-[44px] flex-1 rounded-xl border-2 px-3.5 py-1.5 text-xs font-semibold transition sm:text-sm active:scale-95 ${
                   isSelected
-                    ? 'border-[#0b3d91] bg-[#0b3d91] text-white'
+                    ? 'border-[#0b3d91] bg-[#0b3d91] text-white shadow'
                     : lockedOut
                       ? 'cursor-not-allowed border-slate-200 text-slate-400 opacity-50'
                       : 'border-[#0b3d91] text-[#0b3d91] hover:bg-[#0b3d91] hover:text-white'
@@ -149,11 +164,11 @@ export default function DialogueView({
       )}
 
       {reply && (
-        <p className="mt-3 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">{reply}</p>
+        <p className="mt-2.5 rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-700 sm:text-sm">{reply}</p>
       )}
 
       {showNextBtn && (
-        <div className={`mt-3 flex justify-end ${done || hasOptions ? '' : 'invisible'}`}>
+        <div className={`mt-2.5 flex justify-end ${done || hasOptions ? '' : 'invisible'}`}>
           <button
             type="button"
             onClick={() => {
@@ -163,7 +178,7 @@ export default function DialogueView({
               }
               onNext?.();
             }}
-            className="min-h-[44px] rounded-xl bg-[#f5b700] px-6 text-sm font-bold text-slate-900 hover:brightness-105"
+            className="min-h-[44px] rounded-xl bg-[#f5b700] px-5 text-xs font-bold text-slate-900 shadow hover:brightness-105 active:scale-95 sm:min-h-[38px] sm:px-6 sm:text-sm"
           >
             {nextLabel}
           </button>

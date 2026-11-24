@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { useWalkStore } from '../../store/useWalkStore';
 import { useActivityStore } from '../../store/useActivityStore';
+import { useLessonStore } from '../../store/useLessonStore';
 import { useLangStore } from '../../store/useLangStore';
 import { getBuilding, getBuildingDetail } from '../../data';
 import { getInteriorLayout, type InteractivePoint } from '../../scene/interior/layouts';
 import LibraryHud from './LibraryHud';
+import ActionPrompt from '../ActionPrompt';
 
 interface ProximityState {
   interactive: Pick<InteractivePoint, 'id' | 'type' | 'label' | 'buildingId'> | null;
@@ -23,6 +25,9 @@ export default function InteriorHud() {
   const screenOpen = useActivityStore((s) => s.screenOpen);
   const lang = useLangStore((s) => s.lang);
   const activityEngaged = Boolean(activity && (phase === 'engaged' || screenOpen));
+  const lessonPhase = useLessonStore((s) => s.phase);
+  const isLessonEngaged = lessonPhase !== 'idle' && lessonPhase !== 'goToClass' && lessonPhase !== 'findSeat';
+  const isStudying = activityEngaged || isLessonEngaged;
 
   const [proximity, setProximity] = useState<ProximityState>({ interactive: null, activeRoom: null });
   const [elevatorOpen, setElevatorOpen] = useState(false);
@@ -211,7 +216,7 @@ export default function InteriorHud() {
       />
 
       {/* 2. Thẻ thông tin tầng & phòng học / hành lang đang đứng */}
-      {interior && !activityEngaged && (
+      {interior && !isStudying && (
         <div className="pointer-events-none fixed top-14 left-1/2 z-40 -translate-x-1/2 sm:top-16">
           <div className="flex max-w-[260px] flex-col items-center rounded-2xl border border-sky-400/40 bg-slate-950/80 px-4 py-2 text-center shadow-xl backdrop-blur-md sm:max-w-xs sm:px-5 sm:py-2.5">
             <div className="flex items-center gap-2">
@@ -234,26 +239,16 @@ export default function InteriorHud() {
       )}
 
       {/* 3. Nút / Gợi ý tương tác (Nhấn [E] hoặc Chạm nút) */}
-      {interactive && (!isActivity || activity?.key === interactive.id) && (
-        <div className={`fixed bottom-24 z-40 select-none md:bottom-20 ${isActivity
-          ? 'right-6 md:right-auto md:left-1/2 md:-translate-x-1/2'
-          : 'left-1/2 -translate-x-1/2'}`}>
-          <button
-            type="button"
-            onClick={handleActionClick}
-            className="flex items-center gap-2.5 rounded-full border border-sky-300/60 bg-sky-950/85 px-5 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur-md transition-transform hover:scale-105 active:scale-95"
-          >
-            {!isActivity && (
-              <span className="hidden rounded bg-sky-500 px-2 py-0.5 text-xs font-bold text-white shadow md:inline-block">
-                E
-              </span>
-            )}
-            <span>{isActivity ? activity?.prompt[lang] : interactive.label}</span>
-          </button>
-        </div>
+      {interactive && !isStudying && (!isActivity || activity?.key === interactive.id) && (
+        <ActionPrompt
+          label={isActivity ? (activity?.prompt[lang] ?? interactive.label) : interactive.label}
+          hotkey="E"
+          onAction={handleActionClick}
+          touchPosition={isActivity ? 'bottom-right' : 'bottom-center'}
+        />
       )}
 
-      {interior && stairCode && (
+      {interior && stairCode && !isStudying && (
         <div className="fixed bottom-24 left-1/2 z-40 flex -translate-x-1/2 gap-2 select-none md:bottom-20">
           {interior.floor < maxFloors && <button type="button" onClick={() => moveByStair(interior.floor + 1)} className="rounded-full border border-sky-300/60 bg-sky-950/90 px-4 py-3 text-sm font-semibold text-white shadow-2xl">E · Lên tầng {interior.floor + 1}</button>}
           {interior.floor > 1 && <button type="button" onClick={() => moveByStair(interior.floor - 1)} className="rounded-full border border-sky-300/60 bg-sky-950/90 px-4 py-3 text-sm font-semibold text-white shadow-2xl">Q · Xuống tầng {interior.floor - 1}</button>}

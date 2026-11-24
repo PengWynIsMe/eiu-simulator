@@ -87,6 +87,9 @@ export const TEXT = {
   lessonYou: 'Bạn',
   lessonReopenDesktop: '🖥 Mở máy tính',
   lessonSlideLabel: 'Slide',
+  lessonZoomSlide: 'Phóng to',
+  lessonMinimizeSlide: 'Thu nhỏ',
+  lessonLectureNotes: 'Ghi chú',
 
   // Tổng kết
   summaryTitle: 'Hoàn thành buổi học!',
