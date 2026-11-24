@@ -777,8 +777,8 @@ export default function WalkMode() {
       // So sánh số, không tạo chuỗi toFixed mỗi frame
       const focusChanged =
         Number.isNaN(lastFocusPos.current[0]) ||
-        Math.abs(tx - lastFocusPos.current[0]) > 0.02 ||
-        Math.abs(tz - lastFocusPos.current[1]) > 0.02 ||
+        Math.abs(tx - lastFocusPos.current[0]) > 0.5 ||
+        Math.abs(tz - lastFocusPos.current[1]) > 0.5 ||
         lastFocusSpeaker.current !== (speaker ?? null);
 
       if (focusChanged) {
