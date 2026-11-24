@@ -31,7 +31,7 @@
 | --- | --- | --- |
 | `npm run typecheck` | **0 lỗi** | `tsc -b --noEmit` hoàn toàn sạch lỗi kiểu |
 | `npm run lint` | **0 lỗi** | ESLint đạt chuẩn strict, không có bất kỳ warning nào |
-| `npm run test:silver` | **100% Passed** | **77 test suites passed, 115/115 test cases passed** (bao gồm `daycard-lifecycle.test.mjs`) |
+| `npm run test:silver` | **100% Passed** | **78 test suites passed, 119/119 test cases passed** (bao gồm `daycard-lifecycle` và `dialogue-advance`) |
 | `npm run check:silver -- --strict` | **Clean** | 180 test cases hợp lệ |
 | `npm run build` | **Thành công** | Vite build production sạch sẽ, không lỗi bundle |
 
@@ -114,12 +114,38 @@ Toàn bộ các thay đổi được chia nhỏ và commit cục bộ theo quy c
 15. `08afeec`: `fix(ui): doi the chi duong gap tu div sang button aria-expanded trong WorldNavigationCard va LessonHud (Muc 9)`
 16. `98f0d38`: `fix(ui): doi goi y E sang bottom-56 tren mobile, click duoc tren PC, va thu gon nut goc nhin (Muc 12)`
 17. `f7ab4c2`: `fix(ui): tinh chinh vi tri nut goc nhin top-32 va an the tang tren mobile khi co the chi duong (Muc 12)`
+18. `19b4c6c`: `feat(dialogue): them hook useDialogueAdvance ho tro click/chuyen thoai nhanh va test may trang thai`
 
 ---
 
 ## 5. Kết luận & Đề xuất tiếp theo
 
-- Đã giải quyết triệt để toàn bộ 12 mục yêu cầu từ điều phối viên.
-- Toàn bộ 5 cổng kiểm tra chất lượng đạt 100% (0 lỗi TypeScript, 0 lỗi lint, 77 test suites / 115 test cases passed, build production thành công).
+- Đã giải quyết triệt để toàn bộ 12 mục yêu cầu từ điều phối viên và tính năng mới click lời thoại chạy nhanh.
+- Toàn bộ 5 cổng kiểm tra chất lượng đạt 100% (0 lỗi TypeScript, 0 lỗi lint, 78 test suites / 119 test cases passed, build production thành công).
 - Hệ thống UI mới giải phóng hoàn toàn vùng trung tâm 55–60% màn hình, mang lại trải nghiệm tham quan không gian 3D và lớp học trực quan, tối ưu trên cả desktop lớn (1440), tablet (1024) và điện thoại di động (360).
 - Biến trạng thái bề rộng cột phải (`rightColumnWidth`) sẵn sàng phục vụ cho camera điều chỉnh tâm nhìn trong lượt tiếp theo.
+
+---
+
+## 6. Nhiệm vụ mở rộng: Bấm/chạm để lời thoại chạy nhanh (Fast-Forward Dialogue)
+
+- **Mục tiêu**: Người dùng bấm bất kỳ đâu trên khung thoại, trên cảnh 3D, hoặc bấm Enter/Space để hiện hết câu ngay lập tức. Khi câu đã hiện hết và không có lựa chọn: bấm lần nữa hoặc Enter/Space để sang câu tiếp theo.
+- **Kỹ thuật & Máy trạng thái (`src/ui/dialogueAdvance.ts`)**:
+  - `evaluateDialogueTrigger`: Máy trạng thái thuần túy kiểm tra `isTyping`, `hasOptions`, `canContinue`, `disabled`. Khi đang chạy chữ luôn trả về `'skip'`; khi đã hiện hết không có options trả về `'next'`; có options hoặc modal mở trả về `'none'`.
+  - `isDragGesture`: Kiểm tra cử chỉ kéo xoay nhìn (`dist > 6px || duration > 300ms`) để bỏ qua, không tính là click.
+  - `shouldIgnoreTarget`: Lọc tự động các nút tương tác khác (Thoát, ⋯, VI/EN, Đứng dậy, options câu hỏi) và các hộp thoại `[role="dialog"]` / `[role="alertdialog"]`.
+  - `useDialogueAdvance`: Hook dùng chung kết nối sự kiện `pointerdown`, `pointermove`, `pointerup`, `click`, `keydown` trên toàn màn hình với cơ chế chống bấm đúp (cooldown 250ms).
+  - Gợi ý nhỏ ở góc: VI "Chạm để hiện hết" / "Chạm để tiếp", EN "Tap to show all" / "Tap to continue" mờ, không chiếm dòng. Nút Tiếp luôn hiện sẵn cả khi đang chạy chữ.
+- **Phạm vi áp dụng đồng bộ**:
+  - Silver 3D: `WorldLayer.tsx` qua `DialogueView.tsx`
+  - nmlt-01: `DialogueBox.tsx` qua `DialogueView.tsx`
+  - Silver 2D: `Say.tsx` qua `useDialogueAdvance`
+  - `TeacherBubble`: Giữ nguyên hoàn toàn.
+- **Kiểm tra trên bản build production cổng 5197**:
+  - 1440 Desktop: Chuột click trực tiếp khung thoại hoặc click trên cảnh 3D đều hiện hết chữ ngay lập tức, click lần nữa sang câu; kéo chuột xoay nhìn không nhảy bước; phím Enter/Space hoạt động chuẩn.
+  - 360 Mobile: Chạm vào khung thoại hoặc chạm cảnh 3D đều hiện hết câu và sang câu; kéo màn hình không nhảy bước; menu và options hoạt động độc lập.
+  - *Báo cáo phương thức kiểm thử*: Chuột desktop được điều khiển trực tiếp qua tọa độ native `orca mouse move / down / up`; trên môi trường automation không có ngón tay vật lý, chạm mobile được giả lập thông qua sự kiện `click` / `pointerdown` / `pointerup` tiêu chuẩn của Chromium và phím qua `orca keypress`.
+- **Danh sách 3 ảnh JPEG nghiệm thu (`docs/it-silver/anh-3d/ui-mep/`)**:
+  1. `dialogue-1440-desktop.jpg` (102 KB): Desktop 1440 đang chạy chữ, hiện gợi ý "Chạm để hiện hết" và nút Tiếp hiện sẵn.
+  2. `dialogue-360-mobile.jpg` (54 KB): Mobile 360 thoại phụ đề hiển thị gợi ý góc "Chạm để hiện hết" và nút Tiếp.
+  3. `dialogue-scene-interaction.jpg` (102 KB): Desktop 1440 sau khi click/hiện hết câu, gợi ý đổi thành "Chạm để tiếp", sẵn sàng click trên cảnh 3D để sang bước.
