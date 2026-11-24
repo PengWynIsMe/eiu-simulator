@@ -36,7 +36,7 @@ export default function Say({ step, fullyShownRef, revealRef, onNext }: SayProps
   const displayText = isImmediate ? fullText : shown;
   const isDone = isImmediate || done;
 
-  const { hintText, triggerAdvance } = useDialogueAdvance({
+  const { hintText } = useDialogueAdvance({
     isTyping: !isDone,
     onSkip: skip,
     onNext,
@@ -58,13 +58,7 @@ export default function Say({ step, fullyShownRef, revealRef, onNext }: SayProps
         role="button"
         tabIndex={0}
         data-dialogue-advance="true"
-        onClick={triggerAdvance}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            triggerAdvance();
-          }
-        }}
+        aria-label={displayText}
         className="w-full max-h-[48dvh] cursor-pointer select-text overflow-y-auto px-2 py-2 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
       >
         <p className="whitespace-pre-line text-[15px] italic leading-6 text-slate-700">
@@ -84,13 +78,7 @@ export default function Say({ step, fullyShownRef, revealRef, onNext }: SayProps
       role="button"
       tabIndex={0}
       data-dialogue-advance="true"
-      onClick={triggerAdvance}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          triggerAdvance();
-        }
-      }}
+      aria-label={speakerLabel}
       className="w-full max-h-[48dvh] cursor-pointer overflow-y-auto rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
     >
       <div className="flex items-start gap-3">

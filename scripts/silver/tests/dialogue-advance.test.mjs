@@ -52,58 +52,114 @@ export default {
     );
   },
 
-  'dialogueAdvance: phat hien keo chuot xoay nhin (isDragGesture)': async ({ assert, load }) => {
+  'dialogueAdvance: reducer theo doi chuoi su kien keo chuot (dragTrackerReducer)': async ({ assert, load }) => {
     const mod = await load('/src/ui/dialogueAdvance.ts');
-    const { isDragGesture } = mod;
+    const { dragTrackerReducer, INITIAL_DRAG_STATE } = mod;
 
-    // 1. Click nhanh không di chuyển: dist <= 6, duration <= 300 -> false (không phải drag)
-    assert.equal(
-      isDragGesture({ x: 100, y: 100, time: 0 }, { x: 100, y: 100, time: 50 }),
-      false,
-      'Click đứng yên 50ms -> không phải drag',
-    );
-    assert.equal(
-      isDragGesture({ x: 100, y: 100, time: 0 }, { x: 104, y: 103, time: 150 }),
-      false,
-      'Click di chuyển 5px (3-4-5) trong 150ms -> không phải drag',
-    );
-    assert.equal(
-      isDragGesture({ x: 0, y: 0, time: 0 }, { x: 6, y: 0, time: 300 }),
-      false,
-      'Chạm đúng ngưỡng biên 6px và 300ms -> không phải drag',
-    );
+    // 1. Click nhe dung yen: down -> up trong 50ms, khong di chuyen -> wasDrag = false
+    let s = dragTrackerReducer(INITIAL_DRAG_STATE, {
+      type: 'down',
+      button: 0,
+      pointerType: 'mouse',
+      x: 100,
+      y: 100,
+      time: 0,
+    });
+    assert.equal(s.tracking, true);
+    assert.equal(s.wasDrag, false);
 
-    // 2. Kéo chuột xoay nhìn (> 6px): -> true (là drag, phải bỏ qua)
-    assert.equal(
-      isDragGesture({ x: 100, y: 100, time: 0 }, { x: 107, y: 100, time: 100 }),
-      true,
-      'Di chuyển 7px trong 100ms -> là drag',
-    );
-    assert.equal(
-      isDragGesture({ x: 100, y: 100, time: 0 }, { x: 150, y: 130, time: 200 }),
-      true,
-      'Di chuyển 58px trong 200ms -> là drag',
-    );
+    s = dragTrackerReducer(s, { type: 'up', x: 100, y: 100, time: 50 });
+    assert.equal(s.tracking, false);
+    assert.equal(s.wasDrag, false, 'Click dung yen 50ms khong phai drag');
 
-    // 3. Nhấn giữ lâu (> 300ms): -> true (long press/drag, phải bỏ qua)
-    assert.equal(
-      isDragGesture({ x: 100, y: 100, time: 0 }, { x: 100, y: 100, time: 301 }),
-      true,
-      'Giữ 301ms không di chuyển -> tính là giữ chuột (drag)',
-    );
-    assert.equal(
-      isDragGesture({ x: 100, y: 100, time: 0 }, { x: 102, y: 101, time: 500 }),
-      true,
-      'Giữ 500ms di chuyển 2.2px -> là drag',
-    );
+    // 2. Click di chuyen nhe duoi nguong (3px, 4px -> dist = 5px <= 6px) trong 150ms -> wasDrag = false
+    s = dragTrackerReducer(INITIAL_DRAG_STATE, {
+      type: 'down',
+      button: 0,
+      pointerType: 'touch',
+      x: 100,
+      y: 100,
+      time: 0,
+    });
+    s = dragTrackerReducer(s, { type: 'move', x: 103, y: 104 });
+    s = dragTrackerReducer(s, { type: 'up', x: 103, y: 104, time: 150 });
+    assert.equal(s.wasDrag, false, 'Cham di chuyen 5px trong 150ms khong phai drag');
+
+    // 3. Keo chuot xoay nhin 60px trong 100ms: down -> move -> up -> wasDrag = true
+    s = dragTrackerReducer(INITIAL_DRAG_STATE, {
+      type: 'down',
+      button: 0,
+      pointerType: 'mouse',
+      x: 100,
+      y: 100,
+      time: 0,
+    });
+    s = dragTrackerReducer(s, { type: 'move', x: 160, y: 100 });
+    assert.equal(s.maxDist, 60);
+    s = dragTrackerReducer(s, { type: 'up', x: 160, y: 100, time: 100 });
+    assert.equal(s.wasDrag, true, 'Keo 60px trong 100ms phai duoc danh dau wasDrag = true');
+
+    // Sau khi click bi nuot, consume_click reset wasDrag ve false
+    s = dragTrackerReducer(s, { type: 'consume_click' });
+    assert.equal(s.wasDrag, false, 'consume_click phai reset wasDrag ve false');
+
+    // 4. Keo roi quay lai diem cu (distance end - start nho nhung maxDist > 6px)
+    s = dragTrackerReducer(INITIAL_DRAG_STATE, {
+      type: 'down',
+      button: 0,
+      pointerType: 'mouse',
+      x: 100,
+      y: 100,
+      time: 0,
+    });
+    s = dragTrackerReducer(s, { type: 'move', x: 150, y: 100 });
+    s = dragTrackerReducer(s, { type: 'move', x: 100, y: 100 });
+    s = dragTrackerReducer(s, { type: 'up', x: 100, y: 100, time: 100 });
+    assert.equal(s.wasDrag, true, 'Keo roi quay ve vi tri cu van phai tinh la drag nho maxDist');
+
+    // 5. Nhan giu lau > 300ms khong di chuyen (long press) -> wasDrag = true
+    s = dragTrackerReducer(INITIAL_DRAG_STATE, {
+      type: 'down',
+      button: 0,
+      pointerType: 'mouse',
+      x: 100,
+      y: 100,
+      time: 0,
+    });
+    s = dragTrackerReducer(s, { type: 'up', x: 100, y: 100, time: 350 });
+    assert.equal(s.wasDrag, true, 'Giu 350ms tinh la drag/long press');
+
+    // 6. Pointer cancel (cu chi bi ngat/keo ra khoi man hinh) -> wasDrag = true
+    s = dragTrackerReducer(INITIAL_DRAG_STATE, {
+      type: 'down',
+      button: 0,
+      pointerType: 'mouse',
+      x: 100,
+      y: 100,
+      time: 0,
+    });
+    s = dragTrackerReducer(s, { type: 'move', x: 120, y: 100 });
+    s = dragTrackerReducer(s, { type: 'cancel' });
+    assert.equal(s.wasDrag, true, 'Pointercancel phai danh dau wasDrag = true');
+
+    // 7. Chuot phai (button = 2) -> khong tracking
+    s = dragTrackerReducer(INITIAL_DRAG_STATE, {
+      type: 'down',
+      button: 2,
+      pointerType: 'mouse',
+      x: 100,
+      y: 100,
+      time: 0,
+    });
+    assert.equal(s.tracking, false, 'Chuot phai phai bi bo qua');
   },
 
-  'dialogueAdvance: loc cac thanh phan tuong tac khac (shouldIgnoreTarget)': async ({ assert, load }) => {
+  'dialogueAdvance: loc cac thanh phan tuong tac va ho tro ban 2D SilverLayer': async ({ assert, load }) => {
     const mod = await load('/src/ui/dialogueAdvance.ts');
     const { shouldIgnoreTarget } = mod;
 
     // Giả lập mock DOM element đơn giản
-    function createMockElement({ tag = 'div', attrs = {}, parent = null } = {}) {
+    function createMockElement({ tag = 'div', attrs = {}, parent = null, children = [] } = {}) {
       const el = {
         tagName: tag.toUpperCase(),
         getAttribute: (k) => attrs[k] ?? null,
@@ -126,58 +182,128 @@ export default {
           }
           return null;
         },
+        querySelector: (selector) => {
+          const queue = [...children];
+          while (queue.length > 0) {
+            const node = queue.shift();
+            if (node) {
+              if (selector.startsWith('[') && selector.endsWith(']')) {
+                const match = selector.slice(1, -1).split('=');
+                const attrName = match[0].trim();
+                const attrVal = match[1] ? match[1].replace(/["']/g, '').trim() : null;
+                const actual = node.getAttribute(attrName);
+                if (attrVal !== null ? actual === attrVal : actual !== null) return node;
+              }
+              if (node.children) queue.push(...node.children);
+            }
+          }
+          return null;
+        },
         parentElement: parent,
+        children,
       };
+      for (const ch of children) {
+        ch.parentElement = el;
+      }
       return el;
     }
 
     // 1. Canvas / Ground / Body / Vùng trống -> không bỏ qua
     const canvas = createMockElement({ tag: 'canvas' });
-    assert.equal(shouldIgnoreTarget(canvas), false, 'Canvas không bị bỏ qua');
-
-    const emptyDiv = createMockElement({ tag: 'div' });
-    assert.equal(shouldIgnoreTarget(emptyDiv), false, 'Div trống không bị bỏ qua');
+    assert.equal(shouldIgnoreTarget(canvas), false, 'Canvas khong bi bo qua');
 
     // 2. Nút Tiếp hoặc khung thoại có data-dialogue-advance="true" -> không bỏ qua
-    const nextBtn = createMockElement({
-      tag: 'button',
+    const advanceFrame = createMockElement({
+      tag: 'div',
+      attrs: { 'data-dialogue-advance': 'true', role: 'button' },
+    });
+    assert.equal(shouldIgnoreTarget(advanceFrame), false, 'Khung thoai co advance khong bi bo qua');
+
+    // 3. Trong che do 2D: container SilverLayer co role="dialog" va data-silver-overlay="true"
+    // Cung chua khung thoai -> KHONG duoc coi la modal chan
+    const advanceInside2D = createMockElement({
+      tag: 'div',
       attrs: { 'data-dialogue-advance': 'true' },
     });
-    assert.equal(shouldIgnoreTarget(nextBtn), false, 'Nút Tiếp có data-dialogue-advance không bị bỏ qua');
-
-    const textSpan = createMockElement({
-      tag: 'span',
-      parent: nextBtn,
+    const silver2DLayer = createMockElement({
+      tag: 'div',
+      attrs: { role: 'dialog', 'data-silver-overlay': 'true' },
+      children: [advanceInside2D],
     });
-    assert.equal(shouldIgnoreTarget(textSpan), false, 'Text bên trong nút Tiếp không bị bỏ qua');
+    assert.ok(silver2DLayer, 'silver2DLayer hop le');
+    assert.equal(
+      shouldIgnoreTarget(advanceInside2D),
+      false,
+      'Khung thoai ben trong SilverLayer 2D khong bi bo qua boi role=dialog cua lop phu',
+    );
 
-    // 3. Nút lựa chọn (option) có data-dialogue-option="true" -> phải bỏ qua
+    // 4. Modal alertdialog (ConfirmDialog Thoat / Bo qua) -> phai bo qua
+    const alertDialog = createMockElement({
+      tag: 'div',
+      attrs: { role: 'alertdialog' },
+    });
+    const insideAlertDialog = createMockElement({
+      tag: 'button',
+      parent: alertDialog,
+    });
+    assert.equal(shouldIgnoreTarget(insideAlertDialog), true, 'Phan tu trong alertdialog bi bo qua');
+
+    // 5. Modal dialog ngoai khong chua khung thoai (vi du LibraryHud, Interior modal) -> phai bo qua
+    const externalDialog = createMockElement({
+      tag: 'div',
+      attrs: { role: 'dialog' },
+      children: [],
+    });
+    const insideExternalDialog = createMockElement({
+      tag: 'p',
+      parent: externalDialog,
+    });
+    assert.equal(shouldIgnoreTarget(insideExternalDialog), true, 'Phan tu trong dialog ben ngoai bi bo qua');
+
+    // 6. Nut lua chon option -> phai bo qua
     const optionBtn = createMockElement({
       tag: 'button',
       attrs: { 'data-dialogue-option': 'true' },
     });
-    assert.equal(shouldIgnoreTarget(optionBtn), true, 'Nút lựa chọn option bị bỏ qua');
+    assert.equal(shouldIgnoreTarget(optionBtn), true, 'Nut option bi bo qua');
 
-    // 4. Nút tương tác khác (Thoát, Menu 3 chấm, VI/EN, Đứng dậy) -> phải bỏ qua
+    // 7. Nut bam khac (Thoat, Menu...) -> phai bo qua
     const exitBtn = createMockElement({ tag: 'button' });
-    assert.equal(shouldIgnoreTarget(exitBtn), true, 'Nút bấm khác (không có advance) bị bỏ qua');
+    assert.equal(shouldIgnoreTarget(exitBtn), true, 'Nut khac bi bo qua');
+  },
 
-    const link = createMockElement({ tag: 'a' });
-    assert.equal(shouldIgnoreTarget(link), true, 'Thẻ link bị bỏ qua');
+  'dialogueAdvance: cooldown cap module chong kich hoat dup giua cac buoc': async ({ assert, load }) => {
+    const mod = await load('/src/ui/dialogueAdvance.ts');
+    const {
+      DIALOGUE_TRIGGER_COOLDOWN_MS,
+      resetGlobalDialogueCooldownForTest,
+      setGlobalDialogueLastTriggerTimeForTest,
+      getGlobalDialogueLastTriggerTime,
+      evaluateDialogueTrigger,
+    } = mod;
 
-    const input = createMockElement({ tag: 'input' });
-    assert.equal(shouldIgnoreTarget(input), true, 'Thẻ input bị bỏ qua');
+    resetGlobalDialogueCooldownForTest();
+    assert.equal(getGlobalDialogueLastTriggerTime(), 0);
+    assert.equal(DIALOGUE_TRIGGER_COOLDOWN_MS, 250);
 
-    // 5. Phần tử nằm trong hộp thoại xác nhận / modal [role="dialog"] hoặc [role="alertdialog"] -> phải bỏ qua
-    const dialogModal = createMockElement({
-      tag: 'div',
-      attrs: { role: 'dialog' },
-    });
-    const insideModalDiv = createMockElement({
-      tag: 'div',
-      parent: dialogModal,
-    });
-    assert.equal(shouldIgnoreTarget(insideModalDiv), true, 'Phần tử trong dialog modal bị bỏ qua');
+    // Mo phong cau 1 (da xong chu): nguoi dung bam Enter -> next
+    const action1 = evaluateDialogueTrigger({ isTyping: false, hasOptions: false, canContinue: true, disabled: false });
+    assert.equal(action1, 'next');
+
+    // Gia su triggerAdvance chay tai t = 1000
+    setGlobalDialogueLastTriggerTimeForTest(1000);
+
+    // Cau 2 lap tuc mount tai t = 1050 (moi qua 50ms): su kien tiep theo bi chan boi cooldown cap module
+    const now2 = 1050;
+    const cooldownActive = now2 - getGlobalDialogueLastTriggerTime() < DIALOGUE_TRIGGER_COOLDOWN_MS;
+    assert.equal(cooldownActive, true, 'Cooldown 250ms phai chan su kien den trong 50ms');
+
+    // Tai t = 1300 (> 250ms): cooldown da het, su kien duoc chap nhan
+    const now3 = 1300;
+    const cooldownExpired = now3 - getGlobalDialogueLastTriggerTime() >= DIALOGUE_TRIGGER_COOLDOWN_MS;
+    assert.equal(cooldownExpired, true, 'Sau 300ms (>250ms), cooldown cho phep kich hoat');
+
+    resetGlobalDialogueCooldownForTest();
   },
 
   'dialogueAdvance: chuoi goi y nho o goc khung (getDialogueHintText)': async ({ assert, load }) => {

@@ -87,7 +87,7 @@ export default function DialogueView({
   const hasOptions = options.length > 0;
   const showNextBtn = Boolean(onNext) && (!hasOptions || selectedOptionId !== null);
 
-  const { hintText, triggerAdvance } = useDialogueAdvance({
+  const { hintText } = useDialogueAdvance({
     isTyping: !done,
     onSkip: skip,
     onNext,
@@ -122,13 +122,6 @@ export default function DialogueView({
         role="button"
         tabIndex={0}
         data-dialogue-advance="true"
-        onClick={triggerAdvance}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            triggerAdvance();
-          }
-        }}
         className="flex w-full cursor-pointer select-text items-start gap-2.5 text-left focus:outline-none sm:gap-3"
         aria-label={speakerName || undefined}
       >
@@ -200,7 +193,6 @@ export default function DialogueView({
           <button
             type="button"
             data-dialogue-advance="true"
-            onClick={triggerAdvance}
             className="min-h-[44px] rounded-xl bg-[#f5b700] px-5 text-xs font-bold text-slate-900 shadow hover:brightness-105 active:scale-95 sm:min-h-[38px] sm:px-6 sm:text-sm"
           >
             {nextLabel}

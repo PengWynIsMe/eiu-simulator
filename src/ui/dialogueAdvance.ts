@@ -32,6 +32,106 @@ export interface PointerCoords {
   time: number;
 }
 
+export interface DragTrackerState {
+  tracking: boolean;
+  startX: number;
+  startY: number;
+  startTime: number;
+  maxDist: number;
+  wasDrag: boolean;
+}
+
+export const INITIAL_DRAG_STATE: DragTrackerState = {
+  tracking: false,
+  startX: 0,
+  startY: 0,
+  startTime: 0,
+  maxDist: 0,
+  wasDrag: false,
+};
+
+export type DragEventAction =
+  | { type: 'down'; button?: number; pointerType?: string; x: number; y: number; time: number }
+  | { type: 'move'; x: number; y: number }
+  | { type: 'up'; x?: number; y?: number; time: number }
+  | { type: 'cancel' }
+  | { type: 'consume_click' };
+
+export const DEFAULT_DRAG_THRESHOLDS = {
+  maxDistance: 6,
+  maxDuration: 300,
+};
+
+/**
+ * Reducer thuần túy quản lý trạng thái kéo chuột / chạm:
+ * - onPointerDown: ghi nhận tọa độ ban đầu (chỉ chuột trái hoặc chạm cảm ứng).
+ * - onPointerMove: cập nhật khoảng cách dịch chuyển cực đại (maxDist) so với điểm bắt đầu.
+ * - onPointerUp: nếu maxDist > 6px hoặc thời gian giữ > 300ms -> đánh dấu wasDrag = true.
+ * - onPointerCancel: coi như cử chỉ kéo bị hủy/can thiệp ngoài -> đánh dấu wasDrag = true.
+ * - consume_click: sau khi sự kiện click bị nuốt do wasDrag, reset wasDrag về false.
+ */
+export function dragTrackerReducer(
+  state: DragTrackerState,
+  action: DragEventAction,
+  thresholds = DEFAULT_DRAG_THRESHOLDS,
+): DragTrackerState {
+  switch (action.type) {
+    case 'down': {
+      // Bỏ qua nếu là chuột và không phải chuột trái (button !== 0)
+      if (action.pointerType === 'mouse' && action.button !== undefined && action.button !== 0) {
+        return state;
+      }
+      return {
+        tracking: true,
+        startX: action.x,
+        startY: action.y,
+        startTime: action.time,
+        maxDist: 0,
+        wasDrag: false,
+      };
+    }
+    case 'move': {
+      if (!state.tracking) return state;
+      const dist = Math.hypot(action.x - state.startX, action.y - state.startY);
+      return {
+        ...state,
+        maxDist: Math.max(state.maxDist, dist),
+      };
+    }
+    case 'up': {
+      if (!state.tracking) return state;
+      const currentDist =
+        action.x !== undefined && action.y !== undefined
+          ? Math.hypot(action.x - state.startX, action.y - state.startY)
+          : 0;
+      const maxDist = Math.max(state.maxDist, currentDist);
+      const duration = action.time - state.startTime;
+      const isDrag = maxDist > thresholds.maxDistance || duration > thresholds.maxDuration;
+      return {
+        ...state,
+        tracking: false,
+        maxDist,
+        wasDrag: isDrag,
+      };
+    }
+    case 'cancel': {
+      return {
+        ...state,
+        tracking: false,
+        wasDrag: true,
+      };
+    }
+    case 'consume_click': {
+      return {
+        ...state,
+        wasDrag: false,
+      };
+    }
+    default:
+      return state;
+  }
+}
+
 /**
  * Kiểm tra xem cử chỉ chuột/chạm có phải là thao tác kéo xoay nhìn (drag) hay không:
  * - Khoảng cách di chuyển > 6px (maxDistance), HOẶC
@@ -50,9 +150,39 @@ export function isDragGesture(
 }
 
 /**
+ * Kiểm tra xem có modal đang chặn tương tác thoại hay không:
+ * - Bị chặn nếu có [role="alertdialog"] (ví dụ ConfirmDialog Thoát / Bỏ qua).
+ * - Bị chặn nếu có [role="dialog"] nằm TRÊN/NGOÀI khung thoại hiện tại
+ *   (không tính container SilverLayer [data-silver-overlay="true"] và không tính dialog chứa khung thoại).
+ */
+export function isModalBlocking(): boolean {
+  if (typeof document === 'undefined') return false;
+
+  // 1. Có alertdialog đang mở trong DOM -> luôn chặn
+  if (document.querySelector('[role="alertdialog"]')) {
+    return true;
+  }
+
+  // 2. Kiểm tra các [role="dialog"]
+  const dialogs = document.querySelectorAll<HTMLElement>('[role="dialog"]');
+  for (const dialog of dialogs) {
+    // Bỏ qua lớp phủ SilverLayer của 2D mode
+    if (dialog.getAttribute('data-silver-overlay') === 'true') {
+      continue;
+    }
+    // Nếu dialog này không chứa bất kỳ phần tử thoại nào có data-dialogue-advance="true" -> là modal ngoài -> chặn
+    if (!dialog.querySelector('[data-dialogue-advance="true"]')) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Kiểm tra xem target của sự kiện click có nằm trong các thành phần tương tác cần bỏ qua:
+ * - Nằm trong alertdialog hoặc dialog bên ngoài (không tính SilverLayer 2D hoặc dialog chứa khung thoại).
  * - Nút khác: Thoát, ⋯ (menu), VI/EN, lựa chọn (options), Đứng dậy, v.v.
- * - Hộp xác nhận / modal / alertdialog / dialog / desktop.
  * - Ô nhập liệu (input, textarea).
  * NGOẠI TRỪ: các phần tử được đánh dấu rõ ràng là nút đi tiếp hoặc mặt phẳng thoại (data-dialogue-advance="true").
  */
@@ -60,17 +190,27 @@ export function shouldIgnoreTarget(target: EventTarget | null): boolean {
   if (!target || typeof (target as HTMLElement).closest !== 'function') return false;
   const el = target as HTMLElement;
 
-  // 1. Nằm trong hộp xác nhận, modal dialog, hoặc vùng được đánh dấu bỏ qua
-  if (el.closest('[role="dialog"], [role="alertdialog"], [data-dialogue-ignore="true"]')) {
+  // 1. Nằm trong alertdialog (hộp xác nhận Thoát/Bỏ qua) hoặc vùng được đánh dấu bỏ qua
+  if (el.closest('[role="alertdialog"], [data-dialogue-ignore="true"]')) {
     return true;
   }
 
-  // 2. Nút lựa chọn câu đáp bên trong hội thoại
+  // 2. Nằm trong dialog bên ngoài (không phải container SilverLayer và không chứa khung thoại)
+  const dialog = el.closest<HTMLElement>('[role="dialog"]');
+  if (
+    dialog &&
+    dialog.getAttribute('data-silver-overlay') !== 'true' &&
+    !dialog.querySelector('[data-dialogue-advance="true"]')
+  ) {
+    return true;
+  }
+
+  // 3. Nút lựa chọn câu đáp bên trong hội thoại
   if (el.closest('[data-dialogue-option="true"]')) {
     return true;
   }
 
-  // 3. Nút hoặc ô tương tác khác (không phải nút tiến bước của hội thoại)
+  // 4. Nút hoặc ô tương tác khác (không phải nút tiến bước của hội thoại)
   const interactive = el.closest<HTMLElement>(
     'button, a, input, textarea, select, [role="button"], [role="option"], [role="tab"]',
   );
@@ -104,6 +244,22 @@ export function getDialogueHintText(
   return '';
 }
 
+/** Cooldown cấp module: ngăn chặn kích hoạt đúp trong vòng 250ms trên toàn hệ thống */
+export const DIALOGUE_TRIGGER_COOLDOWN_MS = 250;
+let globalLastTriggerTime = 0;
+
+export function getGlobalDialogueLastTriggerTime(): number {
+  return globalLastTriggerTime;
+}
+
+export function resetGlobalDialogueCooldownForTest(): void {
+  globalLastTriggerTime = 0;
+}
+
+export function setGlobalDialogueLastTriggerTimeForTest(time: number): void {
+  globalLastTriggerTime = time;
+}
+
 export interface UseDialogueAdvanceOptions {
   /** Chữ đang chạy trong hiệu ứng máy đánh chữ */
   isTyping: boolean;
@@ -134,8 +290,9 @@ export interface UseDialogueAdvanceReturn {
  * Hook dùng chung cho việc bấm nhanh lời thoại (Silver 3D, nmlt-01, Silver 2D):
  * 1. Đang chạy chữ: click/chạm bất kỳ (khung hoặc cảnh 3D) hoặc Enter/Space -> hiện hết chữ.
  * 2. Đã hiện hết & không có lựa chọn: click/chạm hoặc Enter/Space -> sang câu tiếp.
- * 3. Chống bấm đúp (cooldown 250ms), bỏ qua thao tác kéo chuột xoay nhìn (>6px hoặc >300ms).
- * 4. Bỏ qua khi bấm nút khác (Thoát, ⋯, VI/EN, Đứng dậy, options) hoặc khi có modal mở.
+ * 3. Chống bấm đúp qua cooldown cấp module 250ms, bỏ qua cử chỉ kéo chuột xoay nhìn (>6px hoặc >300ms).
+ * 4. Bỏ qua khi bấm nút khác (Thoát, ⋯, VI/EN, Đứng dậy, options) hoặc khi có alertdialog / external modal mở.
+ * 5. Chỉ xử lý tại MỘT nơi duy nhất (window capture listener), tránh kích hoạt đúp từ onClick/onKeyDown của khung.
  */
 export function useDialogueAdvance({
   isTyping,
@@ -147,16 +304,9 @@ export function useDialogueAdvance({
   active = true,
 }: UseDialogueAdvanceOptions): UseDialogueAdvanceReturn {
   const lang = useLangStore((s) => s.lang);
-  const lastTriggerTimeRef = useRef(0);
-  const dragTrackerRef = useRef<{
-    startX: number;
-    startY: number;
-    startTime: number;
-    maxDist: number;
-  } | null>(null);
-  const wasDragRef = useRef(false);
+  const dragStateRef = useRef<DragTrackerState>(INITIAL_DRAG_STATE);
 
-  // Lưu trữ các giá trị callback mới nhất bằng ref để tránh re-attaching event listeners liên tục
+  // Lưu trữ các giá trị callback mới nhất bằng ref
   const latestPropsRef = useRef({
     isTyping,
     onSkip,
@@ -181,16 +331,11 @@ export function useDialogueAdvance({
   const triggerAdvance = () => {
     const props = latestPropsRef.current;
     if (!props.active || props.disabled) return;
-
-    // Kiểm tra modal đang mở trong DOM
-    if (typeof document !== 'undefined') {
-      const modal = document.querySelector('[role="dialog"], [role="alertdialog"]');
-      if (modal) return;
-    }
+    if (isModalBlocking()) return;
 
     const now = performance.now();
-    // Chống bấm đúp / kích hoạt đúp trong cùng 250ms
-    if (now - lastTriggerTimeRef.current < 250) return;
+    // Cooldown cấp module: ngăn kích hoạt 2 lần trong vòng 250ms kể cả khi component re-mount
+    if (now - globalLastTriggerTime < DIALOGUE_TRIGGER_COOLDOWN_MS) return;
 
     const action = evaluateDialogueTrigger({
       isTyping: props.isTyping,
@@ -200,10 +345,10 @@ export function useDialogueAdvance({
     });
 
     if (action === 'skip') {
-      lastTriggerTimeRef.current = now;
+      globalLastTriggerTime = now;
       props.onSkip();
     } else if (action === 'next') {
-      lastTriggerTimeRef.current = now;
+      globalLastTriggerTime = now;
       props.onNext?.();
     }
   };
@@ -212,66 +357,61 @@ export function useDialogueAdvance({
     if (!active) return;
 
     const onPointerDown = (e: PointerEvent) => {
-      // Chỉ bắt chuột trái (button = 0) hoặc màn hình cảm ứng
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      dragTrackerRef.current = {
-        startX: e.clientX,
-        startY: e.clientY,
-        startTime: performance.now(),
-        maxDist: 0,
-      };
-      wasDragRef.current = false;
+      dragStateRef.current = dragTrackerReducer(dragStateRef.current, {
+        type: 'down',
+        button: e.button,
+        pointerType: e.pointerType,
+        x: e.clientX,
+        y: e.clientY,
+        time: performance.now(),
+      });
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!dragTrackerRef.current) return;
-      const d = Math.hypot(
-        e.clientX - dragTrackerRef.current.startX,
-        e.clientY - dragTrackerRef.current.startY,
-      );
-      if (d > dragTrackerRef.current.maxDist) {
-        dragTrackerRef.current.maxDist = d;
-      }
+      dragStateRef.current = dragTrackerReducer(dragStateRef.current, {
+        type: 'move',
+        x: e.clientX,
+        y: e.clientY,
+      });
     };
 
-    const onPointerUp = () => {
-      if (!dragTrackerRef.current) return;
-      const now = performance.now();
-      const isDrag = isDragGesture(
-        {
-          x: dragTrackerRef.current.startX,
-          y: dragTrackerRef.current.startY,
-          time: dragTrackerRef.current.startTime,
-        },
-        {
-          x: dragTrackerRef.current.startX,
-          y: dragTrackerRef.current.startY,
-          time: now,
-        },
-        dragTrackerRef.current.maxDist,
-        now - dragTrackerRef.current.startTime,
-      );
-      wasDragRef.current = isDrag;
-      dragTrackerRef.current = null;
+    const onPointerUp = (e: PointerEvent) => {
+      dragStateRef.current = dragTrackerReducer(dragStateRef.current, {
+        type: 'up',
+        x: e.clientX,
+        y: e.clientY,
+        time: performance.now(),
+      });
+    };
+
+    const onPointerCancel = () => {
+      dragStateRef.current = dragTrackerReducer(dragStateRef.current, {
+        type: 'cancel',
+      });
     };
 
     const onClick = (e: MouseEvent) => {
-      // Nếu thao tác là kéo xoay nhìn (drag) -> bỏ qua click
-      if (wasDragRef.current) {
-        wasDragRef.current = false;
+      // Nếu thao tác là kéo xoay nhìn (drag) -> nuốt click và reset cờ wasDrag
+      if (dragStateRef.current.wasDrag) {
+        dragStateRef.current = dragTrackerReducer(dragStateRef.current, {
+          type: 'consume_click',
+        });
         return;
       }
-      // Nếu click vào nút tương tác khác hoặc modal -> bỏ qua
+
+      if (e.defaultPrevented) return;
+      // Nếu click vào nút tương tác khác hoặc modal bên ngoài -> bỏ qua
       if (shouldIgnoreTarget(e.target)) return;
 
       triggerAdvance();
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return;
       if (e.key !== 'Enter' && e.key !== ' ') return;
       if (e.repeat) return;
 
-      // Đang gõ văn bản trong input/textarea -> bỏ qua
+      // Đang gõ văn bản trong input/textarea/editable -> bỏ qua
       const target = e.target as HTMLElement | null;
       if (
         target instanceof HTMLInputElement ||
@@ -281,16 +421,16 @@ export function useDialogueAdvance({
         return;
       }
 
-      // Đang focus vào nút bấm khác -> để sự kiện phím tự kích hoạt nút đó
-      if (target instanceof HTMLButtonElement && target.getAttribute('data-dialogue-advance') !== 'true') {
+      // Đang focus vào nút bấm khác (không phải nút tiến bước) -> để phím kích hoạt nút đó
+      if (
+        target instanceof HTMLButtonElement &&
+        target.getAttribute('data-dialogue-advance') !== 'true'
+      ) {
         return;
       }
 
-      // Kiểm tra modal đang mở trong DOM
-      if (typeof document !== 'undefined') {
-        const modal = document.querySelector('[role="dialog"], [role="alertdialog"]');
-        if (modal) return;
-      }
+      // Kiểm tra modal đang chặn
+      if (isModalBlocking()) return;
 
       const props = latestPropsRef.current;
       if (!props.active || props.disabled) return;
@@ -304,6 +444,7 @@ export function useDialogueAdvance({
 
       if (action !== 'none') {
         e.preventDefault();
+        e.stopPropagation();
         triggerAdvance();
       }
     };
@@ -311,15 +452,17 @@ export function useDialogueAdvance({
     window.addEventListener('pointerdown', onPointerDown, { capture: true });
     window.addEventListener('pointermove', onPointerMove, { capture: true, passive: true });
     window.addEventListener('pointerup', onPointerUp, { capture: true });
+    window.addEventListener('pointercancel', onPointerCancel, { capture: true });
     window.addEventListener('click', onClick, { capture: true });
-    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keydown', onKeyDown, { capture: true });
 
     return () => {
       window.removeEventListener('pointerdown', onPointerDown, { capture: true });
       window.removeEventListener('pointermove', onPointerMove, { capture: true });
       window.removeEventListener('pointerup', onPointerUp, { capture: true });
+      window.removeEventListener('pointercancel', onPointerCancel, { capture: true });
       window.removeEventListener('click', onClick, { capture: true });
-      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keydown', onKeyDown, { capture: true });
     };
   }, [active]);
 
