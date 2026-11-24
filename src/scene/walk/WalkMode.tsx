@@ -673,7 +673,8 @@ export default function WalkMode() {
       player.current[2] = z;
 
       if (body.current) {
-        body.current.visible = viewMode.current !== 1;
+        // Khi ngồi học: luôn ẩn thân người chơi ở mọi góc nhìn để tránh che màn hình/slide/bàn học
+        body.current.visible = false;
         body.current.position.set(x, SIT_Y_OFFSET, z);
         body.current.rotation.y = Math.atan2(facing[0], facing[1]);
       }
