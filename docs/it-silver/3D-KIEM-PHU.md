@@ -376,3 +376,102 @@ Kiểm tra tại 4 trạng thái cốt lõi: Lúc ngồi (`seated`), Thoại (`s
 
 ---
 
+## PHẦN 5 — THỬ NGHIỆM ĐI BỘ BẰNG PHÍM GIỮ (ORCA CLI & DOM EVENT)
+
+### 1. Phân tích khả năng gửi phím giữ của Orca CLI
+Yêu cầu kiểm tra: Thử nghiệm đi bộ bằng phím giữ từ ngoài trời vào sảnh B8, đi thang máy lên tầng 4 và đến phòng 406.
+
+#### A. Các lệnh Orca CLI đã thử nghiệm
+1. **Lệnh `orca keydown`:**
+   - Cú pháp thử: `orca keydown --key w --page b536091b-0874-42ec-a45c-d757b924aea4`
+   - **Kết quả:** Thất bại. Lỗi CLI: `Unknown command: keydown`. Orca không hỗ trợ lệnh `keydown` độc lập.
+2. **Lệnh `orca keypress`:**
+   - Cú pháp thử: `orca keypress --key w --page b536091b-0874-42ec-a45c-d757b924aea4`
+   - Tra cứu tham số `orca keypress --help`: Hoàn toàn **không có cờ `--duration` hay `--hold`**.
+   - **Đo đạc thời gian thực tế bằng `performance.now()`:**
+     - Thiết lập listener bắt sự kiện trên window:
+       ```json
+       {
+         "events": [
+           { "type": "keydown", "key": "w", "time": 28593.899 },
+           { "type": "keyup", "key": "w", "time": 28594.000 }
+         ],
+         "durationMs": 0.100
+       }
+       ```
+     - **Phân tích:** Lệnh `orca keypress` gửi cặp sự kiện `keydown` và `keyup` trong vòng đúng **0.100 ms (100 micro-giây)**.
+     - Trong khi đó, chu kỳ khung hình đồ họa 60 FPS là **16.66 ms / frame**.
+     - Trong `src/scene/walk/WalkMode.tsx` (dòng 445 và 483):
+       ```ts
+       const onKeyDown = (event: KeyboardEvent) => keys.current.add(event.key.toLowerCase());
+       const onKeyUp = (event: KeyboardEvent) => keys.current.delete(event.key.toLowerCase());
+       ```
+     - Cả hai sự kiện `keydown` và `keyup` đều được trình duyệt xử lý xong trong cùng một microtask trước khi hàm callback `useFrame` của React Three Fiber được gọi ở frame kế tiếp. Do đó `keys.current.has('w')` luôn trả về `false`, nhân vật **đứng yên 100% tại chỗ**, không nhích được một milimet nào.
+     - Muốn nhân vật di chuyển 50 mét ở tốc độ 4 m/s cần tối thiểu 12.5 giây giữ phím liên tục (tương đương 750 frames). Việc spam lệnh `orca keypress` liên tục là bất khả thi (sẽ gây timeout lệnh và nghẽn tiến trình).
+
+#### B. Thử nghiệm giả lập giữ phím bằng `orca eval` (DOM KeyboardEvent)
+- Thử nghiệm gửi sự kiện giữ phím qua script trình duyệt:
+  ```ts
+  window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w', code: 'KeyW', bubbles: true }));
+  // Giữ trong 1500 ms rồi mới keyup
+  setTimeout(() => {
+    window.dispatchEvent(new KeyboardEvent('keyup', { key: 'w', code: 'KeyW', bubbles: true }));
+  }, 1500);
+  ```
+- **Kết quả:** Khi giữ qua `setTimeout`, Set `keys.current` duy trì được phím `'w'` trong suốt 90 frames, nhân vật di chuyển tiến lên bình thường quãng đường ~6.0 mét.
+
+#### C. Lộ trình thực tế từ ngoài trời vào 406.B8
+1. **Từ ngoài trời vào B8:**
+   - Đi bộ tiếp cận cửa sảnh B8 tại mặt bằng trung tâm.
+   - Khi đứng trong bán kính 2.5m trước cửa, trigger tương tác cửa ngoại thất hiện nút `E Ra ngoài / Vào trong`.
+   - Nhấn phím `E` kích hoạt `interactive.type === 'exterior-door'`, gọi `useWalkStore.getState().enterInterior('b8')` để nạp nội thất Tầng 1 B8.
+2. **Từ sảnh tầng 1 vào thang máy:**
+   - Đi dọc sảnh giữa Tầng 1 tới vị trí thang máy trung tâm (cạnh thang bộ).
+   - Tiếp cận cửa thang máy, nhấn phím `E` kích hoạt event `campussim:open-elevator`.
+   - Bảng chọn tầng hiện lên, chọn `Tầng 4` (gọi `setInteriorFloor(4)`).
+3. **Từ thang máy tầng 4 tới phòng 406:**
+   - Ra khỏi cửa thang máy Tầng 4, đi dọc theo hành lang phía Bắc.
+   - Tới trước biển phòng `406.B8` (phòng máy thực hành CSE).
+- **Kết luận mục 5:** Orca CLI chưa có cơ chế giữ phím native (`--duration` hoặc `keydown/keyup` riêng biệt). Việc di chuyển qua lại giữa các phòng trên thực tế phụ thuộc vào người dùng điều khiển bằng bàn phím vật lý hoặc các nút điều hướng waypoint / teleport trên giao diện.
+
+---
+
+## TỔNG KẾT BÁO CÁO KIỂM PHỤ 3D (SUMMARY FOR COORDINATOR)
+
+### 1. Bản chất và Nguyên nhân che hình (Phần 1a & 1b)
+
+| Hiện tượng | Bản chất khối che | Tọa độ & Số đo thực tế | Dòng code & Nguyên nhân cốt lõi | Cách sửa đề xuất |
+|---|---|---|---|---|
+| **1a. Ngồi ở 406.B8 (Lab 1)** | Thân, gáy và vai của model nhân vật người chơi (`character-male-a`) | Camera đặt tại `[y: 1.55, z_offset: +0.65]`. Model người chơi cao 1.6m nằm ngay cự ly 0.4–0.68m trước ống kính | `src/silverWorld/seatAnchor.ts` (dòng 71–76) và `src/scene/walk/WalkMode.tsx` (dòng 676). Ở góc nhìn Sau vai (`viewMode = 0`), `body.current.visible` vẫn bật `true` dù đang ngồi | Trong `WalkMode.tsx` dòng 676: Khi đang ngồi (`if (seat)`), ép `body.current.visible = false` như FPS, hoặc dời camera lùi xa hơn 1.2m và lệch phải 0.35m |
+| **1a. Ngồi ở 206.B8 (Phần nghe)** | Thân người chơi (viewMode 0) và Đầu của NPC hàng trước (viewMode 1) | Ghế ngồi là `206-r2-s4`. Ghế ngay trước mặt là `206-r1-s4` (cách 1.0m) có NPC ngồi | `src/data/silver/classrooms.json` gán NPC vào ghế `206-r1-s4`. Khi chuyển sang FPS, đầu NPC hàng trước nhô lên che màn chiếu | Bỏ ghế `206-r1-s4` khỏi danh sách NPC `crowd` trong `classrooms.json` để hàng ghế trước người chơi luôn trống |
+| **1b. entrance/meet-thanh** | Mái phẳng hành lang nối B8–B11 màu trắng kem `#e2e8f0` | Thành: `[17.91, -164.85]`; Người chơi: `[17.63, -166.02]`; Camera: `[15.79, 3.45, -173.80]`; Mái hành lang: `y = 3.04m` | `src/scene/zone2/Zone2Walkways.tsx` (dòng 20–30) và `WalkMode.tsx` (dòng 936–941). Camera ở `y = 3.45m` nằm trên nóc mái nhìn xuống Thành ở `y = 0.05m`, bị tấm mái che trực diện | Hạ độ cao camera hoặc dời vị trí gặp Thành ra khỏi phạm vi dưới mái hành lang nối |
+
+---
+
+### 2. Danh sách lỗi mới phát hiện kèm bước tái hiện
+
+1. **Lỗi đè phím điều khiển ảo Joystick và nút Thoát đi bộ lên nút bài học (Mobile 360×780):**
+   - *Bước tái hiện:* Mở app ở kích thước 360×780 -> Vào bất kỳ bài học nào (ví dụ 2.2 Lab 1 hoặc entrance) -> Tại bước Thoại (`say`), nút "Thoát đi bộ" đè trực tiếp lên nút vàng "Tiếp ›"; Cần joystick ảo đè card thoại. Tại bước Câu hỏi (`question`), joystick đè lên đáp án số 3.
+   - *Vị trí code:* `src/ui/walk/WalkHud.tsx` không ẩn điều khiển khi `seated = true` hoặc khi đang có `activity`.
+2. **Lỗi tràn thanh Header Banner trên mobile 360px:**
+   - *Bước tái hiện:* Mở bài học ở cỡ 360px.
+   - *Hậu quả:* Hàng nút trên cùng bị co kéo, chữ "Bước 1/6" bị cắt cụt và đè nút "Đứng dậy", tiêu đề bài học bị thu gọn thành một chữ cái.
+3. **Lỗi thiếu `event.preventDefault()` khi bắt sự kiện `webglcontextlost`:**
+   - *Bước tái hiện:* Gọi `gl.getExtension('WEBGL_lose_context').loseContext()` rồi gọi `restoreContext()`.
+   - *Vị trí code:* `src/ui/silver/presentation.ts` (dòng 48 và 66). Thiếu `event.preventDefault()` khiến trình duyệt hủy vĩnh viễn ngữ cảnh GPU theo spec WebGL, không bao giờ khôi phục được.
+4. **Lỗi `SecurityError` khi truy cập `sessionStorage` không bọc `try/catch`:**
+   - *Bước tái hiện:* Chặn Storage trong trình duyệt (`Object.defineProperty(window, 'sessionStorage', { get() { throw new DOMException('Access denied', 'SecurityError'); } })`) -> Bấm nút "Chế độ góp ý" (`toggleReviewMode`).
+   - *Hậu quả:* Ném lỗi `Uncaught SecurityError: Access is denied for this document`.
+   - *Vị trí code:* `src/App.tsx` dòng 29 và dòng 44.
+5. **Lỗi thiếu React `ErrorBoundary` bao bọc `<Canvas>`:**
+   - *Vị trí code:* `src/App.tsx` dòng 49. Nếu thiết bị không hỗ trợ WebGL, Three.js crash làm sập toàn bộ app (trắng trang), người dùng không thể xem được cả giao diện 2D.
+
+---
+
+### 3. Danh sách mục chưa kiểm tra / Hạn chế môi trường
+- **Đi bộ dài bằng phím giữ qua Orca CLI native:** Không thực hiện được hoàn toàn bằng lệnh native do Orca CLI chỉ hỗ trợ `orca keypress` tức thời (xung nhịp 0.1 ms), thiếu cờ `--duration` hoặc lệnh `keydown/keyup` riêng. Đã kiểm chứng thành công bằng DOM Events và dịch chuyển pose.
+- **FPS / Hiệu năng khung hình:** Không ghi nhận theo đúng quy tắc kiểm thử nghiêm ngặt của dự án ("Không ghi FPS").
+
+
+---
+
