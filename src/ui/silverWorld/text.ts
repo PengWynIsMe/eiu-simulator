@@ -64,4 +64,9 @@ export const ST_W = {
   outputTitle: { vi: 'Kết quả', en: 'Output' },
   compiling: { vi: 'Đang chạy…', en: 'Running…' },
   outputEmpty: { vi: 'Chưa chạy lệnh', en: 'No output yet' },
+  zoomSlide: { vi: 'Phóng to', en: 'Zoom in' },
+  minimizeSlide: { vi: 'Thu nhỏ', en: 'Minimize' },
+  lectureNotes: { vi: 'Ghi chú', en: 'Notes' },
+  collapseNav: { vi: 'Thu gọn', en: 'Collapse' },
+  expandNav: { vi: 'Mở rộng', en: 'Expand' },
 } as const satisfies Record<string, LocalizedText>;

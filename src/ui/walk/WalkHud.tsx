@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useWalkStore } from '../../store/useWalkStore';
 import { useActivityStore } from '../../store/useActivityStore';
+import { useLessonStore } from '../../store/useLessonStore';
 
 export default function WalkHud() {
   const walkMode = useWalkStore((state) => state.walkMode);
@@ -11,7 +12,14 @@ export default function WalkHud() {
 
   const activity = useActivityStore((state) => state.activity);
   const phase = useActivityStore((state) => state.phase);
-  const isEngaged = Boolean(activity && phase === 'engaged');
+  const screenOpen = useActivityStore((state) => state.screenOpen);
+  const isEngaged = Boolean(activity && (phase === 'engaged' || screenOpen));
+
+  const lessonPhase = useLessonStore((state) => state.phase);
+  const isLessonEngaged = lessonPhase !== 'idle' && lessonPhase !== 'goToClass' && lessonPhase !== 'findSeat';
+
+  // Ẩn toàn bộ cần điều khiển và nút khi đang trong bài học/hội thoại (không đè lên nút Tiếp trên mobile)
+  const isStudying = isEngaged || isLessonEngaged;
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -54,7 +62,7 @@ export default function WalkHud() {
 
   return (
     <>
-      {!isEngaged && (
+      {!isStudying && (
         <div className="pointer-events-none fixed bottom-5 left-5 z-40 hidden rounded-xl border border-slate-700/60 bg-slate-950/80 px-4 py-2.5 text-xs text-slate-200 shadow-lg backdrop-blur-md md:block">
           Góc nhìn: {['Sau vai', 'Thứ nhất (FPS)', 'Trên xuống'][viewMode]} ·{' '}
           {viewMode === 1
@@ -65,32 +73,51 @@ export default function WalkHud() {
           · C: đổi góc nhìn
         </div>
       )}
-      {viewMode === 1 && <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center" aria-hidden="true"><span className="text-xl font-bold leading-none text-white" style={{ textShadow: '-1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000, 1px 1px 1px #000' }}>+</span></div>}
-      <button type="button" className="fixed right-6 top-20 z-50 rounded-xl bg-slate-950/80 px-4 py-3 font-semibold text-white shadow-lg [@media(pointer:fine)]:hidden" onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c' }))}>Góc nhìn: {['Sau vai', 'Thứ nhất', 'Trên xuống'][viewMode]} · C</button>
-      <div
-        role="group"
-        aria-label="Cần điều khiển đi bộ"
-        className="fixed bottom-6 left-6 z-50 flex h-32 w-32 touch-none select-none items-center justify-center rounded-full border border-white/60 bg-slate-900/35 shadow-lg [@media(pointer:fine)]:hidden"
-        onPointerDown={(event) => {
-          event.stopPropagation();
-          activePointer.current = event.pointerId;
-          event.currentTarget.setPointerCapture(event.pointerId);
-          setFromPointer(event);
-        }}
-        onPointerMove={(event) => { event.stopPropagation(); if (activePointer.current === event.pointerId) setFromPointer(event); }}
-        onPointerUp={release}
-        onPointerCancel={release}
-      >
-        <div className="pointer-events-none absolute h-24 w-24 rounded-full border border-white/30" />
-        <div ref={knob} className="pointer-events-none h-12 w-12 rounded-full border border-white/80 bg-white/75 shadow transition-transform duration-75" />
-      </div>
-      <button
-        type="button"
-        className="fixed bottom-7 right-6 z-50 rounded-xl bg-slate-950/80 px-4 py-3 font-semibold text-white shadow-lg [@media(pointer:fine)]:hidden"
-        onClick={() => useWalkStore.getState().exitWalkMode()}
-      >
-        Thoát đi bộ
-      </button>
+      {viewMode === 1 && !isStudying && (
+        <div className="pointer-events-none fixed inset-0 z-40 flex items-center justify-center" aria-hidden="true">
+          <span className="text-xl font-bold leading-none text-white" style={{ textShadow: '-1px -1px 1px #000, 1px -1px 1px #000, -1px 1px 1px #000, 1px 1px 1px #000' }}>+</span>
+        </div>
+      )}
+      {!isStudying && (
+        <>
+          <button
+            type="button"
+            className="fixed right-3 top-32 z-40 flex items-center gap-1 rounded-xl bg-slate-950/85 px-3 py-2 text-xs font-semibold text-white shadow-lg backdrop-blur-md [@media(pointer:fine)]:hidden min-h-[36px]"
+            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'c' }))}
+            aria-label={`Góc nhìn: ${['Sau vai', 'Thứ nhất', 'Trên xuống'][viewMode]} · C`}
+          >
+            <span>🎥</span>
+            <span>{['Sau vai', 'FPS', 'Trên'][viewMode]} · C</span>
+          </button>
+          <div
+            role="group"
+            aria-label="Cần điều khiển đi bộ"
+            className="fixed bottom-6 left-6 z-50 flex h-32 w-32 touch-none select-none items-center justify-center rounded-full border border-white/60 bg-slate-900/35 shadow-lg [@media(pointer:fine)]:hidden"
+            onPointerDown={(event) => {
+              event.stopPropagation();
+              activePointer.current = event.pointerId;
+              event.currentTarget.setPointerCapture(event.pointerId);
+              setFromPointer(event);
+            }}
+            onPointerMove={(event) => {
+              event.stopPropagation();
+              if (activePointer.current === event.pointerId) setFromPointer(event);
+            }}
+            onPointerUp={release}
+            onPointerCancel={release}
+          >
+            <div className="pointer-events-none absolute h-24 w-24 rounded-full border border-white/30" />
+            <div ref={knob} className="pointer-events-none h-12 w-12 rounded-full border border-white/80 bg-white/75 shadow transition-transform duration-75" />
+          </div>
+          <button
+            type="button"
+            className="fixed bottom-7 right-6 z-50 rounded-xl bg-slate-950/80 px-4 py-3 font-semibold text-white shadow-lg [@media(pointer:fine)]:hidden min-h-[44px]"
+            onClick={() => useWalkStore.getState().exitWalkMode()}
+          >
+            Thoát đi bộ
+          </button>
+        </>
+      )}
     </>
   );
 }

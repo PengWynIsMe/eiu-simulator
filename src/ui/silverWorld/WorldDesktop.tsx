@@ -128,7 +128,7 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
     <>
       {/* 1. Màn máy tính ảo khi đang mở (screenOpen) */}
       <div
-        className={`pointer-events-auto fixed inset-0 z-50 items-center justify-center bg-black/65 sm:p-[3%] ${
+        className={`pointer-events-auto fixed inset-0 z-50 items-center justify-center bg-black/40 backdrop-blur-[1px] p-2 sm:p-[2.5%] ${
           screenOpen ? 'flex' : 'hidden'
         }`}
       >
@@ -138,10 +138,10 @@ export default function WorldDesktop({ step, feedback, hint, onNext }: WorldDesk
             <button
               type="button"
               onClick={() => setScreenOpen(false)}
-              className="inline-flex min-h-[32px] items-center gap-1 rounded bg-white/20 px-2.5 text-xs font-semibold text-white hover:bg-white/30"
+              className="inline-flex min-h-[32px] items-center gap-1.5 rounded-lg border border-white/40 bg-white/25 px-3 text-xs font-bold text-white shadow-sm hover:bg-white/35 active:scale-95"
               title={tr(ST_W.minimizeComputer)}
             >
-              <span>–</span>
+              <span className="text-sm font-extrabold">–</span>
               <span>{tr(ST_W.minimizeComputer)}</span>
             </button>
           }
