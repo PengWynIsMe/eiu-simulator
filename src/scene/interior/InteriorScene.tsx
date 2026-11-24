@@ -114,33 +114,86 @@ function buildB11ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, groun
   };
 }
 
-/** Cảnh quan khuôn viên bên ngoài mặt Nam B4: thảm cỏ, lối đi bộ, hàng cây xanh và ki-ốt Highlands Coffee nhìn qua vách kính. */
+/** Cảnh quan khuôn viên bên ngoài 4 phía B4: sảnh cột + hồ nước xanh B4–B5 phía Đông, pergola phía Bắc, hồ nước & Highlands phía Nam, lối đi B11 phía Tây. */
 function buildB4ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, groundY: number) {
   const grassGeos = [
-    // Thảm cỏ xanh phía Nam trải dài dọc theo vách kính
-    makeOrientedLocalBox(toWorld, 33.5, 48.0, groundY - 0.14, 96.0, 0.1, 40.0),
-    // Thảm cỏ hai đầu Đông và Tây
-    makeOrientedLocalBox(toWorld, -8.0, 14.0, groundY - 0.14, 18.0, 0.1, 35.0),
-    makeOrientedLocalBox(toWorld, 75.0, 14.0, groundY - 0.14, 18.0, 0.1, 35.0),
+    // Thảm cỏ phía Nam (nhìn ra hồ & Highlands)
+    makeOrientedLocalBox(toWorld, 33.5, 48.0, groundY - 0.14, 110.0, 0.1, 38.0),
+    // Thảm cỏ phía Bắc (ngoài sân pergola & đường nội bộ)
+    makeOrientedLocalBox(toWorld, 33.5, -22.0, groundY - 0.14, 110.0, 0.1, 40.0),
+    // Thảm cỏ phía Tây (hướng B11)
+    makeOrientedLocalBox(toWorld, -16.0, 14.0, groundY - 0.14, 28.0, 0.1, 56.0),
   ];
   const pathGeos = [
-    // Lối đi bộ lát gạch dọc theo mặt Nam tòa nhà (v = 28.5..32)
-    makeOrientedLocalBox(toWorld, 33.5, 30.2, groundY - 0.05, 86.0, 0.08, 4.2),
-    // Lối dẫn từ sảnh chính ra ki-ốt Highlands
-    makeOrientedLocalBox(toWorld, 28.0, 40.0, groundY - 0.05, 3.6, 0.08, 18.0),
+    // Quảng trường gạch lát xám B4–B5 phía Đông (u = 67..84, v = -2..30)
+    makeOrientedLocalBox(toWorld, 75.5, 14.0, groundY - 0.04, 17.0, 0.08, 34.0),
+    // Sân hiên gạch phía Tây Bắc ngoài Góc trao đổi sách (u = 0.5..14, v = -7.5..-0.1)
+    makeOrientedLocalBox(toWorld, 7.2, -3.8, groundY - 0.03, 13.5, 0.08, 7.4),
+    // Lối đi bộ mặt Nam (v = 28..32.2) & lối ra Highlands
+    makeOrientedLocalBox(toWorld, 33.5, 30.2, groundY - 0.04, 72.0, 0.08, 4.4),
+    makeOrientedLocalBox(toWorld, 56.0, 35.0, groundY - 0.04, 8.0, 0.08, 12.0),
+    // Lối đi bộ mái che phía Tây sang B11
+    makeOrientedLocalBox(toWorld, -12.0, 14.0, groundY - 0.04, 24.0, 0.08, 3.2),
   ];
   const facadeGeos = [
-    // Ki-ốt Highlands Coffee (thùng xe bus đỏ + mái che pergola)
-    makeOrientedLocalBox(toWorld, 45.0, 48.0, groundY + 1.6, 9.5, 3.2, 3.4),
-    makeOrientedLocalBox(toWorld, 45.0, 48.0, groundY + 3.4, 11.5, 0.2, 5.0),
-    // Khối đế tòa B5 phía Đông
-    makeOrientedLocalBox(toWorld, 82.0, 14.0, groundY + 6.0, 24.0, 12.0, 26.0),
+    // Hệ cột cao 3 tầng & cầu nối trên cao giữa B4 và B5 (ảnh step_386)
+    makeOrientedLocalBox(toWorld, 71.0, 2.0, groundY + 5.7, 0.7, 11.4, 0.7),
+    makeOrientedLocalBox(toWorld, 71.0, 26.0, groundY + 5.7, 0.7, 11.4, 0.7),
+    makeOrientedLocalBox(toWorld, 78.0, 2.0, groundY + 5.7, 0.7, 11.4, 0.7),
+    makeOrientedLocalBox(toWorld, 78.0, 26.0, groundY + 5.7, 0.7, 11.4, 0.7),
+    // Dầm cầu nối tầng 2 & tầng 3 giữa B4–B5
+    makeOrientedLocalBox(toWorld, 75.0, 2.0, groundY + 3.8, 16.0, 0.4, 3.2),
+    makeOrientedLocalBox(toWorld, 75.0, 26.0, groundY + 3.8, 16.0, 0.4, 3.2),
+    makeOrientedLocalBox(toWorld, 75.0, 2.0, groundY + 7.6, 16.0, 0.4, 3.2),
+    makeOrientedLocalBox(toWorld, 75.0, 26.0, groundY + 7.6, 16.0, 0.4, 3.2),
+    // Mặt đứng Block 5 đối diện qua hồ nước B4–B5
+    makeOrientedLocalBox(toWorld, 88.0, 14.0, groundY + 5.7, 10.0, 11.4, 36.0),
+    // Khối nhà Block 11 phía Bắc & Block 3 phía Nam ở xa
+    makeOrientedLocalBox(toWorld, 20.0, -38.0, groundY + 7.5, 85.0, 15.0, 14.0),
+    makeOrientedLocalBox(toWorld, 48.0, 115.0, groundY + 5.7, 80.0, 11.4, 14.0),
   ];
+
+  // Cảnh quan điểm nhấn B4: Hồ nước xanh B4–B5 + đá xám + ngọc lục bảo + pergola Bắc + ki-ốt Highlands đỏ + banner dọc
+  const waterGeos = [
+    makeOrientedLocalBox(toWorld, 74.5, 14.0, groundY + 0.45, 5.2, 0.1, 16.5),
+    makeOrientedLocalBox(toWorld, 28.0, 56.0, groundY + 0.1, 52.0, 0.1, 22.0),
+  ];
+  const darkTrimGeos = [
+    // Thành bể đá xám đen hồ nước B4–B5
+    makeOrientedLocalBox(toWorld, 74.5, 5.5, groundY + 0.28, 5.8, 0.56, 0.45),
+    makeOrientedLocalBox(toWorld, 74.5, 22.5, groundY + 0.28, 5.8, 0.56, 0.45),
+    makeOrientedLocalBox(toWorld, 71.7, 14.0, groundY + 0.28, 0.45, 0.56, 17.4),
+    makeOrientedLocalBox(toWorld, 77.3, 14.0, groundY + 0.28, 0.45, 0.56, 17.4),
+    // Mái pergola thép đen sân Tây Bắc (ảnh step_463)
+    makeOrientedLocalBox(toWorld, 7.2, -3.8, groundY + 3.2, 13.0, 0.14, 7.0),
+    makeOrientedLocalBox(toWorld, 1.2, -7.0, groundY + 1.6, 0.16, 3.2, 0.16),
+    makeOrientedLocalBox(toWorld, 7.2, -7.0, groundY + 1.6, 0.16, 3.2, 0.16),
+    makeOrientedLocalBox(toWorld, 13.2, -7.0, groundY + 1.6, 0.16, 3.2, 0.16),
+    // Lan can gạch hoa gió sân pergola
+    makeOrientedLocalBox(toWorld, 7.2, -7.2, groundY + 0.45, 12.2, 0.9, 0.14),
+    // Khung pergola Highlands
+    makeOrientedLocalBox(toWorld, 54.0, 36.5, groundY + 3.3, 10.5, 0.16, 4.5),
+  ];
+  const redAccentGeos = [
+    // Toa tàu Highlands Coffee màu đỏ phía Nam (ảnh step_105)
+    makeOrientedLocalBox(toWorld, 56.0, 36.5, groundY + 1.6, 7.5, 3.0, 3.2),
+    // Banner EIU đỏ treo dọc sảnh cột B4–B5
+    makeOrientedLocalBox(toWorld, 72.5, 5.2, groundY + 5.8, 0.06, 3.2, 0.95),
+    makeOrientedLocalBox(toWorld, 72.5, 22.8, groundY + 5.8, 0.06, 3.2, 0.95),
+  ];
+  const greenAccentGeos = [
+    // Khối đá ngọc bích xanh trên hồ B4–B5 & banner xanh lá (ảnh step_386)
+    makeOrientedLocalBox(toWorld, 73.2, 16.5, groundY + 1.15, 0.9, 1.4, 0.9),
+    makeOrientedLocalBox(toWorld, 75.5, 19.5, groundY + 5.8, 0.06, 3.0, 0.9),
+  ];
+
   const extSalixTrees: SalixAlbaInstance[] = [];
-  // Hàng cây xanh rợp bóng mát ngay sát vách kính mặt Nam
-  const treeUs = [6.0, 12.0, 18.0, 24.0, 34.0, 40.0, 46.0, 52.0, 58.0, 64.0];
-  treeUs.forEach((tu, idx) => {
-    const tv = 34.5 + ((idx % 2) * 2.5);
+  const treeSpots: readonly [number, number][] = [
+    [6.0, 34.5], [14.0, 36.5], [22.0, 34.5], [32.0, 36.5], [40.0, 34.5], [48.0, 36.5],
+    [18.0, -10.5], [28.0, -11.5], [38.0, -10.5], [48.0, -11.5], [58.0, -10.5],
+    [-6.0, 6.0], [-6.0, 22.0],
+  ];
+  treeSpots.forEach(([tu, tv], idx) => {
     const [wx, wz] = toWorld(tu, tv);
     extSalixTrees.push({
       x: wx,
@@ -151,11 +204,16 @@ function buildB4ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, ground
       scaleY: 0.9 + (idx % 2) * 0.12,
     });
   });
+
   return {
     extGrassGeo: mergeAndDispose(grassGeos),
     extPathGeo: mergeAndDispose(pathGeos),
     extFacadeGeo: mergeAndDispose(facadeGeos),
     extSalixTrees,
+    b4WaterGeo: mergeAndDispose(waterGeos),
+    b4DarkGeo: mergeAndDispose(darkTrimGeos),
+    b4RedGeo: mergeAndDispose(redAccentGeos),
+    b4GreenGeo: mergeAndDispose(greenAccentGeos),
   };
 }
 
@@ -273,6 +331,10 @@ export default function InteriorScene() {
         extPathGeo: null,
         extFacadeGeo: null,
         extSalixTrees: [] as SalixAlbaInstance[],
+        b4WaterGeo: null,
+        b4DarkGeo: null,
+        b4RedGeo: null,
+        b4GreenGeo: null,
       };
     }
 
@@ -431,12 +493,22 @@ export default function InteriorScene() {
     const ext = isB4
       ? buildB4ExteriorBackdrop(layout.toWorld, -(floor - 1) * FLOOR_HEIGHT)
       : isB11
-      ? buildB11ExteriorBackdrop(layout.toWorld, -(floor - 1) * FLOOR_HEIGHT)
+      ? {
+          ...buildB11ExteriorBackdrop(layout.toWorld, -(floor - 1) * FLOOR_HEIGHT),
+          b4WaterGeo: null,
+          b4DarkGeo: null,
+          b4RedGeo: null,
+          b4GreenGeo: null,
+        }
       : {
           extGrassGeo: null,
           extPathGeo: null,
           extFacadeGeo: null,
           extSalixTrees: [] as SalixAlbaInstance[],
+          b4WaterGeo: null,
+          b4DarkGeo: null,
+          b4RedGeo: null,
+          b4GreenGeo: null,
         };
 
     return {
@@ -459,6 +531,10 @@ export default function InteriorScene() {
       multiFloorB11.extGrassGeo?.dispose();
       multiFloorB11.extPathGeo?.dispose();
       multiFloorB11.extFacadeGeo?.dispose();
+      multiFloorB11.b4WaterGeo?.dispose();
+      multiFloorB11.b4DarkGeo?.dispose();
+      multiFloorB11.b4RedGeo?.dispose();
+      multiFloorB11.b4GreenGeo?.dispose();
     };
   }, [multiFloorB11]);
 
@@ -601,7 +677,7 @@ export default function InteriorScene() {
   // Màu tường và sàn theo tài liệu thực tế của từng tòa
   const wallColor = isTwinWing ? '#42322c' : '#f8fafc'; // B8 & B11: nâu sẫm, B3: trắng sáng
   const baseboardColor = isTwinWing ? '#261e1b' : '#334155';
-  const floorColor = isCanteen ? '#dddcd2' : isB4 ? '#a8a29e' : isTwinWing ? '#cbd5e1' : isB6 ? '#475569' : '#f1f5f9'; // căn tin: terra sáng, B4: thảm be-xám, B8 & B11: gạch xám, B3: terrazzo sáng, B6: gạch xám đậm
+  const floorColor = isCanteen ? '#dddcd2' : isB4 ? '#5e6670' : isTwinWing ? '#cbd5e1' : isB6 ? '#475569' : '#f1f5f9'; // căn tin: terra sáng, B4: sàn xám chuẩn dưới thảm, B8 & B11: gạch xám, B3: terrazzo sáng, B6: gạch xám đậm
 
   return (
     <>
@@ -619,8 +695,8 @@ export default function InteriorScene() {
 
       <group>
         {/* Chiếu sáng nội thất */}
-        <ambientLight intensity={isCanteen ? 1.35 : 0.8} color="#f8fafc" />
-        {(isTwinWing || isB6 || isCanteen) && <hemisphereLight args={['#e0f2fe', '#94a3b8', 0.85]} />}
+        <ambientLight intensity={isCanteen ? 1.35 : isB4 ? 0.92 : 0.8} color="#f8fafc" />
+        {(isTwinWing || isB6 || isCanteen || isB4) && <hemisphereLight args={['#e0f2fe', '#94a3b8', 0.85]} />}
 
         <directionalLight
           position={[centerPos[0] + 20, 45, centerPos[1] - 20]}
@@ -651,9 +727,10 @@ export default function InteriorScene() {
         </>
       ) : isB4 ? (
         <>
-          <pointLight position={[layout.toWorld(16, 14)[0], 3.4, layout.toWorld(16, 14)[1]]} intensity={0.7} distance={30} color="#fffbeb" />
-          <pointLight position={[layout.toWorld(33.5, 14)[0], 3.4, layout.toWorld(33.5, 14)[1]]} intensity={0.75} distance={30} color="#ffffff" />
-          <pointLight position={[layout.toWorld(52, 14)[0], 3.4, layout.toWorld(52, 14)[1]]} intensity={0.7} distance={30} color="#e0f2fe" />
+          <pointLight position={[layout.toWorld(12, 14)[0], 3.4, layout.toWorld(12, 14)[1]]} intensity={0.65} distance={28} color="#fffbeb" />
+          <pointLight position={[layout.toWorld(28, 14)[0], 3.4, layout.toWorld(28, 14)[1]]} intensity={0.7} distance={28} color="#ffffff" />
+          <pointLight position={[layout.toWorld(45, 14)[0], 3.4, layout.toWorld(45, 14)[1]]} intensity={0.7} distance={28} color="#ffffff" />
+          <pointLight position={[layout.toWorld(60, 14)[0], 3.4, layout.toWorld(60, 14)[1]]} intensity={0.7} distance={28} color="#e0f2fe" />
         </>
       ) : buildingId.toLowerCase() === 'b3' ? (
         <>
@@ -755,6 +832,26 @@ export default function InteriorScene() {
       {multiFloorB11.extFacadeGeo && (
         <mesh geometry={multiFloorB11.extFacadeGeo}>
           <meshStandardMaterial color="#d6cec2" roughness={0.8} />
+        </mesh>
+      )}
+      {isB4 && multiFloorB11.b4WaterGeo && (
+        <mesh geometry={multiFloorB11.b4WaterGeo}>
+          <meshStandardMaterial color="#0284c7" roughness={0.15} metalness={0.25} />
+        </mesh>
+      )}
+      {isB4 && multiFloorB11.b4DarkGeo && (
+        <mesh geometry={multiFloorB11.b4DarkGeo}>
+          <meshStandardMaterial color="#1f2937" roughness={0.6} />
+        </mesh>
+      )}
+      {isB4 && multiFloorB11.b4RedGeo && (
+        <mesh geometry={multiFloorB11.b4RedGeo}>
+          <meshStandardMaterial color="#b91c1c" roughness={0.5} />
+        </mesh>
+      )}
+      {isB4 && multiFloorB11.b4GreenGeo && (
+        <mesh geometry={multiFloorB11.b4GreenGeo}>
+          <meshStandardMaterial color="#15803d" roughness={0.45} />
         </mesh>
       )}
       {(isB11 || isB4) && multiFloorB11.extSalixTrees.length > 0 && (

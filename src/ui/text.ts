@@ -163,6 +163,7 @@ export const UI_TEXT = {
   // Panel tòa nhà (chuyển từ BUILDING_PANEL_TEXT cũ)
   close: { vi: 'Đóng', en: 'Close' },
   backToOverview: { vi: 'Về tổng quan', en: 'Back to overview' },
+  enterLibrary3d: { vi: 'Vào tham quan Thư viện EIU 3D', en: 'Explore EIU Library in 3D' },
   zonePrefix: { vi: 'Khu vực', en: 'Zone' },
   floorsUnit: { vi: 'tầng', en: 'floors' },
   heightPrefix: { vi: 'Cao', en: 'Height' },
