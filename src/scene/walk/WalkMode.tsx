@@ -2,19 +2,24 @@ import { useEffect, useMemo, useRef } from 'react';
 import { dampHeight, getGroundHeight } from './groundHeight';
 import { Suspense } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Vector3, Matrix4, Quaternion, PerspectiveCamera, type Group } from 'three';
+import { Vector3, PerspectiveCamera, Raycaster, Object3D, type Group } from 'three';
 import { CapsuleFallback } from './PlayerCharacter';
 import PlayerCharacter from './PlayerCharacter';
 import { campus, FLOOR_HEIGHT } from '../../data';
 import { useCampusStore } from '../../store/useCampusStore';
 import { useWalkStore } from '../../store/useWalkStore';
 import { useActivityStore } from '../../store/useActivityStore';
+import { useSilverStore } from '../../store/useSilverStore';
+import { getStage } from '../../data/silver/stages';
 import type { Activity } from '../../types/silverWorld';
 import type { Vec2 } from '../../types';
 import { isPointInPond } from '../zone1/pondLayout';
 import { isOnPondPot } from '../zone1/pondTerraceLayout';
 import { SIT_Y_OFFSET } from '../npc/sitPose';
 import { activityRadius, focusActivity, handleActivityEscape, syncActivityRange } from './activityControl';
+import { selectFocusedCameraPosition, type WallLine } from './focusedCamera';
+import { liveActorPositions } from '../silver/StoryActors';
+import { getRightColumnWidth } from '../../ui/ActionPrompt';
 import {
   getInteriorLayout,
   getExteriorInteractive,
@@ -144,7 +149,7 @@ function resolvePosition(x: number, z: number, previousX: number, previousZ: num
 }
 
 export default function WalkMode() {
-  const { camera, gl } = useThree();
+  const { camera, gl, scene } = useThree();
   if (typeof window !== 'undefined') {
     (window as unknown as { __gl?: typeof gl }).__gl = gl;
   }
@@ -194,10 +199,16 @@ export default function WalkMode() {
   const wallCollisionHoldTimer = useRef(0);
   const lastPosSyncTime = useRef(0);
   const focus = useRef<Activity | null>(null);
-  const focusTime = useRef(0);
-  const focusFrom = useMemo(() => new Quaternion(), []);
-  const focusTo = useMemo(() => new Quaternion(), []);
-  const focusMatrix = useMemo(() => new Matrix4(), []);
+  const lastFocusPos = useRef<[number, number]>([NaN, NaN]);
+  const lastFocusSpeaker = useRef<string | null>(null);
+  const chosenCamPos = useRef(new Vector3());
+  const chosenLookAt = useRef(new Vector3());
+  const raycaster = useMemo(() => new Raycaster(), []);
+  const rayOrigin = useMemo(() => new Vector3(), []);
+  const rayTarget = useMemo(() => new Vector3(), []);
+  const rayDir = useMemo(() => new Vector3(), []);
+  const currentViewOffset = useRef(0);
+  const hasViewOffset = useRef(false);
   const activity = useActivityStore((state) => state.activity);
   const activityPoint = useMemo<InteractivePoint | null>(() => {
     if (!activity || activity.trigger === 'none') return null;
@@ -213,7 +224,7 @@ export default function WalkMode() {
   }, [activity]);
 
   // Danh sách các đoạn tường đặc 2D để kiểm tra camera chắn tầm nhìn
-  const currentFloorWallLines = useRef<{ p1x: number; p1z: number; p2x: number; p2z: number }[]>([]);
+  const currentFloorWallLines = useRef<WallLine[]>([]);
 
   const updateCachedWalls = (buildingId: string, floor: number) => {
     const layout = getInteriorLayout(buildingId);
@@ -574,6 +585,11 @@ export default function WalkMode() {
       if ('fov' in camera) {
         (camera as PerspectiveCamera).fov = 45;
       }
+      if ('clearViewOffset' in camera) {
+        (camera as PerspectiveCamera).clearViewOffset();
+      }
+      currentViewOffset.current = 0;
+      hasViewOffset.current = false;
       camera.updateProjectionMatrix();
       if (document.pointerLockElement === gl.domElement) document.exitPointerLock();
     };
@@ -622,7 +638,7 @@ export default function WalkMode() {
     }
   };
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const dt = Math.min(delta, 0.05);
     const pressed = keys.current;
     const input = useWalkStore.getState().moveInput;
@@ -646,14 +662,36 @@ export default function WalkMode() {
     const focused = focusActivity(activityState);
     if (!focused) focus.current = null;
 
-    // Lerp FOV khi chạy nhanh (Shift) (+5 độ).
+    // Lerp FOV: nới nhẹ lên 50 khi ngồi (seat) để thấy cả thầy và TV; khi chạy nhanh 50; bình thường 45.
     if ('fov' in camera) {
       const persCam = camera as PerspectiveCamera;
-      const targetFov = running.current && moving.current && !seat && !focused ? 50 : 45;
+      const targetFov = (running.current && moving.current && !seat && !focused) || seat ? 50 : 45;
       if (Math.abs(persCam.fov - targetFov) > 0.02) {
         persCam.fov += (targetFov - persCam.fov) * (1 - Math.exp(-8 * dt));
         persCam.updateProjectionMatrix();
       }
+    }
+
+    // Điều chỉnh tâm camera lệch sang trái khi có cột bên phải (Right Column) mở và đang ngồi hoặc nói chuyện
+    const rightColWidth = getRightColumnWidth();
+    const isOffsetActive = (seat !== null || focused !== null) && rightColWidth > 0;
+    const targetOffset = isOffsetActive ? rightColWidth / 2 : 0;
+    const offsetRate = 1 - Math.exp(-dt / 0.4);
+    currentViewOffset.current += (targetOffset - currentViewOffset.current) * offsetRate;
+
+    const fullW = state.size.width;
+    const fullH = state.size.height;
+    if (currentViewOffset.current > 0.5) {
+      if ('setViewOffset' in camera) {
+        (camera as PerspectiveCamera).setViewOffset(fullW, fullH, currentViewOffset.current, 0, fullW, fullH);
+        hasViewOffset.current = true;
+      }
+    } else if (hasViewOffset.current) {
+      currentViewOffset.current = 0;
+      if ('clearViewOffset' in camera) {
+        (camera as PerspectiveCamera).clearViewOffset();
+      }
+      hasViewOffset.current = false;
     }
 
     const wantedNear = isInterior ? 0.2 : OUTDOOR_CAMERA_NEAR;
@@ -695,26 +733,140 @@ export default function WalkMode() {
     if (focused) {
       moving.current = false;
       running.current = false;
-      const { x, z } = focused.target;
-      const yaw = Math.atan2(x - player.current[0], z - player.current[2]);
-      if (body.current) body.current.rotation.y = yaw;
+
+      // 1. Khi focused: ẩn thân người chơi (như lúc ngồi), camera ở mắt người chơi
+      if (body.current) {
+        body.current.visible = false;
+      }
+
+      // Xác định đối tượng đang nói (người nói hiện tại theo speaker hoặc target của stage)
+      const silverPlay = useSilverStore.getState().play;
+      const stage = silverPlay?.item?.id ? getStage(silverPlay.item.id) : null;
+      const currentStep = silverPlay?.item?.scene?.steps?.[silverPlay.stepIndex];
+      let speaker = currentStep && 'speaker' in currentStep ? currentStep.speaker : undefined;
+
+      // Nếu narrator hoặc undefined ở 2.2/opening: nhìn người nói kế tiếp (Thành) để người nói ở giữa thay vì hai mặt ở hai mép
+      if ((!speaker || speaker === 'narrator') && stage?.sceneId === '2.2/opening') {
+        speaker = 'thanh';
+      }
+
+      let tx = focused.target.x;
+      let tz = focused.target.z;
+      let ty = isInterior ? player.current[1] : getGroundHeight(tx, tz);
+
+      // Cảnh entrance/result: bước kể chuyện (narrator) nhìn bảng ở khoảng cách thấy trọn bảng (2.8m, cao 1.45m),
+      // bước người nói (Thành, Quyền) nhìn vào họ
+      const isResultBoard = stage?.sceneId === 'entrance/result' && (!speaker || speaker === 'narrator');
+
+      if (!isResultBoard) {
+        const livePos = speaker ? liveActorPositions.get(speaker) : null;
+        if (livePos) {
+          tx = livePos[0];
+          ty = livePos[1];
+          tz = livePos[2];
+        } else {
+          const speakingActor = stage?.actors.find((a) => a.speaker === speaker);
+          if (speakingActor?.spot) {
+            tx = speakingActor.spot.x;
+            tz = speakingActor.spot.z;
+            ty = isInterior ? player.current[1] : getGroundHeight(tx, tz);
+          }
+        }
+      }
+
+      // So sánh số, không tạo chuỗi toFixed mỗi frame
+      const focusChanged =
+        Number.isNaN(lastFocusPos.current[0]) ||
+        Math.abs(tx - lastFocusPos.current[0]) > 0.5 ||
+        Math.abs(tz - lastFocusPos.current[1]) > 0.5 ||
+        lastFocusSpeaker.current !== (speaker ?? null);
+
+      if (focusChanged) {
+        lastFocusPos.current[0] = tx;
+        lastFocusPos.current[1] = tz;
+        lastFocusSpeaker.current = speaker ?? null;
+
+        if (isResultBoard) {
+          // Bảng kết quả ngoài trời: nhìn trọn vẹn bảng từ phía trước (facing [-0.38, -0.92])
+          // Điểm nhìn tâm bảng [11.92, 1.25, -164.99], camera lùi 2.8m ở [12.98, 1.45, -162.41]
+          chosenCamPos.current.set(12.98, 1.45, -162.41);
+          chosenLookAt.current.set(11.92, 1.25, -164.99);
+        } else {
+          const px = player.current[0];
+          const pz = player.current[2];
+          const py = isInterior ? player.current[1] : getGroundHeight(px, pz);
+
+          // Hàm raycast một lần lúc bắt đầu để kiểm tra vật cản (cột, thân cây) che mặt người nói
+          const checkObstacle = (from: [number, number, number], to: [number, number, number]): boolean => {
+            rayOrigin.set(from[0], from[1], from[2]);
+            rayTarget.set(to[0], to[1], to[2]);
+            const dir = rayDir.subVectors(rayTarget, rayOrigin);
+            const maxDist = dir.length();
+            if (maxDist < 0.4) return false;
+            dir.normalize();
+            raycaster.set(rayOrigin, dir);
+            raycaster.near = 0.3;
+            raycaster.far = maxDist - 0.3;
+
+            const hits = raycaster.intersectObjects(scene.children, true);
+            for (const hit of hits) {
+              if (!hit.object.visible) continue;
+              let obj: Object3D | null = hit.object;
+              let isActorOrPlayer = false;
+              while (obj) {
+                if (
+                  obj === body.current ||
+                  obj.name?.includes('character') ||
+                  obj.name?.includes('head') ||
+                  obj.name?.includes('body') ||
+                  obj.userData?.isCharacter
+                ) {
+                  isActorOrPlayer = true;
+                  break;
+                }
+                obj = obj.parent;
+              }
+              if (!isActorOrPlayer) {
+                return true;
+              }
+            }
+            return false;
+          };
+
+          const result = selectFocusedCameraPosition({
+            playerPos: [px, py, pz],
+            targetPos: [tx, ty, tz],
+            wallLines: currentFloorWallLines.current,
+            isObstacleBetween: checkObstacle,
+          });
+          chosenCamPos.current.set(...result.camPos);
+          chosenLookAt.current.set(...result.lookAt);
+        }
+      }
+
+      const dx = tx - player.current[0];
+      const dz = tz - player.current[2];
+      const yaw = Math.atan2(dx, dz);
       facingYaw.current = Math.PI / 2 - yaw;
 
-      if (focus.current !== focused) {
-        focus.current = focused;
-        focusTime.current = 0;
-        focusFrom.copy(camera.quaternion);
-        camera.up.set(0, 1, 0);
-        const height = isInterior ? 0 : getGroundHeight(x, z);
-        desiredLookAt.set(x, height + 1.35, z);
-        focusMatrix.lookAt(camera.position, desiredLookAt, camera.up);
-        focusTo.setFromRotationMatrix(focusMatrix);
-      }
-      focusTime.current = Math.min(1, focusTime.current + delta / 0.6);
-      const t = focusTime.current;
-      camera.quaternion.slerpQuaternions(focusFrom, focusTo, t * t * (3 - 2 * t));
+      // Chuyển mượt 0.6 s
+      const focusSpeed = 1 - Math.exp(-dt / 0.6);
+      camera.up.set(0, 1, 0);
+      camera.position.lerp(chosenCamPos.current, focusSpeed);
+      target.lerp(chosenLookAt.current, focusSpeed);
+      camera.lookAt(target);
+
       updateProximity(true);
       return;
+    }
+
+    if (!Number.isNaN(lastFocusPos.current[0])) {
+      lastFocusPos.current[0] = NaN;
+      lastFocusPos.current[1] = NaN;
+      lastFocusSpeaker.current = null;
+      if (body.current) {
+        body.current.visible = viewMode.current !== 1;
+      }
     }
 
     const xInput = Math.max(-1, Math.min(1, input.x + Number(pressed.has('d') || pressed.has('arrowright')) - Number(pressed.has('a') || pressed.has('arrowleft'))));

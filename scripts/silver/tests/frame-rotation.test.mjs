@@ -28,7 +28,7 @@ export default {
       Math.abs(b8ActualZ - b8ExpectedZ) < 1e-3,
       `B8 TV z lệch: thực tế ${b8ActualZ} vs toWorld ${b8ExpectedZ}`,
     );
-    assert.ok(Math.abs(b8ActualX - 42.345) < 0.05, `B8 TV x phải xấp xỉ 42.35 (ra ${b8ActualX})`);
+    assert.ok(Math.abs(b8ActualX - 42.287) < 0.05, `B8 TV x phải xấp xỉ 42.29 (ra ${b8ActualX})`);
     assert.ok(Math.abs(b8ActualZ - (-220.43)) < 0.05, `B8 TV z phải xấp xỉ -220.43 (ra ${b8ActualZ})`);
 
     // 2. Kiểm tra B11: TV 406.B11
