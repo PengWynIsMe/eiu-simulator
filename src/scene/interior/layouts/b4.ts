@@ -85,16 +85,16 @@ export const B4_ELEVATOR_SPAWN_WORLD: Vec2 = toWorld(B4_ELEVATOR_SPAWN_LOCAL[0],
 
 // 1. Cửa chính phía Đông (tiếp cận từ đầu Đông Nam sảnh cột B4–B5 cạnh Highlands)
 export const B4_ENTRANCE_MAIN_OUTSIDE = toWorld(61.5, 29.8);
-export const B4_ENTRANCE_MAIN_INSIDE = toWorld(64.2, 14.0);
-export const B4_ENTRANCE_MAIN_VESTIBULE = toWorld(65.8, 14.0);
+export const B4_ENTRANCE_MAIN_INSIDE = toWorld(61.8, 14.0);
+export const B4_ENTRANCE_MAIN_VESTIBULE = toWorld(66.2, 14.0);
 
-// 2. Cửa phụ phía Nam (mặt tiền nhìn ra hồ nước & Highlands)
-export const B4_ENTRANCE_SOUTH_OUTSIDE = toWorld(48.5, 29.8);
-export const B4_ENTRANCE_SOUTH_INSIDE = toWorld(48.5, 26.0);
+// 2. Cửa phụ phía Nam ("Lối Vào Thư Viện EIU" — nhìn ra hồ nước, pergola & Block 3)
+export const B4_ENTRANCE_SOUTH_OUTSIDE = toWorld(47.3, 28.5);
+export const B4_ENTRANCE_SOUTH_INSIDE = toWorld(48.5, 25.0);
 
 // 3. Cửa phụ phía Bắc (gần khu máy in & tủ gửi đồ, hướng sang sân pergola / B11)
 export const B4_ENTRANCE_NORTH_OUTSIDE = toWorld(48.5, -1.8);
-export const B4_ENTRANCE_NORTH_INSIDE = toWorld(48.5, 2.0);
+export const B4_ENTRANCE_NORTH_INSIDE = toWorld(48.5, 3.0);
 
 // 4. Cửa phụ phía Tây (sảnh thang máy, nối cầu đi bộ mái che sang Block 11)
 export const B4_ENTRANCE_WEST_OUTSIDE = toWorld(-1.8, 14.0);
@@ -116,7 +116,7 @@ export const b4ExteriorEntrances: readonly ExteriorEntrance[] = [
     id: 'b4-door-south',
     buildingId: 'b4',
     worldPos: B4_ENTRANCE_SOUTH_OUTSIDE,
-    radius: 2.8,
+    radius: 3.4,
     label: 'Vào Thư viện EIU (Cửa Nam — Hồ nước)',
     spawnInsideWorld: B4_ENTRANCE_SOUTH_INSIDE,
     spawnInsideYaw: getLocalWalkYaw(0, -1), // Quay vào hướng Bắc
@@ -166,14 +166,14 @@ export interface StraightBookStairSpec {
 /** Cầu thang trung tâm dán gáy sách EIU: 2 vế thẳng nối qua chiếu nghỉ giữa, đi lên về hướng Tây. */
 export const B4_GRAND_STAIR: StraightBookStairSpec = {
   id: 'b4-grand-stair',
-  startU: 62.5,
-  midStartU: 58.3,
-  midEndU: 56.7,
-  endU: 52.5,
+  startU: 59.8,
+  midStartU: 56.0,
+  midEndU: 54.5,
+  endU: 50.8,
   centerV: 14.0,
   width: 3.0,
   stepsPerFlight: 10,
-  shaftBounds: [52.6, 62.4, 12.4, 15.6],
+  shaftBounds: [50.8, 59.8, 12.4, 15.6],
 };
 
 function buildGrandStairWalkableSpec(spec: StraightBookStairSpec): WalkableStairSpec {
@@ -246,7 +246,7 @@ export const B4_ROOMS_FLOOR_1: readonly RoomArea[] = [
   {
     code: 'ENTRANCE',
     name: 'Sảnh đón & Cổng quẹt thẻ Thư viện EIU',
-    minU: 63.2,
+    minU: 60.2,
     maxU: 67.0,
     minV: 10.5,
     maxV: 17.5,
@@ -254,8 +254,8 @@ export const B4_ROOMS_FLOOR_1: readonly RoomArea[] = [
   {
     code: 'GRAND-STAIR',
     name: 'Cầu thang gáy sách trung tâm',
-    minU: 52.0,
-    maxU: 63.2,
+    minU: 50.5,
+    maxU: 60.2,
     minV: 12.0,
     maxV: 16.0,
   },
@@ -278,7 +278,7 @@ export const B4_ROOMS_FLOOR_1: readonly RoomArea[] = [
   {
     code: 'PRINTING',
     name: 'Khu vực in ấn & Tủ gửi đồ 36 ngăn',
-    minU: 46.5,
+    minU: 43.0,
     maxU: 52.0,
     minV: 0.2,
     maxV: 10.5,
@@ -287,9 +287,9 @@ export const B4_ROOMS_FLOOR_1: readonly RoomArea[] = [
     code: 'INFO-DESK',
     name: 'Quầy thông tin (Information Desk)',
     minU: 34.0,
-    maxU: 46.5,
-    minV: 11.2,
-    maxV: 16.8,
+    maxU: 47.2,
+    minV: 10.5,
+    maxV: 17.5,
   },
   {
     code: 'BOOK-EXCHANGE',
@@ -605,26 +605,38 @@ export function getFloorWalls(floor: number): readonly WallSegment[] {
 
   // 3. Chi tiết từng tầng
   if (floor === 1) {
-    // Vách kính tiền sảnh cổng quẹt thẻ (u = 63.8..67, v = 10.5..17.5) — chừa lối qua 3 cổng ở v = 12.2..15.8
-    walls.push({ u1: 63.8, v1: 10.5, u2: 67.0, v2: 10.5, thickness: 0.1, isRailing: true });
-    walls.push({ u1: 63.8, v1: 17.5, u2: 67.0, v2: 17.5, thickness: 0.1, isRailing: true });
-    walls.push({ u1: 63.8, v1: 10.5, u2: 63.8, v2: 12.2, thickness: 0.1, isRailing: true });
-    walls.push({ u1: 63.8, v1: 15.8, u2: 63.8, v2: 17.5, thickness: 0.1, isRailing: true });
+    // Vách kính tiền sảnh cổng quẹt thẻ (u = 65.2..67, v = 10.5..17.5) — chừa lối qua 2 lane cổng ở v = 12.2..15.8
+    walls.push({ u1: 65.2, v1: 10.5, u2: 67.0, v2: 10.5, thickness: 0.1, isRailing: true });
+    walls.push({ u1: 65.2, v1: 17.5, u2: 67.0, v2: 17.5, thickness: 0.1, isRailing: true });
+    walls.push({ u1: 65.2, v1: 10.5, u2: 65.2, v2: 12.2, thickness: 0.1, isRailing: true });
+    walls.push({ u1: 65.2, v1: 15.8, u2: 65.2, v2: 17.5, thickness: 0.1, isRailing: true });
+
+    // Cánh kính chắn hai bên cổng quẹt thẻ 2 lane ở cửa phụ Bắc & cửa phụ Nam (hướng về B3)
+    for (const sv of [1.15, 26.85]) {
+      walls.push({ u1: 47.0, v1: sv, u2: 47.45, v2: sv, thickness: 0.1, isRailing: true });
+      walls.push({ u1: 49.55, v1: sv, u2: 50.0, v2: sv, thickness: 0.1, isRailing: true });
+    }
 
     // Lan can kính hai bên cầu thang gáy sách trung tâm
-    walls.push({ u1: 52.5, v1: 12.4, u2: 62.5, v2: 12.4, thickness: 0.12, isRailing: true });
-    walls.push({ u1: 52.5, v1: 15.6, u2: 62.5, v2: 15.6, thickness: 0.12, isRailing: true });
+    walls.push({ u1: 50.8, v1: 12.4, u2: 59.8, v2: 12.4, thickness: 0.12, isRailing: true });
+    walls.push({ u1: 50.8, v1: 15.6, u2: 59.8, v2: 15.6, thickness: 0.12, isRailing: true });
 
-    // Tường ngăn khu vực in ấn & tủ gửi đồ 36 ngăn (u = 46.5, v = 0.2..9.5)
-    walls.push({ u1: 46.5, v1: 0.2, u2: 46.5, v2: 9.5, thickness: 0.22 });
+    // Tường ngăn xám khu vực in ấn & tủ gửi đồ 36 ngăn (nối từ vách kính Bắc tới trụ hành lang u = 43.0)
+    walls.push({ u1: 43.0, v1: 0.2, u2: 43.0, v2: 10.5, thickness: 0.2 });
+    // Hàng tủ gửi đồ 36 ngăn & 2 máy in lớn áp sát mặt Đông bức tường ngăn
+    walls.push({ u1: 43.45, v1: 1.2, u2: 43.45, v2: 9.4, thickness: 0.72, isRailing: true });
 
     // Góc trao đổi sách phía Tây Bắc (tường ngăn u = 11.5, chừa lối vào rộng v = 7.2..10.5)
     walls.push({ u1: 11.5, v1: 0.2, u2: 11.5, v2: 7.2, thickness: 0.22 });
     walls.push({ u1: 1.5, v1: 10.5, u2: 7.5, v2: 10.5, thickness: 0.15, isRailing: true });
 
-    // Quầy thông tin dài (u = 35.0..44.5, v = 13.0..15.0)
-    walls.push({ u1: 35.4, v1: 13.2, u2: 44.2, v2: 13.2, thickness: 0.7, isRailing: true });
-    walls.push({ u1: 35.4, v1: 14.8, u2: 44.2, v2: 14.8, thickness: 0.7, isRailing: true });
+    // Quầy thông tin dài (u = 37.5..46.3, v = 13.0..15.0) & 2 ghế sofa xanh dương
+    walls.push({ u1: 37.5, v1: 13.15, u2: 46.3, v2: 13.15, thickness: 0.65, isRailing: true });
+    walls.push({ u1: 37.5, v1: 14.85, u2: 46.3, v2: 14.85, thickness: 0.65, isRailing: true });
+    walls.push({ u1: 46.15, v1: 13.0, u2: 46.15, v2: 15.0, thickness: 0.55, isRailing: true });
+    // Sofa 1 áp sát mặt Tây vách ngăn xám & Sofa 2 cạnh cột Nam (u = 43.0) ngang đầu bàn lễ tân
+    walls.push({ u1: 42.35, v1: 6.65, u2: 42.35, v2: 8.55, thickness: 0.78, isRailing: true });
+    walls.push({ u1: 40.25, v1: 19.0, u2: 42.15, v2: 19.0, thickness: 0.78, isRailing: true });
 
     // Bàn máy tính tra cứu OPAC (2 phòng máy hai bên cầu thang trung tâm: 4 dãy bàn/bên)
     for (const u of [54.2, 57.6, 61.0, 64.4]) {
@@ -637,17 +649,17 @@ export function getFloorWalls(floor: number): readonly WallSegment[] {
       walls.push({ u1: u, v1: 12.6, u2: u, v2: 15.4, thickness: 0.9, isRailing: true });
     }
 
-    // Các cụm bàn tự học Tầng 1 hai bên hành lang (3 cụm Bắc, 3 cụm Nam)
-    for (const u of [17.0, 27.5, 38.0]) {
-      walls.push({ u1: u - 1.3, v1: 4.5, u2: u + 1.3, v2: 4.5, thickness: 0.9, isRailing: true });
-      walls.push({ u1: u - 1.3, v1: 23.5, u2: u + 1.3, v2: 23.5, thickness: 0.9, isRailing: true });
+    // Các cụm bàn tự học Tầng 1 hai bên hành lang (3 cụm Bắc, 3 cụm Nam theo lưới cột)
+    for (const u of [16.8, 27.2, 37.5]) {
+      walls.push({ u1: u - 1.3, v1: 4.6, u2: u + 1.3, v2: 4.6, thickness: 0.9, isRailing: true });
+      walls.push({ u1: u - 1.3, v1: 23.4, u2: u + 1.3, v2: 23.4, thickness: 0.9, isRailing: true });
     }
   }
 
   if (floor === 2) {
     // Lan can kính bảo vệ quanh lỗ thông cầu thang trung tâm
-    walls.push({ u1: 52.5, v1: 12.4, u2: 62.5, v2: 12.4, thickness: 0.14, isRailing: true });
-    walls.push({ u1: 52.5, v1: 15.6, u2: 62.5, v2: 15.6, thickness: 0.14, isRailing: true });
+    walls.push({ u1: 50.8, v1: 12.4, u2: 59.8, v2: 12.4, thickness: 0.14, isRailing: true });
+    walls.push({ u1: 50.8, v1: 15.6, u2: 59.8, v2: 15.6, thickness: 0.14, isRailing: true });
 
     // Khu vệ sinh WC góc Tây Bắc (u = 0.2..11.5, v = 0.2..10.5 — chừa lối vào ở v = 10.5, u = 8.0..9.8)
     walls.push({ u1: 11.5, v1: 0.2, u2: 11.5, v2: 10.5, thickness: 0.22 });
@@ -696,16 +708,16 @@ export function getFloorWalls(floor: number): readonly WallSegment[] {
     walls.push({ u1: 0.2, v1: 10.5, u2: 8.0, v2: 10.5, thickness: 0.22 });
     walls.push({ u1: 9.8, v1: 10.5, u2: 11.5, v2: 10.5, thickness: 0.22 });
 
-    // Vách kính bao sảnh thang & cửa LỐI RA / EXIT (u = 52.0..66.5, v = 10.5..17.5)
-    walls.push({ u1: 52.0, v1: 10.5, u2: 66.8, v2: 10.5, thickness: 0.14, isRailing: true });
-    walls.push({ u1: 52.0, v1: 17.5, u2: 66.8, v2: 17.5, thickness: 0.14, isRailing: true });
-    walls.push({ u1: 52.0, v1: 10.5, u2: 52.0, v2: 12.2, thickness: 0.14, isRailing: true });
-    walls.push({ u1: 52.0, v1: 15.8, u2: 52.0, v2: 17.5, thickness: 0.14, isRailing: true });
+    // Vách kính bao sảnh thang & cửa LỐI RA / EXIT (u = 49.8..66.8, v = 10.5..17.5)
+    walls.push({ u1: 49.8, v1: 10.5, u2: 66.8, v2: 10.5, thickness: 0.14, isRailing: true });
+    walls.push({ u1: 49.8, v1: 17.5, u2: 66.8, v2: 17.5, thickness: 0.14, isRailing: true });
+    walls.push({ u1: 49.8, v1: 10.5, u2: 49.8, v2: 12.2, thickness: 0.14, isRailing: true });
+    walls.push({ u1: 49.8, v1: 15.8, u2: 49.8, v2: 17.5, thickness: 0.14, isRailing: true });
 
-    // Lan can kính bảo vệ quanh miệng lỗ cầu thang Tầng 3 (chặn cả đầu Đông u = 62.5 vì không có Tầng 4)
-    walls.push({ u1: 52.5, v1: 12.4, u2: 62.5, v2: 12.4, thickness: 0.14, isRailing: true });
-    walls.push({ u1: 52.5, v1: 15.6, u2: 62.5, v2: 15.6, thickness: 0.14, isRailing: true });
-    walls.push({ u1: 62.5, v1: 12.4, u2: 62.5, v2: 15.6, thickness: 0.14, isRailing: true });
+    // Lan can kính bảo vệ quanh miệng lỗ cầu thang Tầng 3 (chặn cả đầu Đông u = 59.8 vì không có Tầng 4)
+    walls.push({ u1: 50.8, v1: 12.4, u2: 59.8, v2: 12.4, thickness: 0.14, isRailing: true });
+    walls.push({ u1: 50.8, v1: 15.6, u2: 59.8, v2: 15.6, thickness: 0.14, isRailing: true });
+    walls.push({ u1: 59.8, v1: 12.4, u2: 59.8, v2: 15.6, thickness: 0.14, isRailing: true });
 
     // Khối phòng nghiệp vụ STAFF ONLY khép kín ở giữa (u = 23.5..35.5, v = 11.0..17.0)
     walls.push({ u1: 23.5, v1: 11.0, u2: 35.5, v2: 11.0, thickness: 0.18, isRailing: true });
@@ -808,13 +820,13 @@ function resolveInteriorPosition(
   let currentU = nextU;
   let currentV = nextV;
 
-  // Cho phép đi qua 4 vùng cửa ra vào Tầng 1
+  // Cho phép đi qua 4 vùng cửa ra vào Tầng 1 (chặn kẹt ngoài giới hạn)
   const isNearExitT1 =
     floor === 1 &&
-    ((currentU >= 65.5 && currentV >= 12.2 && currentV <= 15.8) ||
-      (currentU <= 1.2 && currentV >= 12.2 && currentV <= 15.8) ||
-      (currentU >= 47.0 && currentU <= 50.0 && currentV <= 1.2) ||
-      (currentU >= 47.0 && currentU <= 50.0 && currentV >= 26.8));
+    ((currentU >= 65.5 && currentU <= 67.4 && currentV >= 12.2 && currentV <= 15.8) ||
+      (currentU >= -0.4 && currentU <= 1.2 && currentV >= 12.2 && currentV <= 15.8) ||
+      (currentU >= 47.0 && currentU <= 50.0 && currentV >= -0.4 && currentV <= 1.2) ||
+      (currentU >= 47.0 && currentU <= 50.0 && currentV >= 26.8 && currentV <= 28.4));
 
   const onStairs = isInsideAnyStairFootprint(
     B4_WALKABLE_STAIRS,
@@ -906,30 +918,14 @@ export function getNearInteractive(
   worldZ: number,
   floor: number | null
 ): InteractivePoint | null {
-  // 1. Khi ở ngoài khuôn viên: kiểm tra gần 4 cửa vào Block 4
+  // 1. Khi ở ngoài khuôn viên: Block 4 đi thẳng qua cửa kính tự động, không hiện gợi ý nhấn E
   if (floor === null) {
-    for (const ent of b4ExteriorEntrances) {
-      const dist = Math.hypot(worldX - ent.worldPos[0], worldZ - ent.worldPos[1]);
-      if (dist <= ent.radius) {
-        return {
-          id: ent.id,
-          type: 'exterior-door',
-          worldPos: ent.worldPos,
-          radius: ent.radius,
-          label: ent.label,
-          buildingId: ent.buildingId,
-          spawnPosWorld: ent.spawnInsideWorld,
-          spawnYaw: ent.spawnInsideYaw,
-        };
-      }
-    }
     return null;
   }
 
-  // 2. Khi ở bên trong:
+  // 2. Khi ở bên trong: chỉ giữ nút thang máy phía Tây (ra/vào cửa đã tự động đi thông)
   const [u, v] = toLocal(worldX, worldZ);
 
-  // a. Thang máy phía Tây
   const distElevator = Math.hypot(u - B4_ELEVATOR_POS_LOCAL[0], v - B4_ELEVATOR_POS_LOCAL[1]);
   if (distElevator <= 2.8) {
     return {
@@ -940,44 +936,6 @@ export function getNearInteractive(
       label: 'Thang máy Thư viện B4 (Nhấn E)',
       buildingId: 'b4',
     };
-  }
-
-  // b. Các cửa ra ngoài khuôn viên ở Tầng 1
-  if (floor === 1) {
-    // Cửa chính đầu Đông (vùng cổng quẹt thẻ gần cửa kính u = 65.8, v = 14.0)
-    const distMainVestibule = Math.hypot(worldX - B4_ENTRANCE_MAIN_VESTIBULE[0], worldZ - B4_ENTRANCE_MAIN_VESTIBULE[1]);
-    if (distMainVestibule <= 2.6) {
-      const mainEnt = b4ExteriorEntrances[0];
-      if (mainEnt) {
-        return {
-          id: `${mainEnt.id}-exit`,
-          type: 'interior-door',
-          worldPos: B4_ENTRANCE_MAIN_VESTIBULE,
-          radius: 2.6,
-          label: 'Ra ngoài khuôn viên (Nhấn E)',
-          buildingId: 'b4',
-          spawnPosWorld: mainEnt.spawnOutsideWorld,
-          spawnYaw: mainEnt.spawnOutsideYaw,
-        };
-      }
-    }
-
-    // Các cửa phụ Nam / Bắc / Tây
-    for (const ent of b4ExteriorEntrances.slice(1)) {
-      const dist = Math.hypot(worldX - ent.spawnInsideWorld[0], worldZ - ent.spawnInsideWorld[1]);
-      if (dist <= 2.5) {
-        return {
-          id: `${ent.id}-exit`,
-          type: 'interior-door',
-          worldPos: ent.spawnInsideWorld,
-          radius: 2.5,
-          label: 'Ra ngoài khuôn viên (Nhấn E)',
-          buildingId: 'b4',
-          spawnPosWorld: ent.spawnOutsideWorld,
-          spawnYaw: ent.spawnOutsideYaw,
-        };
-      }
-    }
   }
 
   return null;

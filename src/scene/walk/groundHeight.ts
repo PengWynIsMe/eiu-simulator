@@ -1,4 +1,5 @@
 import { campus } from '../../data';
+import { getB11ExteriorFloorHeight, getB4ExteriorFloorHeight } from '../interior/layouts/seamlessPortals';
 import { isOnMedianPlanter, MEDIAN_TOP } from '../zone1/medianLayout';
 import { getPondTerraceHeight } from '../zone1/pondTerraceLayout';
 import type { Vec2 } from '../../types';
@@ -109,6 +110,10 @@ export function getGroundHeight(x: number, z: number): number {
   if (inPond(x, z)) return POND_RIM;
   const terraceHeight = getPondTerraceHeight(x, z);
   if (terraceHeight !== undefined) return terraceHeight;
+  const b4Height = getB4ExteriorFloorHeight(x, z);
+  if (b4Height !== undefined) return b4Height;
+  const b11Height = getB11ExteriorFloorHeight(x, z);
+  if (b11Height !== undefined) return b11Height;
   if (nearRoads(x, z, 'footway')) return FOOTWAY;
   if (nearRoads(x, z, 'internal')) return INTERNAL;
   if (nearRoads(x, z, 'street')) return STREET;

@@ -164,13 +164,14 @@ function buildB4ExteriorBackdrop(toWorld: (u: number, v: number) => Vec2, ground
     makeOrientedLocalBox(toWorld, 74.5, 22.5, groundY + 0.28, 5.8, 0.56, 0.45),
     makeOrientedLocalBox(toWorld, 71.7, 14.0, groundY + 0.28, 0.45, 0.56, 17.4),
     makeOrientedLocalBox(toWorld, 77.3, 14.0, groundY + 0.28, 0.45, 0.56, 17.4),
-    // Mái pergola thép đen sân Tây Bắc (ảnh step_463)
-    makeOrientedLocalBox(toWorld, 7.2, -3.8, groundY + 3.2, 13.0, 0.14, 7.0),
-    makeOrientedLocalBox(toWorld, 1.2, -7.0, groundY + 1.6, 0.16, 3.2, 0.16),
-    makeOrientedLocalBox(toWorld, 7.2, -7.0, groundY + 1.6, 0.16, 3.2, 0.16),
-    makeOrientedLocalBox(toWorld, 13.2, -7.0, groundY + 1.6, 0.16, 3.2, 0.16),
-    // Lan can gạch hoa gió sân pergola
-    makeOrientedLocalBox(toWorld, 7.2, -7.2, groundY + 0.45, 12.2, 0.9, 0.14),
+    // Mái pergola thép đen sân cafe mặt Nam (u = 30.6..43.2, v = 28..34)
+    makeOrientedLocalBox(toWorld, 36.9, 31.0, groundY + 3.55, 12.6, 0.14, 6.0),
+    makeOrientedLocalBox(toWorld, 30.8, 33.8, groundY + 1.8, 0.18, 3.6, 0.18),
+    makeOrientedLocalBox(toWorld, 34.8, 33.8, groundY + 1.8, 0.18, 3.6, 0.18),
+    makeOrientedLocalBox(toWorld, 39.0, 33.8, groundY + 1.8, 0.18, 3.6, 0.18),
+    makeOrientedLocalBox(toWorld, 43.0, 33.8, groundY + 1.8, 0.18, 3.6, 0.18),
+    // Mái sảnh đón Porte-cochère góc B4–B5 (u = 56.5..64.0, v = 28..33.4)
+    makeOrientedLocalBox(toWorld, 60.25, 30.7, groundY + 3.7, 7.5, 0.24, 5.4),
     // Khung pergola Highlands
     makeOrientedLocalBox(toWorld, 54.0, 36.5, groundY + 3.3, 10.5, 0.16, 4.5),
   ];

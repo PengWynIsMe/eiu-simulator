@@ -71,7 +71,7 @@ function FloorMinimapSvg({
           <rect {...svgRect(52.2, 66.6, 17.8, 27.6)} fill="#991b1b" />
           <rect {...svgRect(52.2, 66.6, 0.4, 10.2)} fill="#991b1b" />
           {/* Cầu thang gáy sách trung tâm */}
-          <rect {...svgRect(52.2, 66.6, 10.6, 17.4)} fill="#f59e0b" />
+          <rect {...svgRect(50.6, 66.6, 10.6, 17.4)} fill="#f59e0b" />
         </>
       )}
 
@@ -102,7 +102,7 @@ function FloorMinimapSvg({
           {/* Phòng 202 Server Room (đỏ góc dưới phải) */}
           <rect {...svgRect(52.0, 66.6, 0.4, 10.5)} fill="#991b1b" />
           {/* Giếng cầu thang trung tâm */}
-          <rect {...svgRect(52.2, 66.6, 10.8, 17.2)} fill="#f59e0b" />
+          <rect {...svgRect(50.6, 66.6, 10.8, 17.2)} fill="#f59e0b" />
         </>
       )}
 
@@ -125,7 +125,7 @@ function FloorMinimapSvg({
           <circle cx={svgX(14.0)} cy={svgY(45.0)} r={5.5} fill="#365314" />
           <circle cx={svgX(14.0)} cy={svgY(15.2)} r={5.5} fill="#365314" />
           {/* Sảnh cầu thang LỐI RA EXIT */}
-          <rect {...svgRect(52.0, 66.6, 10.6, 17.4)} fill="#f59e0b" />
+          <rect {...svgRect(49.8, 66.6, 10.6, 17.4)} fill="#f59e0b" />
         </>
       )}
 

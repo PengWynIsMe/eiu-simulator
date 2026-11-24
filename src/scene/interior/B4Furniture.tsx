@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import {
   BoxGeometry,
@@ -10,10 +11,13 @@ import {
   Matrix4,
   PlaneGeometry,
   type CanvasTexture,
+  type Group,
   type InstancedMesh,
 } from 'three';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { FLOOR_HEIGHT } from '../../data';
+import { characterConfig, FLOOR_HEIGHT } from '../../data';
+import CharacterModel, { type CharacterHandle } from '../characters/CharacterModel';
+import { SIT_Y_OFFSET } from '../npc/sitPose';
 import { createInstanceMatrix } from './InteriorFurniture';
 import {
   B4_ELEVATOR_POS_LOCAL,
@@ -449,6 +453,113 @@ function addPottedPlant(
   leaves.push(createInstanceMatrix(toWorld, u + 0.04 * s, v + 0.16 * s, dy + 1.06 * s, 1.4, 0.36 * s, 0.34 * s, 0.36 * s));
 }
 
+function addLightBlueSofa(
+  sofas: Matrix4[],
+  oakWood: Matrix4[],
+  u: number,
+  v: number,
+  dy: number,
+  facingAngle: number
+): void {
+  const cosA = Math.cos(facingAngle);
+  const sinA = Math.sin(facingAngle);
+  const place = (sx: number, sz: number): [number, number] => [
+    u + sx * cosA - sz * sinA,
+    v + sx * sinA + sz * cosA,
+  ];
+
+  // Đệm ngồi & tựa lưng xanh dương nhạt (3 chỗ)
+  const [su, sv] = place(0, 0.04);
+  sofas.push(createInstanceMatrix(toWorld, su, sv, dy + 0.36, facingAngle, 1.92, 0.18, 0.7));
+  const [bu, bv] = place(0, -0.26);
+  sofas.push(createInstanceMatrix(toWorld, bu, bv, dy + 0.62, facingAngle, 1.92, 0.44, 0.18));
+
+  // Khung gỗ sồi đế sofa & thanh tựa lưng sau
+  const [fbu, fbv] = place(0, 0.02);
+  oakWood.push(createInstanceMatrix(toWorld, fbu, fbv, dy + 0.24, facingAngle, 1.98, 0.06, 0.72));
+  const [rbu, rbv] = place(0, -0.36);
+  oakWood.push(createInstanceMatrix(toWorld, rbu, rbv, dy + 0.76, facingAngle, 1.98, 0.06, 0.05));
+
+  // 2 tay vịn & 4 chân gỗ
+  for (const sx of [-0.99, 0.99]) {
+    const [au, av] = place(sx, 0);
+    oakWood.push(createInstanceMatrix(toWorld, au, av, dy + 0.56, facingAngle, 0.07, 0.06, 0.76));
+    for (const sz of [-0.34, 0.34]) {
+      const [lu, lv] = place(sx, sz);
+      oakWood.push(createInstanceMatrix(toWorld, lu, lv, dy + 0.28, facingAngle, 0.07, 0.56, 0.07));
+    }
+  }
+}
+
+function addSideTurnstile2Lane(
+  stainlessSteel: Matrix4[],
+  blackSteel: Matrix4[],
+  blueFlaps: Matrix4[],
+  clearGlass: Matrix4[],
+  turnstileArrows: Matrix4[],
+  whiteFrames: Matrix4[],
+  uCenter: number,
+  vPos: number,
+  vWall: number,
+  dy: number,
+  facingOutAngle: number
+): void {
+  const outSign = facingOutAngle === 0 ? 1 : -1;
+  // Khung cửa kính phụ phía trên (y: 2.55..3.8) & thảm chân cửa ra vào
+  whiteFrames.push(createInstanceMatrix(toWorld, uCenter, vWall, dy + 2.55, 0, 3.0, 0.08, 0.1));
+  clearGlass.push(createInstanceMatrix(toWorld, uCenter, vWall, dy + 3.15, 0, 3.0, 1.15, 0.04));
+  blackSteel.push(createInstanceMatrix(toWorld, uCenter, vWall - outSign * 0.4, dy + 0.014, 0, 2.5, 0.015, 0.75));
+
+  // 3 trụ máy quét thẻ inox = 2 lane đi qua (giống ảnh cửa phụ thực tế)
+  for (const offset of [-1.02, 0, 1.02]) {
+    const pu = uCenter + offset;
+    stainlessSteel.push(createInstanceMatrix(toWorld, pu, vPos, dy + 0.5, 0, 0.2, 1.0, 1.2));
+    blackSteel.push(createInstanceMatrix(toWorld, pu, vPos, dy + 1.01, 0, 0.18, 0.03, 1.12));
+  }
+  // Cánh kính xanh ở cả 2 lane
+  for (const laneU of [uCenter - 0.51, uCenter + 0.51]) {
+    blueFlaps.push(createInstanceMatrix(toWorld, laneU, vPos, dy + 0.6, 0, 0.68, 0.52, 0.02));
+  }
+  // Mũi tên xanh LED hướng ra cửa trên trụ làn vào
+  turnstileArrows.push(
+    createInstanceMatrix(toWorld, uCenter + 1.02, vPos + outSign * 0.61, dy + 0.72, facingOutAngle, 0.14, 0.14, 1)
+  );
+  // 2 vách kính chắn ngoài nối 2 trụ ngoài vào tường kính
+  for (const side of [-1, 1]) {
+    clearGlass.push(createInstanceMatrix(toWorld, uCenter + side * 1.28, vPos, dy + 0.54, 0, 0.36, 0.92, 0.02));
+    stainlessSteel.push(createInstanceMatrix(toWorld, uCenter + side * 1.46, vPos - 0.25, dy + 0.52, 0, 0.045, 1.04, 0.045));
+    stainlessSteel.push(createInstanceMatrix(toWorld, uCenter + side * 1.46, vPos + 0.25, dy + 0.52, 0, 0.045, 1.04, 0.045));
+  }
+}
+
+function getCharacterLocalYaw(du: number, dv: number): number {
+  const p0 = toWorld(0, 0);
+  const p1 = toWorld(du, dv);
+  return Math.atan2(p1[0] - p0[0], p1[1] - p0[1]);
+}
+
+function LibraryStaffNpc() {
+  const groupRef = useRef<Group>(null);
+  const handle = useRef<CharacterHandle>(null);
+  const interactTimerRef = useRef(2.5);
+  const [sx, sz] = useMemo(() => toWorld(43.9, 13.86), []);
+  const yaw = useMemo(() => getCharacterLocalYaw(0, -1), []);
+
+  useFrame((_, delta) => {
+    interactTimerRef.current -= Math.min(delta, 0.1);
+    if (interactTimerRef.current <= 0) {
+      interactTimerRef.current = 6.5;
+      handle.current?.playUpper('interact');
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[sx, SIT_Y_OFFSET, sz]} rotation={[0, yaw, 0]}>
+      <CharacterModel ref={handle} url={characterConfig.roles.playerAlt} clip="sit" />
+    </group>
+  );
+}
+
 // =============================================================================
 // CẦU THANG GÁY SÁCH TRUNG TÂM (GRAND CENTRAL BOOK-SPINE STAIRCASE)
 // =============================================================================
@@ -540,10 +651,10 @@ function GrandBookStaircase({
       // Trụ đứng inox dọc cầu thang
       for (const [pu, py] of [
         [spec.startU, 0],
-        [60.4, 0.95],
+        [(spec.startU + spec.midStartU) * 0.5, 0.95],
         [spec.midStartU, 1.9],
         [spec.midEndU, 1.9],
-        [54.6, 2.85],
+        [(spec.midEndU + spec.endU) * 0.5, 2.85],
         [spec.endU, 3.8],
       ] as const) {
         addBoxWorld(rails, pu, vRail, dy + py + 0.52, 0.045, 1.04, 0.045);
@@ -747,24 +858,18 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
       const floorY = dy + 0.008;
       if (f === 1) {
         greyCarpetQuads.push(
-          makeCarpetQuad(11.5, 67.0, 10.5, 17.5, floorY),
-          makeCarpetQuad(46.5, 52.0, 0.2, 10.5, floorY),
-          makeCarpetQuad(46.5, 52.0, 17.5, 27.8, floorY),
-          makeCarpetQuad(0.2, 11.5, 10.5, 17.5, floorY)
+          makeCarpetQuad(0.2, 67.0, 10.5, 17.5, floorY)
         );
         tanCarpetQuads.push(
-          makeCarpetQuad(52.0, 66.8, 0.2, 10.5, floorY),
-          makeCarpetQuad(52.0, 66.8, 17.5, 27.8, floorY),
-          makeCarpetQuad(11.5, 46.5, 0.2, 10.5, floorY),
-          makeCarpetQuad(11.5, 46.5, 17.5, 27.8, floorY),
-          makeCarpetQuad(0.2, 11.5, 0.2, 10.5, floorY)
+          makeCarpetQuad(0.2, 66.8, 0.2, 10.5, floorY),
+          makeCarpetQuad(11.5, 66.8, 17.5, 27.8, floorY)
         );
       } else if (f === 2) {
         greyCarpetQuads.push(
-          makeCarpetQuad(0.2, 52.5, 10.5, 17.5, floorY),
-          makeCarpetQuad(62.5, 67.0, 10.5, 17.5, floorY),
-          makeCarpetQuad(52.5, 62.5, 10.5, 12.4, floorY),
-          makeCarpetQuad(52.5, 62.5, 15.6, 17.5, floorY)
+          makeCarpetQuad(0.2, 50.8, 10.5, 17.5, floorY),
+          makeCarpetQuad(59.8, 67.0, 10.5, 17.5, floorY),
+          makeCarpetQuad(50.8, 59.8, 10.5, 12.4, floorY),
+          makeCarpetQuad(50.8, 59.8, 15.6, 17.5, floorY)
         );
         tanCarpetQuads.push(
           makeCarpetQuad(11.5, 66.8, 0.2, 10.5, floorY),
@@ -772,10 +877,10 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
         );
       } else {
         greyCarpetQuads.push(
-          makeCarpetQuad(0.2, 52.5, 10.5, 17.5, floorY),
-          makeCarpetQuad(62.5, 67.0, 10.5, 17.5, floorY),
-          makeCarpetQuad(52.5, 62.5, 10.5, 12.4, floorY),
-          makeCarpetQuad(52.5, 62.5, 15.6, 17.5, floorY),
+          makeCarpetQuad(0.2, 50.8, 10.5, 17.5, floorY),
+          makeCarpetQuad(59.8, 67.0, 10.5, 17.5, floorY),
+          makeCarpetQuad(50.8, 59.8, 10.5, 12.4, floorY),
+          makeCarpetQuad(50.8, 59.8, 15.6, 17.5, floorY),
           makeCarpetQuad(11.5, 27.5, 0.2, 10.5, floorY),
           makeCarpetQuad(39.5, 66.8, 0.2, 10.5, floorY),
           makeCarpetQuad(11.5, 27.5, 17.5, 27.8, floorY),
@@ -799,13 +904,18 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
         } else {
           ceilingSlabs.push(createInstanceMatrix(toWorld, 33.5, 6.2, dy + 3.74, 0, 67.0, 0.08, 12.4));
           ceilingSlabs.push(createInstanceMatrix(toWorld, 33.5, 21.8, dy + 3.74, 0, 67.0, 0.08, 12.4));
-          ceilingSlabs.push(createInstanceMatrix(toWorld, 31.2, 14.0, dy + 3.74, 0, 42.4, 0.08, 3.2));
-          ceilingSlabs.push(createInstanceMatrix(toWorld, 64.7, 14.0, dy + 3.74, 0, 4.6, 0.08, 3.2));
+          ceilingSlabs.push(createInstanceMatrix(toWorld, 30.4, 14.0, dy + 3.74, 0, 40.8, 0.08, 3.2));
+          ceilingSlabs.push(createInstanceMatrix(toWorld, 63.4, 14.0, dy + 3.74, 0, 7.2, 0.08, 3.2));
         }
 
-        // Dầm bê tông đen ngang & dọc
+        // Dầm bê tông đen ngang & dọc (dầm u = 56.5 chừa khoảng thông giếng thang ở Tầng 1–2)
         for (const u of [12.0, 23.0, 34.5, 46.0, 56.5]) {
-          ceilingBeams.push(createInstanceMatrix(toWorld, u, 14.0, dy + 3.55, 0, 0.45, 0.34, 27.5));
+          if (f < 3 && u === 56.5) {
+            ceilingBeams.push(createInstanceMatrix(toWorld, u, 6.325, dy + 3.55, 0, 0.45, 0.34, 12.15));
+            ceilingBeams.push(createInstanceMatrix(toWorld, u, 21.675, dy + 3.55, 0, 0.45, 0.34, 12.15));
+          } else {
+            ceilingBeams.push(createInstanceMatrix(toWorld, u, 14.0, dy + 3.55, 0, 0.45, 0.34, 27.5));
+          }
         }
         ceilingBeams.push(createInstanceMatrix(toWorld, 33.5, 10.5, dy + 3.55, 0, 65.0, 0.34, 0.42));
         ceilingBeams.push(createInstanceMatrix(toWorld, 33.5, 17.5, dy + 3.55, 0, 65.0, 0.34, 0.42));
@@ -817,7 +927,7 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
 
         if (f === 1) {
           // Trần thạch cao trắng khu tiền sảnh cổng quẹt thẻ
-          drywallSoffits.push(createInstanceMatrix(toWorld, 65.4, 14.0, dy + 3.32, 0, 3.2, 0.06, 7.0));
+          drywallSoffits.push(createInstanceMatrix(toWorld, 66.1, 14.0, dy + 3.32, 0, 1.8, 0.06, 7.0));
           // Trần lưới kim loại & 2 đèn chụp đen Góc trao đổi sách
           metalMeshCeilings.push(createInstanceMatrix(toWorld, 5.8, 5.2, dy + 3.36, 0, 10.4, 0.04, 9.2));
           for (const [lu, lv] of [[4.5, 4.2], [8.2, 5.6]] as const) {
@@ -871,15 +981,26 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
       // -----------------------------------------------------------------------
       // 3. LƯỚI CỘT CHỊU LỰC & BẢNG CHỮ ZONE A / B / C THEO ĐÚNG MÀU TỪNG TẦNG
       // -----------------------------------------------------------------------
-      for (const u of [14.0, 24.5, 34.5, 45.5, 56.5]) {
-        for (const v of [10.5, 17.5]) {
-          if (f === 3) {
-            greyCols.push(createInstanceMatrix(toWorld, u, v, dy + FLOOR_HEIGHT * 0.5, 0, 0.65, FLOOR_HEIGHT, 0.65));
-          } else {
-            whiteCols.push(createInstanceMatrix(toWorld, u, v, dy + FLOOR_HEIGHT * 0.5, 0, 0.65, FLOOR_HEIGHT, 0.65));
-            if (f === 1) {
-              darkColCaps.push(createInstanceMatrix(toWorld, u, v, dy + FLOOR_HEIGHT - 0.25, 0, 0.68, 0.5, 0.68));
+      if (f === 1) {
+        // Phía Bắc (bên phải từ cửa chính): 3 cột trắng độc lập (u = 52.0, 32.5, 22.0) + 1 trụ xám gắn cuối tường ngăn (u = 43.0)
+        for (const u of [52.0, 32.5, 22.0]) {
+          whiteCols.push(createInstanceMatrix(toWorld, u, 10.5, dy + FLOOR_HEIGHT * 0.5, 0, 0.65, FLOOR_HEIGHT, 0.65));
+          darkColCaps.push(createInstanceMatrix(toWorld, u, 10.5, dy + 3.16, 0, 0.68, 0.46, 0.68));
+        }
+        concreteCounters.push(createInstanceMatrix(toWorld, 43.0, 10.5, dy + FLOOR_HEIGHT * 0.5, 0, 0.72, FLOOR_HEIGHT, 0.72));
+
+        // Phía Nam (bên trái từ cửa chính): 4 cột trắng độc lập thẳng hàng (u = 52.0, 43.0, 32.5, 22.0)
+        for (const u of [52.0, 43.0, 32.5, 22.0]) {
+          whiteCols.push(createInstanceMatrix(toWorld, u, 17.5, dy + FLOOR_HEIGHT * 0.5, 0, 0.65, FLOOR_HEIGHT, 0.65));
+          darkColCaps.push(createInstanceMatrix(toWorld, u, 17.5, dy + 3.16, 0, 0.68, 0.46, 0.68));
+        }
+      } else {
+        for (const u of [14.0, 24.5, 34.5, 45.5, 56.5]) {
+          for (const v of [10.5, 17.5]) {
+            if (f === 3) {
+              greyCols.push(createInstanceMatrix(toWorld, u, v, dy + FLOOR_HEIGHT * 0.5, 0, 0.65, FLOOR_HEIGHT, 0.65));
             } else {
+              whiteCols.push(createInstanceMatrix(toWorld, u, v, dy + FLOOR_HEIGHT * 0.5, 0, 0.65, FLOOR_HEIGHT, 0.65));
               redColCaps.push(createInstanceMatrix(toWorld, u, v, dy + FLOOR_HEIGHT - 0.22, 0, 0.68, 0.44, 0.68));
               redColCaps.push(createInstanceMatrix(toWorld, u, v, dy + 0.08, 0, 0.68, 0.16, 0.68));
             }
@@ -912,27 +1033,49 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
       // 5. CHI TIẾT NỘI THẤT TỪNG TẦNG
       // -----------------------------------------------------------------------
       if (f === 1) {
-        // A. Tiền sảnh kính + 3 cổng quẹt thẻ + chậu cây lớn
-        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 63.8, 10.5, 67.0, 10.5, dy, 'full-glass-white', 1.6);
-        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 63.8, 17.5, 67.0, 17.5, dy, 'full-glass-white', 1.6);
-        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 63.8, 10.5, 63.8, 12.2, dy, 'full-glass-white', 1.7);
-        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 63.8, 15.8, 63.8, 17.5, dy, 'full-glass-white', 1.7);
-        whiteFrames.push(createInstanceMatrix(toWorld, 63.8, 14.0, dy + 3.18, Math.PI / 2, 3.6, 1.24, 0.06));
-        clearGlass.push(createInstanceMatrix(toWorld, 63.8, 14.0, dy + 3.18, Math.PI / 2, 3.6, 1.18, 0.03));
+        // A. Tiền sảnh kính (đẩy sát cửa Đông u = 65.2..67) + 3 trụ 2 lane cửa chính & 2 cửa phụ (Bắc + Nam hướng về B3)
+        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 65.2, 10.5, 67.0, 10.5, dy, 'full-glass-white', 1.6);
+        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 65.2, 17.5, 67.0, 17.5, dy, 'full-glass-white', 1.6);
+        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 65.2, 10.5, 65.2, 12.2, dy, 'full-glass-white', 1.7);
+        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 65.2, 15.8, 65.2, 17.5, dy, 'full-glass-white', 1.7);
+        whiteFrames.push(createInstanceMatrix(toWorld, 65.2, 14.0, dy + 3.18, Math.PI / 2, 3.6, 1.24, 0.06));
+        clearGlass.push(createInstanceMatrix(toWorld, 65.2, 14.0, dy + 3.18, Math.PI / 2, 3.6, 1.18, 0.03));
 
         for (const tv of [12.5, 14.0, 15.5]) {
-          stainlessSteel.push(createInstanceMatrix(toWorld, 63.8, tv, dy + 0.5, 0, 1.25, 1.0, 0.22));
-          blackSteel.push(createInstanceMatrix(toWorld, 63.8, tv, dy + 1.01, 0, 1.15, 0.03, 0.2));
-          turnstileArrows.push(createInstanceMatrix(toWorld, 64.44, tv, dy + 0.72, -Math.PI / 2, 0.14, 0.14, 1));
+          stainlessSteel.push(createInstanceMatrix(toWorld, 65.2, tv, dy + 0.5, 0, 1.2, 1.0, 0.22));
+          blackSteel.push(createInstanceMatrix(toWorld, 65.2, tv, dy + 1.01, 0, 1.12, 0.03, 0.2));
+          turnstileArrows.push(createInstanceMatrix(toWorld, 65.82, tv, dy + 0.72, -Math.PI / 2, 0.14, 0.14, 1));
           if (tv < 15.0) {
-            blueFlaps.push(createInstanceMatrix(toWorld, 63.8, tv + 0.75, dy + 0.6, 0, 0.02, 0.52, 0.48));
+            blueFlaps.push(createInstanceMatrix(toWorld, 65.2, tv + 0.75, dy + 0.6, 0, 0.02, 0.52, 0.48));
           }
         }
-        // Cổng quẹt thẻ cửa phụ phía Bắc (khu in ấn)
-        for (const tu of [47.7, 49.3]) {
-          stainlessSteel.push(createInstanceMatrix(toWorld, tu, 1.1, dy + 0.5, 0, 0.22, 1.0, 1.2));
-        }
-        blueFlaps.push(createInstanceMatrix(toWorld, 48.5, 1.1, dy + 0.6, 0, 0.6, 0.5, 0.02));
+        // Cửa phụ phía Bắc (khu in ấn) & cửa phụ phía Nam (hướng về B3): đều có 3 trụ = 2 lane máy quét thẻ
+        addSideTurnstile2Lane(
+          stainlessSteel,
+          blackSteel,
+          blueFlaps,
+          clearGlass,
+          turnstileArrows,
+          whiteFrames,
+          48.5,
+          1.15,
+          0.05,
+          dy,
+          Math.PI
+        );
+        addSideTurnstile2Lane(
+          stainlessSteel,
+          blackSteel,
+          blueFlaps,
+          clearGlass,
+          turnstileArrows,
+          whiteFrames,
+          48.5,
+          26.85,
+          27.95,
+          dy,
+          0
+        );
 
         // B. 2 Phòng máy tính tra cứu OPAC (Bắc & Nam cầu thang: 8 dãy bàn × 6 máy = 48 máy)
         for (const u of [54.2, 57.6, 61.0, 64.4]) {
@@ -958,40 +1101,79 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
           }
         }
 
-        // C. Khu vực In ấn & Tủ gửi đồ 36 ngăn (u = 46.8..51.5, v = 1..8)
-        lightGreyCabinets.push(createInstanceMatrix(toWorld, 47.0, 5.6, dy + 0.72, 0, 0.56, 1.44, 4.2));
-        for (let r = 0; r < 6; r++) {
-          for (let c = 0; c < 6; c++) {
+        // C. Vách tường ngăn xám sau lưng khu In ấn & Tủ gửi đồ 36 ngăn (u = 43.0, nối tường kính Bắc tới trụ xám)
+        concreteCounters.push(createInstanceMatrix(toWorld, 43.0, 5.35, dy + FLOOR_HEIGHT * 0.5, 0, 0.26, FLOOR_HEIGHT, 10.3));
+        // Tủ gửi đồ 36 ngăn (9 cột × 4 hàng) áp sát mặt Đông bức tường ngăn tại u = 43.45, v = 4.0..9.4
+        lightGreyCabinets.push(createInstanceMatrix(toWorld, 43.45, 6.7, dy + 0.72, 0, 0.56, 1.44, 5.4));
+        for (let r = 0; r < 4; r++) {
+          for (let c = 0; c < 9; c++) {
             blackSteel.push(
-              createInstanceMatrix(toWorld, 47.29, 3.85 + c * 0.68, dy + 0.18 + r * 0.22, 0, 0.01, 0.015, 0.18)
+              createInstanceMatrix(toWorld, 43.74, 4.3 + c * 0.6, dy + 0.22 + r * 0.32, 0, 0.01, 0.018, 0.24)
             );
           }
         }
-        // 2 Máy in đa năng lớn
-        for (const pv of [1.8, 2.9]) {
-          lightGreyCabinets.push(createInstanceMatrix(toWorld, 47.05, pv, dy + 0.55, 0, 0.72, 1.1, 0.72));
-          blackSteel.push(createInstanceMatrix(toWorld, 47.05, pv, dy + 1.14, 0, 0.66, 0.14, 0.66));
+        addPottedPlant(plantPots, walnutWood, plantLeaves, 43.45, 9.0, dy + 1.44, 0.55);
+        // 2 Máy in đa năng Konica Minolta áp sát mặt Đông bức tường ngăn cạnh cửa hông B11
+        for (const pv of [1.65, 2.85]) {
+          lightGreyCabinets.push(createInstanceMatrix(toWorld, 43.55, pv, dy + 0.28, 0, 0.72, 0.56, 0.72));
+          blackSteel.push(createInstanceMatrix(toWorld, 43.55, pv, dy + 0.78, 0, 0.68, 0.44, 0.68));
+          lightGreyCabinets.push(createInstanceMatrix(toWorld, 43.55, pv, dy + 1.04, 0, 0.64, 0.08, 0.64));
         }
 
-        // D. Quầy thông tin dài (Information Desk u = 35.4..44.2, v = 13.0..15.0)
-        oakWood.push(createInstanceMatrix(toWorld, 39.8, 13.15, dy + 0.55, 0, 8.8, 1.1, 0.38));
-        oakWood.push(createInstanceMatrix(toWorld, 39.8, 14.85, dy + 0.55, 0, 8.8, 1.1, 0.38));
-        oakWood.push(createInstanceMatrix(toWorld, 35.55, 14.0, dy + 0.55, 0, 0.38, 1.1, 2.0));
-        concreteCounters.push(createInstanceMatrix(toWorld, 39.8, 13.15, dy + 1.12, 0, 8.85, 0.06, 0.44));
-        concreteCounters.push(createInstanceMatrix(toWorld, 39.8, 14.85, dy + 1.12, 0, 8.85, 0.06, 0.44));
-        concreteCounters.push(createInstanceMatrix(toWorld, 35.55, 14.0, dy + 1.12, 0, 0.44, 0.06, 2.04));
-        // Cửa lùa nan gỗ ở đầu Đông quầy
-        oakWood.push(createInstanceMatrix(toWorld, 44.3, 13.6, dy + 0.48, 0, 0.08, 0.92, 0.7));
-        oakWood.push(createInstanceMatrix(toWorld, 44.3, 14.4, dy + 0.48, 0, 0.08, 0.92, 0.7));
-        // Màn hình thủ thư trên quầy
-        for (const mu of [37.5, 41.5]) {
-          monitorBodies.push(createInstanceMatrix(toWorld, mu, 13.45, dy + 1.38, 0, 0.55, 0.36, 0.05));
-          monitorScreens.push(createInstanceMatrix(toWorld, mu, 13.49, dy + 1.38, 0, 0.51, 0.32, 1));
+        // D. Quầy thông tin dài (u = 37.5..46.3, v = 13.0..15.0) với 4 máy tính bàn & cổng nan gỗ đầu Tây
+        oakWood.push(createInstanceMatrix(toWorld, 41.9, 13.15, dy + 0.55, 0, 8.8, 1.1, 0.38));
+        oakWood.push(createInstanceMatrix(toWorld, 41.9, 14.85, dy + 0.55, 0, 8.8, 1.1, 0.38));
+        oakWood.push(createInstanceMatrix(toWorld, 46.15, 14.0, dy + 0.55, 0, 0.38, 1.1, 2.0));
+        concreteCounters.push(createInstanceMatrix(toWorld, 41.9, 13.15, dy + 1.12, 0, 8.85, 0.06, 0.44));
+        concreteCounters.push(createInstanceMatrix(toWorld, 41.9, 14.85, dy + 1.12, 0, 8.85, 0.06, 0.44));
+        concreteCounters.push(createInstanceMatrix(toWorld, 46.15, 14.0, dy + 1.12, 0, 0.44, 0.06, 2.04));
+        // Cửa lùa nan gỗ ở đầu Tây quầy (u = 37.45)
+        for (const gv of [13.55, 14.45]) {
+          oakWood.push(createInstanceMatrix(toWorld, 37.45, gv, dy + 0.85, 0, 0.06, 0.07, 0.68));
+          oakWood.push(createInstanceMatrix(toWorld, 37.45, gv, dy + 0.15, 0, 0.06, 0.07, 0.68));
+          for (let sl = -2; sl <= 2; sl++) {
+            oakWood.push(createInstanceMatrix(toWorld, 37.45, gv + sl * 0.12, dy + 0.5, 0, 0.04, 0.66, 0.04));
+          }
         }
+        // 4 máy tính bàn trên quầy sảnh (2 cánh Bắc + 2 cánh Nam) kèm ghế ngồi (chị nhân viên ngồi tại 43.9, 13.86)
+        for (const mu of [39.5, 43.9]) {
+          blackSteel.push(createInstanceMatrix(toWorld, mu, 13.14, dy + 1.19, 0, 0.06, 0.12, 0.08));
+          monitorBodies.push(createInstanceMatrix(toWorld, mu, 13.15, dy + 1.36, 0, 0.55, 0.36, 0.05));
+          monitorScreens.push(createInstanceMatrix(toWorld, mu, 13.185, dy + 1.36, 0, 0.51, 0.32, 1));
+          keyboards.push(createInstanceMatrix(toWorld, mu, 13.32, dy + 1.16, 0, 0.44, 0.02, 0.14));
+          addTealChair(blackSteel, blackSteel, blackSteel, mu, 13.86, dy, Math.PI);
+        }
+        for (const mu of [38.9, 42.5]) {
+          blackSteel.push(createInstanceMatrix(toWorld, mu, 14.86, dy + 1.19, 0, 0.06, 0.12, 0.08));
+          monitorBodies.push(createInstanceMatrix(toWorld, mu, 14.85, dy + 1.36, 0, 0.55, 0.36, 0.05));
+          monitorScreens.push(createInstanceMatrix(toWorld, mu, 14.815, dy + 1.36, Math.PI, 0.51, 0.32, 1));
+          keyboards.push(createInstanceMatrix(toWorld, mu, 14.68, dy + 1.16, 0, 0.44, 0.02, 0.14));
+          addTealChair(blackSteel, blackSteel, blackSteel, mu, 14.18, dy, 0);
+        }
+        // Chậu cây nhỏ & chồng sách trên mặt quầy thông tin
+        addPottedPlant(plantPots, walnutWood, plantLeaves, 45.4, 13.14, dy + 1.15, 0.42);
+        booksBlue.push(createInstanceMatrix(toWorld, 44.7, 13.16, dy + 1.18, 0, 0.28, 0.06, 0.22));
+        booksRed.push(createInstanceMatrix(toWorld, 44.7, 13.16, dy + 1.24, 0.08, 0.26, 0.05, 0.2));
+
+        // 5 đôn da nâu & bàn tròn xám đầu Tây quầy thông tin (trên thảm xám)
+        for (const [ou, ov] of [
+          [35.9, 13.1],
+          [36.3, 14.7],
+          [34.9, 13.3],
+          [34.7, 14.7],
+          [35.5, 15.3],
+        ] as const) {
+          cubbyBinsTerra.push(createInstanceMatrix(toWorld, ou, ov, dy + 0.225, 0, 0.52, 0.45, 0.52));
+        }
+        plantPots.push(createInstanceMatrix(toWorld, 35.5, 14.0, dy + 0.23, 0, 0.68, 0.46, 0.68));
+
+        // 2 ghế sofa xanh dương: (1) áp sát mặt Tây vách ngăn xám, (2) cạnh cột Nam ngang đầu quầy
+        addLightBlueSofa(lightBlueSofas, oakWood, 42.35, 7.6, dy, Math.PI / 2);
+        addLightBlueSofa(lightBlueSofas, oakWood, 41.2, 19.0, dy, Math.PI);
 
         // E. Các cụm bàn tự học gỗ sồi + ghế Tolix đen (6 cụm hai bên + 2 bàn giữa)
-        for (const u of [17.0, 27.5, 38.0]) {
-          for (const v of [4.5, 23.5]) {
+        for (const u of [16.8, 27.2, 37.5]) {
+          for (const v of [4.6, 23.4]) {
             oakWood.push(createInstanceMatrix(toWorld, u, v, dy + 0.74, 0, 2.5, 0.06, 1.05));
             blackSteel.push(createInstanceMatrix(toWorld, u - 1.1, v, dy + 0.36, 0, 0.06, 0.72, 0.95));
             blackSteel.push(createInstanceMatrix(toWorld, u + 1.1, v, dy + 0.36, 0, 0.06, 0.72, 0.95));
@@ -1011,12 +1193,6 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
             addTolixChair(tolixSeats, tolixBacks, tolixLegs, u + 0.7, 14.0 + dv, dy, -Math.PI / 2);
           }
         }
-        // Vách tường xám ốp giữa hai cột Bắc (u = 32..36.8, v = 9.8) & Sofa xanh dương nhạt
-        concreteCounters.push(createInstanceMatrix(toWorld, 34.5, 9.7, dy + 1.9, 0, 5.2, 3.8, 0.25));
-        lightBlueSofas.push(createInstanceMatrix(toWorld, 34.5, 9.15, dy + 0.42, 0, 1.8, 0.36, 0.75));
-        lightBlueSofas.push(createInstanceMatrix(toWorld, 34.5, 9.45, dy + 0.72, 0, 1.8, 0.45, 0.18));
-        oakWood.push(createInstanceMatrix(toWorld, 33.6, 9.15, dy + 0.36, 0, 0.08, 0.72, 0.76));
-        oakWood.push(createInstanceMatrix(toWorld, 35.4, 9.15, dy + 0.36, 0, 0.08, 0.72, 0.76));
 
         // F. Góc trao đổi sách (Book Exchange Corner u = 0.5..11.5, v = 0.5..10.0)
         // Kệ ô vuông mở bậc thang bằng gỗ sồi + thùng vải nâu/đất nung có tay nắm tối & sách
@@ -1065,18 +1241,18 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
           blackSteel.push(createInstanceMatrix(toWorld, 10.855, bv, dy + 1.19, 0, 0.015, 0.04, 0.14));
         }
 
-        // G. Vườn cây tre trúc & chậu gốm xám dưới gầm cầu thang trung tâm + tiền sảnh
+        // G. Vườn cây tre trúc & chậu gốm xám dưới gầm cầu thang trung tâm + tiền sảnh (chừa lối rộng trước cổng)
         for (const [pu, pv] of [
-          [63.2, 11.0],
-          [63.2, 17.0],
-          [53.4, 13.0],
-          [53.4, 15.0],
-          [54.8, 12.8],
-          [54.8, 15.2],
-          [56.2, 13.2],
-          [56.2, 14.8],
+          [62.0, 11.1],
+          [62.0, 16.9],
+          [51.8, 13.0],
+          [51.8, 15.0],
+          [53.2, 12.8],
+          [53.2, 15.2],
+          [54.6, 13.2],
+          [54.6, 14.8],
           [10.4, 1.2],
-          [47.5, 7.6],
+          [43.9, 10.0],
         ] as const) {
           addPottedPlant(plantPots, walnutWood, plantLeaves, pu, pv, dy, 1.0);
         }
@@ -1084,8 +1260,8 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
 
       if (f === 2) {
         // A. Lan can kính bảo vệ lỗ thông cầu thang trung tâm
-        addGlassRailing(railPosts, railGlass, railHands, 52.5, 12.4, 62.5, 12.4, dy);
-        addGlassRailing(railPosts, railGlass, railHands, 52.5, 15.6, 62.5, 15.6, dy);
+        addGlassRailing(railPosts, railGlass, railHands, 50.8, 12.4, 59.8, 12.4, dy);
+        addGlassRailing(railPosts, railGlass, railHands, 50.8, 15.6, 59.8, 15.6, dy);
 
         // B. Phòng 202 Server Room góc Đông Bắc (vách kính mờ khung trắng + 4 bình chữa cháy + tủ server)
         addWallOrGlassSection(solidSpandrels, whiteFrames, frostedGlass, 52.0, 0.2, 52.0, 10.5, dy, 'full-glass-white', 1.8);
@@ -1185,21 +1361,21 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
 
       if (f === 3) {
         // A. Lan can kính cầu thang & Vách kính cửa LỐI RA / EXIT + Cổng an ninh RFID
-        addGlassRailing(railPosts, railGlass, railHands, 52.5, 12.4, 62.5, 12.4, dy);
-        addGlassRailing(railPosts, railGlass, railHands, 52.5, 15.6, 62.5, 15.6, dy);
-        addGlassRailing(railPosts, railGlass, railHands, 62.5, 12.4, 62.5, 15.6, dy);
+        addGlassRailing(railPosts, railGlass, railHands, 50.8, 12.4, 59.8, 12.4, dy);
+        addGlassRailing(railPosts, railGlass, railHands, 50.8, 15.6, 59.8, 15.6, dy);
+        addGlassRailing(railPosts, railGlass, railHands, 59.8, 12.4, 59.8, 15.6, dy);
 
-        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 52.0, 10.5, 66.8, 10.5, dy, 'full-glass-white', 2.4);
-        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 52.0, 17.5, 66.8, 17.5, dy, 'full-glass-white', 2.4);
-        // Cánh tường gỗ sồi + cửa kính trượt LỐI RA / EXIT tại u = 52.0
-        oakWood.push(createInstanceMatrix(toWorld, 52.0, 11.35, dy + 1.5, 0, 0.16, 3.0, 1.5));
-        oakWood.push(createInstanceMatrix(toWorld, 52.0, 16.65, dy + 1.5, 0, 0.16, 3.0, 1.5));
-        whiteFrames.push(createInstanceMatrix(toWorld, 52.0, 14.0, dy + 2.85, Math.PI / 2, 3.8, 0.18, 0.14));
-        clearGlass.push(createInstanceMatrix(toWorld, 52.0, 14.0, dy + 3.3, Math.PI / 2, 7.0, 0.95, 0.04));
+        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 49.8, 10.5, 66.8, 10.5, dy, 'full-glass-white', 2.4);
+        addWallOrGlassSection(solidSpandrels, whiteFrames, clearGlass, 49.8, 17.5, 66.8, 17.5, dy, 'full-glass-white', 2.4);
+        // Cánh tường gỗ sồi + cửa kính trượt LỐI RA / EXIT tại u = 49.8
+        oakWood.push(createInstanceMatrix(toWorld, 49.8, 11.35, dy + 1.5, 0, 0.16, 3.0, 1.5));
+        oakWood.push(createInstanceMatrix(toWorld, 49.8, 16.65, dy + 1.5, 0, 0.16, 3.0, 1.5));
+        whiteFrames.push(createInstanceMatrix(toWorld, 49.8, 14.0, dy + 2.85, Math.PI / 2, 3.8, 0.18, 0.14));
+        clearGlass.push(createInstanceMatrix(toWorld, 49.8, 14.0, dy + 3.3, Math.PI / 2, 7.0, 0.95, 0.04));
         // 2 cổng kiểm soát an ninh RFID trong suốt
         for (const gv of [13.2, 14.8]) {
-          stainlessSteel.push(createInstanceMatrix(toWorld, 52.75, gv, dy + 0.04, 0, 0.55, 0.08, 0.18));
-          clearGlass.push(createInstanceMatrix(toWorld, 52.75, gv, dy + 0.9, 0, 0.45, 1.65, 0.03));
+          stainlessSteel.push(createInstanceMatrix(toWorld, 50.4, gv, dy + 0.04, 0, 0.55, 0.08, 0.18));
+          clearGlass.push(createInstanceMatrix(toWorld, 50.4, gv, dy + 0.9, 0, 0.45, 1.65, 0.03));
         }
 
         // B. Khối phòng nghiệp vụ STAFF ONLY (u = 23.5..35.5, v = 11.0..17.0)
@@ -1437,6 +1613,7 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
   const [eleX, eleZ] = toWorld(B4_ELEVATOR_POS_LOCAL[0], B4_ELEVATOR_POS_LOCAL[1]);
   const eleYaw = getLocalFacingYaw(0);
   const colFacingEast = getLocalFacingYaw(-Math.PI / 2);
+  const colFacingWest = getLocalFacingYaw(Math.PI / 2);
   const colFacingSouth = getLocalFacingYaw(0);
   const colFacingNorth = getLocalFacingYaw(Math.PI);
 
@@ -1552,19 +1729,62 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
       {[1, 2].map((f) => {
         if (!showUpperFloors && f > floor) return null;
         const dy = (f - floor) * FLOOR_HEIGHT;
-        const zoneColor = f === 1 ? '#0284c7' : '#dc2626';
-        const specs =
-          f === 1
-            ? [
-                { u: 56.5, label: 'ZONE A' },
-                { u: 45.5, label: 'ZONE B' },
-                { u: 34.5, label: 'ZONE C' },
-              ]
-            : [
-                { u: 56.5, label: 'ZONE A' },
-                { u: 34.5, label: 'ZONE B' },
-                { u: 24.5, label: 'ZONE C' },
-              ];
+        if (f === 1) {
+          const f1Cols: readonly {
+            readonly u: number;
+            readonly v: number;
+            readonly letter: string;
+            readonly faces: readonly ('N' | 'E' | 'W')[];
+          }[] = [
+            // Bên phải (Bắc v = 10.5): cột 1 = ZONE A, cột 2 & 3 = ZONE C
+            { u: 52.0, v: 10.5, letter: 'A', faces: ['N', 'E', 'W'] },
+            { u: 32.5, v: 10.5, letter: 'C', faces: ['E', 'W'] },
+            { u: 22.0, v: 10.5, letter: 'C', faces: ['E', 'W'] },
+            // Bên trái (Nam v = 17.5): 2 cột đầu = ZONE A, 2 cột sau = ZONE B
+            { u: 52.0, v: 17.5, letter: 'A', faces: ['E', 'W'] },
+            { u: 43.0, v: 17.5, letter: 'A', faces: ['E', 'W'] },
+            { u: 32.5, v: 17.5, letter: 'B', faces: ['E', 'W'] },
+            { u: 22.0, v: 17.5, letter: 'B', faces: ['E', 'W'] },
+          ];
+          return (
+            <group key="zones-1">
+              {f1Cols.map(({ u, v, letter, faces }) => {
+                const [wx, wz] = toWorld(u, v);
+                return (
+                  <group key={`f1-${u}-${v}`}>
+                    {faces.map((face) => {
+                      const rotY = face === 'N' ? colFacingNorth : face === 'E' ? colFacingEast : colFacingWest;
+                      return (
+                        <group key={`${u}-${v}-${face}`} position={[wx, dy, wz]} rotation-y={rotY}>
+                          <Text position={[0, 3.16, 0.355]} fontSize={0.28} color="#ffffff" anchorX="center" anchorY="middle">
+                            {letter}
+                          </Text>
+                          <Text
+                            position={[0, 2.25, 0.34]}
+                            fontSize={0.27}
+                            lineHeight={0.92}
+                            color="#0284c7"
+                            anchorX="center"
+                            anchorY="middle"
+                          >
+                            {'Z\nO\nN\nE'}
+                          </Text>
+                        </group>
+                      );
+                    })}
+                  </group>
+                );
+              })}
+            </group>
+          );
+        }
+
+        const zoneColor = '#dc2626';
+        const specs = [
+          { u: 56.5, label: 'ZONE A' },
+          { u: 34.5, label: 'ZONE B' },
+          { u: 24.5, label: 'ZONE C' },
+        ];
         return (
           <group key={`zones-${f}`}>
             {specs.map(({ u, label }) => {
@@ -1603,6 +1823,13 @@ export default function B4Furniture({ floor, showUpperFloors = true }: Furniture
       {/* 8. Poster EIU có texture rõ nét, biển phòng học nhóm 01..09, bảng DDC & tường LIBRARY */}
       <B4TexturedAccents floor={floor} showUpperFloors={showUpperFloors} reclaimedWoodTex={textures.reclaimedWood} />
 
+      {/* 8b. Nhân viên nữ ngồi trực máy tính tại Quầy thông tin Tầng 1 */}
+      {floor === 1 && (
+        <Suspense fallback={null}>
+          <LibraryStaffNpc />
+        </Suspense>
+      )}
+
       {/* 9. Thang máy phía Tây */}
       <group position={[eleX, 0, eleZ]} rotation-y={eleYaw}>
         <mesh position={[0, 1.4, 0]}>
@@ -1639,11 +1866,11 @@ function B4TexturedAccents({
   const faceWest = getLocalFacingYaw(Math.PI / 2);
   const faceEast = getLocalFacingYaw(-Math.PI / 2);
 
-  const postersF1Wall: readonly { u: number; kind: B4PosterKind }[] = [
-    { u: 32.8, kind: 'core-values' },
-    { u: 33.95, kind: 'mission' },
-    { u: 35.1, kind: 'vision' },
-    { u: 36.25, kind: 'objectives' },
+  const postersF1Wall: readonly { v: number; kind: B4PosterKind }[] = [
+    { v: 3.0, kind: 'core-values' },
+    { v: 4.3, kind: 'mission' },
+    { v: 5.6, kind: 'vision' },
+    { v: 6.9, kind: 'objectives' },
   ];
 
   const postersF1Glass: readonly { u: number; kind: B4PosterKind }[] = [
@@ -1684,11 +1911,11 @@ function B4TexturedAccents({
       {/* TẦNG 1: Bộ 4 poster trên tường xám, poster kính mặt Nam & Bắc */}
       {(showUpperFloors || floor === 1) && (
         <group position-y={(1 - floor) * FLOOR_HEIGHT}>
-          {postersF1Wall.map(({ u, kind }) => {
-            const [wx, wz] = toWorld(u, 9.54);
+          {postersF1Wall.map(({ v, kind }) => {
+            const [wx, wz] = toWorld(42.85, v);
             const tex = getPosterTexture(kind);
             return (
-              <mesh key={kind} position={[wx, 2.0, wz]} rotation-y={faceNorth}>
+              <mesh key={kind} position={[wx, 2.15, wz]} rotation-y={faceWest}>
                 <planeGeometry args={[0.92, 1.25]} />
                 <meshStandardMaterial map={tex} roughness={0.35} />
               </mesh>
@@ -1792,7 +2019,7 @@ function B4TexturedAccents({
 
           {/* Biển LỐI RA / EXIT trên cửa kính cầu thang Tầng 3 */}
           {(() => {
-            const [wx, wz] = toWorld(51.9, 14.0);
+            const [wx, wz] = toWorld(49.7, 14.0);
             return (
               <group position={[wx, 2.52, wz]} rotation-y={faceWest}>
                 <mesh>
