@@ -1,12 +1,55 @@
-import { useMemo } from 'react';
-import { BoxGeometry, BufferGeometry } from 'three';
+import { useEffect, useMemo } from 'react';
+import { BoxGeometry, BufferGeometry, CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
+import { useFrame } from '@react-three/fiber';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { POND_BASINS, POND_ROTATION_Y } from './pondLayout';
 import { useSnowStore } from '../../store/useSnowStore';
 import { GRASS, POND_RIM } from '../groundLevels';
 
+function createWaterRippleTexture(): CanvasTexture {
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.fillStyle = '#12b6d4';
+    ctx.fillRect(0, 0, size, size);
+    for (let y = 0; y < size; y += 8) {
+      for (let x = 0; x < size; x += 8) {
+        const wave = Math.sin((x / size) * Math.PI * 4 + (y / size) * Math.PI * 2)
+          * Math.cos((y / size) * Math.PI * 6 - (x / size) * Math.PI * 2);
+        if (wave > 0.35) {
+          ctx.fillStyle = `rgba(224, 247, 255, ${(wave - 0.35) * 0.45})`;
+          ctx.fillRect(x, y, 7, 4);
+        } else if (wave < -0.35) {
+          ctx.fillStyle = `rgba(3, 105, 161, ${(-wave - 0.35) * 0.35})`;
+          ctx.fillRect(x, y, 6, 4);
+        }
+      }
+    }
+  }
+  const tex = new CanvasTexture(canvas);
+  tex.wrapS = RepeatWrapping;
+  tex.wrapT = RepeatWrapping;
+  tex.repeat.set(6, 4);
+  tex.colorSpace = SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+
 export default function Pond() {
   const isSnowing = useSnowStore((s) => s.isSnowing);
+  const waterTex = useMemo(() => createWaterRippleTexture(), []);
+  useEffect(() => () => waterTex.dispose(), [waterTex]);
+
+  useFrame((_, delta) => {
+    if (isSnowing) return;
+    const dt = Math.min(delta, 0.05);
+    waterTex.offset.x = (waterTex.offset.x + dt * 0.035) % 1;
+    waterTex.offset.y = (waterTex.offset.y + dt * 0.018) % 1;
+  });
+
   const { rimGeometry, waterGeometry, basinFloorGeometry } = useMemo(() => {
     const rimGeos: BufferGeometry[] = [];
     const waterGeos: BufferGeometry[] = [];
@@ -76,12 +119,15 @@ export default function Pond() {
         <meshStandardMaterial color="#0284c7" roughness={0.7} />
       </mesh>
 
-      {/* Mặt nước xanh ngọc phẳng / đóng băng khi tuyết rơi */}
+      {/* Mặt nước xanh ngọc gợn sóng / đóng băng khi tuyết rơi */}
       <mesh geometry={waterGeometry} receiveShadow>
         <meshStandardMaterial
-          color={isSnowing ? '#93c5fd' : '#06b6d4'}
-          roughness={isSnowing ? 0.35 : 0.12}
-          metalness={isSnowing ? 0.05 : 0.15}
+          map={isSnowing ? null : waterTex}
+          color={isSnowing ? '#93c5fd' : '#38bdf8'}
+          roughness={isSnowing ? 0.35 : 0.14}
+          metalness={isSnowing ? 0.05 : 0.18}
+          transparent
+          opacity={isSnowing ? 0.96 : 0.84}
         />
       </mesh>
 

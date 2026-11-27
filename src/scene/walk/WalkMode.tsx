@@ -10,6 +10,11 @@ import { useCampusStore } from '../../store/useCampusStore';
 import { useWalkStore } from '../../store/useWalkStore';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useSilverStore } from '../../store/useSilverStore';
+import { useExploreStore } from '../../store/useExploreStore';
+import { useTimelineStore } from '../../store/useTimelineStore';
+import { b8UvToWorld, getRoomSpecForStage } from '../../data/timeline/curriculumPlans';
+import { getStreetLayout } from '../street/streetLayout';
+import ContactShadow from '../explore/ContactShadow';
 import { getStage } from '../../data/silver/stages';
 import type { Activity } from '../../types/silverWorld';
 import type { Vec2 } from '../../types';
@@ -40,6 +45,7 @@ const OUTDOOR_CAMERA_NEAR = 0.35;
 const OUTDOOR_CAMERA_FAR = 2000;
 const WALK_SPEED = 5;
 const RUN_SPEED = 12;
+const BIKE_SPEED = 17.5;
 const PLAYER_RADIUS = 0.4;
 const START: Vec2 = [245, -28];
 const BRIDGES: readonly { start: Vec2; end: Vec2 }[] = [
@@ -60,8 +66,40 @@ let globalSnapCameraOnMount = false;
 let globalSnapCameraDistance: number | null = null;
 
 let lastTeleportId = 0;
+let lastExploreTeleportId = 0;
 let applyingTeleport = false;
 let applyTeleportToMounted: ((x: number, y: number, z: number, yaw: number) => void) | undefined;
+
+useExploreStore.subscribe(({ teleportReq }) => {
+  if (!teleportReq || teleportReq.id <= lastExploreTeleportId) return;
+  lastExploreTeleportId = teleportReq.id;
+
+  const [x, z] = teleportReq.pos;
+  const interior = teleportReq.interior ?? null;
+  const y = interior ? 0 : getGroundHeight(x, z);
+  const yaw = teleportReq.yaw ?? Math.PI;
+  globalPlayerPos = [x, z];
+  globalCameraYaw = yaw;
+  globalFacingYaw = yaw;
+  globalCameraPitch = 0;
+  globalPendingSeamlessPortal = null;
+  globalSnapCameraOnMount = false;
+  globalSnapCameraDistance = null;
+  globalPortalCooldownUntil = performance.now() + 850;
+
+  applyingTeleport = true;
+  try {
+    useWalkStore.setState({
+      walkMode: true,
+      interior,
+      moveInput: { x: 0, y: 0 },
+      playerPos: { x, y, z, floor: interior?.floor ?? null },
+    });
+    applyTeleportToMounted?.(x, y, z, yaw);
+  } finally {
+    applyingTeleport = false;
+  }
+});
 
 useActivityStore.subscribe(({ teleport }) => {
   if (!teleport || teleport.id <= lastTeleportId) return;
@@ -186,7 +224,7 @@ export default function WalkMode() {
   const currentInterior = useWalkStore.getState().interior;
   const selectedId = useCampusStore.getState().selectedBuildingId;
 
-  const atInitialSpawn = lastTeleportId === 0 && globalPlayerPos[0] === START[0] && globalPlayerPos[1] === START[1];
+  const atInitialSpawn = lastTeleportId === 0 && lastExploreTeleportId === 0 && globalPlayerPos[0] === START[0] && globalPlayerPos[1] === START[1];
   if (currentInterior && atInitialSpawn) {
     const layout = getInteriorLayout(currentInterior.buildingId);
     const defaultInside = layout?.defaultInsideEntrance ?? START;
@@ -552,10 +590,34 @@ export default function WalkMode() {
           lastUsedInteractive.current = interactive;
           if (interactive.type === 'exterior-door' && interactive.buildingId) {
             useWalkStore.getState().enterInterior(interactive.buildingId);
+            return;
           } else if (interactive.type === 'interior-door') {
             useWalkStore.getState().exitInterior();
+            return;
           } else if (interactive.type === 'elevator') {
             window.dispatchEvent(new CustomEvent('campussim:open-elevator'));
+            return;
+          }
+        }
+
+        if (interior) {
+          const ts = useTimelineStore.getState();
+          if (ts.active && ts.nearbyMissionTarget) {
+            ts.triggerCurrentActivity();
+            return;
+          }
+        } else {
+          const es = useExploreStore.getState();
+          if (es.seatedBenchIndex !== null) {
+            es.standUpBench();
+          } else if (es.nearbyShuttle) {
+            es.boardShuttle();
+          } else if (es.nearbyNoticeBoard) {
+            es.setNoticeBoardOpen(true);
+          } else if (es.nearbyPoiId) {
+            es.openPoi(es.nearbyPoiId);
+          } else if (es.nearbyBenchIndex !== null) {
+            es.sitOnBench(es.nearbyBenchIndex);
           }
         }
       }
@@ -731,20 +793,31 @@ export default function WalkMode() {
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.05);
     const pressed = keys.current;
-    const input = useWalkStore.getState().moveInput;
-    const interiorState = useWalkStore.getState().interior;
+    const ws = useWalkStore.getState();
+    const input = ws.moveInput;
+    const interiorState = ws.interior;
     const isInterior = interiorState !== null;
+    const es = useExploreStore.getState();
+
+    // Khi đang ngồi trên xe điện tham quan: nhường camera & vị trí cho CampusShuttle
+    if (es.shuttleActive && !isInterior) {
+      moving.current = false;
+      running.current = false;
+      if (body.current) body.current.visible = false;
+      return;
+    }
 
     // 1. Ghi playerPos tối đa 5 lần/giây
     const nowMs = performance.now();
     if (nowMs - lastPosSyncTime.current >= 200) {
       lastPosSyncTime.current = nowMs;
-      useWalkStore.getState().setPlayerPos({
+      ws.setPlayerPos({
         x: player.current[0],
         z: player.current[2],
         y: player.current[1],
         floor: isInterior ? interiorState.floor : null,
       });
+      es.setPlayerYaw(cameraYaw.current);
     }
 
     const activityState = useActivityStore.getState();
@@ -763,8 +836,20 @@ export default function WalkMode() {
     }
 
     // Điều chỉnh tâm camera lệch sang trái khi có cột bên phải (Right Column) mở và đang ngồi hoặc nói chuyện
+    const tsCheck = useTimelineStore.getState();
+    const isTimelineClassroomCam =
+      tsCheck.active &&
+      tsCheck.modalOpen &&
+      !tsCheck.desktopMinimized &&
+      isInterior &&
+      interiorState.buildingId === 'b8' &&
+      (tsCheck.stage === 'placement-speaking' ||
+        tsCheck.stage === 'english-class' ||
+        tsCheck.stage === 'major-theory' ||
+        tsCheck.stage === 'major-lab' ||
+        tsCheck.stage === 'major-exam');
     const rightColWidth = getRightColumnWidth();
-    const isOffsetActive = (seat !== null || focused !== null) && rightColWidth > 0;
+    const isOffsetActive = (seat !== null || focused !== null || isTimelineClassroomCam) && rightColWidth > 0;
     const targetOffset = isOffsetActive ? rightColWidth / 2 : 0;
     const offsetRate = 1 - Math.exp(-dt / 0.4);
     currentViewOffset.current += (targetOffset - currentViewOffset.current) * offsetRate;
@@ -959,9 +1044,65 @@ export default function WalkMode() {
       }
     }
 
+    // Khi đang học / phỏng vấn 1:1 / thi trong phòng B8: camera đặt từ bàn sinh viên nhìn lên Giảng viên + Màn chiếu 3D
+    if (isTimelineClassroomCam) {
+      moving.current = false;
+      running.current = false;
+      if (body.current) {
+        body.current.visible = false;
+      }
+      const spec = getRoomSpecForStage(tsCheck.stage);
+      const eyeW = b8UvToWorld(spec.maxU - 4.6, -205.15);
+      const lookW = b8UvToWorld(spec.maxU - 0.8, -205.35);
+      const camSpeed = 1 - Math.exp(-6 * dt);
+      camera.up.set(0, 1, 0);
+      camera.position.lerp(desiredCamera.set(eyeW[0], 1.38, eyeW[1]), camSpeed);
+      target.lerp(desiredLookAt.set(lookW[0], 1.42, lookW[1]), camSpeed);
+      camera.lookAt(target);
+      updateProximity(true);
+      return;
+    }
+
     const xInput = Math.max(-1, Math.min(1, input.x + Number(pressed.has('d') || pressed.has('arrowright')) - Number(pressed.has('a') || pressed.has('arrowleft'))));
     const yInput = Math.max(-1, Math.min(1, input.y + Number(pressed.has('w') || pressed.has('arrowup')) - Number(pressed.has('s') || pressed.has('arrowdown'))));
-    running.current = pressed.has('shift');
+
+    // Ngồi ghế đá ngoài trời: đứng dậy ngay nếu người chơi bấm di chuyển
+    if (es.seatedBenchIndex !== null && !isInterior) {
+      if (Math.hypot(xInput, yInput) > 0.15) {
+        es.standUpBench();
+      } else {
+        const bench = getStreetLayout().benches[es.seatedBenchIndex];
+        if (bench) {
+          moving.current = false;
+          running.current = false;
+          player.current[0] = bench.x;
+          player.current[1] = bench.y;
+          player.current[2] = bench.z;
+          facingYaw.current = Math.PI / 2 - bench.yaw;
+          if (body.current) {
+            body.current.visible = viewMode.current !== 1;
+            body.current.position.set(bench.x, bench.y + SIT_Y_OFFSET, bench.z);
+            body.current.rotation.y = bench.yaw;
+          }
+          globalPlayerPos[0] = bench.x;
+          globalPlayerPos[1] = bench.z;
+          forward.set(Math.cos(cameraYaw.current), 0, Math.sin(cameraYaw.current));
+          camera.up.set(0, 1, 0);
+          desiredCamera.set(
+            bench.x - forward.x * 5.2,
+            bench.y + 2.4,
+            bench.z - forward.z * 5.2,
+          );
+          camera.position.lerp(desiredCamera, 1 - Math.exp(-6 * dt));
+          camera.lookAt(bench.x, bench.y + 1.0, bench.z);
+          updateProximity(false);
+          return;
+        }
+      }
+    }
+
+    running.current = pressed.has('shift') || (!isInterior && es.moveMode === 'run');
+    const isBiking = !isInterior && es.moveMode === 'bike';
     const forwardX = Math.cos(cameraYaw.current);
     const forwardZ = Math.sin(cameraYaw.current);
     const strafeX = -forwardZ;
@@ -973,7 +1114,7 @@ export default function WalkMode() {
       const norm = Math.max(1, inputLength);
       const dx = (strafeX * xInput + forwardX * yInput) / norm;
       const dz = (strafeZ * xInput + forwardZ * yInput) / norm;
-      const speed = running.current ? RUN_SPEED : WALK_SPEED;
+      const speed = isBiking ? BIKE_SPEED : running.current ? RUN_SPEED : WALK_SPEED;
       const targetX = player.current[0] + dx * speed * dt;
       const targetZ = player.current[2] + dz * speed * dt;
 
@@ -1109,6 +1250,17 @@ export default function WalkMode() {
 
     forward.set(Math.cos(cameraYaw.current), 0, Math.sin(cameraYaw.current));
 
+    if (es.droneView && !isInterior) {
+      const ground = player.current[1];
+      camera.up.set(0, 1, 0);
+      camera.position.lerp(
+        desiredCamera.set(player.current[0] - forward.x * 46, ground + 50, player.current[2] - forward.z * 46),
+        1 - Math.exp(-4.5 * dt),
+      );
+      camera.lookAt(player.current[0], ground + 1.5, player.current[2]);
+      return;
+    }
+
     if (viewMode.current === 2 && !isInterior) {
       const ground = player.current[1];
       camera.up.set(0, 1, 0);
@@ -1214,6 +1366,7 @@ export default function WalkMode() {
 
   return (
     <group ref={body}>
+      <ContactShadow radius={0.55} opacity={0.42} />
       <Suspense fallback={<CapsuleFallback />}>
         <PlayerCharacter moving={moving} running={running} visible={viewMode.current !== 1} />
       </Suspense>

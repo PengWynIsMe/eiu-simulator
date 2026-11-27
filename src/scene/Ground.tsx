@@ -14,6 +14,8 @@ import {
   BRICK_TILE_WIDTH,
   createAsphaltTexture,
   createBrickTexture,
+  createConcretePlazaTexture,
+  createGrassTexture,
 } from './street/roadTextures';
 import { buildKerbGeometry, buildRingRibbon, buildRoadRibbon, type RoadStyle } from './street/roadGeometry';
 
@@ -99,6 +101,15 @@ export default function Ground() {
       ),
     );
 
+    const campusGrassMap = track(createGrassTexture('#9ec08d', aniso));
+    campusGrassMap.repeat.set(0.06, 0.06);
+
+    const roundaboutGrassMap = track(createGrassTexture('#91b681', aniso));
+    roundaboutGrassMap.repeat.set(9, 9);
+
+    const parkingMap = track(createConcretePlazaTexture('#6f747d', aniso));
+    parkingMap.repeat.set(0.12, 0.12);
+
     // Bó vỉa dọc 2 mép đường nội bộ (nằm trong bề rộng 7 m, không đổi bề rộng đường).
     const kerbGeo = buildKerbGeometry({
       roads: layout.roads.filter((r) => r.kind === 'internal'),
@@ -128,6 +139,9 @@ export default function Ground() {
       footMap,
       ringGeo,
       ringMap,
+      campusGrassMap,
+      roundaboutGrassMap,
+      parkingMap,
       kerbGeo: kerbGeo ? track(kerbGeo) : null,
       dispose: () => {
         textures.forEach((t) => t.dispose());
@@ -168,7 +182,8 @@ export default function Ground() {
       <mesh rotation-x={-Math.PI / 2} position-y={GRASS} receiveShadow>
         <shapeGeometry args={[boundaryShape]} />
         <meshStandardMaterial
-          color={isSnowing ? '#edf4fa' : '#9ec08d'}
+          map={isSnowing ? null : surfaces.campusGrassMap}
+          color={isSnowing ? '#edf4fa' : '#ffffff'}
           roughness={0.9}
           polygonOffset
           polygonOffsetFactor={-1}
@@ -181,8 +196,9 @@ export default function Ground() {
         <mesh key={i} rotation-x={-Math.PI / 2} position-y={PARKING} receiveShadow>
           <shapeGeometry args={[shape]} />
           <meshStandardMaterial
-            color={isSnowing ? '#4e545f' : '#6f747d'}
-            roughness={0.8}
+            map={isSnowing ? null : surfaces.parkingMap}
+            color={isSnowing ? '#4e545f' : '#ffffff'}
+            roughness={0.82}
             polygonOffset
             polygonOffsetFactor={-2}
             polygonOffsetUnits={-1}
@@ -194,7 +210,8 @@ export default function Ground() {
       <mesh rotation-x={-Math.PI / 2} position-y={ROUNDABOUT_GRASS} receiveShadow>
         <circleGeometry args={[rbInner, 96]} />
         <meshStandardMaterial
-          color={isSnowing ? '#edf2f7' : '#91b681'}
+          map={isSnowing ? null : surfaces.roundaboutGrassMap}
+          color={isSnowing ? '#edf2f7' : '#ffffff'}
           roughness={0.9}
           polygonOffset
           polygonOffsetFactor={-2}

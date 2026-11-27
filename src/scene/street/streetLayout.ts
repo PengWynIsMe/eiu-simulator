@@ -392,7 +392,9 @@ function signPlacement(mask: GrassMask): Placement {
   return place(SIGN_TARGET[0], SIGN_TARGET[1], yaw);
 }
 
-/** Toàn bộ vị trí phố xá (tính một lần). Hàm thuần: chạy được trong Node để kiểm tra. */
+let cachedStreetLayout: StreetLayout | null = null;
+
+/** Toàn bộ vị trí phố xá (tính một lần và cache). */
 export function buildStreetLayout(): StreetLayout {
   const mask = buildFreeMask();
   const lamps = lampPlacements(mask);
@@ -407,4 +409,12 @@ export function buildStreetLayout(): StreetLayout {
   });
   bins.push(...bridgeBins(mask));
   return { lamps, benches, bins, bikes: bikePlacements(), sign: signPlacement(mask) };
+}
+
+/** Trả bản cache duy nhất của StreetLayout để dùng chung giữa StreetProps và hệ tương tác ghế đá. */
+export function getStreetLayout(): StreetLayout {
+  if (!cachedStreetLayout) {
+    cachedStreetLayout = buildStreetLayout();
+  }
+  return cachedStreetLayout;
 }

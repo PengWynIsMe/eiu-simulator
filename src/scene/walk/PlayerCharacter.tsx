@@ -5,6 +5,8 @@ import CharacterModel, { type CharacterHandle } from '../characters/CharacterMod
 import { characterConfig } from '../../data';
 import { useWalkStore } from '../../store/useWalkStore';
 import { useActivityStore } from '../../store/useActivityStore';
+import { useExploreStore } from '../../store/useExploreStore';
+import CampusBike from '../explore/CampusBike';
 
 type PlayerCharacterProps = {
   moving: MutableRefObject<boolean>;
@@ -33,20 +35,31 @@ export function CapsuleFallback() {
 
 export default function PlayerCharacter({ moving, running, visible }: PlayerCharacterProps) {
   const skin = useWalkStore((s) => s.playerSkin);
+  const inInterior = useWalkStore((s) => s.interior !== null);
+  const moveMode = useExploreStore((s) => s.moveMode);
+  const isRidingBike = !inInterior && moveMode === 'bike';
   const url = skin === 'playerAlt' ? characterConfig.roles.playerAlt : characterConfig.roles.player;
   const handle = useRef<CharacterHandle>(null);
 
   useFrame(() => {
-    if (useActivityStore.getState().seated) {
+    const es = useExploreStore.getState();
+    const isBiking = !useWalkStore.getState().interior && es.moveMode === 'bike';
+    if (useActivityStore.getState().seated || es.seatedBenchIndex !== null || isBiking) {
       handle.current?.play('sit');
     } else {
-      handle.current?.play(moving.current ? (running.current ? 'run' : 'walk') : 'idle');
+      handle.current?.play(moving.current ? (running.current || es.moveMode === 'run' ? 'run' : 'walk') : 'idle');
     }
   });
 
   return (
     <group visible={visible}>
-      <CharacterModel key={url} ref={handle} url={url} clip="idle" castShadow />
+      <group
+        position={[0, isRidingBike ? 0.64 : 0, isRidingBike ? -0.22 : 0]}
+        rotation-x={isRidingBike ? 0.08 : 0}
+      >
+        <CharacterModel key={url} ref={handle} url={url} clip="idle" castShadow />
+      </group>
+      <CampusBike moving={moving} visible={visible && isRidingBike} />
     </group>
   );
 }

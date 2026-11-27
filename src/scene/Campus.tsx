@@ -18,6 +18,9 @@ import CampusNpcs from './npc/CampusNpcs';
 import SilverStage from './silver/SilverStage';
 import SnowParticles from './snow/SnowParticles';
 import SnowCinematicCamera from './snow/SnowCinematicCamera';
+import ExploreLayer from './explore/ExploreLayer';
+import PhotoCaptureBridge from './explore/PhotoCaptureBridge';
+import TimelineMissionBeacon from './timeline/TimelineMissionBeacon';
 import { campus } from '../data';
 import { useWalkStore } from '../store/useWalkStore';
 
@@ -30,7 +33,9 @@ export default function Campus() {
   if (inInterior) {
     return (
       <>
+        <PhotoCaptureBridge />
         <InteriorScene />
+        <TimelineMissionBeacon />
         <WalkMode />
       </>
     );
@@ -38,6 +43,7 @@ export default function Campus() {
 
   return (
     <>
+      <PhotoCaptureBridge />
       <Environment />
       <Ground />
       <Trees />
@@ -51,6 +57,7 @@ export default function Campus() {
       <Zone1 />
       <Zone2Walkways />
       <Block8Details />
+      <ExploreLayer />
       <ReviewPins />
       <CampusNpcs />
       <SilverStage />

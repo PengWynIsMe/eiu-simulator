@@ -5,6 +5,8 @@ import { OVERVIEW_CAMERA } from './scene/CameraRig';
 import TopBar from './ui/TopBar';
 import ReviewPanel from './ui/ReviewPanel';
 import WalkHud from './ui/walk/WalkHud';
+import ExploreHud from './ui/explore/ExploreHud';
+import TimelineHud from './ui/timeline/TimelineHud';
 import InteriorHud from './ui/interior/InteriorHud';
 import LessonLayer from './ui/lesson/LessonLayer';
 import SilverLayer from './ui/silver/SilverLayer';
@@ -123,6 +125,8 @@ export default function App() {
       {!isCinematicActive && !reviewMode && !walkMode && <BuildingPanel />}
       {/* Luồng C (T09) — giữ nguyên dòng này */}
       {!isCinematicActive && <WalkHud />}
+      {!isCinematicActive && <ExploreHud />}
+      {!isCinematicActive && <TimelineHud />}
       {/* T12 — nội thất: nút vào/ra, chọn tầng thang máy, thẻ phòng */}
       {!isCinematicActive && <InteriorHud />}
       {!isCinematicActive && <LessonLayer />}

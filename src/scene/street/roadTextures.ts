@@ -142,3 +142,81 @@ export function createBrickTexture(baseHex: string, anisotropy: number): CanvasT
   }
   return finishTexture(canvas, anisotropy);
 }
+
+/**
+ * Thảm cỏ đa sắc độ nhẹ nhàng (512 px liền mạch) giúp mặt sân trường có chiều sâu hơn mặt phẳng trơn.
+ */
+export function createGrassTexture(baseHex: string, anisotropy: number): CanvasTexture {
+  const texSize = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = texSize;
+  canvas.height = texSize;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Không tạo được canvas 2D cho thảm cỏ');
+
+  const rnd = createRng(9127);
+  const [br, bg, bb] = hexToRgb(baseHex);
+  const cell = 16;
+  const cells = texSize / cell;
+  const patches = new Float32Array(cells * cells);
+  for (let i = 0; i < patches.length; i++) patches[i] = rnd() - 0.5;
+
+  const img = ctx.createImageData(texSize, texSize);
+  const d = img.data;
+  for (let y = 0; y < texSize; y++) {
+    const cy = Math.floor(y / cell) * cells;
+    for (let x = 0; x < texSize; x++) {
+      const fine = (rnd() - 0.5) * 14;
+      const patch = (patches[cy + Math.floor(x / cell)] ?? 0) * 16;
+      const stripe = Math.sin((x / texSize) * Math.PI * 8) * 3;
+      const o = (y * texSize + x) * 4;
+      d[o] = Math.max(0, Math.min(255, br + fine + patch * 0.7 + stripe));
+      d[o + 1] = Math.max(0, Math.min(255, bg + fine + patch + stripe));
+      d[o + 2] = Math.max(0, Math.min(255, bb + fine + patch * 0.6));
+      d[o + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return finishTexture(canvas, anisotropy);
+}
+
+/**
+ * Bề mặt bê tông / bãi đỗ xe lát ô nhẹ (512 px liền mạch).
+ */
+export function createConcretePlazaTexture(baseHex: string, anisotropy: number): CanvasTexture {
+  const texSize = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = texSize;
+  canvas.height = texSize;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Không tạo được canvas 2D cho mặt sân bê tông');
+
+  const rnd = createRng(4419);
+  const [br, bg, bb] = hexToRgb(baseHex);
+  const img = ctx.createImageData(texSize, texSize);
+  const d = img.data;
+  for (let y = 0; y < texSize; y++) {
+    for (let x = 0; x < texSize; x++) {
+      const n = (rnd() - 0.5) * 14;
+      const o = (y * texSize + x) * 4;
+      d[o] = Math.max(0, Math.min(255, br + n));
+      d[o + 1] = Math.max(0, Math.min(255, bg + n));
+      d[o + 2] = Math.max(0, Math.min(255, bb + n));
+      d[o + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+  ctx.lineWidth = 2;
+  const step = texSize / 4;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * step, 0);
+    ctx.lineTo(i * step, texSize);
+    ctx.moveTo(0, i * step);
+    ctx.lineTo(texSize, i * step);
+    ctx.stroke();
+  }
+  return finishTexture(canvas, anisotropy);
+}

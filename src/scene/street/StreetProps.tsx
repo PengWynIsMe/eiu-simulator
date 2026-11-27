@@ -19,7 +19,7 @@ import {
   createSignGeometry,
   createSignTexture,
 } from './streetGeometry';
-import { buildStreetLayout, type Placement } from './streetLayout';
+import { getStreetLayout, type Placement } from './streetLayout';
 
 interface StreetObjects {
   /** Mọi object để thêm vào cảnh (tối đa 6 draw call). */
@@ -59,7 +59,7 @@ function instanced(
 }
 
 function createStreetObjects(): StreetObjects {
-  const layout = buildStreetLayout();
+  const layout = getStreetLayout();
   const geometries: BufferGeometry[] = [];
   const materials: Material[] = [];
   const objects: Object3D[] = [];

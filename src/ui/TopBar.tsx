@@ -5,13 +5,14 @@ import { useWalkStore } from '../store/useWalkStore';
 import { useLessonStore } from '../store/useLessonStore';
 import { useLessonUi } from './lesson/lessonUi';
 import { useSnowStore } from '../store/useSnowStore';
+import { useTimelineStore } from '../store/useTimelineStore';
 import { useSilver } from './silver/adapter';
 import { useSilverPresentation } from './silver/presentation';
 import { ST } from './silver/text';
 
 /** Nút thanh trên: vuông 32 px (chỉ icon) trên điện thoại, nút có chữ từ sm. */
 const BTN =
-  'flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-lg text-sm font-medium shadow transition-colors sm:h-auto sm:min-w-0 sm:px-3 sm:py-1.5';
+  'flex h-8 min-w-8 items-center justify-center gap-1 rounded-lg text-xs sm:text-sm font-medium shadow transition-colors sm:h-auto sm:min-w-0 sm:px-2.5 sm:py-1.5';
 
 export default function TopBar() {
   const tr = useT();
@@ -44,7 +45,7 @@ export default function TopBar() {
   return (
     <>
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-2 p-2 sm:p-4">
-        <h1 className="pointer-events-auto min-w-0 truncate rounded-lg bg-white/85 px-2.5 py-1.5 text-sm font-semibold text-slate-800 shadow backdrop-blur-sm sm:px-3 sm:text-lg">
+        <h1 className="pointer-events-auto shrink-0 whitespace-nowrap rounded-lg bg-white/85 px-2.5 py-1.5 text-sm font-semibold text-slate-800 shadow backdrop-blur-sm sm:px-3 sm:text-base lg:text-lg">
           {tr(UI_TEXT.appTitle)}
         </h1>
 
@@ -128,6 +129,20 @@ export default function TopBar() {
             >
               <span className="text-base leading-none sm:hidden">📚</span>
               <span className="hidden sm:inline">{tr(UI_TEXT.lessonOpenBtn)}</span>
+            </button>
+          )}
+
+          {/* Nút Lộ trình 5 năm */}
+          {lessonIdle && silverClosed && !reviewMode && !scheduleOpen && (
+            <button
+              type="button"
+              onClick={() => useTimelineStore.getState().setTimelineOpen(true)}
+              aria-label={tr(UI_TEXT.timelineBtn)}
+              className={`${BTN} bg-amber-400/95 text-slate-950 font-bold hover:bg-amber-300`}
+              title={tr(UI_TEXT.timelineTitle)}
+            >
+              <span className="text-base leading-none sm:hidden">🗓️</span>
+              <span className="hidden sm:inline">🗓️ {tr(UI_TEXT.timelineBtn)}</span>
             </button>
           )}
 
