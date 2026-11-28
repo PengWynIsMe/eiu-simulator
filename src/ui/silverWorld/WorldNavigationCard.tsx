@@ -3,6 +3,7 @@ import { useT } from '../text';
 import { useSilver } from '../silver/adapter';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useWalkStore } from '../../store/useWalkStore';
+import { useExploreStore } from '../../store/useExploreStore';
 import { useLangStore } from '../../store/useLangStore';
 import { nextWaypoint } from '../../silverWorld/waypoint';
 import { getStage } from '../../data/silver/stages';
@@ -18,11 +19,10 @@ interface WorldNavigationCardProps {
 }
 
 /**
- * Mũi tên la bàn chỉ hướng đến waypoint mục tiêu.
- * Bắc bản đồ = vector [0, -1] thế giới -> hướng lên trên màn hình.
+ * Mũi tên chỉ hướng trực tiếp theo góc nhìn nhân vật (hướng lên trên = đi thẳng phía trước).
  */
-function Compass({ dx, dz, size = 40 }: { dx: number; dz: number; size?: number }) {
-  const deg = (Math.atan2(dx, -dz) * 180) / Math.PI;
+function Compass({ dx, dz, playerYaw, size = 40 }: { dx: number; dz: number; playerYaw: number; size?: number }) {
+  const deg = ((Math.atan2(dz, dx) - playerYaw) * 180) / Math.PI;
   return (
     <svg
       viewBox="0 0 40 40"
@@ -30,13 +30,9 @@ function Compass({ dx, dz, size = 40 }: { dx: number; dz: number; size?: number 
       className="shrink-0 select-none"
       aria-hidden="true"
     >
-      <circle cx="20" cy="20" r="18" fill="#0b3d91" opacity="0.1" stroke="#0b3d91" strokeWidth="1.5" />
-      <text x="20" y="8" textAnchor="middle" fontSize="7" fill="#0b3d91" fontWeight="700">
-        N
-      </text>
-      <g transform={`rotate(${deg} 20 20)`}>
-        <polygon points="20,7 24,20 20,17 16,20" fill="#dc2626" />
-        <polygon points="20,33 24,20 20,17 16,20" fill="#94a3b8" />
+      <circle cx="20" cy="20" r="18" fill="#0b3d91" opacity="0.12" stroke="#0b3d91" strokeWidth="1.5" />
+      <g transform={`rotate(${Math.round(deg)} 20 20)`}>
+        <path d="M20 7 L27 29 L20 24 L13 29 Z" fill="#f59e0b" stroke="#0b3d91" strokeWidth="1.4" strokeLinejoin="round" />
       </g>
     </svg>
   );
@@ -59,6 +55,7 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
   const interact = useActivityStore((s) => s.interact);
   const playerPos = useWalkStore((s) => s.playerPos);
   const interior = useWalkStore((s) => s.interior);
+  const playerYaw = useExploreStore((s) => s.playerYaw);
 
   const [expanded, setExpanded] = useState<boolean>(() => {
     try {
@@ -134,7 +131,7 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
           className="fixed left-3 top-14 z-30 flex max-w-[calc(100vw-1.5rem)] cursor-pointer select-none items-center gap-2 rounded-xl border border-white/70 bg-white/95 px-3 py-1.5 shadow-lg backdrop-blur-md transition-all hover:bg-white active:scale-95 sm:left-4 sm:top-16"
           title={tr(ST_W.expandNav)}
         >
-          <Compass dx={dx} dz={dz} size={24} />
+          <Compass dx={dx} dz={dz} playerYaw={playerYaw} size={24} />
           <span className="truncate max-w-[140px] text-xs font-bold text-[#0b3d91] sm:max-w-[180px]">
             {placeTitle}
           </span>
@@ -169,7 +166,7 @@ export default function WorldNavigationCard({ onSkip, onExit }: WorldNavigationC
 
           {/* La bàn và số mét */}
           <div className="mt-2.5 flex items-center gap-3 border-t border-slate-100 pt-2.5">
-            <Compass dx={dx} dz={dz} size={36} />
+            <Compass dx={dx} dz={dz} playerYaw={playerYaw} size={36} />
             <div className="flex-1 text-sm text-slate-600">
               <span className="font-semibold text-slate-900">{fmt(tr(ST_W.dist), { n: distance })}</span>
               {inRange && (

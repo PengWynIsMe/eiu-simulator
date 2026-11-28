@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getClassroom, getLesson, getLessons } from '../../data';
 import { useLessonStore } from '../../store/useLessonStore';
 import { useWalkStore } from '../../store/useWalkStore';
+import { useExploreStore } from '../../store/useExploreStore';
 import { TEXT } from '../text';
 import { useLessonUi } from './lessonUi';
 import MuteButton from './MuteButton';
@@ -78,17 +79,14 @@ export function LessonStarter() {
   );
 }
 
-/** Mũi tên la bàn: Bắc bản đồ = hướng lên màn hình. */
-function Compass({ dx, dz, size = 40 }: { dx: number; dz: number; size?: number }) {
-  const deg = (Math.atan2(dx, -dz) * 180) / Math.PI;
+/** Mũi tên chỉ hướng trực tiếp theo góc nhìn nhân vật (hướng lên trên = đi thẳng phía trước). */
+function Compass({ dx, dz, playerYaw, size = 40 }: { dx: number; dz: number; playerYaw: number; size?: number }) {
+  const deg = ((Math.atan2(dz, dx) - playerYaw) * 180) / Math.PI;
   return (
     <svg viewBox="0 0 40 40" style={{ width: size, height: size }} className="shrink-0 select-none" aria-hidden="true">
-      <circle cx="20" cy="20" r="18" fill="#0b3d91" opacity="0.1" stroke="#0b3d91" strokeWidth="1.5" />
-      <text x="20" y="8" textAnchor="middle" fontSize="7" fill="#0b3d91" fontWeight="700">
-        B
-      </text>
-      <g transform={`rotate(${deg} 20 20)`}>
-        <path d="M20 9 L26 26 L20 22 L14 26 Z" fill="#f5b700" stroke="#0b3d91" strokeWidth="1.2" strokeLinejoin="round" />
+      <circle cx="20" cy="20" r="18" fill="#0b3d91" opacity="0.12" stroke="#0b3d91" strokeWidth="1.5" />
+      <g transform={`rotate(${Math.round(deg)} 20 20)`}>
+        <path d="M20 7 L27 29 L20 24 L13 29 Z" fill="#f5b700" stroke="#0b3d91" strokeWidth="1.4" strokeLinejoin="round" />
       </g>
     </svg>
   );
@@ -104,6 +102,7 @@ export default function LessonHud() {
   const lessonId = useLessonStore((s) => s.lessonId);
   const phase = useLessonStore((s) => s.phase);
   const pos = useWalkStore((s) => s.playerPos);
+  const playerYaw = useExploreStore((s) => s.playerYaw);
   const [seatPrompt, setSeatPrompt] = useState(false);
   const [expanded, setExpanded] = useState<boolean>(() => {
     try {
@@ -167,7 +166,7 @@ export default function LessonHud() {
           className="flex max-w-[calc(100vw-1.5rem)] cursor-pointer select-none items-center gap-2 rounded-xl border border-white/70 bg-white/95 px-3 py-1.5 shadow-lg backdrop-blur-md transition-all hover:bg-white active:scale-95"
           title="Mở rộng"
         >
-          <Compass dx={dx} dz={dz} size={24} />
+          <Compass dx={dx} dz={dz} playerYaw={playerYaw} size={24} />
           <span className="truncate max-w-[140px] text-xs font-bold text-[#0b3d91] sm:max-w-[180px]">
             {room.code}
           </span>
@@ -197,7 +196,7 @@ export default function LessonHud() {
           {phase === 'goToClass' && (
             <>
               <div className="flex items-center gap-3 border-t border-slate-100 pt-2">
-                <Compass dx={dx} dz={dz} size={36} />
+                <Compass dx={dx} dz={dz} playerYaw={playerYaw} size={36} />
                 <div className="flex-1 text-sm text-slate-600">
                   {TEXT.lessonDistanceLeft} <b className="text-slate-900">{distance} m</b>
                   {wrongFloor && (

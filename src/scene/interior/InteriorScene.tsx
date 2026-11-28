@@ -19,6 +19,7 @@ import InteriorFurniture, { getLocalFacingYaw } from './InteriorFurniture';
 import SalixAlbaTrees, { type SalixAlbaInstance } from '../trees/SalixAlbaTrees';
 import Lesson406 from '../lesson/Lesson406';
 import SilverStage from '../silver/SilverStage';
+import GuidePath from '../explore/GuidePath';
 import CanteenFurniture from './CanteenFurniture';
 
 function makeOrientedLocalBox(
@@ -864,6 +865,7 @@ export default function InteriorScene() {
       {isCanteen && <CanteenFurniture showRoof={!isTopDown} />}
       <Lesson406 />
       <SilverStage />
+      <GuidePath />
 
       {/* 5. Biển số phòng nhỏ gắn tường */}
       {roomSigns.map((sign, idx) => (

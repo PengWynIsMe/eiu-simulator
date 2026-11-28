@@ -1,7 +1,35 @@
-import { ENGLISH_SCHEDULES, getRoomSpecForStage } from '../../data/timeline/curriculumPlans';
+import {
+  B8_OUTSIDE_ENTRANCE,
+  b8UvToWorld,
+  ENGLISH_SCHEDULES,
+  getRoomSpecForStage,
+} from '../../data/timeline/curriculumPlans';
 import { getMajorTermActivity } from '../../data/timeline/majorContent';
-import { useTimelineStore } from '../../store/useTimelineStore';
+import { useExploreStore } from '../../store/useExploreStore';
 import { useLangStore } from '../../store/useLangStore';
+import { useTimelineStore } from '../../store/useTimelineStore';
+import { useWalkStore } from '../../store/useWalkStore';
+
+const B8_EX_X = 0.97398;
+const B8_EX_Z = -0.22663;
+const B8_EV_X = 0.22663;
+const B8_EV_Z = 0.97398;
+const B8_ELEVATOR_WORLD = b8UvToWorld(53.5, -188.35);
+
+function normalizeAngleDeg(rad: number): number {
+  let deg = (rad * 180) / Math.PI;
+  while (deg > 180) deg -= 360;
+  while (deg < -180) deg += 360;
+  return deg;
+}
+
+function getTurnText(relDeg: number, lang: 'vi' | 'en'): string {
+  const abs = Math.abs(relDeg);
+  if (abs <= 32) return lang === 'vi' ? 'Đi thẳng' : 'Go straight';
+  if (abs >= 140) return lang === 'vi' ? 'Quay lại' : 'Turn around';
+  if (relDeg > 0) return lang === 'vi' ? 'Rẽ phải' : 'Turn right';
+  return lang === 'vi' ? 'Rẽ trái' : 'Turn left';
+}
 
 export default function MissionTrackerCard() {
   const lang = useLangStore((s) => s.lang);
@@ -14,6 +42,10 @@ export default function MissionTrackerCard() {
   const nearbyMissionTarget = useTimelineStore((s) => s.nearbyMissionTarget);
   const modalOpen = useTimelineStore((s) => s.modalOpen);
   const desktopMinimized = useTimelineStore((s) => s.desktopMinimized);
+
+  const playerPos = useWalkStore((s) => s.playerPos);
+  const interior = useWalkStore((s) => s.interior);
+  const playerYaw = useExploreStore((s) => s.playerYaw);
 
   if (!active || stage === 'graduation' || stage === 'ielts-exam') return null;
   if (modalOpen && !desktopMinimized) return null;
@@ -57,6 +89,52 @@ export default function MissionTrackerCard() {
     stage === 'english-class' ||
     stage === 'english-exam';
 
+  // Tính mục tiêu chặng kế tiếp & góc mũi tên tương đối theo hướng nhìn hiện tại
+  let guideTarget: readonly [number, number] = B8_OUTSIDE_ENTRANCE;
+  let guideStepLabel = lang === 'vi' ? 'Tới cửa Block 8' : 'Head to Block 8';
+  let isTransit = false;
+
+  if (interior) {
+    if (interior.buildingId.toLowerCase() !== 'b8') {
+      isTransit = true;
+      guideTarget = B8_OUTSIDE_ENTRANCE;
+      guideStepLabel = lang === 'vi' ? 'Ra ngoài → sang Block 8' : 'Exit → go to Block 8';
+    } else if (interior.floor !== spec.floor) {
+      isTransit = true;
+      guideTarget = B8_ELEVATOR_WORLD;
+      guideStepLabel =
+        lang === 'vi'
+          ? `Tới thang máy → Tầng ${spec.floor}`
+          : `Elevator → Floor ${spec.floor}`;
+    } else {
+      const pu = playerPos.x * B8_EX_X + playerPos.z * B8_EX_Z;
+      const pv = playerPos.x * B8_EV_X + playerPos.z * B8_EV_Z;
+      const roomMinU = spec.maxU - 9.4;
+      const inRoom = pv <= -200.0 && pu >= roomMinU && pu <= spec.maxU;
+      if (inRoom) {
+        guideTarget = b8UvToWorld(spec.beaconUv[0], spec.beaconUv[1]);
+        guideStepLabel =
+          lang === 'vi' ? `Vào vị trí học (${spec.roomCode})` : `Step into ${spec.roomCode}`;
+      } else if (pv > -194.5) {
+        guideTarget = b8UvToWorld(52.2, -198.4);
+        guideStepLabel =
+          lang === 'vi' ? `Qua cầu hành lang → ${spec.roomCode}` : `North corridor → ${spec.roomCode}`;
+      } else {
+        const doorW = roomMinU + 1.1;
+        const doorE = spec.maxU - 1.1;
+        const doorU = Math.abs(pu - doorW) <= Math.abs(pu - doorE) ? doorW : doorE;
+        guideTarget = b8UvToWorld(doorU, -200.0);
+        guideStepLabel = lang === 'vi' ? `Cửa phòng ${spec.roomCode}` : `Door ${spec.roomCode}`;
+      }
+    }
+  }
+
+  const dx = guideTarget[0] - playerPos.x;
+  const dz = guideTarget[1] - playerPos.z;
+  const distMeters = Math.round(Math.hypot(dx, dz));
+  const relDeg = normalizeAngleDeg(Math.atan2(dz, dx) - playerYaw);
+  const turnText = distMeters <= 2 ? (lang === 'vi' ? 'Ngay trước mặt' : 'Right here') : getTurnText(relDeg, lang);
+
   return (
     <>
       <div className="pointer-events-auto fixed left-2.5 top-[178px] z-30 w-[min(78vw,285px)] rounded-2xl border border-amber-400/40 bg-slate-950/88 p-3 text-white shadow-xl backdrop-blur-md sm:left-4 sm:top-48">
@@ -81,8 +159,49 @@ export default function MissionTrackerCard() {
           📍 {spec.roomCode} (Tầng {spec.floor} Block 8)
         </div>
 
+        {/* Mũi tên chỉ đường trực tiếp theo hướng nhìn nhân vật */}
+        <div
+          className={`mt-2 flex items-center gap-2.5 rounded-xl border px-2.5 py-1.5 ${
+            isTransit
+              ? 'border-sky-400/40 bg-sky-500/15'
+              : 'border-amber-400/40 bg-amber-400/12'
+          }`}
+        >
+          <div
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border ${
+              isTransit
+                ? 'border-sky-300/60 bg-sky-500/25 text-sky-200'
+                : 'border-amber-300/70 bg-amber-400/25 text-amber-300'
+            }`}
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5 transition-transform duration-150 ease-out"
+              style={{ transform: `rotate(${Math.round(relDeg)}deg)` }}
+            >
+              <path
+                d="M12 3 L19 19 L12 15.2 L5 19 Z"
+                fill="currentColor"
+                stroke="#0f172a"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="flex items-center justify-between gap-1 text-[11px] font-bold">
+              <span className={isTransit ? 'text-sky-200' : 'text-amber-300'}>{turnText}</span>
+              <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 text-[10px] font-extrabold text-white">
+                {distMeters} m
+              </span>
+            </div>
+            <div className="mt-0.5 truncate text-[10px] text-slate-300">{guideStepLabel}</div>
+          </div>
+        </div>
+
         {stage === 'english-class' && (
-          <div className="mt-1 text-[10px] text-slate-300">
+          <div className="mt-1.5 text-[10px] text-slate-300">
             ⏰ {sched.timeText} · Break {sched.breakText}
           </div>
         )}
